@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "network_manager.h"
 #include "network_exception.h"
 
-#include <boost/chrono.hpp>
+#include <iostream>
 
 int main()
 {
@@ -37,23 +37,16 @@ int main()
 
         net_manager.load_network( "titi" );
 
-        float test_sample[16*16];
+        float test_sample[64*64];
         float test_output = 0.5f;
 
-        for ( size_t i=0; i<16*16; i++ )
+        for ( size_t i=0; i<64*64; i++ )
             test_sample[i] = std::rand()/float(RAND_MAX);
 
         std::vector<neurocl::sample> training_set;
-        training_set.push_back( neurocl::sample( 16*16, test_sample, 1, &test_output ) );
-
-        boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
+        training_set.push_back( neurocl::sample( 64*64, test_sample, 1, &test_output ) );
 
         net_manager.train( training_set );
-
-        typedef boost::chrono::milliseconds bcms;
-        bcms duration = boost::chrono::duration_cast<bcms>( boost::chrono::system_clock::now() - start );
-
-        std::cout << "execution in "  << duration.count() << "ms"<< std::endl;
 
         std::cout << "Bye bye neurocl!" << std::endl;
     }
