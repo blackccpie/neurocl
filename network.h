@@ -1,6 +1,8 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include "network_interface.h"
+
 #include <vexcl/vexcl.hpp>
 
 namespace neurocl {
@@ -38,7 +40,7 @@ private:
     vex::vector<float> m_deltas_weight;
 };
 
-class network
+class network : public network_interface
 {
 public:
 
@@ -48,8 +50,8 @@ public:
     // Convention : input layer is index 0
     void add_layers_2d( const std::vector<size_t>& layer_sizes );
 
-    void set_training_sample(   const size_t& isample_size, const float* isample,
-                                const size_t& osample_size, const float* osample );
+    void set_input_sample(  const size_t& isample_size, const float* isample,
+                            const size_t& osample_size, const float* osample );
 
     void feed_forward();
     void gradient_descent();

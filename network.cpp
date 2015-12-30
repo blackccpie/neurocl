@@ -44,7 +44,7 @@ network::network() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
     std::cout << g_ctx << std::endl;
 }
 
-void network::set_training_sample(  const size_t& isample_size, const float* isample,
+void network::set_input_sample( const size_t& isample_size, const float* isample,
                                 const size_t& osample_size, const float* osample )
 {
     // TODO manage case where sample_size exceeds layer size
