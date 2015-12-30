@@ -127,6 +127,7 @@ void network::feed_forward()
 
 const float network::output()
 {
+    // very slow for a GPU backend!!!
     return m_layers.back().activations()[0];
 }
 
