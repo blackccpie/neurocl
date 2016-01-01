@@ -42,7 +42,7 @@ public:
     layer_bnu();
 	virtual ~layer_bnu() {}
 
-    void populate( const size_t& size, const size_t& next_layer_size );
+    void populate( const layer_size& cur_layer_size, const layer_size& next_layer_size );
 
     vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
@@ -72,7 +72,7 @@ public:
 	virtual ~network_bnu() {}
 
     // Convention : input layer is index 0
-    void add_layers_2d( const std::vector<size_t>& layer_sizes );
+    void add_layers_2d( const std::vector<layer_size>& layer_sizes );
 
     void set_input_sample(  const size_t& isample_size, const float* isample,
                             const size_t& osample_size, const float* osample );

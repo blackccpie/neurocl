@@ -36,27 +36,27 @@ layer::layer()
 }
 
 // WARNING : size is the square side size
-void layer::populate( const size_t& size, const size_t& next_layer_size )
+void layer::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
-    std::cout << "populating layer of size " << size << " (next size is " << next_layer_size << ")" << std::endl;
+    std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
-    if ( next_layer_size ) // non-output layer
+    if ( next_layer_size.size() ) // non-output layer
     {
-        m_weights_size = std::make_pair( next_layer_size, size * size );
-        m_output_weights = vex::vector<float>( g_ctx, next_layer_size * next_layer_size * size * size );
+        m_weights_size = std::make_pair( next_layer_size.size(), cur_layer_size.size() );
+        m_output_weights = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
         m_output_weights = _one();
-        m_deltas_weight = vex::vector<float>( g_ctx, next_layer_size * next_layer_size * size * size );
+        m_deltas_weight = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
         m_deltas_weight - _zero();
     }
 
-    m_bias = vex::vector<float>( g_ctx, size * size );
+    m_bias = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_bias = _zero();
-    m_deltas_bias = vex::vector<float>( g_ctx, size * size );
+    m_deltas_bias = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_deltas_bias = _zero();
 
-    m_activations = vex::vector<float>( g_ctx, size * size );
+    m_activations = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_activations = _zero();
-    m_errors = vex::vector<float>( g_ctx, size * size );
+    m_errors = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_errors = _zero();
 }
 
@@ -77,22 +77,22 @@ void network::set_input_sample( const size_t& isample_size, const float* isample
     vex::copy( osample, osample + osample_size, m_training_output.begin() );
 }
 
-void network::add_layers_2d( const std::vector<size_t>& layer_sizes )
+void network::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 {
     m_layers.resize( layer_sizes.size() );
 
     // Last layer should be output layer
-    size_t _last_size = layer_sizes.back();
-    m_layers.back().populate( _last_size, 0 );
+    const layer_size& _last_size = layer_sizes.back();
+    m_layers.back().populate( _last_size, layer_size( 0, 0 ) );
 
     // Initialize training output
-    m_training_output = vex::vector<float>( g_ctx, _last_size * _last_size );
+    m_training_output = vex::vector<float>( g_ctx, _last_size.size() );
 
     // Populate all but input layer
     for ( int idx=layer_sizes.size()-2; idx>=0; idx-- )
     {
-        const size_t& _size = layer_sizes[idx];
-        const size_t& _next_layer_size = layer_sizes[idx+1];
+        const layer_size& _size = layer_sizes[idx];
+        const layer_size& _next_layer_size = layer_sizes[idx+1];
         m_layers[idx].populate( _size, _next_layer_size );
     }
 }
@@ -105,8 +105,8 @@ void network::feed_forward()
     {
         std::cout << "feed_forward layer " << i << std::endl;
 
-        size_t n = m_layers[i].w_size().first;
-        size_t m = m_layers[i].w_size().second;
+        const size_t n = m_layers[i].w_size().first;
+        const size_t m = m_layers[i].w_size().second;
 
         m_layers[i+1].activations() = _one() / ( _one() + exp(
             -( vex::reduce<vex::SUM>(

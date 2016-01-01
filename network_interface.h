@@ -25,16 +25,33 @@ THE SOFTWARE.
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
+#include <iostream>
 #include <vector>
 
 namespace neurocl {
+
+struct layer_size
+{
+    layer_size( const size_t& sX, const size_t& sY ) : sizeX( sX ), sizeY( sY ) {}
+
+    const size_t sizeX;
+    const size_t sizeY;
+
+    const size_t size() const { return sizeX * sizeY; }
+};
+
+inline std::ostream& operator<< ( std::ostream& stream, const layer_size& size )
+{
+    stream << size.sizeX << "x" << size.sizeY;
+    return stream;
+}
 
 class network_interface
 {
 public:
 
     // Convention : input layer is index 0
-    virtual void add_layers_2d( const std::vector<size_t>& layer_sizes ) = 0;
+    virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) = 0;
 
     virtual void set_input_sample(  const size_t& isample_size, const float* isample,
                                     const size_t& osample_size, const float* osample ) = 0;

@@ -48,15 +48,14 @@ network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded
 
 void network_manager::load_network( const std::string& name )
 {
-    std::vector<size_t> layer_sizes;
-    layer_sizes.push_back( 64 ); // input L0
-    layer_sizes.push_back( 32 ); // L1
-    layer_sizes.push_back( 16 ); // L2
-    layer_sizes.push_back( 12 ); // L3
-    layer_sizes.push_back( 8 ); // L4
-    layer_sizes.push_back( 4 ); // L5
-    layer_sizes.push_back( 2 ); // L6
-    layer_sizes.push_back( 1 ); // output L7
+    std::vector<neurocl::layer_size> layer_sizes;
+    layer_sizes.push_back( neurocl::layer_size( 64, 64 ) ); // input L0
+    layer_sizes.push_back( neurocl::layer_size( 32, 32 ) ); // L1
+    layer_sizes.push_back( neurocl::layer_size( 16, 16 ) ); // L2
+    layer_sizes.push_back( neurocl::layer_size( 8, 8 ) ); // L3
+    layer_sizes.push_back( neurocl::layer_size( 4, 4 ) ); // L4
+    layer_sizes.push_back( neurocl::layer_size( 2, 2 ) ); // L5
+    layer_sizes.push_back( neurocl::layer_size( 1, 1 ) ); // output L6
     m_net->add_layers_2d( layer_sizes );
 
     m_network_loaded = true;
