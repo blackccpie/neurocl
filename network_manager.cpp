@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network.h"
+#include "network_vexcl.h"
 #include "network_bnu.h"
 #include "network_manager.h"
 #include "network_exception.h"
@@ -41,22 +41,21 @@ network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded
         m_net = boost::make_shared<network_bnu>();
         break;
     case NEURAL_IMPL_VEXCL:
-        m_net = boost::make_shared<network>();
+        m_net = boost::make_shared<network_vexcl>();
         break;
     }
 }
 
 void network_manager::load_network( const std::string& name )
 {
-    std::vector<size_t> layer_sizes;
-    layer_sizes.push_back( 64 ); // input L0
-    layer_sizes.push_back( 32 ); // L1
-    layer_sizes.push_back( 16 ); // L2
-    layer_sizes.push_back( 12 ); // L3
-    layer_sizes.push_back( 8 ); // L4
-    layer_sizes.push_back( 4 ); // L5
-    layer_sizes.push_back( 2 ); // L6
-    layer_sizes.push_back( 1 ); // output L7
+    std::vector<neurocl::layer_size> layer_sizes;
+    layer_sizes.push_back( neurocl::layer_size( 64, 64 ) ); // input L0
+    layer_sizes.push_back( neurocl::layer_size( 32, 32 ) ); // L1
+    layer_sizes.push_back( neurocl::layer_size( 16, 16 ) ); // L2
+    layer_sizes.push_back( neurocl::layer_size( 8, 8 ) ); // L3
+    layer_sizes.push_back( neurocl::layer_size( 4, 4 ) ); // L4
+    layer_sizes.push_back( neurocl::layer_size( 2, 2 ) ); // L5
+    layer_sizes.push_back( neurocl::layer_size( 1, 1 ) ); // output L6
     m_net->add_layers_2d( layer_sizes );
 
     m_network_loaded = true;
@@ -70,14 +69,18 @@ void network_manager::save_network()
         throw network_exception( "no network loaded!" );
 }
 
-void network_manager::train( const std::vector<sample>& training_set )
+void network_manager::train( const sample& s )
 {
     if ( !m_network_loaded )
         throw network_exception( "no network loaded!" );
 
-    namespace bc = boost::chrono;
-    bc::system_clock::time_point start = bc::system_clock::now();
-    bc::milliseconds duration;
+    _train( s );
+}
+
+void network_manager::train( const std::vector<sample>& training_set )
+{
+    if ( !m_network_loaded )
+        throw network_exception( "no network loaded!" );
 
     size_t index = 0;
 
@@ -85,39 +88,54 @@ void network_manager::train( const std::vector<sample>& training_set )
     {
         std::cout << "network_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 
-        m_net->set_input_sample( s.isample_size, s.isample, s.osample_size, s.osample );
-        duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-        std::cout << "sample set at " << duration.count() << "ms"<< std::endl;
-
-        m_net->feed_forward();
-        duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-        std::cout << "ff before gd at " << duration.count() << "ms"<< std::endl;
-        // m_net->output() is very slow for GPU backend!!!
-        //std::cout << "ff before gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
-
-        m_net->gradient_descent();
-        duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-        std::cout << "gd at " << duration.count() << "ms"<< std::endl;
-
-        m_net->feed_forward();
-        duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-        std::cout << "ff after gd at " << duration.count() << "ms"<< std::endl;
-        // m_net->output() is very slow for GPU backend!!!
-        //std::cout << "ff after gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
+        _train( s );
 
         std::cout << "network_manager::train - feed_forward & gradient descent successfull for training sample " << index << std::endl;
 
         ++index;
     }
-
-    duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-    std::cout << "network_manager::train - training successfull in "  << duration.count() << "ms"<< std::endl;
 }
 
-void network_manager::compute_output( const sample& s )
+void network_manager::_train( const sample& s )
+{
+    namespace bc = boost::chrono;
+    bc::system_clock::time_point start = bc::system_clock::now();
+    bc::milliseconds duration;
+
+    m_net->set_input_sample( s.isample_size, s.isample, s.osample_size, s.osample );
+    duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    std::cout << "sample set at " << duration.count() << "ms"<< std::endl;
+
+    m_net->feed_forward();
+    duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    std::cout << "ff before gd at " << duration.count() << "ms"<< std::endl;
+    // m_net->output() is very slow for GPU backend!!!
+    //std::cout << "ff before gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
+
+    m_net->gradient_descent();
+    duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    std::cout << "gd at " << duration.count() << "ms"<< std::endl;
+
+    m_net->feed_forward();
+    duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    std::cout << "ff after gd at " << duration.count() << "ms"<< std::endl;
+    // m_net->output() is very slow for GPU backend!!!
+    //std::cout << "ff after gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
+
+    duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    std::cout << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
+}
+
+void network_manager::compute_output( sample& s )
 {
     m_net->set_input_sample( s.isample_size, s.isample, s.osample_size, s.osample );
     m_net->feed_forward();
+    s.osample[0] = m_net->output(); // TODO-AM : not very pretty...
+}
+
+void network_manager::dump_weights()
+{
+    std::cout << m_net->dump_weights();
 }
 
 }; //namespace neurocl

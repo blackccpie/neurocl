@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "network_bnu.h"
 
+#include <boost/foreach.hpp>
+
 namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
@@ -33,27 +35,41 @@ layer_bnu::layer_bnu()
 }
 
 // WARNING : size is the square side size
-void layer_bnu::populate( const size_t& size, const size_t& next_layer_size )
+void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
-    std::cout << "populating layer of size " << size << " (next size is " << next_layer_size << ")" << std::endl;
+    std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
-    if ( next_layer_size ) // non-output layer
+    if ( next_layer_size.size() ) // non-output layer
     {
-        m_output_weights = matrixF( next_layer_size * next_layer_size, size * size );
+        m_output_weights = matrixF( next_layer_size.size(), cur_layer_size.size() );
         std::fill( m_output_weights.data().begin(), m_output_weights.data().end(), 1.0f );
-        m_deltas_weight = matrixF( next_layer_size * next_layer_size, size * size );
+        m_deltas_weight = matrixF( next_layer_size.size(), cur_layer_size.size() );
         m_deltas_weight.clear();
     }
 
-    m_bias = vectorF( size * size );
+    m_bias = vectorF( cur_layer_size.size() );
     m_bias.clear();
-    m_deltas_bias = vectorF( size * size );
+    m_deltas_bias = vectorF( cur_layer_size.size() );
     m_deltas_bias.clear();
 
-    m_activations = vectorF( size * size );
+    m_activations = vectorF( cur_layer_size.size() );
     m_activations.clear();
-    m_errors = vectorF( size * size );
+    m_errors = vectorF( cur_layer_size.size() );
     m_errors.clear();
+}
+
+const std::string layer_bnu::dump_weights() const
+{
+    std::stringstream ss;
+    for( matrixF::const_iterator1 it1 = m_output_weights.begin1(); it1 != m_output_weights.end1(); ++it1 )
+    {
+        for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
+        {
+            ss << *it2 <<  " ";
+        }
+        ss << std::endl;
+    }
+    return ss.str();
 }
 
 network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
@@ -70,22 +86,22 @@ void network_bnu::set_input_sample( const size_t& isample_size, const float* isa
     std::copy( osample, osample + osample_size, m_training_output.begin() );
 }
 
-void network_bnu::add_layers_2d( const std::vector<size_t>& layer_sizes )
+void network_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 {
     m_layers.resize( layer_sizes.size() );
 
     // Last layer should be output layer
-    size_t _last_size = layer_sizes.back();
-    m_layers.back().populate( _last_size, 0 );
+    const layer_size& _last_size = layer_sizes.back();
+    m_layers.back().populate( _last_size, layer_size( 0, 0 ) );
 
     // Initialize training output
-    m_training_output = vectorF( _last_size * _last_size );
+    m_training_output = vectorF( _last_size.size() );
 
     // Populate all but input layer
     for ( int idx=layer_sizes.size()-2; idx>=0; idx-- )
     {
-        const size_t& _size = layer_sizes[idx];
-        const size_t& _next_layer_size = layer_sizes[idx+1];
+        const layer_size& _size = layer_sizes[idx];
+        const layer_size& _next_layer_size = layer_sizes[idx+1];
         m_layers[idx].populate( _size, _next_layer_size );
     }
 }
@@ -163,6 +179,19 @@ void network_bnu::_gradient_descent()
         m_layers[i].weights() -= ( m_learning_rate * ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
         m_layers[i].bias() -= m_learning_rate * ( m_layers[i].b_deltas() / m );
     }
+}
+
+const std::string network_bnu::dump_weights()
+{
+    std::stringstream ss;
+    ss << "*************************************************" << std::endl;
+    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    {
+        ss << layer.dump_weights();
+        ss << "-------------------------------------------------" << std::endl;
+    }
+    ss << "*************************************************" << std::endl;
+    return ss.str();
 }
 
 }; //namespace neurocl

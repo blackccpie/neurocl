@@ -23,13 +23,20 @@
 cmake_minimum_required (VERSION 2.8)
 project (neurocl)
 
-include_directories(. "../vexcl")
+if (APPLE)
+    set (extra_includes "/opt/X11/include")
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
+endif ()
+
+include_directories(. "../vexcl" "../CImg" ${extra_includes})
+link_directories(${extra_link_paths})
 
 include("../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
 network_manager.cpp
-network.cpp
+network_vexcl.cpp
 network_bnu.cpp
 main.cpp
 )
@@ -38,7 +45,7 @@ set (headers_list
 network_exception.h
 network_manager.h
 network_interface.h
-network.h
+network_vexcl.h
 network_bnu.h
 )
 
@@ -48,7 +55,9 @@ target_link_libraries(neurocl
 boost_thread-mt
 boost_system-mt
 boost_chrono-mt
+boost_filesystem-mt
 ${OpenCL_LIBRARIES}
+${extra_link_libs}
 )
 
 target_compile_features(neurocl PRIVATE cxx_auto_type)

@@ -2,8 +2,9 @@
 Neural networks implementations
 
 Prerequisite:
-- Boost C++
-- VexCL
+- Boost C++ (https://github.com/boostorg)
+- VexCL (https://github.com/ddemidov/vexcl)
+- CImg (https://github.com/dtschump/CImg)
 
 References:
 - http://neuralnetworksanddeeplearning.com

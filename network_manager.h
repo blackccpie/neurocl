@@ -42,7 +42,7 @@ struct sample
     size_t isample_size;
     const float* isample;
     size_t osample_size;
-    float* osample;
+    float* osample; // TODO-AM : should be const for training samples!
 };
 
 class network_manager
@@ -63,9 +63,16 @@ public:
     void load_network( const std::string& name );
     void save_network();
 
+    void train( const sample& s );
     void train( const std::vector<sample>& training_set );
 
-    void compute_output( const sample& s );
+    void compute_output( sample& s );
+
+    void dump_weights();
+
+private:
+
+    void _train( const sample& s );
 
 private:
 
