@@ -31,12 +31,12 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-class layer
+class layer_vexcl
 {
 public:
 
-    layer();
-	virtual ~layer() {}
+    layer_vexcl();
+	virtual ~layer_vexcl() {}
 
     void populate( const layer_size& cur_layer_size, const layer_size& next_layer_size );
 
@@ -64,12 +64,12 @@ private:
     vex::vector<float> m_deltas_weight;
 };
 
-class network : public network_interface
+class network_vexcl : public network_interface
 {
 public:
 
-	network();
-	virtual ~network() {}
+	network_vexcl();
+	virtual ~network_vexcl() {}
 
     // Convention : input layer is index 0
     void add_layers_2d( const std::vector<layer_size>& layer_sizes );
@@ -94,7 +94,7 @@ private:
 
     vex::vector<float> m_training_output;
 
-    std::vector<layer> m_layers;
+    std::vector<layer_vexcl> m_layers;
 };
 
 } //namespace neurocl

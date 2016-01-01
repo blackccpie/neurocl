@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network.h"
+#include "network_vexcl.h"
 #include "network_bnu.h"
 #include "network_manager.h"
 #include "network_exception.h"
@@ -41,7 +41,7 @@ network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded
         m_net = boost::make_shared<network_bnu>();
         break;
     case NEURAL_IMPL_VEXCL:
-        m_net = boost::make_shared<network>();
+        m_net = boost::make_shared<network_vexcl>();
         break;
     }
 }

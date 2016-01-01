@@ -29,7 +29,7 @@ include("../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
 network_manager.cpp
-network.cpp
+network_vexcl.cpp
 network_bnu.cpp
 main.cpp
 )
@@ -38,7 +38,7 @@ set (headers_list
 network_exception.h
 network_manager.h
 network_interface.h
-network.h
+network_vexcl.h
 network_bnu.h
 )
 

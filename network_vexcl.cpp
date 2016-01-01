@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network.h"
+#include "network_vexcl.h"
 
 namespace neurocl {
 
@@ -31,12 +31,12 @@ VEX_CONSTANT(_one, 1.f);
 
 vex::Context g_ctx( vex::Filter::GPU && vex::Filter::Count(1) );
 
-layer::layer()
+layer_vexcl::layer_vexcl()
 {
 }
 
 // WARNING : size is the square side size
-void layer::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
+void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
     std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
@@ -60,7 +60,7 @@ void layer::populate( const layer_size& cur_layer_size, const layer_size& next_l
     m_errors = _zero();
 }
 
-network::network() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
+network_vexcl::network_vexcl() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
 {
     if ( !g_ctx ) throw std::runtime_error( "No devices available." );
 
@@ -68,7 +68,7 @@ network::network() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
     std::cout << g_ctx << std::endl;
 }
 
-void network::set_input_sample( const size_t& isample_size, const float* isample,
+void network_vexcl::set_input_sample( const size_t& isample_size, const float* isample,
                                 const size_t& osample_size, const float* osample )
 {
     // TODO manage case where sample_size exceeds layer size
@@ -77,7 +77,7 @@ void network::set_input_sample( const size_t& isample_size, const float* isample
     vex::copy( osample, osample + osample_size, m_training_output.begin() );
 }
 
-void network::add_layers_2d( const std::vector<layer_size>& layer_sizes )
+void network_vexcl::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 {
     m_layers.resize( layer_sizes.size() );
 
@@ -97,7 +97,7 @@ void network::add_layers_2d( const std::vector<layer_size>& layer_sizes )
     }
 }
 
-void network::feed_forward()
+void network_vexcl::feed_forward()
 {
     std::cout << m_layers.size() << " layers propagation" << std::endl;
 
@@ -125,18 +125,18 @@ void network::feed_forward()
     }
 }
 
-const float network::output()
+const float network_vexcl::output()
 {
     // very slow for a GPU backend!!!
     return m_layers.back().activations()[0];
 }
 
-void network::_back_propagate()
+void network_vexcl::_back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
 
     // Output layer error vector
-    layer& output_layer = m_layers.back();
+    layer_vexcl& output_layer = m_layers.back();
     output_layer.errors() = output_layer.activations() * ( _one() - output_layer.activations() )
         * ( output_layer.activations() - vex::constant(m_training_output) );
 
@@ -178,13 +178,13 @@ void network::_back_propagate()
 
 }
 
-void network::gradient_descent()
+void network_vexcl::gradient_descent()
 {
     _back_propagate();
     _gradient_descent();
 }
 
-void network::_gradient_descent()
+void network_vexcl::_gradient_descent()
 {
     for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
     {
