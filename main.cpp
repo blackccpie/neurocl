@@ -83,6 +83,9 @@ int main( int argc, char *argv[] )
         float face_output = 1.0f;
         float non_face_output = 0.0f;
 
+        //************************* TRAINING *************************//
+
+        // POSITIVE TRAINING
         BOOST_FOREACH( const bfs::path& sample_path, input_samples_paths )
         {
             const std::string sample_file = sample_path.string();
@@ -98,7 +101,19 @@ int main( int argc, char *argv[] )
                 break;
         }
 
-        // Test training
+        // NEGATIVE TRAINING
+        {
+            cimg_library::CImg<float> img = get_preprocessed_image( input_path.string() + "/../non_face.pgm" );
+
+            net_manager.train(
+                neurocl::sample( img.size(), img.data(), 1, &non_face_output ) );
+        }
+
+        // Dump weights for debugging purposes
+        //net_manager.dump_weights();
+
+        //************************* TESTING *************************//
+
         float test_output = -1.f;
         {
             cimg_library::CImg<float> non_face_img = get_preprocessed_image( input_path.string() + "/../non_face.pgm" );

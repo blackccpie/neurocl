@@ -195,4 +195,9 @@ void network_vexcl::_gradient_descent()
     }
 }
 
+const std::string network_vexcl::dump_weights()
+{
+    return "WEIGHTS DUMPING NOT IMPLEMENTED YET";
+}
+
 }; //namespace neurocl

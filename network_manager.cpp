@@ -133,4 +133,9 @@ void network_manager::compute_output( sample& s )
     s.osample[0] = m_net->output(); // TODO-AM : not very pretty...
 }
 
+void network_manager::dump_weights()
+{
+    std::cout << m_net->dump_weights();
+}
+
 }; //namespace neurocl

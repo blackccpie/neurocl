@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "network_bnu.h"
 
+#include <boost/foreach.hpp>
+
 namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
@@ -54,6 +56,20 @@ void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& ne
     m_activations.clear();
     m_errors = vectorF( cur_layer_size.size() );
     m_errors.clear();
+}
+
+const std::string layer_bnu::dump_weights() const
+{
+    std::stringstream ss;
+    for( matrixF::const_iterator1 it1 = m_output_weights.begin1(); it1 != m_output_weights.end1(); ++it1 )
+    {
+        for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
+        {
+            ss << *it2 <<  " ";
+        }
+        ss << std::endl;
+    }
+    return ss.str();
 }
 
 network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
@@ -163,6 +179,19 @@ void network_bnu::_gradient_descent()
         m_layers[i].weights() -= ( m_learning_rate * ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
         m_layers[i].bias() -= m_learning_rate * ( m_layers[i].b_deltas() / m );
     }
+}
+
+const std::string network_bnu::dump_weights()
+{
+    std::stringstream ss;
+    ss << "*************************************************" << std::endl;
+    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    {
+        ss << layer.dump_weights();
+        ss << "-------------------------------------------------" << std::endl;
+    }
+    ss << "*************************************************" << std::endl;
+    return ss.str();
 }
 
 }; //namespace neurocl

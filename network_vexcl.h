@@ -82,6 +82,8 @@ public:
 
     const float output();
 
+    const std::string dump_weights();
+
 private:
 
     void _back_propagate();

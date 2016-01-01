@@ -68,6 +68,8 @@ public:
 
     void compute_output( sample& s );
 
+    void dump_weights();
+
 private:
 
     void _train( const sample& s );

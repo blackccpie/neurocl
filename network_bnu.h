@@ -51,6 +51,8 @@ public:
     matrixF& w_deltas() { return m_deltas_weight; }
     vectorF& b_deltas() { return m_deltas_bias; }
 
+    const std::string dump_weights() const;
+
 private:
 
     vectorF m_activations;
@@ -81,6 +83,8 @@ public:
     void gradient_descent();
 
     const float output();
+
+    const std::string dump_weights();
 
 private:
 
