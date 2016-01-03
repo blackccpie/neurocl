@@ -63,12 +63,12 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
         random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
         m_deltas_weight = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
         m_deltas_weight - _zero();
-    }
 
-    m_bias = vex::vector<float>( g_ctx, cur_layer_size.size() );
-    random_normal_init( m_bias, 1.f );
-    m_deltas_bias = vex::vector<float>( g_ctx, cur_layer_size.size() );
-    m_deltas_bias = _zero();
+        m_bias = vex::vector<float>( g_ctx, next_layer_size.size() );
+        random_normal_init( m_bias, 1.f );
+        m_deltas_bias = vex::vector<float>( g_ctx, next_layer_size.size() );
+        m_deltas_bias = _zero();
+    }
 
     m_activations = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_activations = _zero();
@@ -76,7 +76,7 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
     m_errors = _zero();
 }
 
-network_vexcl::network_vexcl() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f )
+network_vexcl::network_vexcl() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f ), m_training_samples( 0 )
 {
     if ( !g_ctx ) throw std::runtime_error( "No devices available." );
 
@@ -136,7 +136,7 @@ void network_vexcl::feed_forward()
                 ),                      // the expression,
                 1                       // and the dimension to reduce along.
             )
-            + m_layers[i+1].bias() ) ) // watch out the index +1 compared to stanford
+            + m_layers[i].bias() ) )
         );
     }
 }
@@ -152,7 +152,19 @@ const float network_vexcl::error()
     return m_layers.back().errors()[0];
 }
 
-void network_vexcl::_back_propagate()
+void network_vexcl::prepare_training()
+{
+    // Clear gradients
+    for ( size_t i=0; i<m_layers.size(); i++ )
+    {
+        m_layers[i].w_deltas() = _zero();
+        m_layers[i].b_deltas() = _zero();
+    }
+
+    m_training_samples = 0;
+}
+
+void network_vexcl::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
 
@@ -194,31 +206,33 @@ void network_vexcl::_back_propagate()
 
         m_layers[i].w_deltas() += vex::reshape( m_layers[i+1].errors(), vex::extents[n][1], vex::extents[0][1] )
             * vex::reshape( m_layers[i].activations(), vex::extents[1][m], vex::extents[1][0] );
-        m_layers[i].b_deltas() += m_layers[i].errors(); // watch out the index compared to stanford
+        m_layers[i].b_deltas() += m_layers[i+1].errors();
     }
 
+    ++m_training_samples;
 }
 
-void network_vexcl::_gradient_descent()
+void network_vexcl::update_params()
 {
+    std::cout << "network_bnu::update_params - updating after " << m_training_samples << " backpropagations" << std::endl;
+
+    float invm = 1.f / static_cast<float>( m_training_samples );
+
     for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
     {
-        float m = static_cast<float>( m_layers[i].w_size().second );
-
-        m_layers[i].weights() -= m_learning_rate * ( ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
-        m_layers[i].bias() -= m_learning_rate * ( m_layers[i].b_deltas() / m );
+        m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
+        m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
     }
-}
-
-void network_vexcl::gradient_descent()
-{
-    _back_propagate();
-    _gradient_descent();
 }
 
 const std::string network_vexcl::dump_weights()
 {
     return "WEIGHTS DUMPING NOT IMPLEMENTED YET";
+}
+
+const std::string network_vexcl::dump_activations()
+{
+    return "ACTIVATIONS DUMPING NOT IMPLEMENTED YET";
 }
 
 }; //namespace neurocl

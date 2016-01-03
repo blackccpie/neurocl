@@ -63,14 +63,19 @@ public:
     void load_network( const std::string& name );
     void save_network();
 
+    void prepare_training_iteration();
+    void finalize_training_iteration();
     void train( const sample& s );
     void train( const std::vector<sample>& training_set );
 
     void compute_output( sample& s );
 
     void dump_weights();
+    void dump_activations();
 
 private:
+
+    void _assert_loaded();
 
     void _train( const sample& s );
 
