@@ -23,12 +23,24 @@ THE SOFTWARE.
 */
 
 #include "network_bnu.h"
+#include "network_utils.h"
 
 #include <boost/foreach.hpp>
 
 namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
+
+template<class T>
+void random_normal_init( T& container, const float stddev = 1.f )
+{
+    utils::rand_gaussian_generator rgg( 0.f, stddev );
+
+    BOOST_FOREACH( float& element, container.data() )
+    {
+        element = rgg();
+    }
+}
 
 layer_bnu::layer_bnu()
 {
@@ -42,13 +54,14 @@ void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& ne
     if ( next_layer_size.size() ) // non-output layer
     {
         m_output_weights = matrixF( next_layer_size.size(), cur_layer_size.size() );
-        std::fill( m_output_weights.data().begin(), m_output_weights.data().end(), 1.0f );
+        // cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
+        random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
         m_deltas_weight = matrixF( next_layer_size.size(), cur_layer_size.size() );
         m_deltas_weight.clear();
     }
 
     m_bias = vectorF( cur_layer_size.size() );
-    m_bias.clear();
+    random_normal_init( m_bias, 1.f );
     m_deltas_bias = vectorF( cur_layer_size.size() );
     m_deltas_bias.clear();
 
@@ -72,7 +85,7 @@ const std::string layer_bnu::dump_weights() const
     return ss.str();
 }
 
-network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
+network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f )
 {
 }
 
@@ -80,6 +93,7 @@ void network_bnu::set_input_sample( const size_t& isample_size, const float* isa
                                     const size_t& osample_size, const float* osample )
 {
     // TODO : manage case where sample_size exceeds layer size
+    std::cout << "network_bnu::set_input_sample - input (" << isample << ") size = " << isample_size << " output (" << osample << ") size = " << osample_size << std::endl;
 
     vectorF& input_activations = m_layers[0].activations();
     std::copy( isample, isample + isample_size, input_activations.begin() );
@@ -106,9 +120,9 @@ void network_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
     }
 }
 
-float sigmoid(float x)
+float sigmoid( float x )
 {
-  return 1.f / ( 1.f + std::exp(-x) );
+    return 1.f / ( 1.f + std::exp(-x) );
 }
 
 void network_bnu::feed_forward()
