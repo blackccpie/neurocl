@@ -23,6 +23,9 @@ THE SOFTWARE.
 */
 
 #include "network_vexcl.h"
+#include "network_utils.h"
+
+#include <boost/shared_array.hpp>
 
 namespace neurocl {
 
@@ -30,6 +33,18 @@ VEX_CONSTANT(_zero, 0.f);
 VEX_CONSTANT(_one, 1.f);
 
 vex::Context g_ctx( vex::Filter::GPU && vex::Filter::Count(1) );
+
+void random_normal_init( vex::vector<float>& container, const float stddev = 1.f )
+{
+    utils::rand_gaussian_generator rgg( 0.f, stddev );
+
+    boost::shared_array<float> arand( new float[container.size()] );
+
+    for ( size_t i=0; i<container.size(); i++ )
+        arand[i] = rgg();
+
+    vex::copy( arand.get(), arand.get()+container.size(), container.begin() );
+}
 
 layer_vexcl::layer_vexcl()
 {
@@ -44,13 +59,14 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
     {
         m_weights_size = std::make_pair( next_layer_size.size(), cur_layer_size.size() );
         m_output_weights = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
-        m_output_weights = _one();
+        // cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
+        random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
         m_deltas_weight = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
         m_deltas_weight - _zero();
     }
 
     m_bias = vex::vector<float>( g_ctx, cur_layer_size.size() );
-    m_bias = _zero();
+    random_normal_init( m_bias, 1.f );
     m_deltas_bias = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_deltas_bias = _zero();
 
@@ -60,7 +76,7 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
     m_errors = _zero();
 }
 
-network_vexcl::network_vexcl() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f /*TBC*/)
+network_vexcl::network_vexcl() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f )
 {
     if ( !g_ctx ) throw std::runtime_error( "No devices available." );
 
