@@ -60,6 +60,7 @@ public:
     virtual void gradient_descent() = 0;
 
     virtual const float output() = 0;
+    virtual const float error() = 0;
 
     virtual const std::string dump_weights() = 0;
 };

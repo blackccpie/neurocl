@@ -85,7 +85,7 @@ const std::string layer_bnu::dump_weights() const
     return ss.str();
 }
 
-network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f )
+network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.1f )
 {
 }
 
@@ -150,6 +150,11 @@ const float network_bnu::output()
     return m_layers.back().activations()[0];
 }
 
+const float network_bnu::error()
+{
+    return m_layers.back().errors()[0];
+}
+
 void network_bnu::_back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
@@ -176,12 +181,9 @@ void network_bnu::_back_propagate()
         m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
         m_layers[i].b_deltas() = m_layers[i].b_deltas()+ m_layers[i].errors(); // watch out the index compared to stanford
     }
-}
 
-void network_bnu::gradient_descent()
-{
-    _back_propagate();
-    _gradient_descent();
+    // TODO-TBC??
+    //m_layers.back().b_deltas() = m_layers.back().b_deltas()+ m_layers.back().errors();
 }
 
 void network_bnu::_gradient_descent()
@@ -190,9 +192,26 @@ void network_bnu::_gradient_descent()
     {
         float m = static_cast<float>( m_layers[i].weights().size2() );
 
-        m_layers[i].weights() -= ( m_learning_rate * ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
+        m_layers[i].weights() -= m_learning_rate * ( ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
         m_layers[i].bias() -= m_learning_rate * ( m_layers[i].b_deltas() / m );
     }
+
+    // TODO-TBC??
+    //float m = static_cast<float>( m_layers.back().weights().size2() );
+    //m_layers.back().bias() -= m_learning_rate * ( m_layers.back().b_deltas() / m );
+}
+
+void network_bnu::gradient_descent()
+{
+    // Clear gradients
+    for ( size_t i=0; i<m_layers.size(); i++ )
+    {
+        m_layers[i].w_deltas().clear();
+        m_layers[i].b_deltas().clear();
+    }
+
+    _back_propagate();
+    _gradient_descent();
 }
 
 const std::string network_bnu::dump_weights()

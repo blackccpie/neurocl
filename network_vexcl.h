@@ -81,6 +81,7 @@ public:
     void gradient_descent();
 
     const float output();
+    const float error();
 
     const std::string dump_weights();
 

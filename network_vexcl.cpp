@@ -147,6 +147,11 @@ const float network_vexcl::output()
     return m_layers.back().activations()[0];
 }
 
+const float network_vexcl::error()
+{
+    return m_layers.back().errors()[0];
+}
+
 void network_vexcl::_back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
@@ -194,21 +199,21 @@ void network_vexcl::_back_propagate()
 
 }
 
-void network_vexcl::gradient_descent()
-{
-    _back_propagate();
-    _gradient_descent();
-}
-
 void network_vexcl::_gradient_descent()
 {
     for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
     {
         float m = static_cast<float>( m_layers[i].w_size().second );
 
-        m_layers[i].weights() -= ( m_learning_rate * ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
+        m_layers[i].weights() -= m_learning_rate * ( ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
         m_layers[i].bias() -= m_learning_rate * ( m_layers[i].b_deltas() / m );
     }
+}
+
+void network_vexcl::gradient_descent()
+{
+    _back_propagate();
+    _gradient_descent();
 }
 
 const std::string network_vexcl::dump_weights()
