@@ -53,13 +53,16 @@ void get_all( const bfs::path& root, const std::string& ext, std::vector<bfs::pa
 
 cimg_library::CImg<float> get_preprocessed_image( const std::string& file )
 {
-    cimg_library::CImg<float> img ( cimg_library::CImg<unsigned char>( file.c_str() ) );
+    cimg_library::CImg<float> img( file.c_str() );
 
-    const int new_size = std::max<int>( img.width(), img.height() );
-    img.resize( new_size, new_size );
+    //const int new_size = std::max<int>( img.width(), img.height() );
+    //img.resize( new_size, new_size );
     img.equalize( 256, 0, 255 );
+    img.normalize( 0.f, 1.f );
+    img.channel(0);
     //img.display();
-    return img.resize( 64, 64 );
+    return img;
+    //return img.resize( 64, 64 );
 }
 
 int main( int argc, char *argv[] )
@@ -72,12 +75,20 @@ int main( int argc, char *argv[] )
 
         net_manager.load_network( "titi" );
 
-        const bfs::path input_path( argv[1] );
-        const std::string input_ext( argv[2] );
-        std::vector<bfs::path> input_samples_paths;
-        get_all( input_path, input_ext, input_samples_paths );
+        const bfs::path input_positive_path( argv[1] );
+        const std::string input_positive_ext( argv[2] );
+        const bfs::path input_negative_path( argv[3] );
+        const std::string input_negative_ext( argv[4] );
 
-        std::cout << input_samples_paths.size() << " sample files have been listed for training" << std::endl;
+        std::vector<bfs::path> input_positive_samples_paths;
+        get_all( input_positive_path, input_positive_ext, input_positive_samples_paths );
+
+        std::cout << input_positive_samples_paths.size() << " positive sample files have been listed for training" << std::endl;
+
+        std::vector<bfs::path> input_negative_samples_paths;
+        get_all( input_negative_path, input_negative_ext, input_negative_samples_paths );
+
+        std::cout << input_negative_samples_paths.size() << " negative sample files have been listed for training" << std::endl;
 
         // output for face recon is expected to 1
         float face_output = 1.0f;
@@ -85,38 +96,84 @@ int main( int argc, char *argv[] )
 
         //************************* TRAINING *************************//
 
+        std::vector<bfs::path> rand_input_samples_paths;
+        rand_input_samples_paths.reserve( input_positive_samples_paths.size() + input_negative_samples_paths.size() ); // preallocate memory
+        rand_input_samples_paths.insert( rand_input_samples_paths.end(), input_positive_samples_paths.begin(), input_positive_samples_paths.end() );
+        rand_input_samples_paths.insert( rand_input_samples_paths.end(), input_negative_samples_paths.begin(), input_negative_samples_paths.end() );
+
+        for ( int i=0; i<30; i++ )
+        {
+            std::random_shuffle ( rand_input_samples_paths.begin(), rand_input_samples_paths.end() );
+
+            net_manager.prepare_training_iteration();
+
+            BOOST_FOREACH( const bfs::path& sample_path, rand_input_samples_paths )
+            {
+                const std::string sample_file = sample_path.string();
+                std::cout << "loading image : " << sample_file << std::endl;
+
+                cimg_library::CImg<float> img = get_preprocessed_image( sample_file );
+
+                std::cout << "image loaded"  << std::endl;
+
+                float* sample_output = 0;
+                if ( sample_file.find( input_positive_path.string() ) != std::string::npos )
+                    sample_output = &face_output;
+                else
+                    sample_output = &non_face_output;
+
+                net_manager.train(
+                    neurocl::sample( img.size(), img.data(), 1, sample_output ) );
+
+                // Dump weights for debugging purposes
+                //net_manager.dump_weights();
+                //net_manager.dump_activations();
+            }
+
+            net_manager.finalize_training_iteration();
+        }
+
+        /*
         // POSITIVE TRAINING
-        BOOST_FOREACH( const bfs::path& sample_path, input_samples_paths )
+        BOOST_FOREACH( const bfs::path& sample_path, input_positive_samples_paths )
         {
             const std::string sample_file = sample_path.string();
-            std::cout << "loading image : " << sample_file << std::endl;
+            std::cout << "loading positive image : " << sample_file << std::endl;
 
             cimg_library::CImg<float> img = get_preprocessed_image( sample_file );
 
             net_manager.train(
                 neurocl::sample( img.size(), img.data(), 1, &face_output ) );
 
-            static int stop = 0;
-            if ( stop++ == 10 )
+            static int pos_stop = 0;
+            if ( pos_stop++ == 50 )
                 break;
         }
 
         // NEGATIVE TRAINING
+        BOOST_FOREACH( const bfs::path& sample_path, input_negative_samples_paths )
         {
-            cimg_library::CImg<float> img = get_preprocessed_image( input_path.string() + "/../non_face.pgm" );
+            const std::string sample_file = sample_path.string();
+            std::cout << "loading negative image : " << sample_file << std::endl;
+
+            cimg_library::CImg<float> img = get_preprocessed_image( sample_file );
 
             net_manager.train(
                 neurocl::sample( img.size(), img.data(), 1, &non_face_output ) );
-        }
+
+            static int neg_stop = 0;
+            if ( neg_stop++ == 50 )
+                break;
+        }*/
 
         // Dump weights for debugging purposes
         //net_manager.dump_weights();
 
-        //************************* TESTING *************************//
+        //************************* AFTER TESTING *************************//
 
         float test_output = -1.f;
         {
-            cimg_library::CImg<float> non_face_img = get_preprocessed_image( input_path.string() + "/../non_face.pgm" );
+            cimg_library::CImg<float> non_face_img = get_preprocessed_image( input_negative_samples_paths[0].string() );
             neurocl::sample non_face_sample( non_face_img.size(), non_face_img.data(), 1, &test_output );
             net_manager.compute_output( non_face_sample );
         }
@@ -125,7 +182,7 @@ int main( int argc, char *argv[] )
 
         test_output = -1.f;
         {
-            cimg_library::CImg<float> face_img = get_preprocessed_image( input_samples_paths[0].string() );
+            cimg_library::CImg<float> face_img = get_preprocessed_image( input_positive_samples_paths[0].string() );
             neurocl::sample face_sample( face_img.size(), face_img.data(), 1, &test_output );
             net_manager.compute_output( face_sample );
         }

@@ -58,16 +58,16 @@ void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& ne
         random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
         m_deltas_weight = matrixF( next_layer_size.size(), cur_layer_size.size() );
         m_deltas_weight.clear();
-    }
 
-    m_bias = vectorF( cur_layer_size.size() );
-    random_normal_init( m_bias, 1.f );
-    m_deltas_bias = vectorF( cur_layer_size.size() );
-    m_deltas_bias.clear();
+        m_bias = vectorF( next_layer_size.size() );
+        random_normal_init( m_bias, 1.f );
+        m_deltas_bias = vectorF( next_layer_size.size() );
+        m_deltas_bias.clear();
+    }
 
     m_activations = vectorF( cur_layer_size.size() );
     m_activations.clear();
-    m_errors = vectorF( cur_layer_size.size() );
+    m_errors = vectorF( cur_layer_size.size() ); // not needed for input layer...?
     m_errors.clear();
 }
 
@@ -85,7 +85,18 @@ const std::string layer_bnu::dump_weights() const
     return ss.str();
 }
 
-network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f )
+const std::string layer_bnu::dump_activations() const
+{
+    std::stringstream ss;
+    for( vectorF::const_iterator it = m_errors.begin(); it != m_errors.end(); ++it )
+    {
+            ss << *it <<  " ";
+    }
+    ss << std::endl;
+    return ss.str();
+}
+
+network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f ), m_training_samples( 0 )
 {
 }
 
@@ -127,22 +138,24 @@ float sigmoid( float x )
 
 void network_bnu::feed_forward()
 {
-    std::cout << m_layers.size() << " layers propagation" << std::endl;
+    //std::cout << m_layers.size() << " layers propagation" << std::endl;
 
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
-        std::cout << "feed_forward layer " << i << std::endl;
+        //std::cout << "feed_forward layer " << i << std::endl;
 
         vectorF& _activations = m_layers[i+1].activations();
 
         // apply weights and bias
         _activations = bnu::prod( m_layers[i].weights(), m_layers[i].activations() )
-            + m_layers[i+1].bias(); // watch out the index +1 compared to stanford
+            + m_layers[i].bias();
 
         // apply sigmoid function
         std::transform( _activations.data().begin(), _activations.data().end(),
             _activations.data().begin(), std::ptr_fun( sigmoid ) );
     }
+
+    std::cout << "Output " << m_layers.back().activations()[0] << std::endl;
 }
 
 const float network_bnu::output()
@@ -150,7 +163,24 @@ const float network_bnu::output()
     return m_layers.back().activations()[0];
 }
 
-void network_bnu::_back_propagate()
+const float network_bnu::error()
+{
+    return m_layers.back().errors()[0];
+}
+
+void network_bnu::prepare_training()
+{
+    // Clear gradients
+    for ( size_t i=0; i<m_layers.size(); i++ )
+    {
+        m_layers[i].w_deltas().clear();
+        m_layers[i].b_deltas().clear();
+    }
+
+    m_training_samples = 0;
+}
+
+void network_bnu::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
 
@@ -174,24 +204,22 @@ void network_bnu::_back_propagate()
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
-        m_layers[i].b_deltas() = m_layers[i].b_deltas()+ m_layers[i].errors(); // watch out the index compared to stanford
+        m_layers[i].b_deltas() = m_layers[i].b_deltas()+ m_layers[i+1].errors();
     }
+
+    ++m_training_samples;
 }
 
-void network_bnu::gradient_descent()
+void network_bnu::update_params()
 {
-    _back_propagate();
-    _gradient_descent();
-}
+    std::cout << "network_bnu::update_params - updating after " << m_training_samples << " backpropagations" << std::endl;
 
-void network_bnu::_gradient_descent()
-{
+    float invm = 1.f / static_cast<float>( m_training_samples );
+
     for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
     {
-        float m = static_cast<float>( m_layers[i].weights().size2() );
-
-        m_layers[i].weights() -= ( m_learning_rate * ( m_layers[i].w_deltas() / m ) + ( m_weight_decay * m_layers[i].weights() ) );
-        m_layers[i].bias() -= m_learning_rate * ( m_layers[i].b_deltas() / m );
+        m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
+        m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
     }
 }
 
@@ -202,6 +230,19 @@ const std::string network_bnu::dump_weights()
     BOOST_FOREACH( const layer_bnu& layer, m_layers )
     {
         ss << layer.dump_weights();
+        ss << "-------------------------------------------------" << std::endl;
+    }
+    ss << "*************************************************" << std::endl;
+    return ss.str();
+}
+
+const std::string network_bnu::dump_activations()
+{
+    std::stringstream ss;
+    ss << "*************************************************" << std::endl;
+    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    {
+        ss << layer.dump_activations();
         ss << "-------------------------------------------------" << std::endl;
     }
     ss << "*************************************************" << std::endl;

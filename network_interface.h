@@ -57,11 +57,16 @@ public:
                                     const size_t& osample_size, const float* osample ) = 0;
 
     virtual void feed_forward() = 0;
-    virtual void gradient_descent() = 0;
+
+    virtual void prepare_training() = 0;
+    virtual void back_propagate() = 0;
+    virtual void update_params() = 0;
 
     virtual const float output() = 0;
+    virtual const float error() = 0;
 
     virtual const std::string dump_weights() = 0;
+    virtual const std::string dump_activations() = 0;
 };
 
 } //namespace neurocl

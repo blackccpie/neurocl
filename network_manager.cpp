@@ -33,6 +33,12 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+void network_manager::_assert_loaded()
+{
+    if ( !m_network_loaded )
+        throw network_exception( "no network loaded!" );
+}
+
 network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded( false )
 {
     switch( impl )
@@ -49,9 +55,10 @@ network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded
 void network_manager::load_network( const std::string& name )
 {
     std::vector<neurocl::layer_size> layer_sizes;
-    layer_sizes.push_back( neurocl::layer_size( 64, 64 ) ); // input L0
-    layer_sizes.push_back( neurocl::layer_size( 32, 32 ) ); // L1
+    //layer_sizes.push_back( neurocl::layer_size( 64, 64 ) ); // input L0
+    //layer_sizes.push_back( neurocl::layer_size( 32, 32 ) ); // L1
     layer_sizes.push_back( neurocl::layer_size( 16, 16 ) ); // L2
+    layer_sizes.push_back( neurocl::layer_size( 12, 12 ) ); // TMP
     layer_sizes.push_back( neurocl::layer_size( 8, 8 ) ); // L3
     layer_sizes.push_back( neurocl::layer_size( 4, 4 ) ); // L4
     layer_sizes.push_back( neurocl::layer_size( 2, 2 ) ); // L5
@@ -65,22 +72,33 @@ void network_manager::load_network( const std::string& name )
 
 void network_manager::save_network()
 {
-    if ( !m_network_loaded )
-        throw network_exception( "no network loaded!" );
+    _assert_loaded();
+}
+
+void network_manager::prepare_training_iteration()
+{
+    _assert_loaded();
+
+    m_net->prepare_training();
+}
+
+void network_manager::finalize_training_iteration()
+{
+    _assert_loaded();
+
+    m_net->update_params();
 }
 
 void network_manager::train( const sample& s )
 {
-    if ( !m_network_loaded )
-        throw network_exception( "no network loaded!" );
+    _assert_loaded();
 
     _train( s );
 }
 
 void network_manager::train( const std::vector<sample>& training_set )
 {
-    if ( !m_network_loaded )
-        throw network_exception( "no network loaded!" );
+    _assert_loaded();
 
     size_t index = 0;
 
@@ -112,22 +130,25 @@ void network_manager::_train( const sample& s )
     // m_net->output() is very slow for GPU backend!!!
     //std::cout << "ff before gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
 
-    m_net->gradient_descent();
+    m_net->back_propagate();
     duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
     std::cout << "gd at " << duration.count() << "ms"<< std::endl;
 
-    m_net->feed_forward();
-    duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-    std::cout << "ff after gd at " << duration.count() << "ms"<< std::endl;
+    //m_net->feed_forward();
+    //duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    //std::cout << "ff after gd at " << duration.count() << "ms"<< std::endl;
     // m_net->output() is very slow for GPU backend!!!
     //std::cout << "ff after gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
 
     duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
     std::cout << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
+    //std::cout << "TRAINING ERROR IS : " << m_net->error() << std::endl;
 }
 
 void network_manager::compute_output( sample& s )
 {
+    _assert_loaded();
+
     m_net->set_input_sample( s.isample_size, s.isample, s.osample_size, s.osample );
     m_net->feed_forward();
     s.osample[0] = m_net->output(); // TODO-AM : not very pretty...
@@ -135,7 +156,16 @@ void network_manager::compute_output( sample& s )
 
 void network_manager::dump_weights()
 {
+    _assert_loaded();
+
     std::cout << m_net->dump_weights();
+}
+
+void network_manager::dump_activations()
+{
+    _assert_loaded();
+
+    std::cout << m_net->dump_activations();
 }
 
 }; //namespace neurocl

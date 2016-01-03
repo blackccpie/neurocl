@@ -78,11 +78,16 @@ public:
                             const size_t& osample_size, const float* osample );
 
     void feed_forward();
-    void gradient_descent();
+
+    void prepare_training();
+    void back_propagate();
+    void update_params();
 
     const float output();
+    const float error();
 
     const std::string dump_weights();
+    const std::string dump_activations();
 
 private:
 
@@ -90,6 +95,8 @@ private:
     void _gradient_descent();
 
 private:
+
+    size_t m_training_samples;
 
     float m_learning_rate;  // [0.0..1.0]
     float m_weight_decay;   // [0.0..1.0]
