@@ -25,10 +25,11 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
+#include <boost/shared_array.hpp>
+
+#include <sstream>
 #include <string>
 #include <vector>
-
-#include <boost/shared_array.hpp>
 
 namespace neurocl {
 
@@ -38,6 +39,14 @@ struct sample
 {
     sample( const size_t isize, const float* idata, const size_t osize, float* odata )
         : isample_size( isize ), isample( idata ), osample_size( osize ), osample( odata ) {}
+
+    const std::string output()
+    {
+        std::stringstream ss;
+        for ( size_t i=0; i<osample_size; i++ )
+            ss << osample[i] << ";";
+        return ss.str();
+    }
 
     size_t isample_size;
     const float* isample;
