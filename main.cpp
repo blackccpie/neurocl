@@ -33,11 +33,13 @@ int main( int argc, char *argv[] )
 
     try
     {
+        // TODO : check command arguments with boost
+
         neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
         neurocl::samples_manager::instance().load_samples( argv[1] );
 
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_VEXCL );
-        net_manager.load_network( "titi" );
+        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+        net_manager.load_network( argv[2], "weights" );
 
         //************************* TRAINING *************************//
 

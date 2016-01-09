@@ -44,6 +44,7 @@ main.cpp
 set (headers_list
 samples_manager.h
 network_exception.h
+network_file_handler.h
 network_manager.h
 network_interface.h
 network_vexcl.h
