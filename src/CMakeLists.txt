@@ -21,9 +21,53 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (neurocl)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+if (APPLE)
+    set (extra_includes "/opt/X11/include")
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
+endif ()
 
-add_subdirectory(src)
-add_subdirectory(tests)
+include_directories(
+    .
+    "${CMAKE_SOURCE_DIR}/../vexcl"
+    "${CMAKE_SOURCE_DIR}/../CImg"
+    ${extra_includes}
+)
+
+link_directories(${extra_link_paths})
+
+include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
+
+set (sources_list
+samples_manager.cpp
+network_manager.cpp
+network_vexcl.cpp
+network_bnu.cpp
+)
+
+set (headers_list
+samples_manager.h
+network_sample.h
+network_exception.h
+network_file_handler.h
+network_manager.h
+network_interface.h
+network_vexcl.h
+network_bnu.h
+)
+
+add_library(neurocl SHARED ${sources_list} ${headers_list})
+
+target_link_libraries(neurocl
+boost_thread-mt
+boost_system-mt
+boost_chrono-mt
+boost_filesystem-mt
+boost_serialization-mt
+${OpenCL_LIBRARIES}
+${extra_link_libs}
+)
+
+target_compile_features(neurocl PRIVATE cxx_auto_type)

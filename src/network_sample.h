@@ -22,19 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_MANAGER_H
-#define NETWORK_MANAGER_H
-
-#include <boost/shared_array.hpp>
+#ifndef NETWORK_SAMPLE_H
+#define NETWORK_SAMPLE_H
 
 #include <sstream>
 #include <string>
-#include <vector>
 
 namespace neurocl {
-
-class network_interface;
-class network_file_handler;
 
 struct sample
 {
@@ -60,48 +54,6 @@ struct sample
     float* osample; // TODO-AM : should be const for training samples!
 };
 
-class network_manager
-{
-public:
-
-    typedef enum
-    {
-        NEURAL_IMPL_BNU = 0,
-        NEURAL_IMPL_VEXCL
-    } t_neural_impl;
-
-public:
-
-    network_manager( const t_neural_impl& impl );
-	virtual ~network_manager() {}
-
-    void load_network( const std::string& topology_path, const std::string& weights_path );
-    void save_network();
-
-    void prepare_training_iteration();
-    void finalize_training_iteration();
-    void train( const sample& s );
-    void train( const std::vector<sample>& training_set );
-
-    void compute_output( sample& s );
-
-    void dump_weights();
-    void dump_activations();
-
-private:
-
-    void _assert_loaded();
-
-    void _train( const sample& s );
-
-private:
-
-    bool m_network_loaded;
-
-    boost::shared_ptr<network_interface> m_net;
-    boost::shared_ptr<network_file_handler> m_net_file_handler;
-};
-
 } //namespace neurocl
 
-#endif //NETWORK_MANAGER_H
+#endif //NETWORK_SAMPLE_H

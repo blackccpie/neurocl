@@ -23,10 +23,13 @@ THE SOFTWARE.
 */
 
 #include "network_manager.h"
+#include "network_exception.h"
 #include "samples_manager.h"
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include <iostream>
 
 int main( int argc, char *argv[] )
 {

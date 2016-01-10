@@ -32,7 +32,7 @@ class network_exception : public std::runtime_error
 public:
 
     network_exception( const std::string& error ) : std::runtime_error( error ) {}
-	virtual ~network_exception() {}
+	virtual ~network_exception() throw() {}
 };
 
 } //namespace neurocl

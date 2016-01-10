@@ -21,9 +21,24 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (test_neurocl)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+if (APPLE)
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
+endif ()
 
-add_subdirectory(src)
-add_subdirectory(tests)
+link_directories(${extra_link_paths})
+
+include_directories("${CMAKE_SOURCE_DIR}/src")
+
+set (sources_list
+main.cpp
+)
+
+add_executable(test_neurocl ${sources_list} ${headers_list})
+
+target_link_libraries(test_neurocl
+neurocl
+${extra_link_libs}
+)
