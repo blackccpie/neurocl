@@ -68,6 +68,8 @@ void network_manager::load_network( const std::string& topology_path, const std:
 void network_manager::save_network()
 {
     _assert_loaded();
+
+    m_net_file_handler->save_network_weights();
 }
 
 void network_manager::prepare_training_iteration()

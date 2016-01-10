@@ -49,6 +49,11 @@ struct sample
         return ss.str();
     }
 
+    const size_t biggest_component()
+    {
+        return std::max_element( osample, osample + osample_size ) - osample;
+    }
+
     size_t isample_size;
     const float* isample;
     size_t osample_size;

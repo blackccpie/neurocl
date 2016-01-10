@@ -40,6 +40,16 @@ struct layer_size
     const size_t size() const { return sizeX * sizeY; }
 };
 
+struct layer_ptr
+{
+    layer_ptr( const size_t& nw, float* w, const size_t& nb, float* b )
+        : num_weights( nw ), weights( w ), num_bias( nb ), bias( b ) {}
+    const size_t num_weights;
+    float* weights;
+    const size_t num_bias;
+    float* bias;
+};
+
 inline std::ostream& operator<< ( std::ostream& stream, const layer_size& size )
 {
     stream << size.sizeX << "x" << size.sizeY;
@@ -61,6 +71,10 @@ public:
     virtual void prepare_training() = 0;
     virtual void back_propagate() = 0;
     virtual void update_params() = 0;
+
+    virtual const size_t count_layers() = 0;
+    virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) = 0;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) = 0;
 
     virtual const float output() = 0;
     virtual const float error() = 0;

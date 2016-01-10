@@ -58,6 +58,7 @@ boost_thread-mt
 boost_system-mt
 boost_chrono-mt
 boost_filesystem-mt
+boost_serialization-mt
 ${OpenCL_LIBRARIES}
 ${extra_link_libs}
 )

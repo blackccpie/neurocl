@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_vexcl.h"
+#include "network_exception.h"
 #include "network_utils.h"
 
 #include <boost/shared_array.hpp>
@@ -53,7 +54,7 @@ layer_vexcl::layer_vexcl()
 // WARNING : size is the square side size
 void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
-    std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
+    //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
     if ( next_layer_size.size() ) // non-output layer
     {
@@ -76,7 +77,7 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
     m_errors = _zero();
 }
 
-network_vexcl::network_vexcl() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f ), m_training_samples( 0 )
+network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.01f ), m_training_samples( 0 )
 {
     if ( !g_ctx ) throw std::runtime_error( "No devices available." );
 
@@ -139,6 +140,29 @@ void network_vexcl::feed_forward()
             + m_layers[i].bias() ) )
         );
     }
+}
+
+const layer_ptr network_vexcl::get_layer_ptr( const size_t layer_idx )
+{
+    if ( layer_idx >= m_layers.size() )
+    {
+        std::cerr << "network_vexcl::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        throw network_exception( "invalid layer index" );
+    }
+
+    // NOT IMPLEMENTED YET;
+    return layer_ptr( 0, 0, 0, 0 );
+}
+
+void network_vexcl::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
+{
+    if ( layer_idx >= m_layers.size() )
+    {
+        std::cerr << "network_vexcl::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        throw network_exception( "invalid layer index" );
+    }
+
+    // NOT IMPLEMENTED YET;
 }
 
 const float network_vexcl::output()

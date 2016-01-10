@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_bnu.h"
+#include "network_exception.h"
 #include "network_utils.h"
 
 #include <boost/foreach.hpp>
@@ -49,7 +50,7 @@ layer_bnu::layer_bnu()
 // WARNING : size is the square side size
 void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
-    std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
+    //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
     if ( next_layer_size.size() ) // non-output layer
     {
@@ -96,7 +97,7 @@ const std::string layer_bnu::dump_activations() const
     return ss.str();
 }
 
-network_bnu::network_bnu() : m_learning_rate( 0.01f ), m_weight_decay( 0.01f ), m_training_samples( 0 )
+network_bnu::network_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.01f ), m_training_samples( 0 )
 {
 }
 
@@ -156,6 +157,34 @@ void network_bnu::feed_forward()
     }
 
     std::cout << "Output " << m_layers.back().activations()[0] << std::endl;
+}
+
+const layer_ptr network_bnu::get_layer_ptr( const size_t layer_idx )
+{
+    if ( layer_idx >= m_layers.size() )
+    {
+        std::cerr << "network_bnu::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        throw network_exception( "invalid layer index" );
+    }
+
+    matrixF& weights = m_layers[layer_idx].weights();
+    vectorF& bias = m_layers[layer_idx].bias();
+    return layer_ptr(   weights.size1() * weights.size2(), &weights.data()[0],
+                        bias.size(), &bias[0] );
+}
+
+void network_bnu::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
+{
+    if ( layer_idx >= m_layers.size() )
+    {
+        std::cerr << "network_bnu::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        throw network_exception( "invalid layer index" );
+    }
+
+    matrixF& weights = m_layers[layer_idx].weights();
+    std::copy( layer.weights, layer.weights + layer.num_weights, &weights.data()[0] );
+    vectorF& bias = m_layers[layer_idx].bias();
+    std::copy( layer.bias, layer.bias + layer.num_bias, &bias.data()[0] );
 }
 
 const float network_bnu::output()

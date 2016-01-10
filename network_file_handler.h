@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include "network_interface.h"
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;
@@ -37,15 +39,65 @@ class network_file_handler
 {
 private:
 
-    /*struct binary_layer
+    class layer_storage
     {
-        size_t size;
-        float* weights;
-    };*/
+    public:
+        layer_storage()
+            :   m_num_weights( 0u ), m_weights( 0 ),
+                m_num_bias( 0u ), m_bias( 0 ),
+                m_is_shared( false ) {}
+        layer_storage( boost::uint32_t nw, float* w, boost::uint32_t nb, float* b )
+            :   m_num_weights( nw ), m_weights( w ),
+                m_num_bias( nb ), m_bias( b ),
+                m_is_shared( true ) {}
+        layer_storage( layer_storage const& ) = delete; // no copy construct
+        layer_storage& operator=( layer_storage const& ) = delete; // no assignment
+        ~layer_storage()
+        {
+            if ( !m_is_shared && m_weights )
+                delete[] m_weights;
+            if ( !m_is_shared && m_bias )
+                delete[] m_bias;
+        }
+
+    private:
+        bool m_is_shared;
+
+    protected:
+
+        friend class network_file_handler;
+
+        boost::uint32_t m_num_weights;
+        float* m_weights;
+        boost::uint32_t m_num_bias;
+        float* m_bias;
+
+    private:
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & m_num_weights;
+            if ( Archive::is_loading::value )
+            {
+                assert( m_weights == 0 );
+                m_weights = new float[m_num_weights];
+            }
+            ar & boost::serialization::make_array<float>( m_weights, m_num_weights );
+
+            ar & m_num_bias;
+            if ( Archive::is_loading::value )
+            {
+                assert( m_bias == 0 );
+                m_bias = new float[m_num_bias];
+            }
+            ar & boost::serialization::make_array<float>( m_bias, m_num_bias );
+        }
+    };
 
 public:
 
-    network_file_handler( boost::shared_ptr<network_interface> net ) : m_net( net ) {}
+    network_file_handler( boost::shared_ptr<network_interface> net ) : m_net( net ), m_layers( 0 ) {}
     virtual ~network_file_handler() {}
 
     void load_network_topology( const std::string& topology_path )
@@ -64,6 +116,7 @@ public:
         }
 
         std::vector<layer_size> layer_sizes;
+        m_layers = 0;
 
         size_t cur_line = 0;
         size_t idx_layer = 0;
@@ -100,6 +153,8 @@ public:
                     std::cout << "network_file_handler::load_network_topology - adding layer" << _idx << " of size " << _x << "x" << _y << std::endl;
 
                     layer_sizes.push_back( neurocl::layer_size( _x, _y ) );
+
+                    ++m_layers;
                 }
                 catch( network_exception& )
                 {
@@ -124,29 +179,71 @@ public:
 
     void load_network_weights( const std::string& weights_path )
     {
-        // NOT IMPLEMENTED YET
-        return;
+        if ( !m_layers )
+            throw network_exception( "no network topology loaded" );
 
-        std::ifstream network_file( weights_path, std::ios::in|std::ios::binary|std::ios::ate );
+        // save weights file path for further saving
+        m_weights_path = weights_path;
 
-        if ( network_file.is_open() )
+        if ( !bfs::exists( weights_path ) )
         {
-            // std::streampos size = network_file.tellg();
-            // char* memblock = new char[size];
-            // file.seekg (0, ios::beg);
-            // file.read (memblock, size);
-            // file.close();
-            //delete[] memblock;
-          }
-          else
-            throw network_exception( "unable to open network file" );
+            std::ofstream input_weights( weights_path, std::ios::out );
+            input_weights << "TEMPORARY WEIGHTS FILE CONTENT BEFORE NETWORK SAVING";
+            return;
+        }
+
+        std::ifstream input_weights( weights_path, std::ios::in | std::ios::binary );
+
+        if ( input_weights.is_open() )
+        {
+            boost::archive::text_iarchive ia( input_weights );
+
+            try
+            {
+                for ( size_t i=0; i<m_layers-1; i++ ) // output layer has no output weights
+                {
+                    layer_storage l;
+                    std::cout << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
+                    ia >> l;
+
+                    layer_ptr lp( l.m_num_weights, l.m_weights, l.m_num_bias, l.m_bias );
+                    m_net->set_layer_ptr( i, lp );
+                }
+            }
+            catch(...)
+            {
+                std::cerr << "network_file_handler::load_network_weights - error decoding weights file" << std::endl;
+            }
+        }
+        else
+            throw network_exception( "unable to open weights file for loading" );
+
+            std::cout << "network_file_handler::load_network_weights - successfully loaded network weights" << std::endl;
     }
 
-    void save_weights()
+    void save_network_weights()
     {
+        std::ofstream output_weights( m_weights_path, std::ios::out | std::ios::binary | std::ios::trunc );
+
+        if ( output_weights.is_open() )
+        {
+            boost::archive::text_oarchive oar( output_weights );
+
+            for ( size_t i=0; i<m_net->count_layers()-1; i++ ) // output layer has no output weights
+            {
+                std::cout << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
+                layer_ptr ptr = m_net->get_layer_ptr( i );
+                layer_storage l( ptr.num_weights, ptr.weights, ptr.num_bias, ptr.bias );
+                oar << l;
+            }
+        }
+        else
+          throw network_exception( "unable to open weights file for saving" );
     }
 
 private:
+
+    size_t m_layers;
 
     std::string m_weights_path;
 
