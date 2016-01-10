@@ -27,8 +27,10 @@ THE SOFTWARE.
 
 #include "network_interface.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;
@@ -196,7 +198,7 @@ public:
 
         if ( input_weights.is_open() )
         {
-            boost::archive::text_iarchive ia( input_weights );
+            boost::archive::binary_iarchive ia( input_weights );
 
             try
             {
@@ -227,7 +229,7 @@ public:
 
         if ( output_weights.is_open() )
         {
-            boost::archive::text_oarchive oar( output_weights );
+            boost::archive::binary_oarchive oar( output_weights );
 
             for ( size_t i=0; i<m_net->count_layers()-1; i++ ) // output layer has no output weights
             {
