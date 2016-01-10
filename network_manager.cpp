@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "network_bnu.h"
 #include "network_manager.h"
 #include "network_exception.h"
+#include "network_file_handler.h"
 
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
@@ -50,15 +51,14 @@ network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded
         m_net = boost::make_shared<network_vexcl>();
         break;
     }
+
+    m_net_file_handler = boost::make_shared<network_file_handler>( m_net );
 }
 
-void network_manager::load_network( const std::string& name )
+void network_manager::load_network( const std::string& topology_path, const std::string& weights_path )
 {
-    std::vector<neurocl::layer_size> layer_sizes;
-    layer_sizes.push_back( neurocl::layer_size( 28, 28 ) ); // input L0
-    layer_sizes.push_back( neurocl::layer_size( 6, 6 ) ); // Hidden L1
-    layer_sizes.push_back( neurocl::layer_size( 10, 1 ) ); // output L2
-    m_net->add_layers_2d( layer_sizes );
+    m_net_file_handler->load_network_topology( topology_path );
+    m_net_file_handler->load_network_weights( weights_path );
 
     m_network_loaded = true;
 
@@ -68,6 +68,8 @@ void network_manager::load_network( const std::string& name )
 void network_manager::save_network()
 {
     _assert_loaded();
+
+    m_net_file_handler->save_network_weights();
 }
 
 void network_manager::prepare_training_iteration()

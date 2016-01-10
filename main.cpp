@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "samples_manager.h"
 
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 int main( int argc, char *argv[] )
 {
@@ -33,30 +34,39 @@ int main( int argc, char *argv[] )
 
     try
     {
+        // TODO : check command arguments with boost
+
+        bool training_enabled = boost::lexical_cast<bool>( argv[4] );
+
         neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
         neurocl::samples_manager::instance().load_samples( argv[1] );
 
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_VEXCL );
-        net_manager.load_network( "titi" );
+        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+        net_manager.load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//
 
-        for ( int i=0; i<30; i++ )
+        if ( training_enabled )
         {
-            std::cout << "--> ITERATION " << (i+1) << "/30" << std::endl;
-
-            std::vector<neurocl::sample> samples = smp_manager.get_next_batch( 10 );
-
-            std::cout << "processing " << samples.size() << " samples" << std::endl;
-
-            net_manager.prepare_training_iteration();
-
-            BOOST_FOREACH( const neurocl::sample& sample, samples )
+            for ( int i=0; i<30; i++ )
             {
-                net_manager.train( sample );
+                std::cout << "--> ITERATION " << (i+1) << "/30" << std::endl;
+
+                std::vector<neurocl::sample> samples = smp_manager.get_next_batch( 10 );
+
+                std::cout << "processing " << samples.size() << " samples" << std::endl;
+
+                net_manager.prepare_training_iteration();
+
+                BOOST_FOREACH( const neurocl::sample& sample, samples )
+                {
+                    net_manager.train( sample );
+                }
+
+                net_manager.finalize_training_iteration();
             }
 
-            net_manager.finalize_training_iteration();
+            net_manager.save_network();
         }
 
         // Dump weights for debugging purposes
@@ -69,6 +79,7 @@ int main( int argc, char *argv[] )
         net_manager.compute_output( test_sample );
 
         std::cout << "TEST OUTPUT IS : " << test_sample.output() << std::endl;
+        std::cout << "BIGGEST COMPONENT IS : " << test_sample.biggest_component() << std::endl;
     }
     catch( neurocl::network_exception& e )
     {

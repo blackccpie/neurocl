@@ -53,14 +53,14 @@ public:
     {
         if ( !bfs::exists( input_filename ) )
         {
-            std::cerr << "Error reading input samples config file \'" << input_filename << "\'" << std::endl;
+            std::cerr << "samples_manager::load_samples - error reading input samples config file \'" << input_filename << "\'" << std::endl;
             throw network_exception( "error reading input samples config file" );
         }
 
         std::ifstream data_in( input_filename );
         if ( !data_in || !data_in.is_open() )
         {
-            std::cerr << "Error opening input samples config file \'" << input_filename << "\'" << std::endl;
+            std::cerr << "samples_manager::load_samples - error opening input samples config file \'" << input_filename << "\'" << std::endl;
             throw network_exception( "error reading input samples config file" );
         }
 
@@ -160,4 +160,4 @@ private:
 
 } //namespace neurocl
 
-#endif //NETWORK_INTERFACE_H
+#endif //SAMPLES_MANAGER_H

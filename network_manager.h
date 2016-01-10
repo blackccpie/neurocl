@@ -34,6 +34,7 @@ THE SOFTWARE.
 namespace neurocl {
 
 class network_interface;
+class network_file_handler;
 
 struct sample
 {
@@ -46,6 +47,11 @@ struct sample
         for ( size_t i=0; i<osample_size; i++ )
             ss << osample[i] << ";";
         return ss.str();
+    }
+
+    const size_t biggest_component()
+    {
+        return std::max_element( osample, osample + osample_size ) - osample;
     }
 
     size_t isample_size;
@@ -69,7 +75,7 @@ public:
     network_manager( const t_neural_impl& impl );
 	virtual ~network_manager() {}
 
-    void load_network( const std::string& name );
+    void load_network( const std::string& topology_path, const std::string& weights_path );
     void save_network();
 
     void prepare_training_iteration();
@@ -93,6 +99,7 @@ private:
     bool m_network_loaded;
 
     boost::shared_ptr<network_interface> m_net;
+    boost::shared_ptr<network_file_handler> m_net_file_handler;
 };
 
 } //namespace neurocl
