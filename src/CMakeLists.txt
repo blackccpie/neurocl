@@ -42,6 +42,7 @@ include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
 samples_manager.cpp
+network_file_handler.cpp
 network_manager.cpp
 network_vexcl.cpp
 network_bnu.cpp
