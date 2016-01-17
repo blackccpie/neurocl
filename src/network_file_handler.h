@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define NETWORK_FILE_HANDLER_H
 
 #include <boost/cstdint.hpp>
+#include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/array.hpp>
 
@@ -42,33 +43,22 @@ private:
     public:
         layer_storage()
             :   m_num_weights( 0u ), m_weights( 0 ),
-                m_num_bias( 0u ), m_bias( 0 ),
-                m_is_shared( false ) {}
-        layer_storage( boost::uint32_t nw, float* w, boost::uint32_t nb, float* b )
+                m_num_bias( 0u ), m_bias( 0 ) {}
+        layer_storage( boost::uint32_t nw, boost::shared_array<float> w, boost::uint32_t nb, boost::shared_array<float> b )
             :   m_num_weights( nw ), m_weights( w ),
-                m_num_bias( nb ), m_bias( b ),
-                m_is_shared( true ) {}
+                m_num_bias( nb ), m_bias( b ) {}
         layer_storage( layer_storage const& ) = delete; // no copy construct
         layer_storage& operator=( layer_storage const& ) = delete; // no assignment
-        ~layer_storage()
-        {
-            if ( !m_is_shared && m_weights )
-                delete[] m_weights;
-            if ( !m_is_shared && m_bias )
-                delete[] m_bias;
-        }
-
-    private:
-        bool m_is_shared;
+        ~layer_storage() {}
 
     protected:
 
         friend class network_file_handler;
 
         boost::uint32_t m_num_weights;
-        float* m_weights;
+        boost::shared_array<float> m_weights;
         boost::uint32_t m_num_bias;
-        float* m_bias;
+        boost::shared_array<float> m_bias;
 
     private:
         friend class boost::serialization::access;
@@ -79,17 +69,17 @@ private:
             if ( Archive::is_loading::value )
             {
                 assert( m_weights == 0 );
-                m_weights = new float[m_num_weights];
+                m_weights.reset( new float[m_num_weights] );
             }
-            ar & boost::serialization::make_array<float>( m_weights, m_num_weights );
+            ar & boost::serialization::make_array<float>( m_weights.get(), m_num_weights );
 
             ar & m_num_bias;
             if ( Archive::is_loading::value )
             {
                 assert( m_bias == 0 );
-                m_bias = new float[m_num_bias];
+                m_bias.reset( new float[m_num_bias] );
             }
-            ar & boost::serialization::make_array<float>( m_bias, m_num_bias );
+            ar & boost::serialization::make_array<float>( m_bias.get(), m_num_bias );
         }
     };
 

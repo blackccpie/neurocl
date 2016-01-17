@@ -101,15 +101,21 @@ network_bnu::network_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0
 {
 }
 
-void network_bnu::set_input_sample( const size_t& isample_size, const float* isample,
-                                    const size_t& osample_size, const float* osample )
+void network_bnu::set_input(  const size_t& in_size, const float* in )
 {
     // TODO : manage case where sample_size exceeds layer size
-    std::cout << "network_bnu::set_input_sample - input (" << isample << ") size = " << isample_size << " output (" << osample << ") size = " << osample_size << std::endl;
+    std::cout << "network_bnu::set_input - input (" << in << ") size = " << in_size << std::endl;
 
     vectorF& input_activations = m_layers[0].activations();
-    std::copy( isample, isample + isample_size, input_activations.begin() );
-    std::copy( osample, osample + osample_size, m_training_output.begin() );
+    std::copy( in, in + in_size, input_activations.begin() );
+}
+
+void network_bnu::set_output( const size_t& out_size, const float* out )
+{
+    // TODO : manage case where sample_size exceeds layer size
+    std::cout << "network_bnu::set_output - output (" << out << ") size = " << out_size << std::endl;
+
+    std::copy( out, out + out_size, m_training_output.begin() );
 }
 
 void network_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
@@ -156,7 +162,7 @@ void network_bnu::feed_forward()
             _activations.data().begin(), std::ptr_fun( sigmoid ) );
     }
 
-    std::cout << "Output " << m_layers.back().activations()[0] << std::endl;
+    std::cout << "Errors " << m_layers.back().errors()[0] << " " << m_layers.back().errors()[1] << std::endl;
 }
 
 const layer_ptr network_bnu::get_layer_ptr( const size_t layer_idx )
@@ -169,8 +175,11 @@ const layer_ptr network_bnu::get_layer_ptr( const size_t layer_idx )
 
     matrixF& weights = m_layers[layer_idx].weights();
     vectorF& bias = m_layers[layer_idx].bias();
-    return layer_ptr(   weights.size1() * weights.size2(), &weights.data()[0],
-                        bias.size(), &bias[0] );
+    layer_ptr l( weights.size1() * weights.size2(), bias.size() );
+    std::copy( &weights.data()[0], &weights.data()[0] + ( weights.size1() * weights.size2() ), l.weights.get() );
+    std::copy( &bias[0], &bias[0] + bias.size(), l.bias.get() );
+
+    return l;
 }
 
 void network_bnu::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
@@ -181,20 +190,21 @@ void network_bnu::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer 
         throw network_exception( "invalid layer index" );
     }
 
+    std::cout << "setting layer  " << layer_idx << std::endl;
+
     matrixF& weights = m_layers[layer_idx].weights();
-    std::copy( layer.weights, layer.weights + layer.num_weights, &weights.data()[0] );
+    std::copy( layer.weights.get(), layer.weights.get() + layer.num_weights, &weights.data()[0] );
     vectorF& bias = m_layers[layer_idx].bias();
-    std::copy( layer.bias, layer.bias + layer.num_bias, &bias.data()[0] );
+    std::copy( layer.bias.get(), layer.bias.get() + layer.num_bias, &bias.data()[0] );
 }
 
-const float network_bnu::output()
+const output_ptr network_bnu::output()
 {
-    return m_layers.back().activations()[0];
-}
+    vectorF& output = m_layers.back().activations();
+    output_ptr o( output.size() );
+    std::copy( &output[0], &output[0] + output.size(), o.outputs.get() );
 
-const float network_bnu::error()
-{
-    return m_layers.back().errors()[0];
+    return o;
 }
 
 void network_bnu::prepare_training()

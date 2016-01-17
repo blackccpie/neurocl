@@ -77,8 +77,8 @@ public:
     // Convention : input layer is index 0
     void add_layers_2d( const std::vector<layer_size>& layer_sizes );
 
-    void set_input_sample(  const size_t& isample_size, const float* isample,
-                            const size_t& osample_size, const float* osample );
+    void set_input(  const size_t& in_size, const float* in );
+    void set_output( const size_t& out_size, const float* out );
 
     void feed_forward();
 
@@ -90,8 +90,7 @@ public:
     const layer_ptr get_layer_ptr( const size_t layer_idx );
     void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer );
 
-    const float output();
-    const float error();
+    const output_ptr output();
 
     const std::string dump_weights();
     const std::string dump_activations();

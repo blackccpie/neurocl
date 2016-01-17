@@ -117,7 +117,8 @@ void network_manager::_train( const sample& s )
     bc::system_clock::time_point start = bc::system_clock::now();
     bc::milliseconds duration;
 
-    m_net->set_input_sample( s.isample_size, s.isample, s.osample_size, s.osample );
+    m_net->set_input( s.isample_size, s.isample );
+    m_net->set_output( s.osample_size, s.osample );
     duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
     std::cout << "sample set at " << duration.count() << "ms"<< std::endl;
 
@@ -139,16 +140,17 @@ void network_manager::_train( const sample& s )
 
     duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
     std::cout << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
-    //std::cout << "TRAINING ERROR IS : " << m_net->error() << std::endl;
 }
 
 void network_manager::compute_output( sample& s )
 {
     _assert_loaded();
 
-    m_net->set_input_sample( s.isample_size, s.isample, s.osample_size, s.osample );
+    m_net->set_input( s.isample_size, s.isample );
     m_net->feed_forward();
-    s.osample[0] = m_net->output(); // TODO-AM : not very pretty...
+    output_ptr output_layer = m_net->output();
+    // TODO-AM : not usefull, pass the sample to net?
+    std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
 void network_manager::dump_weights()

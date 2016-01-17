@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
+#include <boost/shared_array.hpp>
+
 #include <iostream>
 #include <vector>
 
@@ -42,12 +44,47 @@ struct layer_size
 
 struct layer_ptr
 {
-    layer_ptr( const size_t& nw, float* w, const size_t& nb, float* b )
+    // Constructor with already allocated buffers
+    layer_ptr( const size_t& nw, boost::shared_array<float> w, const size_t& nb, boost::shared_array<float> b )
         : num_weights( nw ), weights( w ), num_bias( nb ), bias( b ) {}
+    // Constructor with allocation requests
+    layer_ptr( const size_t& nw, const size_t& nb )
+        : num_weights( nw ), weights( 0 ), num_bias( nb ), bias( 0 )
+    {
+        weights.reset( new float[num_weights] );
+        bias.reset( new float[num_bias] );
+    }
+    // Copy constructor
+    layer_ptr( const layer_ptr& l )
+        : num_weights( l.num_weights ), weights( l.weights ), num_bias( l.num_bias ), bias( l.bias ) {}
+    // Destructor
+    ~layer_ptr() {}
+
     const size_t num_weights;
-    float* weights;
+    boost::shared_array<float> weights;
     const size_t num_bias;
-    float* bias;
+    boost::shared_array<float> bias;
+};
+
+struct output_ptr
+{
+    // Constructor with already allocated buffers
+    output_ptr( const size_t& no, boost::shared_array<float> o )
+        : num_outputs( no ), outputs( o ) {}
+    // Constructor with allocation requests
+    output_ptr( const size_t& nw )
+        : num_outputs( nw ), outputs( 0 )
+    {
+        outputs.reset( new float[num_outputs] );
+    }
+    // Copy constructor
+    output_ptr( const output_ptr& l )
+        : num_outputs( l.num_outputs ), outputs( l.outputs ) {}
+    // Destructor
+    ~output_ptr() {}
+
+    const size_t num_outputs;
+    boost::shared_array<float> outputs;
 };
 
 inline std::ostream& operator<< ( std::ostream& stream, const layer_size& size )
@@ -63,8 +100,8 @@ public:
     // Convention : input layer is index 0
     virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) = 0;
 
-    virtual void set_input_sample(  const size_t& isample_size, const float* isample,
-                                    const size_t& osample_size, const float* osample ) = 0;
+    virtual void set_input(  const size_t& in_size, const float* in ) = 0;
+    virtual void set_output( const size_t& out_size, const float* out ) = 0;
 
     virtual void feed_forward() = 0;
 
@@ -76,8 +113,7 @@ public:
     virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) = 0;
     virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) = 0;
 
-    virtual const float output() = 0;
-    virtual const float error() = 0;
+    virtual const output_ptr output() = 0;
 
     virtual const std::string dump_weights() = 0;
     virtual const std::string dump_activations() = 0;
