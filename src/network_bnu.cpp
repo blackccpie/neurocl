@@ -27,10 +27,44 @@ THE SOFTWARE.
 #include "network_utils.h"
 
 #include <boost/foreach.hpp>
+#include <boost/optional.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 
 namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
+
+const std::string dump_mat( const matrixF& mat )
+{
+    std::string separator;
+    std::stringstream ss;
+    ss << std::endl;
+    for( matrixF::const_iterator1 it1 = mat.begin1(); it1 != mat.end1(); ++it1 )
+    {
+        for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
+        {
+            ss << separator << *it2;
+            separator = " ";
+        }
+        separator = "";
+        ss << std::endl;
+    }
+    return ss.str();
+}
+
+const std::string dump_vec( const vectorF& vec, boost::optional<std::string> label = boost::none )
+{
+    std::string separator;
+    std::stringstream ss;
+    ss << ( label ? label.get() : "" ) << std::endl;
+    for( vectorF::const_iterator it = vec.begin(); it != vec.end(); ++it )
+    {
+            ss << separator << *it;
+            separator = " ";
+    }
+    ss << std::endl;
+    return ss.str();
+}
 
 template<class T>
 void random_normal_init( T& container, const float stddev = 1.f )
@@ -74,27 +108,12 @@ void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& ne
 
 const std::string layer_bnu::dump_weights() const
 {
-    std::stringstream ss;
-    for( matrixF::const_iterator1 it1 = m_output_weights.begin1(); it1 != m_output_weights.end1(); ++it1 )
-    {
-        for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
-        {
-            ss << *it2 <<  " ";
-        }
-        ss << std::endl;
-    }
-    return ss.str();
+    return dump_mat( m_output_weights );
 }
 
 const std::string layer_bnu::dump_activations() const
 {
-    std::stringstream ss;
-    for( vectorF::const_iterator it = m_errors.begin(); it != m_errors.end(); ++it )
-    {
-            ss << *it <<  " ";
-    }
-    ss << std::endl;
-    return ss.str();
+    return dump_vec( m_activations );
 }
 
 network_bnu::network_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.01f ), m_training_samples( 0 )
@@ -161,8 +180,6 @@ void network_bnu::feed_forward()
         std::transform( _activations.data().begin(), _activations.data().end(),
             _activations.data().begin(), std::ptr_fun( sigmoid ) );
     }
-
-    std::cout << "Errors " << m_layers.back().errors()[0] << " " << m_layers.back().errors()[1] << std::endl;
 }
 
 const layer_ptr network_bnu::get_layer_ptr( const size_t layer_idx )
@@ -210,7 +227,7 @@ const output_ptr network_bnu::output()
 void network_bnu::prepare_training()
 {
     // Clear gradients
-    for ( size_t i=0; i<m_layers.size(); i++ )
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         m_layers[i].w_deltas().clear();
         m_layers[i].b_deltas().clear();
@@ -228,14 +245,14 @@ void network_bnu::back_propagate()
     output_layer.errors() = bnu::element_prod(
             bnu::element_prod(  output_layer.activations(),
                                 ( bnu::unit_vector<float>( output_layer.activations().size() ) - output_layer.activations() ) ),
-            ( output_layer.activations() - m_training_output ) );
+            ( m_training_output - output_layer.activations() ) );
 
     // Hidden layers error vectors
     for ( size_t i=m_layers.size()-2; i>0; i-- )
     {
         m_layers[i].errors() = bnu::element_prod(
             bnu::element_prod(  m_layers[i].activations(),
-                                ( bnu::unit_vector<float>( m_layers[i].activations().size() ) - m_layers[i].activations() ) ),
+                                ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
             bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );
     }
 
@@ -243,7 +260,7 @@ void network_bnu::back_propagate()
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
-        m_layers[i].b_deltas() = m_layers[i].b_deltas()+ m_layers[i+1].errors();
+        m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
     }
 
     ++m_training_samples;

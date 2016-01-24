@@ -105,8 +105,6 @@ void network_manager::train( const std::vector<sample>& training_set )
 
         _train( s );
 
-        std::cout << "network_manager::train - feed_forward & gradient descent successfull for training sample " << index << std::endl;
-
         ++index;
     }
 }

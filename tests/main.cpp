@@ -63,10 +63,7 @@ int main( int argc, char *argv[] )
 
                 net_manager.prepare_training_iteration();
 
-                BOOST_FOREACH( const neurocl::sample& sample, samples )
-                {
-                    net_manager.train( sample );
-                }
+                net_manager.train( samples );
 
                 net_manager.finalize_training_iteration();
             }
@@ -97,8 +94,7 @@ int main( int argc, char *argv[] )
 
                 if ( tsample.err_norm2() < MAX_MATCH_ERROR )
                     ++ _score;
-                //std::cout << "TEST OUTPUT IS : " << test_sample.output() << std::endl;
-                //std::cout << "BIGGEST COMPONENT IS : " << test_sample.biggest_component() << std::endl;
+                std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
             }
 
             std::cout << "SCORE IS " << _score << "/" << 10 << std::endl;

@@ -194,7 +194,7 @@ const output_ptr network_vexcl::output()
 void network_vexcl::prepare_training()
 {
     // Clear gradients
-    for ( size_t i=0; i<m_layers.size(); i++ )
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         m_layers[i].w_deltas() = _zero();
         m_layers[i].b_deltas() = _zero();
@@ -210,7 +210,7 @@ void network_vexcl::back_propagate()
     // Output layer error vector
     layer_vexcl& output_layer = m_layers.back();
     output_layer.errors() = output_layer.activations() * ( _one() - output_layer.activations() )
-        * ( output_layer.activations() - vex::constant(m_training_output) );
+        * ( vex::constant(m_training_output) - output_layer.activations() );
 
     // Hidden layers error vectors
     for ( size_t i=m_layers.size()-2; i>0; i-- )
