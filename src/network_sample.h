@@ -25,14 +25,18 @@ THE SOFTWARE.
 #ifndef NETWORK_SAMPLE_H
 #define NETWORK_SAMPLE_H
 
+#include <boost/math/special_functions/pow.hpp>
+#include <boost/shared_array.hpp>
+
 #include <sstream>
 #include <string>
 
 namespace neurocl {
 
+// Structure to store input sample
 struct sample
 {
-    sample( const size_t isize, const float* idata, const size_t osize, float* odata )
+    sample( const size_t isize, const float* idata, const size_t osize, const float* odata )
         : isample_size( isize ), isample( idata ), osample_size( osize ), osample( odata ) {}
 
     const std::string output()
@@ -51,7 +55,37 @@ struct sample
     size_t isample_size;
     const float* isample;
     size_t osample_size;
-    float* osample; // TODO-AM : should be const for training samples!
+    const float* osample;
+};
+
+// Structure to store input test sample
+struct test_sample : sample
+{
+    test_sample( const sample& s )
+        : sample( s.isample_size, s.isample, s.osample_size, s.osample )
+    {
+        osample_ref.reset( new float[osample_size] );
+        std::copy( osample, osample + osample_size, osample_ref.get() );
+    }
+
+    const float err_norm2()
+    {
+        float sum = 0.f;
+        for ( size_t i=0; i<osample_size; i++ )
+            sum += boost::math::pow<2>( osample[i] - osample_ref[i] );
+
+        return std::sqrt( sum );
+    }
+
+    const std::string ref_output()
+    {
+        std::stringstream ss;
+        for ( size_t i=0; i<osample_size; i++ )
+            ss << osample_ref[i] << ";";
+        return ss.str();
+    }
+
+    boost::shared_array<float> osample_ref;  // reference output sample buffer
 };
 
 } //namespace neurocl

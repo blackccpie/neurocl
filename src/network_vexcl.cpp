@@ -85,13 +85,20 @@ network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_deca
     std::cout << g_ctx << std::endl;
 }
 
-void network_vexcl::set_input_sample( const size_t& isample_size, const float* isample,
-                                const size_t& osample_size, const float* osample )
+void network_vexcl::set_input(  const size_t& in_size, const float* in )
 {
     // TODO manage case where sample_size exceeds layer size
+    std::cout << "network_vexcl::set_input - input (" << in << ") size = " << in_size << std::endl;
 
-    vex::copy( isample, isample + isample_size, m_layers[0].activations().begin() );
-    vex::copy( osample, osample + osample_size, m_training_output.begin() );
+    vex::copy( in, in + in_size, m_layers[0].activations().begin() );
+}
+
+void network_vexcl::set_output( const size_t& out_size, const float* out )
+{
+    // TODO manage case where sample_size exceeds layer size
+    std::cout << "network_vexcl::set_output - output (" << out << ") size = " << out_size << std::endl;
+
+    vex::copy( out, out + out_size, m_training_output.begin() );
 }
 
 void network_vexcl::add_layers_2d( const std::vector<layer_size>& layer_sizes )
@@ -150,8 +157,14 @@ const layer_ptr network_vexcl::get_layer_ptr( const size_t layer_idx )
         throw network_exception( "invalid layer index" );
     }
 
-    // NOT IMPLEMENTED YET;
-    return layer_ptr( 0, 0, 0, 0 );
+    vex::vector<float>& weights = m_layers[layer_idx].weights();
+    vex::vector<float>& bias = m_layers[layer_idx].bias();
+
+    layer_ptr l( weights.size(), bias.size() );
+    vex::copy( weights.begin(), weights.end(), l.weights.get() );
+    vex::copy( bias.begin(), bias.end(), l.bias.get() );
+
+    return l;
 }
 
 void network_vexcl::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
@@ -162,24 +175,26 @@ void network_vexcl::set_layer_ptr( const size_t layer_idx, const layer_ptr& laye
         throw network_exception( "invalid layer index" );
     }
 
-    // NOT IMPLEMENTED YET;
+    vex::vector<float>& weights = m_layers[layer_idx].weights();
+    std::copy( layer.weights.get(), layer.weights.get() + layer.num_weights, weights.begin() );
+    vex::vector<float>& bias = m_layers[layer_idx].bias();
+    std::copy( layer.bias.get(), layer.bias.get() + layer.num_bias, bias.begin() );
 }
 
-const float network_vexcl::output()
+const output_ptr network_vexcl::output()
 {
     // very slow for a GPU backend!!!
-    return m_layers.back().activations()[0];
-}
+    vex::vector<float>& output = m_layers.back().activations();
+    output_ptr l( output.size() );
+    vex::copy( output.begin(), output.end(), l.outputs.get() );
 
-const float network_vexcl::error()
-{
-    return m_layers.back().errors()[0];
+    return l;
 }
 
 void network_vexcl::prepare_training()
 {
     // Clear gradients
-    for ( size_t i=0; i<m_layers.size(); i++ )
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         m_layers[i].w_deltas() = _zero();
         m_layers[i].b_deltas() = _zero();
@@ -195,7 +210,7 @@ void network_vexcl::back_propagate()
     // Output layer error vector
     layer_vexcl& output_layer = m_layers.back();
     output_layer.errors() = output_layer.activations() * ( _one() - output_layer.activations() )
-        * ( output_layer.activations() - vex::constant(m_training_output) );
+        * ( vex::constant(m_training_output) - output_layer.activations() );
 
     // Hidden layers error vectors
     for ( size_t i=m_layers.size()-2; i>0; i-- )

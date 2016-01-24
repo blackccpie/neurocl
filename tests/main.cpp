@@ -31,6 +31,8 @@ THE SOFTWARE.
 
 #include <iostream>
 
+#define MAX_MATCH_ERROR 0.1f
+
 int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to neurocl!" << std::endl;
@@ -61,10 +63,7 @@ int main( int argc, char *argv[] )
 
                 net_manager.prepare_training_iteration();
 
-                BOOST_FOREACH( const neurocl::sample& sample, samples )
-                {
-                    net_manager.train( sample );
-                }
+                net_manager.train( samples );
 
                 net_manager.finalize_training_iteration();
             }
@@ -78,11 +77,28 @@ int main( int argc, char *argv[] )
 
         //************************* TESTING *************************//
 
-        neurocl::sample& test_sample = smp_manager.get_samples()[679];
-        net_manager.compute_output( test_sample );
+        if ( !training_enabled )
+        {
+            std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
-        std::cout << "TEST OUTPUT IS : " << test_sample.output() << std::endl;
-        std::cout << "BIGGEST COMPONENT IS : " << test_sample.biggest_component() << std::endl;
+            size_t _score = 0;
+
+            for ( size_t i = 0; i<10/*training_samples.size()*/; i++ )
+            {
+                neurocl::test_sample tsample( smp_manager.get_samples()[i] );
+                net_manager.compute_output( tsample );
+
+                std::cout << tsample.output() << std::endl;
+                std::cout << tsample.ref_output() << std::endl;
+                std::cout << tsample.err_norm2() << std::endl;
+
+                if ( tsample.err_norm2() < MAX_MATCH_ERROR )
+                    ++ _score;
+                std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
+            }
+
+            std::cout << "SCORE IS " << _score << "/" << 10 << std::endl;
+        }
     }
     catch( neurocl::network_exception& e )
     {
