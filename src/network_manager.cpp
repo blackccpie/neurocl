@@ -158,6 +158,13 @@ void network_manager::dump_weights()
     std::cout << m_net->dump_weights();
 }
 
+void network_manager::dump_bias()
+{
+    _assert_loaded();
+
+    std::cout << m_net->dump_bias();
+}
+
 void network_manager::dump_activations()
 {
     _assert_loaded();

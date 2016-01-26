@@ -34,11 +34,11 @@ namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
 
-const std::string dump_mat( const matrixF& mat )
+const std::string dump_mat( const matrixF& mat, boost::optional<std::string> label = boost::none )
 {
     std::string separator;
     std::stringstream ss;
-    ss << std::endl;
+    ss << ( label ? label.get() : "" ) << std::endl;
     for( matrixF::const_iterator1 it1 = mat.begin1(); it1 != mat.end1(); ++it1 )
     {
         for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
@@ -111,12 +111,17 @@ const std::string layer_bnu::dump_weights() const
     return dump_mat( m_output_weights );
 }
 
+const std::string layer_bnu::dump_bias() const
+{
+    return dump_vec( m_bias );
+}
+
 const std::string layer_bnu::dump_activations() const
 {
     return dump_vec( m_activations );
 }
 
-network_bnu::network_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.01f ), m_training_samples( 0 )
+network_bnu::network_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
 {
 }
 
@@ -168,8 +173,6 @@ void network_bnu::feed_forward()
 
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
-        //std::cout << "feed_forward layer " << i << std::endl;
-
         vectorF& _activations = m_layers[i+1].activations();
 
         // apply weights and bias
@@ -244,8 +247,8 @@ void network_bnu::back_propagate()
     layer_bnu& output_layer = m_layers.back();
     output_layer.errors() = bnu::element_prod(
             bnu::element_prod(  output_layer.activations(),
-                                ( bnu::unit_vector<float>( output_layer.activations().size() ) - output_layer.activations() ) ),
-            ( m_training_output - output_layer.activations() ) );
+                                ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
+            ( output_layer.activations() - m_training_output ) );
 
     // Hidden layers error vectors
     for ( size_t i=m_layers.size()-2; i>0; i-- )
@@ -286,6 +289,19 @@ const std::string network_bnu::dump_weights()
     BOOST_FOREACH( const layer_bnu& layer, m_layers )
     {
         ss << layer.dump_weights();
+        ss << "-------------------------------------------------" << std::endl;
+    }
+    ss << "*************************************************" << std::endl;
+    return ss.str();
+}
+
+const std::string network_bnu::dump_bias()
+{
+    std::stringstream ss;
+    ss << "*************************************************" << std::endl;
+    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    {
+        ss << layer.dump_bias();
         ss << "-------------------------------------------------" << std::endl;
     }
     ss << "*************************************************" << std::endl;

@@ -31,6 +31,8 @@ THE SOFTWARE.
 
 #include <iostream>
 
+#define NEUROCL_EPOCH_SIZE 30
+#define NEUROCL_BATCH_SIZE 10
 #define MAX_MATCH_ERROR 0.1f
 
 int main( int argc, char *argv[] )
@@ -51,21 +53,31 @@ int main( int argc, char *argv[] )
 
         //************************* TRAINING *************************//
 
+        //net_manager.dump_weights();
+        //net_manager.dump_bias();
+
         if ( training_enabled )
         {
-            for ( int i=0; i<30; i++ )
+            for ( int i=0; i<NEUROCL_EPOCH_SIZE; i++ )
             {
-                std::cout << "--> ITERATION " << (i+1) << "/30" << std::endl;
+                std::cout << "--> EPOCH " << (i+1) << "/" << NEUROCL_EPOCH_SIZE << std::endl;
 
-                std::vector<neurocl::sample> samples = smp_manager.get_next_batch( 10 );
+                while ( true )
+                {
+                	std::vector<neurocl::sample> samples = smp_manager.get_next_batch( NEUROCL_BATCH_SIZE );
 
-                std::cout << "processing " << samples.size() << " samples" << std::endl;
+                    // end of training set management
+                    if ( samples.empty() )
+                        break;
 
-                net_manager.prepare_training_iteration();
+                	std::cout << "processing " << samples.size() << " samples" << std::endl;
 
-                net_manager.train( samples );
+                	net_manager.prepare_training_iteration();
+                	net_manager.train( samples );
+                	net_manager.finalize_training_iteration();
+            	}
 
-                net_manager.finalize_training_iteration();
+                smp_manager.rewind();
             }
 
             net_manager.save_network();
@@ -73,6 +85,7 @@ int main( int argc, char *argv[] )
 
         // Dump weights for debugging purposes
         //net_manager.dump_weights();
+        //net_manager.dump_bias();
         //net_manager.dump_activations();
 
         //************************* TESTING *************************//
@@ -81,23 +94,29 @@ int main( int argc, char *argv[] )
         {
             std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
-            size_t _score = 0;
+            size_t _rmse_score = 0;
+            size_t _classif_score = 0;
 
-            for ( size_t i = 0; i<10/*training_samples.size()*/; i++ )
+            for ( size_t i = 0; i<training_samples.size(); i++ )
             {
                 neurocl::test_sample tsample( smp_manager.get_samples()[i] );
                 net_manager.compute_output( tsample );
 
                 std::cout << tsample.output() << std::endl;
                 std::cout << tsample.ref_output() << std::endl;
-                std::cout << tsample.err_norm2() << std::endl;
+                std::cout << tsample.RMSE() << std::endl;
 
-                if ( tsample.err_norm2() < MAX_MATCH_ERROR )
-                    ++ _score;
-                std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
+                if ( tsample.RMSE() < MAX_MATCH_ERROR )
+                    ++ _rmse_score;
+
+                if ( tsample.classified() )
+                    ++_classif_score;
+
+            	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
             }
 
-            std::cout << "SCORE IS " << _score << "/" << 10 << std::endl;
+            std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size() << std::endl;
+            std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
         }
     }
     catch( neurocl::network_exception& e )

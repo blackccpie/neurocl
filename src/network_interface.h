@@ -116,6 +116,7 @@ public:
     virtual const output_ptr output() = 0;
 
     virtual const std::string dump_weights() = 0;
+    virtual const std::string dump_bias() = 0;
     virtual const std::string dump_activations() = 0;
 };
 

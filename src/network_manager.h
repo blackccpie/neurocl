@@ -62,6 +62,7 @@ public:
     void compute_output( sample& s );
 
     void dump_weights();
+    void dump_bias();
     void dump_activations();
 
 private:

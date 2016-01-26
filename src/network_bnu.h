@@ -52,6 +52,7 @@ public:
     vectorF& b_deltas() { return m_deltas_bias; }
 
     const std::string dump_weights() const;
+    const std::string dump_bias() const;
     const std::string dump_activations() const;
 
 private:
@@ -93,6 +94,7 @@ public:
     const output_ptr output();
 
     const std::string dump_weights();
+    const std::string dump_bias();
     const std::string dump_activations();
 
 private:
