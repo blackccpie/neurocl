@@ -77,7 +77,7 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
     m_errors = _zero();
 }
 
-network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.01f ), m_training_samples( 0 )
+network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
 {
     if ( !g_ctx ) throw std::runtime_error( "No devices available." );
 
@@ -210,7 +210,7 @@ void network_vexcl::back_propagate()
     // Output layer error vector
     layer_vexcl& output_layer = m_layers.back();
     output_layer.errors() = output_layer.activations() * ( _one() - output_layer.activations() )
-        * ( vex::constant(m_training_output) - output_layer.activations() );
+        * ( output_layer.activations() - vex::constant( m_training_output ) );
 
     // Hidden layers error vectors
     for ( size_t i=m_layers.size()-2; i>0; i-- )
@@ -265,6 +265,11 @@ void network_vexcl::update_params()
 }
 
 const std::string network_vexcl::dump_weights()
+{
+    return "WEIGHTS DUMPING NOT IMPLEMENTED YET";
+}
+
+const std::string network_vexcl::dump_bias()
 {
     return "WEIGHTS DUMPING NOT IMPLEMENTED YET";
 }

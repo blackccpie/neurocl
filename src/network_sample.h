@@ -47,11 +47,6 @@ struct sample
         return ss.str();
     }
 
-    const size_t biggest_component()
-    {
-        return std::max_element( osample, osample + osample_size ) - osample;
-    }
-
     size_t isample_size;
     const float* isample;
     size_t osample_size;
@@ -68,13 +63,13 @@ struct test_sample : sample
         std::copy( osample, osample + osample_size, osample_ref.get() );
     }
 
-    const float err_norm2()
+    const float RMSE()
     {
         float sum = 0.f;
         for ( size_t i=0; i<osample_size; i++ )
             sum += boost::math::pow<2>( osample[i] - osample_ref[i] );
 
-        return std::sqrt( sum );
+        return std::sqrt( sum / osample_size );
     }
 
     const std::string ref_output()
@@ -83,6 +78,14 @@ struct test_sample : sample
         for ( size_t i=0; i<osample_size; i++ )
             ss << osample_ref[i] << ";";
         return ss.str();
+    }
+
+    bool classified()
+    {
+        size_t biggest = std::max_element( osample, osample + osample_size ) - osample;
+        size_t biggest_ref = std::max_element( osample_ref.get(), osample_ref.get() + osample_size ) - osample_ref.get();
+
+        return ( biggest == biggest_ref );
     }
 
     boost::shared_array<float> osample_ref;  // reference output sample buffer

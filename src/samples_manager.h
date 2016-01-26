@@ -52,12 +52,16 @@ public:
 
     std::vector<neurocl::sample> get_next_batch( const size_t size );
 
+    void rewind();
+
 private:
 
-    samples_manager() : m_batch_index( 0 ) {}
+    samples_manager() : m_batch_index( 0 ), m_end( false ) {}
     virtual ~samples_manager() {}
 
 private:
+
+    bool m_end;
 
     size_t m_batch_index;
 
