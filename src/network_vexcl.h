@@ -49,6 +49,10 @@ public:
 
     std::pair<size_t,size_t>& w_size() { return m_weights_size; }
 
+    const std::string dump_weights() const;
+    const std::string dump_bias() const;
+    const std::string dump_activations() const;
+
 private:
 
     std::pair<size_t,size_t> m_weights_size;
