@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "network_exception.h"
 #include "network_utils.h"
 
+#include <boost/foreach.hpp>
 #include <boost/shared_array.hpp>
 
 namespace neurocl {
@@ -34,6 +35,21 @@ VEX_CONSTANT(_zero, 0.f);
 VEX_CONSTANT(_one, 1.f);
 
 vex::Context g_ctx( vex::Filter::GPU && vex::Filter::Count(1) );
+
+template<typename T>
+const std::string dump_vec( const vex::vector<T>& vec, boost::optional<std::string> label = boost::none )
+{
+    std::string separator;
+    std::stringstream ss;
+    ss << ( label ? label.get() : "" ) << std::endl;
+    for( typename vex::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it )
+    {
+            ss << separator << *it;
+            separator = " ";
+    }
+    ss << std::endl;
+    return ss.str();
+}
 
 void random_normal_init( vex::vector<float>& container, const float stddev = 1.f )
 {
@@ -63,7 +79,7 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
         // cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
         random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
         m_deltas_weight = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
-        m_deltas_weight - _zero();
+        m_deltas_weight = _zero();
 
         m_bias = vex::vector<float>( g_ctx, next_layer_size.size() );
         random_normal_init( m_bias, 1.f );
@@ -75,6 +91,21 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
     m_activations = _zero();
     m_errors = vex::vector<float>( g_ctx, cur_layer_size.size() );
     m_errors = _zero();
+}
+
+const std::string layer_vexcl::dump_weights() const
+{
+    return dump_vec( m_output_weights );
+}
+
+const std::string layer_vexcl::dump_bias() const
+{
+    return dump_vec( m_bias );
+}
+
+const std::string layer_vexcl::dump_activations() const
+{
+    return dump_vec( m_activations );
 }
 
 network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
@@ -123,12 +154,10 @@ void network_vexcl::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 
 void network_vexcl::feed_forward()
 {
-    std::cout << m_layers.size() << " layers propagation" << std::endl;
+    //std::cout << m_layers.size() << " layers propagation" << std::endl;
 
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
-        std::cout << "feed_forward layer " << i << std::endl;
-
         const size_t n = m_layers[i].w_size().first;
         const size_t m = m_layers[i].w_size().second;
 
@@ -243,8 +272,11 @@ void network_vexcl::back_propagate()
         size_t n = m_layers[i].w_size().first;
         size_t m = m_layers[i].w_size().second;
 
-        m_layers[i].w_deltas() += vex::reshape( m_layers[i+1].errors(), vex::extents[n][1], vex::extents[0][1] )
-            * vex::reshape( m_layers[i].activations(), vex::extents[1][m], vex::extents[1][0] );
+        m_layers[i].w_deltas() += vex::reduce<vex::SUM>(
+            vex::extents[n][1][m],
+        	vex::reshape( m_layers[i+1].errors(), vex::extents[n][1][m], vex::extents[0][1] )
+            * vex::reshape( m_layers[i].activations(), vex::extents[n][1][m], vex::extents[1][2] ),
+            1 );
         m_layers[i].b_deltas() += m_layers[i+1].errors();
     }
 
@@ -271,12 +303,28 @@ const std::string network_vexcl::dump_weights()
 
 const std::string network_vexcl::dump_bias()
 {
-    return "WEIGHTS DUMPING NOT IMPLEMENTED YET";
+    std::stringstream ss;
+    ss << "*************************************************" << std::endl;
+    BOOST_FOREACH( const layer_vexcl& layer, m_layers )
+    {
+        ss << layer.dump_bias();
+        ss << "-------------------------------------------------" << std::endl;
+    }
+    ss << "*************************************************" << std::endl;
+    return ss.str();
 }
 
 const std::string network_vexcl::dump_activations()
 {
-    return "ACTIVATIONS DUMPING NOT IMPLEMENTED YET";
+    std::stringstream ss;
+    ss << "*************************************************" << std::endl;
+    BOOST_FOREACH( const layer_vexcl& layer, m_layers )
+    {
+        ss << layer.dump_activations();
+        ss << "-------------------------------------------------" << std::endl;
+    }
+    ss << "*************************************************" << std::endl;
+    return ss.str();
 }
 
 }; //namespace neurocl

@@ -123,18 +123,10 @@ void network_manager::_train( const sample& s )
     m_net->feed_forward();
     duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
     std::cout << "ff before gd at " << duration.count() << "ms"<< std::endl;
-    // m_net->output() is very slow for GPU backend!!!
-    //std::cout << "ff before gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
 
     m_net->back_propagate();
     duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-    std::cout << "gd at " << duration.count() << "ms"<< std::endl;
-
-    //m_net->feed_forward();
-    //duration = bc::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-    //std::cout << "ff after gd at " << duration.count() << "ms"<< std::endl;
-    // m_net->output() is very slow for GPU backend!!!
-    //std::cout << "ff after gd = " << m_net->output() << " at " << duration.count() << "ms"<< std::endl;
+    std::cout << "bp at " << duration.count() << "ms"<< std::endl;
 
     duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
     std::cout << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
