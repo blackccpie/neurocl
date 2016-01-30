@@ -58,29 +58,7 @@ int main( int argc, char *argv[] )
 
         if ( training_enabled )
         {
-            for ( int i=0; i<NEUROCL_EPOCH_SIZE; i++ )
-            {
-                std::cout << "--> EPOCH " << (i+1) << "/" << NEUROCL_EPOCH_SIZE << std::endl;
-
-                while ( true )
-                {
-                	std::vector<neurocl::sample> samples = smp_manager.get_next_batch( NEUROCL_BATCH_SIZE );
-
-                    // end of training set management
-                    if ( samples.empty() )
-                        break;
-
-                	std::cout << "processing " << samples.size() << " samples" << std::endl;
-
-                	net_manager.prepare_training_iteration();
-                	net_manager.train( samples );
-                	net_manager.finalize_training_iteration();
-            	}
-
-                smp_manager.rewind();
-            }
-
-            net_manager.save_network();
+            net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
         }
 
         // Dump weights for debugging purposes
@@ -92,7 +70,7 @@ int main( int argc, char *argv[] )
 
         if ( !training_enabled )
         {
-            std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+            const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
             size_t _rmse_score = 0;
             size_t _classif_score = 0;

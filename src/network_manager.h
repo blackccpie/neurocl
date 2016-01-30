@@ -35,6 +35,7 @@ namespace neurocl {
 
 class network_interface;
 class network_file_handler;
+class samples_manager;
 
 class network_manager
 {
@@ -54,10 +55,9 @@ public:
     void load_network( const std::string& topology_path, const std::string& weights_path );
     void save_network();
 
-    void prepare_training_iteration();
-    void finalize_training_iteration();
     void train( const sample& s );
     void train( const std::vector<sample>& training_set );
+    void batch_train( const samples_manager& smp_manager, const size_t& epoch_size, const size_t& batch_size );
 
     void compute_output( sample& s );
 
@@ -69,6 +69,8 @@ private:
 
     void _assert_loaded();
 
+    void _prepare_training_iteration();
+    void _finalize_training_iteration();
     void _train( const sample& s );
 
 private:

@@ -107,7 +107,7 @@ public:
 
     virtual void prepare_training() = 0;
     virtual void back_propagate() = 0;
-    virtual void update_params() = 0;
+    virtual void gradient_descent() = 0;
 
     virtual const size_t count_layers() = 0;
     virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) = 0;
