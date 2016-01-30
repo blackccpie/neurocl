@@ -45,14 +45,19 @@ public:
 
     void load_samples( const std::string &input_filename );
 
-    std::vector<neurocl::sample>& get_samples()
+    const size_t samples_size() const
+    {
+        return m_samples_set.size();
+    }
+
+    const std::vector<neurocl::sample>& get_samples() const
     {
         return m_samples_set;
     }
 
-    std::vector<neurocl::sample> get_next_batch( const size_t size );
+    const std::vector<neurocl::sample> get_next_batch( const size_t size ) const;
 
-    void rewind();
+    void rewind() const;
 
 private:
 
@@ -61,9 +66,8 @@ private:
 
 private:
 
-    bool m_end;
-
-    size_t m_batch_index;
+    mutable bool m_end;
+    mutable size_t m_batch_index;
 
     std::vector< boost::shared_array<float> > m_input_samples;
     std::vector< boost::shared_array<float> > m_output_samples;

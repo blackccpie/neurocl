@@ -110,13 +110,13 @@ void samples_manager::load_samples( const std::string &input_filename )
     }
 }
 
-std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size )
+const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size ) const
 {
     if ( m_end )
         return std::vector<neurocl::sample>();
 
-    std::vector<neurocl::sample>::iterator begin = m_samples_set.begin() + m_batch_index;
-    std::vector<neurocl::sample>::iterator end = begin + size;
+    std::vector<neurocl::sample>::const_iterator begin = m_samples_set.begin() + m_batch_index;
+    std::vector<neurocl::sample>::const_iterator end = begin + size;
 
     if ( end >= m_samples_set.end() )
     {
@@ -129,7 +129,7 @@ std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size 
     return std::vector<neurocl::sample>( begin, end );
 }
 
-void samples_manager::rewind()
+void samples_manager::rewind() const
 {
     m_end = false;
     m_batch_index = 0;

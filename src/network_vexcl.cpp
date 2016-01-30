@@ -118,16 +118,20 @@ network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_deca
 
 void network_vexcl::set_input(  const size_t& in_size, const float* in )
 {
-    // TODO manage case where sample_size exceeds layer size
-    std::cout << "network_vexcl::set_input - input (" << in << ") size = " << in_size << std::endl;
+    if ( in_size > m_layers[0].activations().size() )
+        throw network_exception( "sample size exceeds allocated layer size!" );
+
+    //std::cout << "network_vexcl::set_input - input (" << in << ") size = " << in_size << std::endl;
 
     vex::copy( in, in + in_size, m_layers[0].activations().begin() );
 }
 
 void network_vexcl::set_output( const size_t& out_size, const float* out )
 {
-    // TODO manage case where sample_size exceeds layer size
-    std::cout << "network_vexcl::set_output - output (" << out << ") size = " << out_size << std::endl;
+    if ( out_size > m_training_output.size() )
+        throw network_exception( "output size exceeds allocated layer size!" );
+
+    //std::cout << "network_vexcl::set_output - output (" << out << ") size = " << out_size << std::endl;
 
     vex::copy( out, out + out_size, m_training_output.begin() );
 }
@@ -283,9 +287,9 @@ void network_vexcl::back_propagate()
     ++m_training_samples;
 }
 
-void network_vexcl::update_params()
+void network_vexcl::gradient_descent()
 {
-    std::cout << "network_bnu::update_params - updating after " << m_training_samples << " backpropagations" << std::endl;
+    //std::cout << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
 
     float invm = 1.f / static_cast<float>( m_training_samples );
 
