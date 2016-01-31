@@ -42,8 +42,7 @@ private:
     {
     public:
         layer_storage()
-            :   m_num_weights( 0u ), m_weights( 0 ),
-                m_num_bias( 0u ), m_bias( 0 ) {}
+            :   m_num_weights( 0u ), m_num_bias( 0u ) {}
         layer_storage( boost::uint32_t nw, boost::shared_array<float> w, boost::uint32_t nb, boost::shared_array<float> b )
             :   m_num_weights( nw ), m_weights( w ),
                 m_num_bias( nb ), m_bias( b ) {}

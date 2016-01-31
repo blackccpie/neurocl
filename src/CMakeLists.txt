@@ -26,7 +26,7 @@ project (neurocl)
 if (APPLE)
     set (extra_includes "/opt/X11/include")
     set (extra_link_paths "/usr/X11/lib")
-    set (extra_link_libs X11)
+	set (boost_suffix -mt) 
 endif ()
 
 include_directories(
@@ -62,13 +62,13 @@ network_bnu.h
 add_library(neurocl SHARED ${sources_list} ${headers_list})
 
 target_link_libraries(neurocl
-boost_thread-mt
-boost_system-mt
-boost_chrono-mt
-boost_filesystem-mt
-boost_serialization-mt
+boost_thread${boost_suffix}
+boost_system${boost_suffix}
+boost_chrono${boost_suffix}
+boost_filesystem${boost_suffix}
+boost_serialization${boost_suffix}
 ${OpenCL_LIBRARIES}
-${extra_link_libs}
+X11
 )
 
 target_compile_features(neurocl PRIVATE cxx_auto_type)
