@@ -21,11 +21,20 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (neuropicam)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+include_directories(${CMAKE_SOURCE_DIR}/utils/raspicam)
 
-add_subdirectory(src)
-add_subdirectory(utils)
-add_subdirectory(apps)
-add_subdirectory(tests)
+set (sources_list
+main.cpp
+)
+
+set (headers_list
+)
+
+add_executable(neuropicam ${sources_list} ${headers_list})
+
+target_link_libraries(neuropicam
+raspicam
+)
+
