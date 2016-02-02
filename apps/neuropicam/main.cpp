@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "raspicam.h"
 
+#include "CImg.h"
+
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
@@ -32,8 +34,9 @@ THE SOFTWARE.
 #include <sys/timeb.h>
 
 using namespace std;
-bool doTestSpeedOnly=false;
+
 size_t nFramesCaptured=100;
+
 //parse command line
 //returns the index of a command line param in argv. If not found, return -1
 
@@ -84,40 +87,37 @@ if ( str=="FLASH" ) return raspicam::RASPICAM_AWB_FLASH;
 if ( str=="HORIZON" ) return raspicam::RASPICAM_AWB_HORIZON;
 return raspicam::RASPICAM_AWB_AUTO;
 }
-void processCommandLine ( int argc,char **argv,raspicam::RaspiCam &Camera ) {
-    Camera.setWidth ( getParamVal ( "-w",argc,argv,1280 ) );
-    Camera.setHeight ( getParamVal ( "-h",argc,argv,960 ) );
-    Camera.setBrightness ( getParamVal ( "-br",argc,argv,50 ) );
+void processCommandLine ( int argc,char **argv,raspicam::RaspiCam &camera ) {
+    camera.setWidth ( getParamVal ( "-w",argc,argv,800 ) );
+    camera.setHeight ( getParamVal ( "-h",argc,argv,600 ) );
+    camera.setBrightness ( getParamVal ( "-br",argc,argv,50 ) );
 
-    Camera.setSharpness ( getParamVal ( "-sh",argc,argv,0 ) );
-    Camera.setContrast ( getParamVal ( "-co",argc,argv,0 ) );
-    Camera.setSaturation ( getParamVal ( "-sa",argc,argv,0 ) );
-    Camera.setShutterSpeed( getParamVal ( "-ss",argc,argv,0 ) );
-    Camera.setISO ( getParamVal ( "-iso",argc,argv ,400 ) );
+    camera.setSharpness ( getParamVal ( "-sh",argc,argv,0 ) );
+    camera.setContrast ( getParamVal ( "-co",argc,argv,0 ) );
+    camera.setSaturation ( getParamVal ( "-sa",argc,argv,0 ) );
+    camera.setShutterSpeed( getParamVal ( "-ss",argc,argv,0 ) );
+    camera.setISO ( getParamVal ( "-iso",argc,argv ,400 ) );
     if ( findParam ( "-vs",argc,argv ) !=-1 )
-        Camera.setVideoStabilization ( true );
-    Camera.setExposureCompensation ( getParamVal ( "-ec",argc,argv ,0 ) );
+        camera.setVideoStabilization ( true );
+    camera.setExposureCompensation ( getParamVal ( "-ec",argc,argv ,0 ) );
 
     if ( findParam ( "-gr",argc,argv ) !=-1 )
-      Camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
+      camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
     if ( findParam ( "-yuv",argc,argv ) !=-1 ) 
-      Camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
-    if ( findParam ( "-test_speed",argc,argv ) !=-1 )
-        doTestSpeedOnly=true;
+      camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
     int idx;
     if ( ( idx=findParam ( "-ex",argc,argv ) ) !=-1 )
-        Camera.setExposure ( getExposureFromString ( argv[idx+1] ) );
+        camera.setExposure ( getExposureFromString ( argv[idx+1] ) );
     if ( ( idx=findParam ( "-awb",argc,argv ) ) !=-1 )
-        Camera.setAWB( getAwbFromString ( argv[idx+1] ) );
+        camera.setAWB( getAwbFromString ( argv[idx+1] ) );
     nFramesCaptured=getParamVal("-nframes",argc,argv,100);
-    Camera.setAWB_RB(getParamVal("-awb_b",argc,argv ,1), getParamVal("-awb_g",argc,argv ,1));
+    camera.setAWB_RB(getParamVal("-awb_b",argc,argv ,1), getParamVal("-awb_g",argc,argv ,1));
 
 }
 void showUsage() {
     cout<<"Usage: "<<endl;
     cout<<"[-help shows this help]\n"<<endl;
     cout<<"[-gr sets gray color mode]\n"<<endl;
-    cout<<"[-test_speed use for test speed and no images will be saved]\n";
     cout<<"[-yuv sets yuv420 color mode]\n"<<endl;
     cout<<"[-w width] [-h height] \n[-br brightness_val(0,100)]\n[-sh  sharpness_val (-100 to 100)]\n";
     cout<<"[-co contrast_val (-100 to 100)]\n[-sa saturation_val (-100 to 100)]\n";
@@ -153,20 +153,6 @@ public:
 
 };
 
-void saveImage ( string filepath,unsigned char *data,raspicam::RaspiCam &Camera ) {
-    std::ofstream outFile ( filepath.c_str(),std::ios::binary );
-    if ( Camera.getFormat()==raspicam::RASPICAM_FORMAT_BGR ||  Camera.getFormat()==raspicam::RASPICAM_FORMAT_RGB ) {
-        outFile<<"P6\n";
-    } else if ( Camera.getFormat()==raspicam::RASPICAM_FORMAT_GRAY ) {
-        outFile<<"P5\n";
-    } else if ( Camera.getFormat()==raspicam::RASPICAM_FORMAT_YUV420 ) { //made up format
-        outFile<<"P7\n";
-    }
-    outFile<<Camera.getWidth() <<" "<<Camera.getHeight() <<" 255\n";
-    outFile.write ( ( char* ) data,Camera.getImageBufferSize() );
-}
-
-
 int main ( int argc,char **argv ) {
     if ( argc==1 ) {
         cerr<<"Usage (-help for help)"<<endl;
@@ -178,44 +164,44 @@ int main ( int argc,char **argv ) {
     }
 
   
-    raspicam::RaspiCam Camera;
-    processCommandLine ( argc,argv,Camera );
+    raspicam::RaspiCam camera;
+    processCommandLine ( argc,argv,camera );
+    
     cout<<"Connecting to camera"<<endl;
     
-    if ( !Camera.open() ) {
+    if ( !camera.open() ) {
         cerr<<"Error opening camera"<<endl;
         return -1;
     }
-    cout<<"Connected to camera ="<<Camera.getId() <<" bufs="<<Camera.getImageBufferSize( )<<endl;
-    unsigned char *data=new unsigned char[  Camera.getImageBufferSize( )];
+    cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << endl;
+    unsigned char *data=new unsigned char[  camera.getImageBufferSize( )];
     Timer timer;
 
+	//cimg_library::CImgDisplay disp;
 
     cout<<"Capturing...."<<endl;
     size_t i=0;
     timer.start();
- do{
-        Camera.grab();
-        Camera.retrieve ( data );
-        if ( !doTestSpeedOnly ) {
-            if ( i%5==0 ) 	  cout<<"\r capturing ..."<<i<<"/"<<nFramesCaptured<<std::flush;
-            if ( i%30==0 && i!=0  && nFramesCaptured>0 ) { //save image if not in inifite loop
-                std::stringstream fn;
-                fn<<"image";
-		if (i<10) fn<<"0";
-		fn<<i<<".ppm";
-                saveImage ( fn.str(),data,Camera );
-		cerr<<"Saving "<<fn.str()<<endl;
-            }
-        }
-    }while(++i<nFramesCaptured || nFramesCaptured==0);//stops when nFrames captured or at infinity lpif nFramesCaptured<0
+	do{
+        camera.grab();
+        camera.retrieve ( data );
+        
+        cimg_library::CImg<unsigned char> img( data, 800, 600 );
+        
+        //disp.display( img );
+        
+		if ( i%5==0 )
+		{	  
+			cout << "\r capturing ..." << i << "/" << nFramesCaptured << std::flush;
+			
+			img.save( "frame.jpg" );
+		}
+		
+    } while(++i<nFramesCaptured || nFramesCaptured==0); //stops when nFrames captured or at infinity lpif nFramesCaptured<0
 
     timer.end();
-    if ( !doTestSpeedOnly )    cout<<endl<<"Images saved in imagexx.ppm"<<endl;
-
-
 
     cerr<< timer.getSecs()<< " seconds for "<< nFramesCaptured<< "  frames : FPS " << ( ( float ) ( nFramesCaptured ) / timer.getSecs() ) <<endl;
 
-    Camera.release();
+    camera.release();
 }

@@ -22,6 +22,4 @@
 
 cmake_minimum_required (VERSION 3.0)
 
-if (NOT APPLE)
-    add_subdirectory(neuropicam)
-endif ()
+add_subdirectory(neuropicam)
