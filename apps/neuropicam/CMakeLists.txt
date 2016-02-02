@@ -23,7 +23,10 @@
 cmake_minimum_required (VERSION 3.0)
 project (neuropicam)
 
-include_directories(${CMAKE_SOURCE_DIR}/utils/raspicam)
+include_directories(
+	"${CMAKE_SOURCE_DIR}/utils/raspicam"
+	"${CMAKE_SOURCE_DIR}/../CImg"
+)
 
 set (sources_list
 main.cpp
@@ -36,5 +39,7 @@ add_executable(neuropicam ${sources_list} ${headers_list})
 
 target_link_libraries(neuropicam
 raspicam
+X11
+pthread
 )
 

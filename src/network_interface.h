@@ -49,7 +49,7 @@ struct layer_ptr
         : num_weights( nw ), weights( w ), num_bias( nb ), bias( b ) {}
     // Constructor with allocation requests
     layer_ptr( const size_t& nw, const size_t& nb )
-        : num_weights( nw ), weights( 0 ), num_bias( nb ), bias( 0 )
+        : num_weights( nw ), num_bias( nb )
     {
         weights.reset( new float[num_weights] );
         bias.reset( new float[num_bias] );
@@ -73,7 +73,7 @@ struct output_ptr
         : num_outputs( no ), outputs( o ) {}
     // Constructor with allocation requests
     output_ptr( const size_t& nw )
-        : num_outputs( nw ), outputs( 0 )
+        : num_outputs( nw )
     {
         outputs.reset( new float[num_outputs] );
     }
