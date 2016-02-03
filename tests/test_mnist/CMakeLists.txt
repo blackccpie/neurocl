@@ -21,7 +21,7 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
-project (test_neurocl)
+project (test_mnist)
 
 if (APPLE)
     set (extra_link_paths "/usr/X11/lib")
@@ -36,9 +36,9 @@ set (sources_list
 main.cpp
 )
 
-add_executable(test_neurocl ${sources_list} ${headers_list})
+add_executable(test_mnist ${sources_list} ${headers_list})
 
-target_link_libraries(test_neurocl
+target_link_libraries(test_mnist
 neurocl
 ${extra_link_libs}
 )
