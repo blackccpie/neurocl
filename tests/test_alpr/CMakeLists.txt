@@ -1,0 +1,53 @@
+#The MIT License
+#
+#Copyright (c) 2015-2016 Albert Murienne
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in
+#all copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#THE SOFTWARE.
+
+cmake_minimum_required (VERSION 3.0)
+project (test_alpr)
+
+if (APPLE)
+    set (extra_includes "/opt/X11/include")
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
+endif ()
+
+link_directories(${extra_link_paths})
+
+include_directories(
+    "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/../CImg"
+    "${extra_includes}"
+)
+
+set (headers_list
+alphanum.h
+)
+
+set (sources_list
+main.cpp
+)
+
+add_executable(test_alpr ${sources_list} ${headers_list})
+
+target_link_libraries(test_alpr
+neurocl
+${extra_link_libs}
+)
