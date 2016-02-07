@@ -47,6 +47,16 @@ struct sample
         return ss.str();
     }
 
+    const size_t max_comp_idx()
+    {
+        return std::distance( osample, std::max_element( osample, osample + osample_size ) );
+    }
+
+    const float max_comp_val()
+    {
+        return *std::max_element( osample, osample + osample_size );
+    }
+
     size_t isample_size;
     const float* isample;
     size_t osample_size;
