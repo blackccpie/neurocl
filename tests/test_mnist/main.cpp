@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "network_exception.h"
 #include "samples_manager.h"
 
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
@@ -37,7 +36,7 @@ THE SOFTWARE.
 
 int main( int argc, char *argv[] )
 {
-    std::cout << "Welcome to neurocl!" << std::endl;
+    std::cout << "Welcome to test_mnist!" << std::endl;
 
     try
     {
@@ -68,7 +67,7 @@ int main( int argc, char *argv[] )
 
         //************************* TESTING *************************//
 
-        if ( !training_enabled )
+        else
         {
             const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
@@ -110,7 +109,7 @@ int main( int argc, char *argv[] )
         std::cerr << "unknown exception" << std::endl;
     }
 
-    std::cout << "Bye bye neurocl!" << std::endl;
+    std::cout << "Bye bye test_mnist!" << std::endl;
 
     return 0;
 }

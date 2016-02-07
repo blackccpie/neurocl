@@ -43,9 +43,8 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
     img.equalize( 256, 0, 255 );
     img.normalize( 0.f, 1.f );
     img.channel(0);
-    //img.display();
-    //return img;
-    return img.resize( 28, 28 );
+    
+    return img;
 }
 
 void samples_manager::load_samples( const std::string &input_filename )
