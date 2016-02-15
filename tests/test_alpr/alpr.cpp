@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include <boost/lexical_cast.hpp>
 
+#include <iostream>
+
 namespace alpr {
 
 using namespace cimg_library;
@@ -34,6 +36,9 @@ using namespace cimg_library;
 // Network cell size
 const size_t g_sizeX = 50;
 const size_t g_sizeY = 100;
+
+// Letters allowed range : TODO : ratio of total width?
+const size_t g_insideX = 10;
 
 license_plate::license_plate( const std::string& file_plate, neurocl::network_manager& net_manager )
     : m_detector_output( new float[36] ), m_net_manager( net_manager )
@@ -80,11 +85,37 @@ void license_plate::_compute_ranges()
         }
         row_sums(x) = rsum;
     }
+    row_sums = 1.f - row_sums.normalize( 0.f, 1.f );
+    row_sums.threshold( 0.9f );
+
+    // Detect letter ranges
+    size_t first = 0;
+    bool last_val = false;
+    cimg_for_insideX( row_sums, x, g_insideX )
+    {
+        bool cur_val = row_sums[x] > 0.f;
+
+        if ( cur_val != last_val )
+        {
+            if ( !last_val )
+            {
+                if ( first != 0 )
+                {
+                    std::cout << "detected interval " << first << " " << x << std::endl;
+                    m_letter_intervals.push_back( std::make_pair( first, x ) );
+                    first = 0;
+                }
+                else
+                    first = x;
+            }
+        }
+        last_val = cur_val;
+    }
 
     // Display row sums graph
     CImg<float> sums_graph( m_work_plate.width(), 400, 1, 3, 0 );
     unsigned char green[] = { 0,255,0 };
-    sums_graph.draw_graph( row_sums, green, 1, 1, 1 );//, 0, 100 );
+    sums_graph.draw_graph( row_sums, green, 1, 1, 1 );
     sums_graph.display();
 }
 
@@ -93,8 +124,22 @@ void license_plate::_compute_distance_map()
     // Initialize distance map
     CImg<float> dist_map( m_work_plate.width(), 1, 1, 1, 0 );
 
+    bool detecting = false;
+    std::vector< std::pair<size_t,size_t> >::const_iterator range_iter = m_letter_intervals.begin();
+
     for ( size_t i=0; i<=( m_work_plate.width() - g_sizeX ); i++ )
     {
+        if ( i < range_iter->first )
+            continue;
+
+        if ( i == range_iter->second )
+        {
+            range_iter++;
+            continue;
+        }
+
+        std::cout << i << std::endl;
+
         CImg<float> subimage = m_work_plate.get_columns( i, i + g_sizeX - 1 );
         cimg_for_borderXY( subimage, x, y, 2 ) { subimage( x, y ) = 0; }
         //subimage.threshold( 0.5f );
@@ -109,7 +154,7 @@ void license_plate::_compute_distance_map()
         {
             dist_map(i) = sample.max_comp_val();
 
-            if ( false )
+            if ( true )
             {
                 CImg<float> disp_image( 50, 100, 1, 3 );
                 cimg_forXYC( disp_image, x, y, c ) {
@@ -129,7 +174,7 @@ void license_plate::_compute_distance_map()
     // Display distance map graph
     CImg<float> dist_graph( m_work_plate.width(), 400, 1, 3, 0 );
     unsigned char red[] = { 255,0,0 };
-    dist_graph.draw_graph( dist_map, red, 1, 1, 1 );//, 0, 100 );
+    dist_graph.draw_graph( dist_map, red, 1, 1, 1 );
     dist_graph.display();
 }
 

@@ -53,6 +53,8 @@ private:
     cimg_library::CImg<float> m_work_plate;
     boost::shared_array<float> m_detector_output;
 
+    std::vector< std::pair<size_t,size_t> > m_letter_intervals;
+
     neurocl::network_manager& m_net_manager;
 };
 
