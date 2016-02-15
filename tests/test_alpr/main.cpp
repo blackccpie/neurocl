@@ -22,13 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "alphanum.h"
-
 #include "network_manager.h"
 #include "network_exception.h"
 #include "samples_manager.h"
-
-#include "CImg.h"
+#include "alpr.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -37,8 +34,6 @@ THE SOFTWARE.
 #define NEUROCL_EPOCH_SIZE 10
 #define NEUROCL_BATCH_SIZE 10
 #define MAX_MATCH_ERROR 0.1f
-
-using namespace cimg_library;
 
 int main( int argc, char *argv[] )
 {
@@ -97,83 +92,8 @@ int main( int argc, char *argv[] )
 
         else
         {
-            const size_t sizeX = 50;
-            const size_t sizeY = 100;
-
-            boost::shared_array<float> output( new float[36] );
-
-            CImg<float> input_plate( argv[1] );
-
-            // Compute rduced plate image
-            CImg<float> reduced_plate =
-                input_plate.resize( sizeY * input_plate.width() / input_plate.height(), sizeY );
-            input_plate.clear();
-
-            reduced_plate.equalize( 256, 0, 255 );
-            reduced_plate.normalize( 0.f, 1.f );
-            reduced_plate.channel(0);
-            reduced_plate = 1.f - reduced_plate;
-
-            // Remove a 10px border
-            cimg_for_borderXY( reduced_plate, x, y, 10 ) { reduced_plate( x, y ) = 0; }
-
-            reduced_plate.display();
-
-            // Compute row sums image
-            CImg<float> row_sums( reduced_plate.width(), 1 );
-            cimg_forX( row_sums, x )
-            {
-                float rsum = 0.f;
-                cimg_forY( reduced_plate, y )
-                {
-                    rsum += reduced_plate(x,y);
-                }
-                row_sums(x) = rsum;
-            }
-
-            // Display row sums graph
-            CImg<float> graph( reduced_plate.width(), 400, 1, 3, 0 );
-            unsigned char green[] = { 0,255,0 };
-            graph.draw_graph( row_sums, green, 1, 1, 1, 0, 50 );
-            graph.display();
-
-            // Initialize distance map
-            CImg<float> dist_map( reduced_plate.width(), 1, 1, 1, 0 );
-
-            //size_t i = 51;
-            for ( size_t i=0; i<=( reduced_plate.width() - sizeX ); i++ )
-            {
-                CImg<float> subimage = reduced_plate.get_columns( i, i + sizeX - 1 );
-                cimg_for_borderXY( subimage, x, y, 2 ) { subimage( x, y ) = 0; }
-                subimage.threshold( 0.5f );
-                //subimage.erode( 3 );
-
-                neurocl::sample sample( sizeX * sizeY, subimage.data(), 36, output.get() );
-
-                net_manager.compute_output( sample );
-
-                dist_map(i) = sample.max_comp_val();
-
-                //std::cout << sample.output() << std::endl;
-
-                if ( sample.max_comp_val() > 0.8f )
-                {
-                    CImg<float> disp_image( 50, 100, 1, 3 );
-                    cimg_forXYC( disp_image, x, y, c ) {
-                        disp_image( x, y, c ) = 255.f * subimage( x, y ); }
-
-                    unsigned char green[] = { 0,255,0 };
-                    std::string label = alphanum( sample.max_comp_idx() ).string() + " "
-                        + boost::lexical_cast<std::string>( sample.max_comp_val() );
-                    disp_image.draw_text( 5, 5, label.c_str(), green );
-                    disp_image.display();
-                }
-
-                //subimage.normalize(0, 255);
-                //subimage.save( "sample-At.png" );
-
-            	std::cout << "TEST OUTPUT IS : " << sample.output() << std::endl;
-            }
+            alpr::license_plate lic( argv[1], net_manager );
+            lic.analyze();
         }
     }
     catch( neurocl::network_exception& e )

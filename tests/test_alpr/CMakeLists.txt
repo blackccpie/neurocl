@@ -39,10 +39,12 @@ include_directories(
 
 set (headers_list
 alphanum.h
+alpr.h
 )
 
 set (sources_list
 main.cpp
+alpr.cpp
 )
 
 add_executable(test_alpr ${sources_list} ${headers_list})
