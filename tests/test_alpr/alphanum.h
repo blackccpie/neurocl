@@ -32,30 +32,69 @@ using namespace boost::assign;;
 const std::vector<std::string> v_alphanum_order =
     list_of ("A")("B")("C")("D")("E")("F")("G")("H")("I")("J")("K")("L")("M")
             ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z")
-            ("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
+            ("-")("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
+
+const std::vector<std::string> v_numbers_order =
+    list_of ("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
+
+const std::vector<std::string> v_letters_order =
+    list_of ("A")("B")("C")("D")("E")("F")("G")("H")("I")("J")("K")("L")("M")
+            ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z")
+            ("-");
 
 class alphanum
 {
 public:
-    alphanum( const size_t index ) : m_index( index ) {}
-    alphanum( const std::string& c )
+    typedef enum
     {
-        std::vector<std::string>::const_iterator iter = std::find( v_alphanum_order.begin(), v_alphanum_order.end(), c );
-        m_index = std::distance( v_alphanum_order.begin(), iter );
+        NUMBER = 0,
+        LETTER,
+        BOTH,
+        UNKNOWN
+    } data_type;
+public:
+	alphanum( const size_t index, const data_type type ) : m_index( index )
+    {
+        _init_type( type );
+    }
+    alphanum( const std::string& c, const data_type type )
+    {
+        _init_type( type );
+
+        std::vector<std::string>::const_iterator iter = std::find( m_order->begin(), m_order->end(), c );
+        m_index = std::distance( m_order->begin(), iter );
     }
     const std::string string()
     {
-        return v_alphanum_order[m_index];
+        return (*m_order)[m_index];
     }
     const std::string bitset_string()
     {
         std::stringstream ss;
-        BOOST_FOREACH( const std::string& _c, v_alphanum_order )
+        BOOST_FOREACH( const std::string& _c, *m_order )
         {
-            ss << ( ( _c == v_alphanum_order[m_index] ) ? "1" : "0" ) << " ";
+            ss << ( ( _c == (*m_order)[m_index] ) ? "1" : "0" ) << " ";
         }
         return ss.str();
     }
 private:
+    void _init_type( const data_type type )
+    {
+        switch(type)
+        {
+        case NUMBER:
+            m_order = &v_numbers_order;
+            break;
+        case LETTER:
+            m_order = &v_letters_order;
+            break;
+        case BOTH:
+        default:
+            m_order = &v_alphanum_order;
+            break;
+        }
+    }
+private:
     size_t m_index;
+    const std::vector<std::string>* m_order;
 };

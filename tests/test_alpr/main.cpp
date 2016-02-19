@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 #include <iostream>
 
-#define NEUROCL_EPOCH_SIZE 10
+#define NEUROCL_EPOCH_SIZE 100
 #define NEUROCL_BATCH_SIZE 10
 #define MAX_MATCH_ERROR 0.1f
 
@@ -43,16 +43,16 @@ int main( int argc, char *argv[] )
     {
         // TODO : check command arguments with boost
 
-        bool training_enabled = boost::lexical_cast<bool>( argv[4] );
-
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-        net_manager.load_network( argv[2], argv[3] );
+        bool training_enabled = false;
 
         //************************* TRAINING *************************//
 
         if ( training_enabled )
         {
             /******** TRAIN ********/
+
+            neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+            net_manager.load_network( argv[2], argv[3] );
 
             neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
             neurocl::samples_manager::instance().load_samples( argv[1] );
@@ -92,7 +92,13 @@ int main( int argc, char *argv[] )
 
         else
         {
-            alpr::license_plate lic( argv[1], net_manager );
+            neurocl::network_manager net_num( neurocl::network_manager::NEURAL_IMPL_BNU );
+            net_num.load_network( argv[2], argv[3] );
+
+            neurocl::network_manager net_let( neurocl::network_manager::NEURAL_IMPL_BNU );
+            net_let.load_network( argv[4], argv[5] );
+
+            alpr::license_plate lic( argv[1], net_num, net_let );
             lic.analyze();
         }
     }
