@@ -37,7 +37,8 @@ namespace alpr {
 class license_plate
 {
 public:
-    license_plate( const std::string& file_plate, neurocl::network_manager& net_manager );
+    license_plate( const std::string& file_plate,
+        neurocl::network_manager& net_num, neurocl::network_manager& net_let );
     ~license_plate();
 
     void analyze();
@@ -51,11 +52,13 @@ private:
 private:
 
     cimg_library::CImg<float> m_work_plate;
-    boost::shared_array<float> m_detector_output;
+    boost::shared_array<float> m_num_output;
+    boost::shared_array<float> m_let_output;
 
     std::vector< std::pair<size_t,size_t> > m_letter_intervals;
 
-    neurocl::network_manager& m_net_manager;
+    neurocl::network_manager& m_net_num;
+    neurocl::network_manager& m_net_let;
 };
 
 } //namespace alpr
