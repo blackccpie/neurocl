@@ -34,6 +34,9 @@ namespace alpr {
 
 using namespace cimg_library;
 
+//#define DISPLAY_ROW_SUMS
+#define DISPLAY_DISTANCE_MAP
+
 // Network cell size
 const size_t g_sizeX = 50;
 const size_t g_sizeY = 100;
@@ -44,13 +47,17 @@ const size_t g_insideX = 10;
 const size_t g_max_try_per_segment = 10;
 
 const std::vector<size_t> french_plate_numbers_pos = list_of (4)(5)(6);
-const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(3)(7)(8)(9);
+const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(8)(9);
+const std::vector<size_t> french_plate_separators_pos = list_of (3)(7);
 
 bool is_number_pos( const size_t pos )
 { return ( std::find( french_plate_numbers_pos.begin(), french_plate_numbers_pos.end(), pos ) != french_plate_numbers_pos.end() ); }
 
 bool is_letter_pos( const size_t pos )
 { return ( std::find( french_plate_letters_pos.begin(), french_plate_letters_pos.end(), pos ) != french_plate_letters_pos.end() ); }
+
+bool is_separator_pos( const size_t pos )
+{ return ( std::find( french_plate_separators_pos.begin(), french_plate_separators_pos.end(), pos ) != french_plate_separators_pos.end() ); }
 
 license_plate::license_plate( const std::string& file_plate,
     neurocl::network_manager& net_num, neurocl::network_manager& net_let )
@@ -127,11 +134,13 @@ void license_plate::_compute_ranges()
         last_val = cur_val;
     }
 
+#ifdef DISPLAY_ROW_SUMS
     // Display row sums graph
     CImg<float> sums_graph( m_work_plate.width(), 400, 1, 3, 0 );
     unsigned char green[] = { 0,255,0 };
     sums_graph.draw_graph( row_sums, green, 1, 1, 1 );
     sums_graph.display();
+#endif
 }
 
 void license_plate::_compute_distance_map()
@@ -152,6 +161,7 @@ void license_plate::_compute_distance_map()
         if ( i < range_iter->first )
             continue;
 
+        // Manage a limited number of tries in each segment
         if ( ( ++segment_tries >= g_max_try_per_segment ) || ( i == range_iter->second ) )
         {
             segment_tries = 0;
@@ -163,7 +173,7 @@ void license_plate::_compute_distance_map()
         std::cout << "SEGMENT " << item_count << "/" << segment_tries << std::endl;
 
         CImg<float> subimage = m_work_plate.get_columns( i, i + g_sizeX - 1 );
-        cimg_for_borderXY( subimage, x, y, 3 ) { subimage( x, y ) = 0; }
+        cimg_for_borderXY( subimage, x, y, 3 ) { subimage( x, y ) = 0; } // TODO-AM : configurable?
         //subimage.threshold( 0.5f );
 
         alphanum::data_type type = alphanum::UNKNOWN;
@@ -180,6 +190,20 @@ void license_plate::_compute_distance_map()
             type = alphanum::NUMBER;
             sample = boost::make_shared<neurocl::sample>( g_sizeX * g_sizeY, subimage.data(), 10, m_num_output.get() );
             m_net_num.compute_output( *sample );
+        }
+        else if ( is_separator_pos( item_count ) )
+        {
+            //**** TEMPORARY HACK ****//
+            cimg_for_borderY( subimage, y, 25 )
+                cimg_forX( subimage, x )
+                    subimage( x, y ) = 0;
+            cimg_forY( subimage, y )
+                for ( int x = ( subimage.width() - 11 ); x<subimage.width(); x++ )
+                    subimage( x, y ) = 0;
+
+            type = alphanum::LETTER;
+            sample = boost::make_shared<neurocl::sample>( g_sizeX * g_sizeY, subimage.data(), 27, m_let_output.get() );
+            m_net_let.compute_output( *sample );
         }
         else
         {
@@ -210,11 +234,13 @@ void license_plate::_compute_distance_map()
         //std::cout << "TEST OUTPUT IS : " << sample.output() << std::endl;
     }
 
+#ifdef DISPLAY_DISTANCE_MAP
     // Display distance map graph
     CImg<float> dist_graph( m_work_plate.width(), 400, 1, 3, 0 );
     unsigned char red[] = { 255,0,0 };
     dist_graph.draw_graph( dist_map, red, 1, 1, 1 );
     dist_graph.display();
+#endif
 }
 
 void license_plate::analyze()
