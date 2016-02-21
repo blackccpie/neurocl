@@ -103,7 +103,7 @@ void processCommandLine ( int argc,char **argv,raspicam::RaspiCam &camera ) {
 
     if ( findParam ( "-gr",argc,argv ) !=-1 )
       camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
-    if ( findParam ( "-yuv",argc,argv ) !=-1 ) 
+    if ( findParam ( "-yuv",argc,argv ) !=-1 )
       camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
     int idx;
     if ( ( idx=findParam ( "-ex",argc,argv ) ) !=-1 )
@@ -153,23 +153,26 @@ public:
 
 };
 
-int main ( int argc,char **argv ) {
+int main ( int argc,char **argv )
+{
     if ( argc==1 ) {
         cerr<<"Usage (-help for help)"<<endl;
     }
 
-    if ( findParam ( "-help",argc,argv ) !=-1) {
+    if ( findParam ( "-help",argc,argv ) !=-1)
+    {
         showUsage();
         return -1;
     }
 
-  
+
     raspicam::RaspiCam camera;
     processCommandLine ( argc,argv,camera );
-    
+
     cout<<"Connecting to camera"<<endl;
-    
-    if ( !camera.open() ) {
+
+    if ( !camera.open() )
+    {
         cerr<<"Error opening camera"<<endl;
         return -1;
     }
@@ -182,21 +185,22 @@ int main ( int argc,char **argv ) {
     cout<<"Capturing...."<<endl;
     size_t i=0;
     timer.start();
-	do{
+	do
+    {
         camera.grab();
         camera.retrieve ( data );
-        
+
         cimg_library::CImg<unsigned char> img( data, 800, 600 );
-        
+
         //disp.display( img );
-        
+
 		if ( i%5==0 )
-		{	  
+		{
 			cout << "\r capturing ..." << i << "/" << nFramesCaptured << std::flush;
-			
+
 			img.save( "frame.jpg" );
 		}
-		
+
     } while(++i<nFramesCaptured || nFramesCaptured==0); //stops when nFrames captured or at infinity lpif nFramesCaptured<0
 
     timer.end();
@@ -204,4 +208,6 @@ int main ( int argc,char **argv ) {
     cerr<< timer.getSecs()<< " seconds for "<< nFramesCaptured<< "  frames : FPS " << ( ( float ) ( nFramesCaptured ) / timer.getSecs() ) <<endl;
 
     camera.release();
+
+    return 0;
 }
