@@ -25,14 +25,16 @@ THE SOFTWARE.
 #ifndef PLATE_RESOLUTION_H
 #define PLATE_RESOLUTION_H
 
+#include "alphanum.h"
 #include "network_manager.h"
 
 #include "CImg.h"
 
-namespace alpr {
+#include <boost/numeric/ublas/vector.hpp>
 
-// number of segments to identify
-const size_t g_number_segments = 9;
+typedef boost::numeric::ublas::vector<float> vectorF;
+
+namespace alpr {
 
 // maximum number of tries per segment
 const size_t g_max_try_per_segment = 10;
@@ -65,21 +67,45 @@ private:
 
     struct segment_status
     {
-        segment_status() : retries(1) {}
+        segment_status( const alphanum::data_type& _type, const size_t& _scores_size )
+            : retries(1), type( _type ), accumulated_scores( _scores_size ) { accumulated_scores.clear(); }
+        segment_status( const segment_status& status )
+            : retries( status.retries ), type( status.type ), accumulated_scores( status.accumulated_scores ) {}
+        alphanum::data_type type;
         size_t retries;
-        std::pair<size_t,float> order_scores[g_max_try_per_segment];
+        vectorF accumulated_scores;
+
+        const float confidence()
+        {
+            return norm_inf( accumulated_scores ) / norm_1( accumulated_scores );
+        }
+
+        const size_t max_comp_idx() const
+        {
+            return index_norm_inf( accumulated_scores );
+        }
+
+        const float max_comp_val() const
+        {
+            return norm_inf( accumulated_scores ); // maximum norm (biggest absolute real value)
+        }
+
+        const std::string identified_segment() const;
     };
 
 private:
 
+    void _build_segments();
     void _preprocess_candidate( cimg_library::CImg<float>& candidate, bool separator );
+
+    const std::string _dump_plate();
 
 private:
 
-    segment_status m_segment_status[g_number_segments];
+    std::vector<segment_status> m_segment_status;;
 
-    boost::shared_array<float> m_num_output;
-    boost::shared_array<float> m_let_output;
+    vectorF m_num_output;
+    vectorF m_let_output;
 
     boost::shared_ptr<neurocl::sample> m_sample;
     neurocl::network_manager& m_net_num;

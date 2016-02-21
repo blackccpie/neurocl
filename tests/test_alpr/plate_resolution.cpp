@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 #include "plate_resolution.h"
-#include "alphanum.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
@@ -33,7 +32,7 @@ THE SOFTWARE.
 
 namespace alpr {
 
-#define DISPLAY_CANDIDATES
+//#define DISPLAY_CANDIDATES
 
 const std::vector<size_t> french_plate_numbers_pos = list_of (4)(5)(6);
 const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(8)(9);
@@ -48,10 +47,37 @@ bool is_letter_pos( const size_t pos )
 bool is_separator_pos( const size_t pos )
 { return ( std::find( french_plate_separators_pos.begin(), french_plate_separators_pos.end(), pos ) != french_plate_separators_pos.end() ); }
 
+const std::string plate_resolution::segment_status::identified_segment() const
+{
+    switch( type )
+    {
+        case alphanum::LETTER:
+            return v_letters_order[ max_comp_idx() ];
+        case alphanum::NUMBER:
+            return v_numbers_order[ max_comp_idx() ];
+        default:
+            return "unidentified";
+    }
+}
+
 plate_resolution::plate_resolution( neurocl::network_manager& net_num, neurocl::network_manager& net_let )
     :   m_net_num( net_num ), m_net_let( net_let ),
-        m_num_output( new float[10] ), m_let_output( new float[27] )
+        m_num_output( 10 ), m_let_output( 27 )
 {
+    _build_segments();
+}
+
+void plate_resolution::_build_segments()
+{
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
+    m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
+    m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
 }
 
 void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candidate, bool separator )
@@ -97,7 +123,7 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     }
 
     // if max retries reached, switch to next segment
-    size_t& cur_retries = m_segment_status[segment_pos].retries;
+    size_t& cur_retries = m_segment_status[segment_pos-1].retries;
     if ( cur_retries > g_max_try_per_segment )
         return ANALYZE_NEXT;
 
@@ -109,12 +135,14 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     switch( type )
     {
     case alphanum::LETTER:
-        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 27, m_let_output.get() );
+        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 27, &m_let_output.data()[0] );
         m_net_let.compute_output( *m_sample );
+        m_segment_status[segment_pos-1].accumulated_scores += m_let_output;
         break;
     case alphanum::NUMBER:
-        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 10, m_num_output.get() );
+        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 10, &m_num_output.data()[0] );
         m_net_num.compute_output( *m_sample );
+        m_segment_status[segment_pos-1].accumulated_scores += m_num_output;
         break;
     case alphanum::UNKNOWN:
     default:
@@ -139,9 +167,22 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     return ANALYZING;
 }
 
-void compute_results()
+void plate_resolution::compute_results()
 {
+    std::cout << "DETECTED PLATE IS " << _dump_plate() << std::endl;
+}
 
+const std::string plate_resolution::_dump_plate()
+{
+    std::string plate_string = "";
+
+    BOOST_FOREACH( const segment_status& status, m_segment_status )
+    {
+        //std::cout << status.max_comp_idx() << " " << status.max_comp_val() << std::endl;
+        plate_string += status.identified_segment();
+    }
+
+    return plate_string;
 }
 
 }; //namespace alpr

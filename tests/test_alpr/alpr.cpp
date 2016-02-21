@@ -32,7 +32,7 @@ namespace alpr {
 using namespace cimg_library;
 
 //#define DISPLAY_ROW_SUMS
-#define DISPLAY_DISTANCE_MAP
+//#define DISPLAY_DISTANCE_MAP
 
 // Network cell size
 const size_t g_sizeX = 50;
@@ -183,6 +183,8 @@ void license_plate::_compute_distance_map()
     dist_graph.draw_graph( dist_map, red, 1, 1, 1 );
     dist_graph.display();
 #endif
+
+    m_plate_resol.compute_results();
 }
 
 void license_plate::analyze()
