@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#ifndef ALPHANUM_H
+#define ALPHANUM_H
+
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 using namespace boost::assign;;
@@ -98,3 +101,5 @@ private:
     size_t m_index;
     const std::vector<std::string>* m_order;
 };
+
+#endif //ALPHANUM_H

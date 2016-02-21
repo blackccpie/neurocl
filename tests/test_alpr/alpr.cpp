@@ -23,10 +23,7 @@ THE SOFTWARE.
 */
 
 #include "alpr.h"
-#include "alphanum.h"
-
-#include <boost/lexical_cast.hpp>
-#include <boost/make_shared.hpp>
+#include "plate_resolution.h"
 
 #include <iostream>
 
@@ -35,7 +32,7 @@ namespace alpr {
 using namespace cimg_library;
 
 //#define DISPLAY_ROW_SUMS
-#define DISPLAY_DISTANCE_MAP
+//#define DISPLAY_DISTANCE_MAP
 
 // Network cell size
 const size_t g_sizeX = 50;
@@ -44,27 +41,11 @@ const size_t g_sizeY = 100;
 // Letters allowed range : TODO : ratio of total width?
 const size_t g_insideX = 10;
 
-const size_t g_max_try_per_segment = 10;
-
-const std::vector<size_t> french_plate_numbers_pos = list_of (4)(5)(6);
-const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(8)(9);
-const std::vector<size_t> french_plate_separators_pos = list_of (3)(7);
-
-bool is_number_pos( const size_t pos )
-{ return ( std::find( french_plate_numbers_pos.begin(), french_plate_numbers_pos.end(), pos ) != french_plate_numbers_pos.end() ); }
-
-bool is_letter_pos( const size_t pos )
-{ return ( std::find( french_plate_letters_pos.begin(), french_plate_letters_pos.end(), pos ) != french_plate_letters_pos.end() ); }
-
-bool is_separator_pos( const size_t pos )
-{ return ( std::find( french_plate_separators_pos.begin(), french_plate_separators_pos.end(), pos ) != french_plate_separators_pos.end() ); }
-
-license_plate::license_plate( const std::string& file_plate,
-    neurocl::network_manager& net_num, neurocl::network_manager& net_let )
-    : m_num_output( new float[10] ), m_let_output( new float[27] ), m_net_num( net_num ), m_net_let( net_let )
+license_plate::license_plate( const std::string& file_plate, neurocl::network_manager& net_num, neurocl::network_manager& net_let )
+    : m_plate_resol( net_num, net_let )
 {
+    // Initialize & prepare input plate image
     CImg<float> input_plate( file_plate.c_str() );
-
     _prepare_work_plate( input_plate );
 }
 
@@ -150,85 +131,46 @@ void license_plate::_compute_distance_map()
 
     std::vector< std::pair<size_t,size_t> >::const_iterator range_iter = m_letter_intervals.begin();
 
-    std::string segment_results[9];
-    size_t segment_tries = 0;
-
-    boost::shared_ptr<neurocl::sample> sample;
-
     size_t item_count = 1;
+
+    // scroll the plate from left to right
     for ( size_t i=0; i<=( m_work_plate.width() - g_sizeX ); i++ )
     {
         if ( i < range_iter->first )
             continue;
 
-        // Manage a limited number of tries in each segment
-        if ( ( ++segment_tries >= g_max_try_per_segment ) || ( i == range_iter->second ) )
+        if ( i == range_iter->second )
         {
-            segment_tries = 0;
             item_count++;
             range_iter++;
             continue;
         }
 
-        std::cout << "SEGMENT " << item_count << "/" << segment_tries << std::endl;
-
         CImg<float> subimage = m_work_plate.get_columns( i, i + g_sizeX - 1 );
-        cimg_for_borderXY( subimage, x, y, 3 ) { subimage( x, y ) = 0; } // TODO-AM : configurable?
-        //subimage.threshold( 0.5f );
 
-        alphanum::data_type type = alphanum::UNKNOWN;
+        plate_resolution::resolution_status status = m_plate_resol.push_candidate( subimage, item_count );
 
-        // TODO-AM : smarter management, put in a class?
-        if ( is_letter_pos( item_count ) )
+        switch( status )
         {
-            type = alphanum::LETTER;
-            sample = boost::make_shared<neurocl::sample>( g_sizeX * g_sizeY, subimage.data(), 27, m_let_output.get() );
-            m_net_let.compute_output( *sample );
-        }
-        else if ( is_number_pos( item_count ) )
-        {
-            type = alphanum::NUMBER;
-            sample = boost::make_shared<neurocl::sample>( g_sizeX * g_sizeY, subimage.data(), 10, m_num_output.get() );
-            m_net_num.compute_output( *sample );
-        }
-        else if ( is_separator_pos( item_count ) )
-        {
-            //**** TEMPORARY HACK ****//
-            cimg_for_borderY( subimage, y, 25 )
-                cimg_forX( subimage, x )
-                    subimage( x, y ) = 0;
-            cimg_forY( subimage, y )
-                for ( int x = ( subimage.width() - 11 ); x<subimage.width(); x++ )
-                    subimage( x, y ) = 0;
-
-            type = alphanum::LETTER;
-            sample = boost::make_shared<neurocl::sample>( g_sizeX * g_sizeY, subimage.data(), 27, m_let_output.get() );
-            m_net_let.compute_output( *sample );
-        }
-        else
-        {
-            std::cout << "WARNING -> abnormal item position " << item_count << std::endl;
-            continue;
+        case plate_resolution::ANALYZING:
+            break;
+        case plate_resolution::ANALYZE_NEXT:
+            item_count++; // go to next item
+            range_iter++; // go to next range
+            break;
+        case plate_resolution::ANALYZE_ENDED:
+            break;
+        case plate_resolution::UNKNOWN:
+        default:
+            // should never happen!
+            break;
         }
 
-        //std::cout << sample.output() << std::endl;
+        const boost::shared_ptr<neurocl::sample>& sample = m_plate_resol.last_sample();
 
-        //if ( sample->max_comp_val() > 0.5f )
+        if ( sample->max_comp_val() > 0.5f )
         {
             dist_map(i) = sample->max_comp_val();
-
-            if ( true )
-            {
-                CImg<float> disp_image( 50, 100, 1, 3 );
-                cimg_forXYC( disp_image, x, y, c ) {
-                    disp_image( x, y, c ) = 255.f * subimage( x, y ); }
-
-                unsigned char green[] = { 0,255,0 };
-                std::string label = alphanum( sample->max_comp_idx(), type ).string() + " "
-                    + boost::lexical_cast<std::string>( sample->max_comp_val() );
-                disp_image.draw_text( 5, 5, label.c_str(), green );
-                disp_image.display();
-            }
         }
 
         //std::cout << "TEST OUTPUT IS : " << sample.output() << std::endl;
@@ -241,6 +183,8 @@ void license_plate::_compute_distance_map()
     dist_graph.draw_graph( dist_map, red, 1, 1, 1 );
     dist_graph.display();
 #endif
+
+    m_plate_resol.compute_results();
 }
 
 void license_plate::analyze()
