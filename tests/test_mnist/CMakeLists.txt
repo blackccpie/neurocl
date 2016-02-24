@@ -30,8 +30,6 @@ endif ()
 
 link_directories(${extra_link_paths})
 
-include_directories("${CMAKE_SOURCE_DIR}/src")
-
 set (sources_list
 main.cpp
 )
