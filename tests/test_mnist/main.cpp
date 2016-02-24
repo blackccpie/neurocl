@@ -71,6 +71,7 @@ int main( int argc, char *argv[] )
         {
             const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
+            float mean_rmse = 0.f;
             size_t _rmse_score = 0;
             size_t _classif_score = 0;
 
@@ -83,6 +84,8 @@ int main( int argc, char *argv[] )
                 std::cout << tsample.ref_output() << std::endl;
                 std::cout << tsample.RMSE() << std::endl;
 
+                mean_rmse += tsample.RMSE();
+
                 if ( tsample.RMSE() < MAX_MATCH_ERROR )
                     ++ _rmse_score;
 
@@ -92,6 +95,9 @@ int main( int argc, char *argv[] )
             	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
             }
 
+            mean_rmse /= static_cast<float>( training_samples.size() );
+
+            std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
             std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size() << std::endl;
             std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
         }

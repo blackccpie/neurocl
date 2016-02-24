@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 namespace alpr {
 
-//#define DISPLAY_CANDIDATES
+#define DISPLAY_CANDIDATES
 
 const std::vector<size_t> french_plate_numbers_pos = list_of (4)(5)(6);
 const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(8)(9);
@@ -93,7 +93,14 @@ void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candida
             cimg_forX( candidate, x )
                 candidate( x, y ) = 0;
         cimg_forY( candidate, y )
-            for ( int x = ( candidate.width() - 16 ); x<candidate.width(); x++ )
+            for ( int x = ( candidate.width()/2 ); x<candidate.width(); x++ )
+                candidate( x, y ) = 0;
+    }
+    // else remove eventually next caracter parts on the right of the image
+    else
+    {
+        cimg_forY( candidate, y )
+            for ( int x = ( 9*candidate.width()/10 ); x<candidate.width(); x++ )
                 candidate( x, y ) = 0;
     }
 }

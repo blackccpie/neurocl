@@ -32,7 +32,6 @@ endif ()
 link_directories(${extra_link_paths})
 
 include_directories(
-    "${CMAKE_SOURCE_DIR}/src"
     "${CMAKE_SOURCE_DIR}/../CImg"
     ${extra_includes}
 )

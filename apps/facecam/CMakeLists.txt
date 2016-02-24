@@ -21,9 +21,31 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (facecam)
 
-if (NOT APPLE)
-    add_subdirectory(neuropicam)
+if (APPLE)
+    set (extra_includes "/opt/X11/include")
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
 endif ()
 
-add_subdirectory(facecam)
+include_directories(
+	"${CMAKE_SOURCE_DIR}/../CImg"
+	${extra_includes}
+)
+
+link_directories(${extra_link_paths})
+
+set (sources_list
+main.cpp
+)
+
+set (headers_list
+)
+
+add_executable(facecam ${sources_list} ${headers_list})
+
+target_link_libraries(facecam
+${extra_link_libs}
+X11
+)

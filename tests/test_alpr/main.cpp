@@ -42,8 +42,9 @@ int main( int argc, char *argv[] )
     try
     {
         // TODO : check command arguments with boost
-
-        bool training_enabled = false;
+        // 0 testing
+        // 1 training
+        bool training_enabled = ( boost::lexical_cast<int>( argv[1] ) == 1 );
 
         //************************* TRAINING *************************//
 
@@ -52,17 +53,21 @@ int main( int argc, char *argv[] )
             /******** TRAIN ********/
 
             neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-            net_manager.load_network( argv[2], argv[3] );
+            net_manager.load_network( argv[3], argv[4] );
 
             neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
-            neurocl::samples_manager::instance().load_samples( argv[1] );
+            neurocl::samples_manager::instance().load_samples( argv[2] );
 
-            net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+            if ( argc == 6 )
+                net_manager.batch_train( smp_manager, boost::lexical_cast<int>( argv[5] ), NEUROCL_BATCH_SIZE );
+            else
+            	net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
             /******** VALIDATE ********/
 
             const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
+            float mean_rmse = 0.f;
             size_t _rmse_score = 0;
             size_t _classif_score = 0;
 
@@ -75,6 +80,8 @@ int main( int argc, char *argv[] )
                 std::cout << tsample.ref_output() << std::endl;
                 std::cout << tsample.RMSE() << std::endl;
 
+                mean_rmse += tsample.RMSE();
+
                 if ( tsample.RMSE() < MAX_MATCH_ERROR )
                     ++ _rmse_score;
 
@@ -84,6 +91,9 @@ int main( int argc, char *argv[] )
             	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
             }
 
+            mean_rmse /= static_cast<float>( training_samples.size() );
+
+            std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
             std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size() << std::endl;
             std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
         }
@@ -93,12 +103,12 @@ int main( int argc, char *argv[] )
         else
         {
             neurocl::network_manager net_num( neurocl::network_manager::NEURAL_IMPL_BNU );
-            net_num.load_network( argv[2], argv[3] );
+            net_num.load_network( argv[3], argv[4] );
 
             neurocl::network_manager net_let( neurocl::network_manager::NEURAL_IMPL_BNU );
-            net_let.load_network( argv[4], argv[5] );
+            net_let.load_network( argv[5], argv[6] );
 
-            alpr::license_plate lic( argv[1], net_num, net_let );
+            alpr::license_plate lic( argv[2], net_num, net_let );
             lic.analyze();
         }
     }
