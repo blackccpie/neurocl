@@ -22,6 +22,8 @@
 
 cmake_minimum_required (VERSION 3.0)
 
+include_directories("${CMAKE_SOURCE_DIR}/src")
+
 if (NOT APPLE)
     add_subdirectory(neuropicam)
 endif ()

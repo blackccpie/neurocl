@@ -58,7 +58,7 @@ public:
     const resolution_status push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos );
 
     // Compute results
-    void compute_results();
+    const std::string compute_results();
 
     // Get last sample
     const boost::shared_ptr<neurocl::sample>& last_sample() { return m_sample; }

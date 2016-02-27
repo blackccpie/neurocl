@@ -55,6 +55,8 @@ const std::string plate_resolution::segment_status::identified_segment() const
             return v_letters_order[ max_comp_idx() ];
         case alphanum::NUMBER:
             return v_numbers_order[ max_comp_idx() ];
+        case alphanum::SEPARATOR:
+            return v_separators_order[ max_comp_idx() ];
         default:
             return "unidentified";
     }
@@ -62,33 +64,33 @@ const std::string plate_resolution::segment_status::identified_segment() const
 
 plate_resolution::plate_resolution( neurocl::network_manager& net_num, neurocl::network_manager& net_let )
     :   m_net_num( net_num ), m_net_let( net_let ),
-        m_num_output( 10 ), m_let_output( 27 )
+        m_num_output( 10 ), m_let_output( 26 )
 {
     _build_segments();
 }
 
 void plate_resolution::_build_segments()
 {
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::SEPARATOR, 1 ) );
     m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
     m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
     m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 27 ) );
+    m_segment_status.push_back( segment_status( alphanum::SEPARATOR, 1 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
 }
 
 void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candidate, bool separator )
 {
     // remove border
-    //cimg_for_borderXY( candidate, x, y, 3 ) { candidate( x, y ) = 0; } // TODO-AM : configurable?
+    cimg_for_borderXY( candidate, x, y, 3 ) { candidate( x, y ) = 0; } // TODO-AM : configurable?
 
     // if separator clear image outside "ROI"
-    if ( separator )
+    /*if ( separator )
     {
-        //**** TEMPORARY HACK ****//
+        ////// TEMPORARY HACK //////
         cimg_for_borderY( candidate, y, 30 )
             cimg_forX( candidate, x )
                 candidate( x, y ) = 0;
@@ -102,7 +104,7 @@ void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candida
         cimg_forY( candidate, y )
             for ( int x = ( 9*candidate.width()/10 ); x<candidate.width(); x++ )
                 candidate( x, y ) = 0;
-    }
+    }*/
 }
 
 const plate_resolution::resolution_status plate_resolution::push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos )
@@ -120,8 +122,7 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     }
     else if ( is_separator_pos( segment_pos ) )
     {
-        type = alphanum::LETTER;
-        separator = true;
+        type = alphanum::SEPARATOR;
     }
     else
     {
@@ -137,19 +138,32 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     std::cout << "SEGMENT " << segment_pos << "/" << cur_retries << std::endl;
 
     // pre-process candidate image
-    _preprocess_candidate( candidate, separator );
+    _preprocess_candidate( candidate, false/*separator*/ ); // TODO : separator management usefull?
+
+    size_t candidate_max_comp_idx = 0;
+    float candidate_max_comp_val = 0.f;
 
     switch( type )
     {
     case alphanum::LETTER:
-        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 27, &m_let_output.data()[0] );
+        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 26, &m_let_output.data()[0] );
         m_net_let.compute_output( *m_sample );
+        candidate_max_comp_idx = m_sample->max_comp_idx();
+        candidate_max_comp_val = m_sample->max_comp_val();
         m_segment_status[segment_pos-1].accumulated_scores += m_let_output;
         break;
     case alphanum::NUMBER:
         m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 10, &m_num_output.data()[0] );
         m_net_num.compute_output( *m_sample );
+        candidate_max_comp_idx = m_sample->max_comp_idx();
+        candidate_max_comp_val = m_sample->max_comp_val();
         m_segment_status[segment_pos-1].accumulated_scores += m_num_output;
+        break;
+    case alphanum::SEPARATOR:
+        // TEMP-TODO -> compute a score given norm difference with separator image
+        m_segment_status[segment_pos-1].accumulated_scores += boost::numeric::ublas::scalar_vector<float>( 1, 1.f );
+        candidate_max_comp_idx = 0;
+        candidate_max_comp_val = 1.f;
         break;
     case alphanum::UNKNOWN:
     default:
@@ -163,8 +177,8 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
         disp_image( x, y, c ) = 255.f * candidate( x, y ); }
 
     unsigned char green[] = { 0,255,0 };
-    std::string label = alphanum( m_sample->max_comp_idx(), type ).string() + " "
-        + boost::lexical_cast<std::string>( m_sample->max_comp_val() );
+    std::string label = alphanum( candidate_max_comp_idx, type ).string() + " "
+        + boost::lexical_cast<std::string>( candidate_max_comp_val );
     disp_image.draw_text( 5, 5, label.c_str(), green );
     disp_image.display();
 #endif
@@ -174,9 +188,11 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     return ANALYZING;
 }
 
-void plate_resolution::compute_results()
+const std::string plate_resolution::compute_results()
 {
-    std::cout << "DETECTED PLATE IS " << _dump_plate() << std::endl;
+    std::string plate = _dump_plate();
+    std::cout << "DETECTED PLATE IS " << plate << std::endl;
+    return plate;
 }
 
 const std::string plate_resolution::_dump_plate()

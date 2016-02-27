@@ -22,37 +22,127 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "network_manager.h"
+
 #include "CImg.h"
 
 #include <iostream>
 
+//#include <stdlib.h>
+
 using namespace cimg_library;
+
+typedef enum
+{
+    FT_GUESS = 0,
+    FT_ALBERT,
+    FT_ELSA,
+    FT_UNKNOWN,
+    FT_NOT_A_FACE,
+    FT_MAX
+} face_type;
+
+void process( CImg<float> image, const face_type& ftype, neurocl::network_manager& net_manager )
+{
+    float output[3] = { 0.f, 0.f, 0.f };
+    neurocl::sample sample( image.width() * image.height(), image.data(), 3, output );
+
+    bool compute = false;
+
+    switch( ftype )
+    {
+    case FT_ALBERT:
+        output[0] = 1.f;
+        break;
+    case FT_ELSA:
+        output[1] = 1.f;
+        break;
+    case FT_UNKNOWN:
+        output[2] = 1.f;
+        break;
+    case FT_NOT_A_FACE:
+        break;
+    case FT_GUESS:
+        compute = true;
+        break;
+    case FT_MAX:
+    default:
+        // should never be reached
+    break;
+    }
+
+    if ( compute )
+        net_manager.compute_output( sample );
+    else
+        net_manager.train( sample );
+}
+
+void grab_image( CImg<float>& image )
+{
+    system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
+    image.load( "face_scene.png" );
+
+    unsigned char green[] = { 0,255,0 };
+    std::string label( "Please center your face in the gree rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown\n0 = Not a face!" );
+    image.draw_text( 5, 5, label.c_str(), green );
+    image.draw_rectangle( 100, 100, 200, 200, green, 1.f, ~0L );
+}
 
 int main ( int argc,char **argv )
 {
-    CImg<float> input_image( argv[1] );
-    CImgDisplay my_display( input_image, "facecam" );
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+    //net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.txt" );
 
-    while( !my_display.is_closed() )
+    CImg<float> input_image;
+
+    CImgDisplay my_display;
+
+    grab_image( input_image );
+    my_display.display( input_image );
+
+    face_type ftype = FT_MAX;
+
+    do
     {
-        if ( my_display.is_key( cimg::keyA ) )
+        ftype = FT_MAX;
+
+    	if ( my_display.is_key( cimg::keyG ) )
+    	{
+            std::cout << "Guess that face!" << std::endl;
+            ftype = FT_GUESS;
+        }
+        else if ( my_display.is_key( cimg::keyA ) )
         {
             std::cout << "This is Albert!" << std::endl;
+            ftype = FT_ALBERT;
         }
         else if ( my_display.is_key( cimg::keyE ) )
         {
             std::cout << "This is Elsa!" << std::endl;
+            ftype = FT_ELSA;
         }
         else if ( my_display.is_key( cimg::keyU ) )
         {
             std::cout << "This person is unknown!" << std::endl;
+            ftype = FT_UNKNOWN;
         }
         else if ( my_display.is_key( cimg::key0 ) )
         {
             std::cout << "There is no one!" << std::endl;
+            ftype = FT_NOT_A_FACE;
         }
+
+        if ( ftype != FT_MAX )
+        {
+            process( input_image.crop( 100, 100, 200, 200 ), ftype, net_manager );
+
+            grab_image( input_image );
+            my_display.display( input_image );
+        }
+
         my_display.wait();
-    }
+
+    } while( !my_display.is_closed() );
 
     return 0;
 }
