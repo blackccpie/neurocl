@@ -59,13 +59,14 @@ void license_plate::_prepare_work_plate( CImg<float>& input_plate )
     m_work_plate = input_plate.resize( g_sizeY * input_plate.width() / input_plate.height(), g_sizeY );
 
     m_work_plate.channel(0);                // B&W (check position...binarization is different if called after inversion)
+    m_work_plate.blur_median( 1 );          // Remove some noise
     m_work_plate.equalize( 256, 0, 255 );   // spread lut
     m_work_plate.normalize( 0.f, 1.f );     // normalize
     m_work_plate = 1.f - m_work_plate;      // invert
 
     //m_work_plate.display();
 
-    m_work_plate.threshold( 0.6f );
+    m_work_plate.threshold( 0.7f );
 
     // Remove a 10px border
     cimg_for_borderXY( m_work_plate, x, y, 10 ) { m_work_plate( x, y ) = 0; }
@@ -129,7 +130,7 @@ void license_plate::_compute_distance_map()
     // Initialize distance map
     CImg<float> dist_map( m_work_plate.width(), 1, 1, 1, 0 );
 
-    std::vector< std::pair<size_t,size_t> >::const_iterator range_iter = m_letter_intervals.begin();
+    std::vector<t_letter_interval>::const_iterator range_iter = m_letter_intervals.begin();
 
     size_t item_count = 1;
 
@@ -184,7 +185,7 @@ void license_plate::_compute_distance_map()
     dist_graph.display();
 #endif
 
-    m_plate_resol.compute_results();
+    const std::string plate = m_plate_resol.compute_results();
 }
 
 void license_plate::analyze()

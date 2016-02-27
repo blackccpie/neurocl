@@ -55,7 +55,8 @@ private:
 
     cimg_library::CImg<float> m_work_plate;
 
-    std::vector< std::pair<size_t,size_t> > m_letter_intervals;
+    typedef std::pair<size_t,size_t> t_letter_interval;
+    std::vector<t_letter_interval> m_letter_intervals;
 
     plate_resolution m_plate_resol;
 };

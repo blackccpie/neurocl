@@ -35,15 +35,18 @@ using namespace boost::assign;;
 const std::vector<std::string> v_alphanum_order =
     list_of ("A")("B")("C")("D")("E")("F")("G")("H")("I")("J")("K")("L")("M")
             ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z")
-            ("-")("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
+            ("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
 
 const std::vector<std::string> v_numbers_order =
     list_of ("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
 
 const std::vector<std::string> v_letters_order =
     list_of ("A")("B")("C")("D")("E")("F")("G")("H")("I")("J")("K")("L")("M")
-            ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z")
-            ("-");
+            ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z");
+
+const std::vector<std::string> v_separators_order =
+    list_of ("-");
+
 
 class alphanum
 {
@@ -53,6 +56,7 @@ public:
         NUMBER = 0,
         LETTER,
         BOTH,
+        SEPARATOR,
         UNKNOWN
     } data_type;
 public:
@@ -91,7 +95,11 @@ private:
         case LETTER:
             m_order = &v_letters_order;
             break;
+        case SEPARATOR:
+            m_order = &v_separators_order;
+            break;
         case BOTH:
+        case UNKNOWN:
         default:
             m_order = &v_alphanum_order;
             break;
