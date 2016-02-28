@@ -1,4 +1,4 @@
 layer:0:50x100
 layer:1:25x50
-layer:2:5x10
-layer:3:36x1
+layer:2:10x10
+layer:3:10x1

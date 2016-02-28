@@ -47,12 +47,14 @@ public:
 
 private:
 
-    void _prepare_work_plate( cimg_library::CImg<float>& input_plate );
+    void _smart_threshold();
+    void _prepare_work_plate();
     void _compute_ranges();
     void _compute_distance_map();
 
 private:
 
+    cimg_library::CImg<float> m_input_plate;
     cimg_library::CImg<float> m_work_plate;
 
     typedef std::pair<size_t,size_t> t_letter_interval;

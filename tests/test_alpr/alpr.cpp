@@ -22,8 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+//#define cimg_plugin1 "plugins/nlmeans.h"
+//#define cimg_plugin2 "plugins/loop_macros.h"
+
 #include "alpr.h"
 #include "plate_resolution.h"
+
+#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 
@@ -45,33 +50,59 @@ license_plate::license_plate( const std::string& file_plate, neurocl::network_ma
     : m_plate_resol( net_num, net_let )
 {
     // Initialize & prepare input plate image
-    CImg<float> input_plate( file_plate.c_str() );
-    _prepare_work_plate( input_plate );
+    m_input_plate.load( file_plate.c_str() );
+    _prepare_work_plate();
 }
 
 license_plate::~license_plate()
 {
 }
 
-void license_plate::_prepare_work_plate( CImg<float>& input_plate )
+void license_plate::_prepare_work_plate()
 {
     // Compute reduced plate image
-    m_work_plate = input_plate.resize( g_sizeY * input_plate.width() / input_plate.height(), g_sizeY );
+    m_work_plate = m_input_plate.resize( g_sizeY * m_input_plate.width() / m_input_plate.height(), g_sizeY );
 
     m_work_plate.channel(0);                // B&W (check position...binarization is different if called after inversion)
     m_work_plate.blur_median( 1 );          // Remove some noise
+    //m_work_plate.nlmeans();
     m_work_plate.equalize( 256, 0, 255 );   // spread lut
     m_work_plate.normalize( 0.f, 1.f );     // normalize
     m_work_plate = 1.f - m_work_plate;      // invert
 
     //m_work_plate.display();
 
-    m_work_plate.threshold( 0.7f );
+    // "Smart" binarization
+    _smart_threshold();
 
     // Remove a 10px border
     cimg_for_borderXY( m_work_plate, x, y, 10 ) { m_work_plate( x, y ) = 0; }
 
-    //m_work_plate.display();
+    m_work_plate.display();
+}
+
+void license_plate::_smart_threshold()
+{
+    m_work_plate.threshold( 0.7f );
+
+    /*CImg<> work_copy( m_work_plate );
+
+    float k = 0.f;
+    float R = 0.5f;
+
+    CImg<> N(10,10); // Define a 10x10 neighborhood
+    cimg_for10x10( work_copy, x, y, 0, 0, N, float ) { // Loop over the image, using the neighborhood I
+
+        //float mean = N.sum() / 100.f;
+        //float local_mean_dev = work_copy( x, y ) - mean;
+        //float thresh = mean * ( 1.f + k * ( ( local_mean_dev / ( 1.f - local_mean_dev ) ) - 1.f ) );
+
+        //float mean;
+        //float variance = std::sqrt( N.variance_mean( 1, mean ) );
+        //float thresh = mean * ( 1.f + k * ( ( variance / R ) - 1.f ) );
+
+        m_work_plate( x, y ) = ( work_copy( x, y ) >= thresh ) ? 1.f : 0.f;
+    }*/
 }
 
 void license_plate::_compute_ranges()
@@ -186,6 +217,27 @@ void license_plate::_compute_distance_map()
 #endif
 
     const std::string plate = m_plate_resol.compute_results();
+
+    unsigned char blue[] = { 0,0,255 };
+    unsigned char green[] = { 0,255,0 };
+    unsigned char red[] = { 255,0,0 };
+    unsigned char black[] = { 0,0,0 };
+    m_input_plate.draw_rectangle( 0, 0, m_input_plate.width(), m_input_plate.height(), black, 0.5f );
+    std::string global_confidence = boost::lexical_cast<std::string>( (int)( 100 * m_plate_resol.global_confidence() ) ) + "%%";
+    m_input_plate.draw_text( 10, 10, global_confidence.c_str(), blue, 0, 1.f, 30 );
+    int idx = 0;
+    BOOST_FOREACH( const t_letter_interval& interval, m_letter_intervals )
+    {
+        if ( idx >= plate.size() )
+            continue;
+
+        std::string item( 1, plate.at(idx) );
+        std::string item_confidence = boost::lexical_cast<std::string>( (int)( 100 * m_plate_resol.confidence( idx ) ) ) + "%%";
+        m_input_plate.draw_text( interval.second, 10, item.c_str(), green, 0, 1.f, 50 );
+        m_input_plate.draw_text( interval.second, 70, item_confidence.c_str(), red, 0, 1.f, 15 );
+        idx++;
+    }
+    m_input_plate.display();
 }
 
 void license_plate::analyze()

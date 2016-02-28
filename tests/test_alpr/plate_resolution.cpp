@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 namespace alpr {
 
-#define DISPLAY_CANDIDATES
+//#define DISPLAY_CANDIDATES
 
 const std::vector<size_t> french_plate_numbers_pos = list_of (4)(5)(6);
 const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(8)(9);
@@ -85,7 +85,9 @@ void plate_resolution::_build_segments()
 void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candidate, bool separator )
 {
     // remove border
-    cimg_for_borderXY( candidate, x, y, 3 ) { candidate( x, y ) = 0; } // TODO-AM : configurable?
+    cimg_for_borderXY( candidate, x, y, 5 ) { candidate( x, y ) = 0; } // TODO-AM : hardcoded :-(
+    // dilate
+    candidate.dilate( 1 ); // TODO-AM : hardcoded :-(
 
     // if separator clear image outside "ROI"
     /*if ( separator )
@@ -201,11 +203,25 @@ const std::string plate_resolution::_dump_plate()
 
     BOOST_FOREACH( const segment_status& status, m_segment_status )
     {
-        //std::cout << status.max_comp_idx() << " " << status.max_comp_val() << std::endl;
         plate_string += status.identified_segment();
     }
 
     return plate_string;
+}
+
+const float plate_resolution::global_confidence()
+{
+    float global_confidence = 0.f;
+    BOOST_FOREACH( const segment_status& status, m_segment_status )
+    {
+        global_confidence += status.confidence();
+    }
+    return global_confidence / static_cast<float>( m_segment_status.size() );
+}
+
+const float plate_resolution::confidence( const size_t idx )
+{
+    return m_segment_status[idx].confidence();
 }
 
 }; //namespace alpr

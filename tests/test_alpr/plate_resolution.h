@@ -57,8 +57,12 @@ public:
     // Push a new candidate image and give the working segment index
     const resolution_status push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos );
 
-    // Compute results
+    // Compute results and get detected plate string
     const std::string compute_results();
+
+    // Access confidence results
+    const float global_confidence();
+    const float confidence( const size_t idx );
 
     // Get last sample
     const boost::shared_ptr<neurocl::sample>& last_sample() { return m_sample; }
@@ -75,7 +79,7 @@ private:
         size_t retries;
         vectorF accumulated_scores;
 
-        const float confidence()
+        const float confidence() const
         {
             return norm_inf( accumulated_scores ) / norm_1( accumulated_scores );
         }
@@ -102,7 +106,7 @@ private:
 
 private:
 
-    std::vector<segment_status> m_segment_status;;
+    std::vector<segment_status> m_segment_status;
 
     vectorF m_num_output;
     vectorF m_let_output;
