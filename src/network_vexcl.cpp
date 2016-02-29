@@ -34,7 +34,17 @@ namespace neurocl {
 VEX_CONSTANT(_zero, 0.f);
 VEX_CONSTANT(_one, 1.f);
 
-vex::Context g_ctx( vex::Filter::GPU && vex::Filter::Count(1) );
+class my_vex_ctx
+{
+public:
+    static my_vex_ctx& instance() { static my_vex_ctx _ctx; return _ctx; }
+    vex::Context& get() { return m_ctx; }
+protected:
+	my_vex_ctx() : m_ctx( vex::Filter::GPU && vex::Filter::Count(1) ) {}
+    virtual ~my_vex_ctx() {}
+private:
+    vex::Context m_ctx;
+};
 
 template<typename T>
 const std::string dump_vec( const vex::vector<T>& vec, boost::optional<std::string> label = boost::none )
@@ -72,24 +82,26 @@ void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& 
 {
     //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
+    vex::Context& _ctx = my_vex_ctx::instance().get();
+
     if ( next_layer_size.size() ) // non-output layer
     {
         m_weights_size = std::make_pair( next_layer_size.size(), cur_layer_size.size() );
-        m_output_weights = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
+        m_output_weights = vex::vector<float>( _ctx, next_layer_size.size() * cur_layer_size.size() );
         // cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
         random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
-        m_deltas_weight = vex::vector<float>( g_ctx, next_layer_size.size() * cur_layer_size.size() );
+        m_deltas_weight = vex::vector<float>( _ctx, next_layer_size.size() * cur_layer_size.size() );
         m_deltas_weight = _zero();
 
-        m_bias = vex::vector<float>( g_ctx, next_layer_size.size() );
+        m_bias = vex::vector<float>( _ctx, next_layer_size.size() );
         random_normal_init( m_bias, 1.f );
-        m_deltas_bias = vex::vector<float>( g_ctx, next_layer_size.size() );
+        m_deltas_bias = vex::vector<float>( _ctx, next_layer_size.size() );
         m_deltas_bias = _zero();
     }
 
-    m_activations = vex::vector<float>( g_ctx, cur_layer_size.size() );
+    m_activations = vex::vector<float>( _ctx, cur_layer_size.size() );
     m_activations = _zero();
-    m_errors = vex::vector<float>( g_ctx, cur_layer_size.size() );
+    m_errors = vex::vector<float>( _ctx, cur_layer_size.size() );
     m_errors = _zero();
 }
 
@@ -110,10 +122,12 @@ const std::string layer_vexcl::dump_activations() const
 
 network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
 {
-    if ( !g_ctx ) throw std::runtime_error( "No devices available." );
+    vex::Context& _ctx = my_vex_ctx::instance().get();
+
+    if ( !_ctx ) throw std::runtime_error( "No devices available." );
 
     // Print out list of selected devices:
-    std::cout << g_ctx << std::endl;
+    std::cout << _ctx << std::endl;
 }
 
 void network_vexcl::set_input(  const size_t& in_size, const float* in )
@@ -144,8 +158,10 @@ void network_vexcl::add_layers_2d( const std::vector<layer_size>& layer_sizes )
     const layer_size& _last_size = layer_sizes.back();
     m_layers.back().populate( _last_size, layer_size( 0, 0 ) );
 
+    vex::Context& _ctx = my_vex_ctx::instance().get();
+
     // Initialize training output
-    m_training_output = vex::vector<float>( g_ctx, _last_size.size() );
+    m_training_output = vex::vector<float>( _ctx, _last_size.size() );
 
     // Populate all but input layer
     for ( int idx=layer_sizes.size()-2; idx>=0; idx-- )
