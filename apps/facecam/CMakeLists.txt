@@ -49,4 +49,5 @@ target_link_libraries(facecam
 ${extra_link_libs}
 neurocl
 X11
+pthread
 )

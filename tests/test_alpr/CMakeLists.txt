@@ -52,5 +52,6 @@ add_executable(test_alpr ${sources_list} ${headers_list})
 
 target_link_libraries(test_alpr
 neurocl
+pthread
 ${extra_link_libs}
 )
