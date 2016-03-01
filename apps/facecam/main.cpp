@@ -77,15 +77,29 @@ void process( CImg<float> image, const face_type& ftype, neurocl::network_manage
         net_manager.train( sample );
 }
 
+#define IMAGE_SIZEX 480
+#define IMAGE_SIZEY 320
+
+#define FACE_SIZEX 80
+#define FACE_SIZEY 100
+
 void grab_image( CImg<float>& image )
 {
+#ifdef __APPLE__
+    // grab using ImageCapture utility
     system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
+#else
+    // grab using raspistill utility
+    system( "raspistill -w 480 -h 320 -o face_scene.png");
+#endif
     image.load( "face_scene.png" );
+    image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
 
     unsigned char green[] = { 0,255,0 };
-    std::string label( "Please center your face in the gree rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown\n0 = Not a face!" );
+    std::string label( "Please center your face in the green rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown\n0 = Not a face!" );
     image.draw_text( 5, 5, label.c_str(), green );
-    image.draw_rectangle( 100, 100, 200, 200, green, 1.f, ~0L );
+    image.draw_rectangle( IMAGE_SIZEX/2 - FACE_SIZEX, IMAGE_SIZEY/2 - FACE_SIZEY,
+        IMAGE_SIZEX/2 + FACE_SIZEX, IMAGE_SIZEY/2 + FACE_SIZEY, green, 1.f, ~0L );
 }
 
 int main ( int argc,char **argv )
@@ -96,9 +110,6 @@ int main ( int argc,char **argv )
     CImg<float> input_image;
 
     CImgDisplay my_display;
-
-    grab_image( input_image );
-    my_display.display( input_image );
 
     face_type ftype = FT_MAX;
 
@@ -136,6 +147,11 @@ int main ( int argc,char **argv )
         {
             process( input_image.crop( 100, 100, 200, 200 ), ftype, net_manager );
 
+            grab_image( input_image );
+            my_display.display( input_image );
+        }
+        else
+        {
             grab_image( input_image );
             my_display.display( input_image );
         }
