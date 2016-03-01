@@ -79,11 +79,17 @@ void process( CImg<float> image, const face_type& ftype, neurocl::network_manage
 
 void grab_image( CImg<float>& image )
 {
+#ifdef __APPLE__
+    // grab using ImageCapture utility
     system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
+#else
+    // grab using raspistill utility
+    system( "raspistill -w 480 -h 320 -o face_scene.png");
+#endif
     image.load( "face_scene.png" );
 
     unsigned char green[] = { 0,255,0 };
-    std::string label( "Please center your face in the gree rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown\n0 = Not a face!" );
+    std::string label( "Please center your face in the green rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown\n0 = Not a face!" );
     image.draw_text( 5, 5, label.c_str(), green );
     image.draw_rectangle( 100, 100, 200, 200, green, 1.f, ~0L );
 }
