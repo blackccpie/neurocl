@@ -2,12 +2,28 @@
 Neural networks implementations
 
 ## Prerequisite:
+
+main library dependencies:
+
 - [Boost C++](https://github.com/boostorg)
 - [VexCL](https://github.com/ddemidov/vexcl)
 - [CImg](https://github.com/dtschump/CImg)
 
+sample applications dependencies:
+
+- [ccv](http://libccv.org)
+
 ## Building:
 
+building ccv (used for face detection):
+```
+$ git clone https://github.com/liuliu/ccv.git
+$ cd ccv/lib
+$ ./configure
+$ make
+```
+
+building neurocl (mainly header-only dependencies):
 ```
 $ sudo apt-get install libboost-all-dev
 $ git clone https://github.com/dtschump/CImg.git
@@ -38,6 +54,17 @@ layer:2:10x1
 /home/my_user/train-data/sample5.bmp 0 0 0 0 0 0 0 0 0 1
 ...
 ```
+
+neurocl main entry point is class **network_manager**:
+- the network implementation backend is chosen at construction
+```
+neurocl::network_manager net_manager(neurocl::network_manager::NEURAL_IMPL_BNU );```
+- a given network can be loaded, given its topology and weights file names
+```
+net_manager.load_network( "topology.txt", "weights.bin" );```
+- once a network is loaded, it can be trained, or used for direct output computation
+```
+TODO```
 
 ## References:
 - [Neural networks and deep learning](http://neuralnetworksanddeeplearning.com)
