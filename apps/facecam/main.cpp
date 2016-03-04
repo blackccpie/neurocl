@@ -22,15 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "face_detect.h"
 #include "network_manager.h"
-
-#include "CImg.h"
 
 #include <iostream>
 
-//#include <stdlib.h>
-
 using namespace cimg_library;
+
+#define NEUROCL_BATCH_SIZE 10
+
+#define IMAGE_SIZEX 480
+#define IMAGE_SIZEY 320
+
+#define FACE_SIZEX 100
+#define FACE_SIZEY 100
 
 typedef enum
 {
@@ -42,8 +47,15 @@ typedef enum
     FT_MAX
 } face_type;
 
-void process( CImg<float> image, const face_type& ftype, neurocl::network_manager& net_manager )
+void face_process(  CImg<float> image, const face_type& ftype,
+                    neurocl::network_manager& net_manager,
+                    neurocl::iterative_trainer& trainer )
 {
+    image.resize( 50, 50 );
+    image.equalize( 256, 0, 255 );
+    image.normalize( 0.f, 1.f );
+    image.channel(0);
+
     float output[3] = { 0.f, 0.f, 0.f };
     neurocl::sample sample( image.width() * image.height(), image.data(), 3, output );
 
@@ -74,14 +86,8 @@ void process( CImg<float> image, const face_type& ftype, neurocl::network_manage
     if ( compute )
         net_manager.compute_output( sample );
     else
-        net_manager.train( sample );
+        trainer.train_new( sample );
 }
-
-#define IMAGE_SIZEX 480
-#define IMAGE_SIZEY 320
-
-#define FACE_SIZEX 80
-#define FACE_SIZEY 100
 
 void grab_image( CImg<float>& image )
 {
@@ -94,18 +100,27 @@ void grab_image( CImg<float>& image )
 #endif
     image.load( "face_scene.png" );
     image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
+}
 
+void draw_metadata( CImg<float>& image, const face_detect::face_rect& frect )
+{
     unsigned char green[] = { 0,255,0 };
+    unsigned char red[] = { 255,0,0 };
     std::string label( "Please center your face in the green rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown\n0 = Not a face!" );
     image.draw_text( 5, 5, label.c_str(), green );
     image.draw_rectangle( IMAGE_SIZEX/2 - FACE_SIZEX, IMAGE_SIZEY/2 - FACE_SIZEY,
         IMAGE_SIZEX/2 + FACE_SIZEX, IMAGE_SIZEY/2 + FACE_SIZEY, green, 1.f, ~0L );
+    image.draw_rectangle( frect.x0, frect.y0, frect.x1, frect.y1, red, 1.f, ~0L );
 }
 
 int main ( int argc,char **argv )
 {
+    std::vector<face_detect::face_rect> faces;
+    face_detect my_face_detect;
+
     neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-    //net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.txt" );
+    net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+    neurocl::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
 
     CImg<float> input_image;
 
@@ -142,23 +157,32 @@ int main ( int argc,char **argv )
             std::cout << "There is no one!" << std::endl;
             ftype = FT_NOT_A_FACE;
         }
-
-        if ( ftype != FT_MAX )
+        else if ( my_display.is_key( cimg::keyQ ) )
         {
-            process( input_image.crop( 100, 100, 200, 200 ), ftype, net_manager );
-
-            grab_image( input_image );
-            my_display.display( input_image );
+            std::cout << "Bye Bye!" << std::endl;
+            break;
         }
         else
         {
-            grab_image( input_image );
-            my_display.display( input_image );
+            // UNMANAGED KEY
         }
+
+        if ( ftype != FT_MAX )
+        {
+            face_process( input_image.crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype, net_manager, trainer );
+        }
+
+        grab_image( input_image );
+        faces = my_face_detect.detect( input_image );
+        draw_metadata( input_image, faces[0] );
+
+        my_display.display( input_image );
 
         my_display.wait();
 
     } while( !my_display.is_closed() );
+
+    net_manager.finalize_training_iteration();
 
     return 0;
 }

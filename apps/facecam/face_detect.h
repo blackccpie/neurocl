@@ -22,47 +22,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef ALPR_H
-#define ALPR_H
-
-#include "network_manager.h"
-#include "plate_resolution.h"
+#ifndef FACE_DETECT_H
+#define FACE_DETECT_H
 
 #include "CImg.h"
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
-namespace alpr {
+#include <vector>
 
-class network_manager;
+class face_detect_impl;
 
-// Class to manage license plate recognition
-class license_plate
+// Class to manage face detection
+class face_detect
 {
 public:
-    license_plate( const std::string& file_plate, neurocl::network_manager& net_num, neurocl::network_manager& net_let );
-    virtual ~license_plate();
 
-    void analyze();
+    struct face_rect
+    {
+        face_rect( int _x0, int _y0, int _x1, int _y1 )
+            : x0( _x0 ), y0( _y0 ), x1( _x1 ), y1( _y1 ) {}
+
+        int x0;
+        int y0;
+        int x1;
+        int y1;
+    };
+
+public:
+    face_detect();
+    virtual ~face_detect();
+
+    const std::vector<face_rect>& detect( cimg_library::CImg<float>& image );
 
 private:
 
-    void _smart_threshold();
-    void _prepare_work_plate();
-    void _compute_ranges();
-    void _compute_distance_map();
-
-private:
-
-    cimg_library::CImg<float> m_input_plate;
-    cimg_library::CImg<float> m_work_plate;
-
-    typedef std::pair<size_t,size_t> t_letter_interval;
-    std::vector<t_letter_interval> m_letter_intervals;
-
-    plate_resolution m_plate_resol;
+    boost::shared_ptr<face_detect_impl> m_face_detect_impl;;
 };
 
-} //namespace alpr
-
-#endif //ALPR_H
+#endif //FACE_DETECT_H

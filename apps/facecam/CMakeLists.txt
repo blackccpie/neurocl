@@ -31,6 +31,7 @@ endif ()
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/../CImg"
+    "${CMAKE_SOURCE_DIR}/../ccv/lib"
 	${extra_includes}
 )
 
@@ -38,15 +39,25 @@ link_directories(${extra_link_paths})
 
 set (sources_list
 main.cpp
+face_detect.cpp
 )
 
 set (headers_list
+face_detect.h
 )
 
 add_executable(facecam ${sources_list} ${headers_list})
 
+set(ccv_libs
+    ${CMAKE_SOURCE_DIR}/../ccv/lib/libccv.a
+    blas
+    png
+    jpeg
+)
+
 target_link_libraries(facecam
 ${extra_link_libs}
+${ccv_libs}
 neurocl
 X11
 pthread
