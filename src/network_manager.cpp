@@ -75,12 +75,12 @@ void network_manager::save_network()
     m_net_file_handler->save_network_weights();
 }
 
-void network_manager::_prepare_training_iteration()
+void network_manager::prepare_training_iteration()
 {
     m_net->prepare_training();
 }
 
-void network_manager::_finalize_training_iteration()
+void network_manager::finalize_training_iteration()
 {
     m_net->gradient_descent();
 }
@@ -127,9 +127,9 @@ void network_manager::batch_train( const samples_manager& smp_manager, const siz
             if ( samples.empty() )
                 break;
 
-            _prepare_training_iteration();
+            prepare_training_iteration();
             train( samples );
-            _finalize_training_iteration();
+            finalize_training_iteration();
 
             progress_size += batch_size;
 

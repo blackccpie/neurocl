@@ -59,6 +59,11 @@ public:
     void train( const std::vector<sample>& training_set );
     void batch_train( const samples_manager& smp_manager, const size_t& epoch_size, const size_t& batch_size );
 
+    // prepare gradient descent
+    void prepare_training_iteration();
+    // finalize gradient descent
+    void finalize_training_iteration();
+
     void compute_output( sample& s );
 
     void dump_weights();
@@ -68,9 +73,6 @@ public:
 private:
 
     void _assert_loaded();
-
-    void _prepare_training_iteration();
-    void _finalize_training_iteration();
     void _train( const sample& s );
 
 private:
@@ -79,6 +81,42 @@ private:
 
     boost::shared_ptr<network_interface> m_net;
     boost::shared_ptr<network_file_handler> m_net_file_handler;
+};
+
+// used for custom external training
+class iterative_trainer
+{
+public:
+    iterative_trainer( network_manager& net_manager, const size_t batch_size )
+        : m_net_manager( net_manager ), m_batch_pos( 0 ), m_batch_size( batch_size )
+    {
+        m_net_manager.prepare_training_iteration();
+    }
+    virtual ~iterative_trainer()
+    {
+        m_net_manager.finalize_training_iteration();
+        m_net_manager.save_network();
+    }
+
+    void train_new( const neurocl::sample& sample )
+    {
+        m_net_manager.train( sample );
+
+        ++m_batch_pos;
+
+        if ( m_batch_pos >= m_batch_size )
+        {
+            m_net_manager.finalize_training_iteration();
+            m_net_manager.prepare_training_iteration();
+            m_batch_pos = 0;
+        }
+    }
+
+private:
+    size_t m_batch_pos;
+    size_t m_batch_size;
+
+    neurocl::network_manager& m_net_manager;
 };
 
 } //namespace neurocl
