@@ -41,7 +41,7 @@ class license_plate
 {
 public:
     license_plate( const std::string& file_plate, neurocl::network_manager& net_num, neurocl::network_manager& net_let );
-    ~license_plate();
+    virtual ~license_plate();
 
     void analyze();
 
