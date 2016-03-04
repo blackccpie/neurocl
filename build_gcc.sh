@@ -4,4 +4,4 @@ mkdir -p build_gcc
 
 cd build_gcc
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j2
+make -j3
