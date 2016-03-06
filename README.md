@@ -64,7 +64,9 @@ neurocl::network_manager net_manager(neurocl::network_manager::NEURAL_IMPL_BNU )
 net_manager.load_network( "topology.txt", "weights.bin" );```
 - once a network is loaded, it can be trained, or used for direct output computation
 ```
-TODO```
+neurocl::sample sample(...);
+net_manager.compute_output( sample );
+```
 
 ## References:
 - [Neural networks and deep learning](http://neuralnetworksanddeeplearning.com)
