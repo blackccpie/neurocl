@@ -62,7 +62,8 @@ neurocl::network_manager net_manager(neurocl::network_manager::NEURAL_IMPL_BNU )
 ```
 - a given network can be loaded, given its topology and weights file names
 ```
-net_manager.load_network( "topology.txt", "weights.bin" );```
+net_manager.load_network( "topology.txt", "weights.bin" );
+```
 - once a network is loaded, it can be trained, or used for direct output computation
 ```
 neurocl::sample sample(...);
