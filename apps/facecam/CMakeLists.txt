@@ -54,7 +54,6 @@ add_executable(facecam ${sources_list} ${headers_list})
 
 set(ccv_libs
     ${CMAKE_SOURCE_DIR}/../ccv/lib/libccv.a
-    blas
     png
     jpeg
 )
