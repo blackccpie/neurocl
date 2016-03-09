@@ -58,7 +58,8 @@ layer:2:10x1
 neurocl main entry point is class **network_manager**:
 - the network implementation backend is chosen at construction
 ```
-neurocl::network_manager net_manager(neurocl::network_manager::NEURAL_IMPL_BNU );```
+neurocl::network_manager net_manager(neurocl::network_manager::NEURAL_IMPL_BNU );
+```
 - a given network can be loaded, given its topology and weights file names
 ```
 net_manager.load_network( "topology.txt", "weights.bin" );```
@@ -67,6 +68,11 @@ net_manager.load_network( "topology.txt", "weights.bin" );```
 neurocl::sample sample(...);
 net_manager.compute_output( sample );
 ```
+
+## Targeted platforms:
+
+- Mac OSX
+- Raspberry Pi Raspbian
 
 ## References:
 - [Neural networks and deep learning](http://neuralnetworksanddeeplearning.com)
