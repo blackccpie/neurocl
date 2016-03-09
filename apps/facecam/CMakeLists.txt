@@ -46,6 +46,10 @@ set (headers_list
 face_detect.h
 )
 
+if (NOT APPLE)
+	add_definitions( -Dcimg_use_png )
+endif ()
+
 add_executable(facecam ${sources_list} ${headers_list})
 
 set(ccv_libs

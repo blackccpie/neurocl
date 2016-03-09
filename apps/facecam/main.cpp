@@ -96,7 +96,7 @@ void grab_image( CImg<float>& image )
     system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
 #else
     // grab using raspistill utility
-    system( "raspistill -w 480 -h 320 -o face_scene.png");
+    system( "raspistill -w 480 -h 320 -e png -o face_scene.png");
 #endif
     image.load( "face_scene.png" );
     image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
@@ -124,7 +124,13 @@ int main ( int argc,char **argv )
 
     CImg<float> input_image;
 
-    CImgDisplay my_display;
+    CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
+    my_display.set_title( "FaceCam" );
+    my_display.set_fullscreen( true );
+    unsigned char green[] = { 0,255,0 };
+    CImg<unsigned char> welcome( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3 );
+    welcome.draw_text( 50, 50, "Welcome to FaceCam\nPlease wait during capture initialization...", green );
+    my_display.display( welcome );
 
     face_type ftype = FT_MAX;
 
@@ -157,7 +163,7 @@ int main ( int argc,char **argv )
             std::cout << "There is no one!" << std::endl;
             ftype = FT_NOT_A_FACE;
         }
-        else if ( my_display.is_key( cimg::keyQ ) )
+        else if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
         {
             std::cout << "Bye Bye!" << std::endl;
             break;

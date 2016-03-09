@@ -48,6 +48,10 @@ alpr.cpp
 plate_resolution.cpp
 )
 
+if (NOT APPLE)
+	add_definitions( -Dcimg_use_png )
+endif ()
+
 add_executable(test_alpr ${sources_list} ${headers_list})
 
 target_link_libraries(test_alpr

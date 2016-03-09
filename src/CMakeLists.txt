@@ -26,7 +26,7 @@ project (neurocl)
 if (APPLE)
     set (extra_includes "/opt/X11/include")
     set (extra_link_paths "/usr/X11/lib")
-	set (boost_suffix -mt) 
+	set (boost_suffix -mt)
 endif ()
 
 include_directories(
@@ -58,6 +58,10 @@ network_interface.h
 network_vexcl.h
 network_bnu.h
 )
+
+if (NOT APPLE)
+	add_definitions( -Dcimg_use_png )
+endif ()
 
 add_library(neurocl SHARED ${sources_list} ${headers_list})
 
