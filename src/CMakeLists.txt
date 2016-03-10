@@ -73,6 +73,7 @@ boost_filesystem${boost_suffix}
 boost_serialization${boost_suffix}
 ${OpenCL_LIBRARIES}
 X11
+png
 )
 
 target_compile_features(neurocl PRIVATE cxx_auto_type)
