@@ -25,6 +25,8 @@ THE SOFTWARE.
 #include "face_detect.h"
 #include "network_manager.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
 
 using namespace cimg_library;
@@ -50,7 +52,38 @@ typedef enum
     FT_MAX
 } face_type;
 
-boost::optional<face_type> opt_computed_face;
+struct face_result
+{
+    face_result( face_type _type, float _score1, float _score2 )
+        : type( _type ), score1( _score1 ), score2( _score2 ) {}
+
+    const std::string result()
+    {
+        std::string str_type;
+        switch( type )
+        {
+        case FT_ALBERT:
+            str_type = "YOU ARE ALBERT! ";
+            break;
+        case FT_ELSA:
+            str_type = "YOU ARE ELSA! ";
+            break;
+        case FT_UNKNOWN:
+        default:
+            str_type = "YOU ARE UNKNOWN... ";
+            break;
+        }
+        return str_type
+            + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
+            + boost::lexical_cast<std::string>( score2 ) + ")";
+    }
+
+    face_type type;
+    float score1;
+    float score2;
+};
+
+boost::optional<face_result> opt_computed_face;
 
 void face_process(  CImg<float> image, const face_type& ftype,
                     neurocl::network_manager& net_manager,
@@ -95,9 +128,9 @@ void face_process(  CImg<float> image, const face_type& ftype,
         std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
         if ( sample.max_comp_idx() == 0 )
-            opt_computed_face = FT_ALBERT;
+            opt_computed_face = face_result( FT_ALBERT, output[0], output[1] );
         else if ( sample.max_comp_idx() == 1 )
-            opt_computed_face = FT_ELSA;
+            opt_computed_face = face_result( FT_ELSA, output[0], output[1] );
     }
     else
         trainer.train_new( sample );
@@ -147,7 +180,9 @@ int main ( int argc,char **argv )
 
     CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
     my_display.set_title( "FaceCam" );
+#ifndef __APPLE__
     my_display.set_fullscreen( true );
+#endif
     CImg<unsigned char> welcome( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3 );
     welcome.draw_text( 50, 50, "Welcome to FaceCam\nPlease wait during capture initialization...", green );
     my_display.display( welcome );
@@ -191,7 +226,10 @@ int main ( int argc,char **argv )
         else
         {
             // UNMANAGED KEY
+            std::cout << "unmanaged event" << std::endl;
         }
+
+        //std::cout << "key " << my_display.key() << std::endl;
 
         if ( ( ftype != FT_MAX ) && !faces.empty() )
         {
@@ -200,19 +238,8 @@ int main ( int argc,char **argv )
 
         if ( opt_computed_face )
         {
-            switch( opt_computed_face.get() )
-            {
-            case FT_ALBERT:
-                draw_message( input_image, "YOU ARE ALBERT!" );
-                break;
-            case FT_ELSA:
-                draw_message( input_image, "YOU ARE ELSA!" );
-                break;
-            case FT_UNKNOWN:
-            default:
-                draw_message( input_image, "YOU ARE UNKNOWN..." );
-                break;
-            }
+            std::cout << "face detected!" << std::endl;
+            draw_message( input_image, opt_computed_face.get().result() );
         }
         else
         {
@@ -220,12 +247,16 @@ int main ( int argc,char **argv )
             faces = my_face_detect.detect( input_image );
             if ( faces.empty() )
                 draw_message( input_image, "NO FACE DETECTED!" );
+        	draw_metadata( input_image, faces );
         }
 
-        draw_metadata( input_image, faces );
         my_display.display( input_image );
 
-        my_display.wait();
+        do
+        {
+        	my_display.wait();
+        }
+        while( my_display.key() == 0 );
 
         opt_computed_face = boost::none;
 
