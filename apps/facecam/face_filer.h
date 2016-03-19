@@ -22,42 +22,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef FACE_DETECT_H
-#define FACE_DETECT_H
+#ifndef FACE_FILER_H
+#define FACE_FILER_H
 
 #include "CImg.h"
 
-#include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
-#include <vector>
+#include <iostream>
 
-class face_detect_impl;
-
-// Class to manage face detection
-class face_detect
+// Class to manage face files
+class face_filer
 {
 public:
-
-    struct face_rect
+    face_filer() : m_save_path( "../nets/facecam/faces" )
     {
-        face_rect( int _x0, int _y0, int _x1, int _y1 )
-            : x0( _x0 ), y0( _y0 ), x1( _x1 ), y1( _y1 ) {}
+    }
+    virtual ~face_filer() {}
 
-        int x0;
-        int y0;
-        int x1;
-        int y1;
-    };
+    void save_face( const std::string& label, cimg_library::CImg<float>& image )
+    {
+        using namespace boost::filesystem;
 
-public:
-    face_detect();
-    virtual ~face_detect();
+        bool saved = false;
+        size_t idx = 0;
+        do
+        {
+            path _path = m_save_path / path( label ) / path( boost::lexical_cast<std::string>( idx ) + ".png" );
+            if ( !exists( _path ) )
+            {
+                if ( !exists( _path.parent_path() ) )
+                    create_directory( _path.parent_path() );
 
-    const std::vector<face_rect>& detect( cimg_library::CImg<float>& image );
+                image.normalize( 0, 255 );
+                image.save( _path.string().c_str() );
+                saved = true;
+            }
+            idx++;
+
+        } while ( !saved );
+    }
 
 private:
 
-    boost::shared_ptr<face_detect_impl> m_face_detect_impl;
+    boost::filesystem::path m_save_path;
 };
 
-#endif //FACE_DETECT_H
+#endif //FACE_FILER_H

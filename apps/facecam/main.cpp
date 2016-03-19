@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "face_detect.h"
+#include "face_filer.h"
 #include "network_manager.h"
 
 #include <boost/lexical_cast.hpp>
@@ -87,13 +88,15 @@ boost::optional<face_result> opt_computed_face;
 
 void face_process(  CImg<float> image, const face_type& ftype,
                     neurocl::network_manager& net_manager,
-                    neurocl::iterative_trainer& trainer )
+                    neurocl::iterative_trainer& trainer,
+                    face_filer& face_files )
 {
     image.resize( 50, 50 );
     image.equalize( 256, 0, 255 );
     image.normalize( 0.f, 1.f );
     image.channel(0);
 
+    std::string label;
     float output[2] = { 0.f, 0.f };
     neurocl::sample sample( image.width() * image.height(), image.data(), 2, output );
 
@@ -102,12 +105,15 @@ void face_process(  CImg<float> image, const face_type& ftype,
     switch( ftype )
     {
     case FT_ALBERT:
+        label = "A";
         output[0] = 1.f;
         break;
     case FT_ELSA:
+        label = "E";
         output[1] = 1.f;
         break;
     case FT_UNKNOWN:
+        label = "U";
         //output[2] = 1.f;
         break;
     //case FT_NOT_A_FACE:
@@ -133,7 +139,10 @@ void face_process(  CImg<float> image, const face_type& ftype,
             opt_computed_face = face_result( FT_ELSA, output[0], output[1] );
     }
     else
+    {
         trainer.train_new( sample );
+        face_files.save_face( label, image );
+    }
 }
 
 void grab_image( CImg<float>& image )
@@ -172,11 +181,14 @@ int main ( int argc,char **argv )
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
+    face_filer face_files;
+
     neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
     net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
     neurocl::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
 
     CImg<float> input_image;
+    CImg<float> display_image;
 
     CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
     my_display.set_title( "FaceCam" );
@@ -229,28 +241,31 @@ int main ( int argc,char **argv )
             std::cout << "unmanaged event" << std::endl;
         }
 
-        //std::cout << "key " << my_display.key() << std::endl;
+        std::cout << "key " << my_display.key() << std::endl;
 
         if ( ( ftype != FT_MAX ) && !faces.empty() )
         {
-            face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype, net_manager, trainer );
+            face_process(	input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype,
+                            net_manager, trainer,
+                            face_files );
         }
 
         if ( opt_computed_face )
         {
             std::cout << "face detected!" << std::endl;
-            draw_message( input_image, opt_computed_face.get().result() );
+            draw_message( display_image, opt_computed_face.get().result() );
         }
         else
         {
             grab_image( input_image );
+            display_image = input_image;
             faces = my_face_detect.detect( input_image );
             if ( faces.empty() )
-                draw_message( input_image, "NO FACE DETECTED!" );
-        	draw_metadata( input_image, faces );
+                draw_message( display_image, "NO FACE DETECTED!" );
+        	draw_metadata( display_image, faces );
         }
 
-        my_display.display( input_image );
+        my_display.display( display_image );
 
         do
         {
