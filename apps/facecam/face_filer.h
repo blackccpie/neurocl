@@ -45,8 +45,6 @@ public:
     {
         using namespace boost::filesystem;
 
-        image.display();
-
         bool saved = false;
         size_t idx = 0;
         do
@@ -57,6 +55,7 @@ public:
                 if ( !exists( _path.parent_path() ) )
                     create_directory( _path.parent_path() );
 
+                image.normalize( 0, 255 );
                 image.save( _path.string().c_str() );
                 saved = true;
             }

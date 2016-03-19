@@ -57,7 +57,7 @@ public:
 
 private:
 
-    boost::shared_ptr<face_detect_impl> m_face_detect_impl;;
+    boost::shared_ptr<face_detect_impl> m_face_detect_impl;
 };
 
 #endif //FACE_DETECT_H

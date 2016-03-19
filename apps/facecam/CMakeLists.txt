@@ -44,6 +44,7 @@ face_detect.cpp
 
 set (headers_list
 face_detect.h
+face_filer.h
 )
 
 if (NOT APPLE)
@@ -65,3 +66,5 @@ neurocl
 X11
 pthread
 )
+
+target_compile_features(facecam PRIVATE cxx_auto_type)
