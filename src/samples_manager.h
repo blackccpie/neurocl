@@ -27,11 +27,14 @@ THE SOFTWARE.
 
 #include "network_sample.h"
 
+#include <boost/function.hpp>
 #include <boost/shared_array.hpp>
 
 #include <vector>
 
 namespace neurocl {
+
+typedef boost::function<void (float*,const size_t,const size_t)> t_preproc;
 
 class samples_manager
 {
@@ -43,7 +46,7 @@ public:
         return m;
     }
 
-    void load_samples( const std::string &input_filename );
+    void load_samples( const std::string &input_filename, bool shuffle = false, t_preproc extra_preproc = t_preproc() );
 
     const size_t samples_size() const
     {
