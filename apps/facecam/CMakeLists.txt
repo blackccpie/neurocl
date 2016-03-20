@@ -43,6 +43,7 @@ face_detect.cpp
 )
 
 set (headers_list
+edge_detection.h
 face_detect.h
 face_filer.h
 )
@@ -67,4 +68,4 @@ X11
 pthread
 )
 
-target_compile_features(facecam PRIVATE cxx_auto_type)
+target_compile_features(facecam PRIVATE cxx_auto_type cxx_static_assert)
