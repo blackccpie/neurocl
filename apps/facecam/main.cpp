@@ -117,11 +117,13 @@ void face_process(  CImg<float> image, const face_type& ftype,
     image.normalize( 0.f, 1.f );
     image.channel(0);
 
-    face_preprocess( image );
+    CImg<float> work_image = image;
+
+    face_preprocess( work_image );
 
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( image.width() * image.height(), image.data(), 2, output );
+    neurocl::sample sample( image.width() * work_image.height(), work_image.data(), 2, output );
 
     bool compute = false;
 
