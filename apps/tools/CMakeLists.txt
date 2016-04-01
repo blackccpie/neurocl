@@ -21,40 +21,43 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
-project (facecam)
+project (tools)
 
 if (APPLE)
     set (extra_includes "/opt/X11/include")
     set (extra_link_paths "/usr/X11/lib")
-    set (extra_link_libs X11)
 endif ()
 
 include_directories(
-	"${CMAKE_SOURCE_DIR}/../CImg"
-	${extra_includes}
+    .
+    "${CMAKE_SOURCE_DIR}/../CImg"
+    "${CMAKE_SOURCE_DIR}/../ccv/lib"
+    ${extra_includes}
 )
 
 link_directories(${extra_link_paths})
 
 set (sources_list
-main.cpp
+edge_detection.cpp
+face_detect.cpp
 )
 
 set (headers_list
-face_filer.h
+edge_detection.h
+face_detect.h
 )
 
-if (NOT APPLE)
-	add_definitions( -Dcimg_use_png )
-endif ()
+add_library(tools STATIC ${sources_list} ${headers_list})
 
-add_executable(facecam ${sources_list} ${headers_list})
-
-target_link_libraries(facecam
-${extra_link_libs}
-neurocl
-tools
-pthread
+set(ccv_libs
+    ${CMAKE_SOURCE_DIR}/../ccv/lib/libccv.a
+    png
+    jpeg
 )
 
-target_compile_features(facecam PRIVATE cxx_auto_type)
+target_link_libraries(tools
+${ccv_libs}
+X11
+)
+
+target_compile_features(tools PRIVATE cxx_static_assert)
