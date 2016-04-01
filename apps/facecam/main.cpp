@@ -22,13 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "edge_detection.h"
-#include "face_detect.h"
 #include "face_filer.h"
 
 #include "samples_manager.h"
 #include "network_manager.h"
 #include "network_exception.h"
+
+#include "tools/edge_detection.h"
+#include "tools/face_detect.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -94,8 +95,13 @@ boost::optional<face_result> opt_computed_face;
 
 void face_preprocess( CImg<>& image )
 {
-    CImg<float> edged_image( 50, 50, 1, 1 );
-    sobel( image, edged_image );
+    CImg<float> edged_image( 50, 50, 1, 1, 0 );
+
+    sobel::process( image, edged_image );
+
+    //canny<float> canny( image.width(), image.height() );
+    //canny.process( image, edged_image );
+
     edged_image.normalize( 0.f, 1.f );
     image = edged_image; // overwrite input image
     //image.display();

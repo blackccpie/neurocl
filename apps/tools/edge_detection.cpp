@@ -26,9 +26,88 @@ THE SOFTWARE.
 
 #include <iostream>
 
-#define MAX_SIZE 5
-
 using namespace cimg_library;
+
+////////////////////////////////////// SOBEL /////////////////////////////////////////////////
+
+// use with normalized [0,1] floating point images
+template<typename T>
+void sobel::process( const CImg<T>& image_in, CImg<T>& image_out )
+{
+	static_assert( boost::is_same<T,float>::value || boost::is_same<T,double>::value,
+		"Template type should be floating point type!" );
+
+	T upper_bound = 1;
+	T lower_bound = 0;
+	T sum;
+	T sumX, sumY;
+
+	T GX[3][3];
+	T GY[3][3];
+
+	//Sobel Matrices Horizontal
+	GX[0][0] = 1; GX[0][1] = 0; GX[0][2] = -1;
+	GX[1][0] = 2; GX[1][1] = 0; GX[1][2] = -2;
+	GX[2][0] = 1; GX[2][1] = 0; GX[2][2] = -1;
+
+	//Sobel Matrices Vertical
+	GY[0][0] =  1; GY[0][1] =	 2; GY[0][2] =   1;
+	GY[1][0] =  0; GY[1][1] =	 0; GY[1][2] =   0;
+	GY[2][0] = -1; GY[2][1] =	-2;	GY[2][2] =  -1;
+
+	/*Edge detection using Sobel Algorithm*/
+
+	for( int y = 0; y < image_in.height() ; y++)
+	{
+		for( int x = 0; x < image_in.width() ; x++)
+		{
+			sumX	= 0;
+			sumY	= 0;
+
+			/*Image Boundaries*/
+			if( y == 0 || y == image_in.height() - 1 )
+				sum = 0;
+			else if( x == 0 || x == image_in.width() - 1 )
+				sum = 0;
+			else
+			{
+				/*Convolution for X*/
+				for( int i = -1; i < 2; i++ )
+				{
+					for( int j = -1; j < 2; j++ )
+					{
+						sumX = sumX + GX[j+1][i+1] * image_in(x+j,y+i);
+					}
+				}
+
+				/*Convolution for Y*/
+				for( int i = -1; i < 2; i++ )
+				{
+					for( int j = -1; j < 2; j++ )
+					{
+						sumY = sumY + GY[j+1][i+1] * image_in(x+j,y+i);
+					}
+				}
+
+				/*Edge strength*/
+				sum = std::sqrt( boost::math::pow<2>( sumX ) + boost::math::pow<2>( sumY ) );
+			}
+
+			if(sum > upper_bound) sum = upper_bound;
+			if(sum < lower_bound) sum = lower_bound;
+
+			image_out(x,y) = sum;//( upper_bound - sum );
+
+			//std::cout << "x " << x << " y " << y << " SUM " << image_out(x,y) << std::endl;
+		}
+	}
+}
+
+template void sobel::process<float>( const CImg<float>& image_in, CImg<float>& image_out );
+
+////////////////////////////////////// CANNY /////////////////////////////////////////////////
+
+#define MAX_SIZE 5
 
 //***************************
 // helper function that returns true if a>b and c
