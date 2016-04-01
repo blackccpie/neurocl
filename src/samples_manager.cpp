@@ -43,11 +43,11 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
     img.equalize( 256, 0, 255 );
     img.normalize( 0.f, 1.f );
     img.channel(0);
-    
+
     return img;
 }
 
-void samples_manager::load_samples( const std::string &input_filename )
+void samples_manager::load_samples( const std::string &input_filename, bool shuffle, t_preproc extra_preproc )
 {
     if ( !bfs::exists( input_filename ) )
     {
@@ -84,6 +84,14 @@ void samples_manager::load_samples( const std::string &input_filename )
 
         // preprocess and save input image
         cimg_library::CImg<float> img = _get_preprocessed_image( image_filename );
+
+        // manage custom preprocessing if needed
+        if ( extra_preproc )
+        {
+            extra_preproc( img.data(), img.width(), img.height() );
+        }
+
+        // store input sample in list
         size_t input_size = img.size();
         boost::shared_array<float> input_sample( new float[input_size] );
         std::copy( img.data(), img.data()+input_size, input_sample.get() );
@@ -107,6 +115,9 @@ void samples_manager::load_samples( const std::string &input_filename )
         // store new sample
         m_samples_set.push_back( neurocl::sample( input_size, m_input_samples.back().get(), output_size, m_output_samples.back().get() ) );
     }
+
+    if ( shuffle )
+        std::random_shuffle( m_samples_set.begin(), m_samples_set.end() );
 }
 
 const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size ) const

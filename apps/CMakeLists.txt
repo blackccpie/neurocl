@@ -22,10 +22,14 @@
 
 cmake_minimum_required (VERSION 3.0)
 
-include_directories("${CMAKE_SOURCE_DIR}/src")
+include_directories(
+    "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
 if (NOT APPLE)
     add_subdirectory(neuropicam)
 endif ()
 
+add_subdirectory(tools)
 add_subdirectory(facecam)

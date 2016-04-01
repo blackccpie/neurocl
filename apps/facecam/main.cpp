@@ -22,9 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "face_detect.h"
 #include "face_filer.h"
+
+#include "samples_manager.h"
 #include "network_manager.h"
+#include "network_exception.h"
+
+#include "tools/edge_detection.h"
+#include "tools/face_detect.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -32,7 +37,9 @@ THE SOFTWARE.
 
 using namespace cimg_library;
 
+#define NEUROCL_EPOCH_SIZE 100
 #define NEUROCL_BATCH_SIZE 10
+#define MAX_MATCH_ERROR 0.1f
 
 #define IMAGE_SIZEX 480
 #define IMAGE_SIZEY 320
@@ -86,6 +93,26 @@ struct face_result
 
 boost::optional<face_result> opt_computed_face;
 
+void face_preprocess( CImg<>& image )
+{
+    CImg<float> edged_image( 50, 50, 1, 1, 0 );
+
+    sobel::process( image, edged_image );
+
+    //canny<float> canny( image.width(), image.height() );
+    //canny.process( image, edged_image );
+
+    edged_image.normalize( 0.f, 1.f );
+    image = edged_image; // overwrite input image
+    //image.display();
+}
+
+void face_preprocess_generic( float* image, const size_t sizeX, const size_t sizeY )
+{
+    CImg<float> _image( image, sizeX, sizeY, 1, 1, true /*shared*/ );
+    face_preprocess( _image );
+}
+
 void face_process(  CImg<float> image, const face_type& ftype,
                     neurocl::network_manager& net_manager,
                     neurocl::iterative_trainer& trainer,
@@ -96,9 +123,13 @@ void face_process(  CImg<float> image, const face_type& ftype,
     image.normalize( 0.f, 1.f );
     image.channel(0);
 
+    CImg<float> work_image = image;
+
+    face_preprocess( work_image );
+
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( image.width() * image.height(), image.data(), 2, output );
+    neurocl::sample sample( image.width() * work_image.height(), work_image.data(), 2, output );
 
     bool compute = false;
 
@@ -178,106 +209,181 @@ void draw_message( CImg<float>& image, const std::string& message )
 
 int main ( int argc,char **argv )
 {
-    std::vector<face_detect::face_rect> faces;
-    face_detect my_face_detect;
+    std::cout << "Welcome to facecam!" << std::endl;
 
-    face_filer face_files;
-
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-    net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
-    neurocl::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
-
-    CImg<float> input_image;
-    CImg<float> display_image;
-
-    CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
-    my_display.set_title( "FaceCam" );
-#ifndef __APPLE__
-    my_display.set_fullscreen( true );
-#endif
-    CImg<unsigned char> welcome( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3 );
-    welcome.draw_text( 50, 50, "Welcome to FaceCam\nPlease wait during capture initialization...", green );
-    my_display.display( welcome );
-
-    face_type ftype = FT_MAX;
-
-    do
+    try
     {
-        ftype = FT_MAX;
+        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+        net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
-    	if ( my_display.is_key( cimg::keyG ) )
-    	{
-            std::cout << "Guess that face!" << std::endl;
-            ftype = FT_GUESS;
-        }
-        else if ( my_display.is_key( cimg::keyA ) )
+        // TODO : check command arguments with boost
+        // 0 normal use
+        // 1 offline training
+        bool offline_training = ( argc == 2 ) && ( boost::lexical_cast<int>( argv[1] ) == 1 );
+
+        //************************* TRAINING *************************//
+
+        if ( offline_training )
         {
-            std::cout << "This is Albert!" << std::endl;
-            ftype = FT_ALBERT;
-        }
-        else if ( my_display.is_key( cimg::keyE ) )
-        {
-            std::cout << "This is Elsa!" << std::endl;
-            ftype = FT_ELSA;
-        }
-        else if ( my_display.is_key( cimg::keyU ) )
-        {
-            std::cout << "This person is unknown!" << std::endl;
-            ftype = FT_UNKNOWN;
-        }
-        /*else if ( my_display.is_key( cimg::key0 ) )
-        {
-            std::cout << "There is no one!" << std::endl;
-            ftype = FT_NOT_A_FACE;
-        }*/
-        else if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
-        {
-            std::cout << "Bye Bye!" << std::endl;
-            break;
+            /******** TRAIN ********/
+
+            neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+            neurocl::samples_manager::instance().load_samples(  "../nets/facecam/facecam-train.txt",
+                                                                true /*shuffle*/,
+                                                                &face_preprocess_generic /* extra_preproc*/ );
+
+            net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+
+            /******** VALIDATE ********/
+
+            const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+
+            float mean_rmse = 0.f;
+            size_t _rmse_score = 0;
+            size_t _classif_score = 0;
+
+            for ( size_t i = 0; i<training_samples.size(); i++ )
+            {
+                neurocl::test_sample tsample( smp_manager.get_samples()[i] );
+                net_manager.compute_output( tsample );
+
+                std::cout << tsample.output() << std::endl;
+                std::cout << tsample.ref_output() << std::endl;
+                std::cout << tsample.RMSE() << std::endl;
+
+                mean_rmse += tsample.RMSE();
+
+                if ( tsample.RMSE() < MAX_MATCH_ERROR )
+                    ++ _rmse_score;
+
+                if ( tsample.classified() )
+                    ++_classif_score;
+
+            	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
+            }
+
+            mean_rmse /= static_cast<float>( training_samples.size() );
+
+            std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
+            std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size() << std::endl;
+            std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
         }
         else
         {
-            // UNMANAGED KEY
-            std::cout << "unmanaged event" << std::endl;
+            std::vector<face_detect::face_rect> faces;
+            face_detect my_face_detect;
+
+            face_filer face_files;
+
+            neurocl::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
+
+            CImg<float> input_image;
+            CImg<float> display_image;
+
+            CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
+            my_display.set_title( "FaceCam" );
+        #ifndef __APPLE__
+            my_display.set_fullscreen( true );
+        #endif
+            CImg<unsigned char> welcome( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3 );
+            welcome.draw_text( 50, 50, "Welcome to FaceCam\nPlease wait during capture initialization...", green );
+            my_display.display( welcome );
+
+            face_type ftype = FT_MAX;
+
+            do
+            {
+                ftype = FT_MAX;
+
+            	if ( my_display.is_key( cimg::keyG ) )
+            	{
+                    std::cout << "Guess that face!" << std::endl;
+                    ftype = FT_GUESS;
+                }
+                else if ( my_display.is_key( cimg::keyA ) )
+                {
+                    std::cout << "This is Albert!" << std::endl;
+                    ftype = FT_ALBERT;
+                }
+                else if ( my_display.is_key( cimg::keyE ) )
+                {
+                    std::cout << "This is Elsa!" << std::endl;
+                    ftype = FT_ELSA;
+                }
+                else if ( my_display.is_key( cimg::keyU ) )
+                {
+                    std::cout << "This person is unknown!" << std::endl;
+                    ftype = FT_UNKNOWN;
+                }
+                /*else if ( my_display.is_key( cimg::key0 ) )
+                {
+                    std::cout << "There is no one!" << std::endl;
+                    ftype = FT_NOT_A_FACE;
+                }*/
+                else if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
+                {
+                    std::cout << "Bye Bye!" << std::endl;
+                    break;
+                }
+                else
+                {
+                    // UNMANAGED KEY
+                    //std::cout << "unmanaged event" << std::endl;
+                }
+
+                std::cout << "key " << my_display.key() << std::endl;
+
+                if ( ( ftype != FT_MAX ) && !faces.empty() )
+                {
+                    face_process(	input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype,
+                                    net_manager, trainer,
+                                    face_files );
+                }
+
+                if ( opt_computed_face )
+                {
+                    std::cout << "face detected!" << std::endl;
+                    draw_message( display_image, opt_computed_face.get().result() );
+                }
+                else
+                {
+                    grab_image( input_image );
+                    display_image = input_image;
+                    faces = my_face_detect.detect( input_image );
+                    if ( faces.empty() )
+                        draw_message( display_image, "NO FACE DETECTED!" );
+                	draw_metadata( display_image, faces );
+                }
+
+                my_display.display( display_image );
+
+                do
+                {
+                	my_display.wait();
+                }
+                while( my_display.key() == 0 );
+
+                opt_computed_face = boost::none;
+
+            } while( !my_display.is_closed() );
+
+            net_manager.finalize_training_iteration();
         }
+    }
+    catch( neurocl::network_exception& e )
+    {
+        std::cerr << "network exception : " << e.what() << std::endl;
+    }
+    catch( std::exception& e )
+    {
+        std::cerr << "std::exception : " << e.what() << std::endl;
+    }
+    catch(...)
+    {
+        std::cerr << "unknown exception" << std::endl;
+    }
 
-        std::cout << "key " << my_display.key() << std::endl;
-
-        if ( ( ftype != FT_MAX ) && !faces.empty() )
-        {
-            face_process(	input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype,
-                            net_manager, trainer,
-                            face_files );
-        }
-
-        if ( opt_computed_face )
-        {
-            std::cout << "face detected!" << std::endl;
-            draw_message( display_image, opt_computed_face.get().result() );
-        }
-        else
-        {
-            grab_image( input_image );
-            display_image = input_image;
-            faces = my_face_detect.detect( input_image );
-            if ( faces.empty() )
-                draw_message( display_image, "NO FACE DETECTED!" );
-        	draw_metadata( display_image, faces );
-        }
-
-        my_display.display( display_image );
-
-        do
-        {
-        	my_display.wait();
-        }
-        while( my_display.key() == 0 );
-
-        opt_computed_face = boost::none;
-
-    } while( !my_display.is_closed() );
-
-    net_manager.finalize_training_iteration();
+    std::cout << "Bye bye facecam!" << std::endl;
 
     return 0;
 }
