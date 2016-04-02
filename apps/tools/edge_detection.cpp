@@ -24,6 +24,9 @@ THE SOFTWARE.
 
 #include "edge_detection.h"
 
+#include <boost/type_traits/is_same.hpp>
+#include <boost/math/special_functions/pow.hpp>
+
 #include <iostream>
 
 using namespace cimg_library;

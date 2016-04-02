@@ -53,7 +53,8 @@ public:
     face_detect();
     virtual ~face_detect();
 
-    const std::vector<face_rect>& detect( cimg_library::CImg<float>& image );
+	template<typename T>
+    const std::vector<face_rect>& detect( cimg_library::CImg<T>& image );
 
 private:
 

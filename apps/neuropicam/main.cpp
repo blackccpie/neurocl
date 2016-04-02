@@ -23,8 +23,15 @@ THE SOFTWARE.
 */
 
 #include "raspicam.h"
+#include "network_manager.h"
+#include "network_exception.h"
+
+#include "tools/edge_detection.h"
+#include "tools/face_detect.h"
 
 #include "CImg.h"
+
+#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 #include <ctime>
@@ -33,7 +40,7 @@ THE SOFTWARE.
 #include <sstream>
 #include <sys/timeb.h>
 
-using namespace std;
+using namespace cimg_library;
 
 #define IMAGE_SIZEX 480
 #define IMAGE_SIZEY 320
@@ -108,66 +115,200 @@ public:
 
 };
 
+static const unsigned char green[] = { 0,255,0 };
+static const unsigned char red[] = { 255,0,0 };
+
+typedef enum
+{
+    FT_GUESS = 0,
+    FT_ALBERT,
+    FT_ELSA,
+    FT_UNKNOWN,
+    //FT_NOT_A_FACE,
+    FT_MAX
+} face_type;
+
+struct face_result
+{
+    face_result( face_type _type, float _score1, float _score2 )
+        : type( _type ), score1( _score1 ), score2( _score2 ) {}
+
+    const std::string result()
+    {
+        std::string str_type;
+        switch( type )
+        {
+        case FT_ALBERT:
+            str_type = "YOU ARE ALBERT! ";
+            break;
+        case FT_ELSA:
+            str_type = "YOU ARE ELSA! ";
+            break;
+        case FT_UNKNOWN:
+        default:
+            str_type = "YOU ARE UNKNOWN... ";
+            break;
+        }
+        return str_type
+            + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
+            + boost::lexical_cast<std::string>( score2 ) + ")";
+    }
+
+    face_type type;
+    float score1;
+    float score2;
+};
+
+void face_preprocess( CImg<>& image )
+{
+    CImg<float> edged_image( 50, 50, 1, 1, 0 );
+
+    sobel::process( image, edged_image );
+
+    edged_image.normalize( 0.f, 1.f );
+    image = edged_image; // overwrite input image
+    //image.display();
+}
+
+const face_result face_process(  CImg<unsigned char> image, neurocl::network_manager& net_manager )
+{
+	CImg<float> work_image( image );
+	
+    work_image.resize( 50, 50 );
+    work_image.equalize( 256, 0, 255 );
+    work_image.normalize( 0.f, 1.f );
+    work_image.channel(0);
+
+    face_preprocess( work_image );
+
+    std::string label;
+    float output[2] = { 0.f, 0.f };
+    neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
+
+	net_manager.compute_output( sample );
+
+	//std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
+
+	if ( sample.max_comp_idx() == 0 )
+		return face_result( FT_ALBERT, output[0], output[1] );
+	else if ( sample.max_comp_idx() == 1 )
+		return face_result( FT_ELSA, output[0], output[1] );
+}
+
+void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces )
+{
+    if ( !faces.empty() )
+    {
+        const face_detect::face_rect& frect = faces[0];
+    	image.draw_rectangle( frect.x0, frect.y0, frect.x1, frect.y1, red, 1.f, ~0L );
+    }
+}
+
+void draw_message( CImg<unsigned char>& image, const std::string& message )
+{
+    image.draw_text( IMAGE_SIZEX/2, IMAGE_SIZEY/2, message.c_str(), red );
+}
+
 int main ( int argc,char **argv )
 {
 	raspicam::RaspiCam camera;
+	
+	try
+	{
+		std::vector<face_detect::face_rect> faces;
+		face_detect my_face_detect;
+		
+		neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
-	camera.setWidth( IMAGE_SIZEX );
-	camera.setHeight( IMAGE_SIZEY );
-	camera.setBrightness( 50 );
-	camera.setSharpness( 0 );
-	camera.setContrast( 0 );
-	camera.setSaturation( 0 );
-	camera.setShutterSpeed( 0 );
-	camera.setISO( 400 );
-	//camera.setVideoStabilization( true );
-	camera.setExposureCompensation( 0 );
-	camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
-	//camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
-	//camera.setExposure( /**/ );
-	//camera.setAWB( /**/ );
-	camera.setAWB_RB( 1, 1 );
+		camera.setWidth( IMAGE_SIZEX );
+		camera.setHeight( IMAGE_SIZEY );
+		camera.setBrightness( 50 );
+		camera.setSharpness( 0 );
+		camera.setContrast( 0 );
+		camera.setSaturation( 0 );
+		camera.setShutterSpeed( 0 );
+		camera.setISO( 400 );
+		//camera.setVideoStabilization( true );
+		camera.setExposureCompensation( 0 );
+		camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
+		//camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
+		//camera.setExposure( /**/ );
+		//camera.setAWB( /**/ );
+		camera.setAWB_RB( 1, 1 );
 
-	cout << "Connecting to camera" << endl;
+		std::cout << "Connecting to camera" << std::endl;
 
-    if ( !camera.open() )
-    {
-        cerr << "Error opening camera" << endl;
-        return -1;
-    }
-    cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << endl;
-    unsigned char *data=new unsigned char[  camera.getImageBufferSize( )];
-    Timer timer;
-
-	cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
-	my_display.set_title( "NeuroPiCam" );
-	my_display.set_fullscreen( true );
-
-    cout << "Capturing...." << endl;
-    
-    size_t i=0;
-    
-    timer.start();
-    
-	do
-    {
-        camera.grab();
-        camera.retrieve ( data );
-
-        cimg_library::CImg<unsigned char> img( data, IMAGE_SIZEX, IMAGE_SIZEY, 1, 1 );
-        
-        my_display.display( img );
-
-		if ( i%5==0 )
+		if ( !camera.open() )
 		{
-			cout << "\r capturing ..." << i << "/" << nFramesCaptured << std::flush;
+			std::cerr << "Error opening camera" << std::endl;
+			return -1;
 		}
+		std::cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << std::endl;
+		
+		unsigned char *data= new unsigned char[  camera.getImageBufferSize( )];
+		
+		Timer timer;
 
-    } while(++i<nFramesCaptured || nFramesCaptured==0); //stops when nFrames captured or at infinity lpif nFramesCaptured<0
+		cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
+		my_display.set_title( "NeuroPiCam" );
+		my_display.set_fullscreen( true );
 
-    timer.end();
+		std::cout << "Capturing...." << std::endl;
+		
+		CImg<unsigned char> display_image;
+		
+		size_t i=0;
+		
+		timer.start();
+		
+		do
+		{
+			if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
+			{
+				std::cout << "Bye Bye!" << std::endl;
+				break;
+			}
+			
+			camera.grab();
+			camera.retrieve ( data );
 
-    cerr<< timer.getSecs()<< " seconds for "<< nFramesCaptured<< "  frames : FPS " << ( ( float ) ( nFramesCaptured ) / timer.getSecs() ) <<endl;
+			cimg_library::CImg<unsigned char> input_image( data, IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, false );
+			
+			display_image = input_image;
+			
+			faces = my_face_detect.detect( input_image );
+			if ( faces.empty() )
+				draw_message( display_image, "NO FACE DETECTED!" );
+			else
+			{
+				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
+				draw_metadata( display_image, faces );
+			}
+			
+			my_display.display( display_image );
+
+		} while(++i<nFramesCaptured || nFramesCaptured==0); //stops when nFrames captured or at infinity lpif nFramesCaptured<0
+
+		timer.end();
+
+		std::cerr << timer.getSecs()<< " seconds for "<< nFramesCaptured<< "  frames : FPS " << ( ( float ) ( nFramesCaptured ) / timer.getSecs() ) << std::endl;
+
+	}
+    catch( neurocl::network_exception& e )
+    {
+        std::cerr << "network exception : " << e.what() << std::endl;
+    }
+    catch( std::exception& e )
+    {
+        std::cerr << "std::exception : " << e.what() << std::endl;
+    }
+    catch(...)
+    {
+        std::cerr << "unknown exception" << std::endl;
+    }
+
+    std::cout << "Bye bye facecam!" << std::endl;
 
     camera.release();
 

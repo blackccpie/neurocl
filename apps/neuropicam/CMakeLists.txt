@@ -38,6 +38,8 @@ set (headers_list
 add_executable(neuropicam ${sources_list} ${headers_list})
 
 target_link_libraries(neuropicam
+tools
+neurocl
 raspicam
 X11
 pthread
