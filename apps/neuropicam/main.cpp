@@ -115,7 +115,6 @@ public:
 
 };
 
-static const unsigned char green[] = { 0,255,0 };
 static const unsigned char red[] = { 255,0,0 };
 
 typedef enum
@@ -133,7 +132,7 @@ struct face_result
     face_result( face_type _type, float _score1, float _score2 )
         : type( _type ), score1( _score1 ), score2( _score2 ) {}
 
-    const std::string result()
+    const std::string result() const
     {
         std::string str_type;
         switch( type )
@@ -195,12 +194,13 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 		return face_result( FT_ELSA, output[0], output[1] );
 }
 
-void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces )
+void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces, const std::string& message )
 {
     if ( !faces.empty() )
     {
         const face_detect::face_rect& frect = faces[0];
     	image.draw_rectangle( frect.x0, frect.y0, frect.x1, frect.y1, red, 1.f, ~0L );
+    	image.draw_text( frect.x0, frect.y0-20, message.c_str(), red );
     }
 }
 
@@ -246,7 +246,7 @@ int main ( int argc,char **argv )
 		}
 		std::cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << std::endl;
 		
-		unsigned char *data= new unsigned char[  camera.getImageBufferSize( )];
+		boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 		
 		Timer timer;
 
@@ -271,9 +271,9 @@ int main ( int argc,char **argv )
 			}
 			
 			camera.grab();
-			camera.retrieve ( data );
+			camera.retrieve( data.get() );
 
-			cimg_library::CImg<unsigned char> input_image( data, IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, false );
+			cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
 			
 			display_image = input_image;
 			
@@ -283,7 +283,7 @@ int main ( int argc,char **argv )
 			else
 			{
 				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
-				draw_metadata( display_image, faces );
+				draw_metadata( display_image, faces, fres.result() );
 			}
 			
 			my_display.display( display_image );
@@ -292,7 +292,7 @@ int main ( int argc,char **argv )
 
 		timer.end();
 
-		std::cerr << timer.getSecs()<< " seconds for "<< nFramesCaptured<< "  frames : FPS " << ( ( float ) ( nFramesCaptured ) / timer.getSecs() ) << std::endl;
+		std::cerr << timer.getSecs()<< " seconds for "<< i << "  frames : FPS " << ( ( float ) ( i ) / timer.getSecs() ) << std::endl;
 
 	}
     catch( neurocl::network_exception& e )
