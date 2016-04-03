@@ -38,12 +38,12 @@ include_directories(
 link_directories(${extra_link_paths})
 
 set (sources_list
-edge_detection.cpp
+edge_detect.cpp
 face_detect.cpp
 )
 
 set (headers_list
-edge_detection.h
+edge_detect.h
 face_detect.h
 )
 

@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "network_manager.h"
 #include "network_exception.h"
 
-#include "tools/edge_detection.h"
+#include "tools/edge_detect.h"
 #include "tools/face_detect.h"
 
 #include "CImg.h"
@@ -172,7 +172,7 @@ void face_preprocess( CImg<>& image )
 const face_result face_process(  CImg<unsigned char> image, neurocl::network_manager& net_manager )
 {
 	CImg<float> work_image( image );
-	
+
     work_image.resize( 50, 50 );
     work_image.equalize( 256, 0, 255 );
     work_image.normalize( 0.f, 1.f );
@@ -212,12 +212,12 @@ void draw_message( CImg<unsigned char>& image, const std::string& message )
 int main ( int argc,char **argv )
 {
 	raspicam::RaspiCam camera;
-	
+
 	try
 	{
 		std::vector<face_detect::face_rect> faces;
 		face_detect my_face_detect;
-		
+
 		neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
 		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
@@ -245,9 +245,9 @@ int main ( int argc,char **argv )
 			return -1;
 		}
 		std::cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << std::endl;
-		
+
 		boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
-		
+
 		Timer timer;
 
 		cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
@@ -255,13 +255,13 @@ int main ( int argc,char **argv )
 		my_display.set_fullscreen( true );
 
 		std::cout << "Capturing...." << std::endl;
-		
+
 		CImg<unsigned char> display_image;
-		
+
 		size_t i=0;
-		
+
 		timer.start();
-		
+
 		do
 		{
 			if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
@@ -269,14 +269,14 @@ int main ( int argc,char **argv )
 				std::cout << "Bye Bye!" << std::endl;
 				break;
 			}
-			
+
 			camera.grab();
 			camera.retrieve( data.get() );
 
 			cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
-			
+
 			display_image = input_image;
-			
+
 			faces = my_face_detect.detect( input_image );
 			if ( faces.empty() )
 				draw_message( display_image, "NO FACE DETECTED!" );
@@ -285,7 +285,7 @@ int main ( int argc,char **argv )
 				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
 				draw_metadata( display_image, faces, fres.result() );
 			}
-			
+
 			my_display.display( display_image );
 
 		} while(++i<nFramesCaptured || nFramesCaptured==0); //stops when nFrames captured or at infinity lpif nFramesCaptured<0
