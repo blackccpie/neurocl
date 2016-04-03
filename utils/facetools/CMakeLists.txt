@@ -21,21 +21,13 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
-project (tools)
-
-if (APPLE)
-    set (extra_includes "/opt/X11/include")
-    set (extra_link_paths "/usr/X11/lib")
-endif ()
+project (facetools)
 
 include_directories(
     .
     "${CMAKE_SOURCE_DIR}/../CImg"
     "${CMAKE_SOURCE_DIR}/../ccv/lib"
-    ${extra_includes}
 )
-
-link_directories(${extra_link_paths})
 
 set (sources_list
 edge_detect.cpp
@@ -47,7 +39,7 @@ edge_detect.h
 face_detect.h
 )
 
-add_library(tools STATIC ${sources_list} ${headers_list})
+add_library(facetools STATIC ${sources_list} ${headers_list})
 
 set(ccv_libs
     ${CMAKE_SOURCE_DIR}/../ccv/lib/libccv.a
@@ -55,9 +47,9 @@ set(ccv_libs
     jpeg
 )
 
-target_link_libraries(tools
+target_link_libraries(facetools
 ${ccv_libs}
 X11
 )
 
-target_compile_features(tools PRIVATE cxx_static_assert)
+target_compile_features(facetools PRIVATE cxx_static_assert)
