@@ -22,13 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "raspicam.h"
 #include "speech_manager.h"
 #include "network_manager.h"
 #include "network_exception.h"
 
-#include "tools/edge_detect.h"
-#include "tools/face_detect.h"
+#include "raspicam/raspicam.h"
+
+#include "facetools/edge_detect.h"
+#include "facetools/face_detect.h"
 
 #include "CImg.h"
 

@@ -24,10 +24,10 @@ cmake_minimum_required (VERSION 3.0)
 
 include_directories(
     "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/utils"
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-add_subdirectory(tools)
 add_subdirectory(facecam)
 
 if (NOT APPLE)

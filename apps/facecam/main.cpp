@@ -28,8 +28,8 @@ THE SOFTWARE.
 #include "network_manager.h"
 #include "network_exception.h"
 
-#include "tools/edge_detect.h"
-#include "tools/face_detect.h"
+#include "facetools/edge_detect.h"
+#include "facetools/face_detect.h"
 
 #include <boost/lexical_cast.hpp>
 

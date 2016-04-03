@@ -22,6 +22,8 @@
 
 cmake_minimum_required (VERSION 3.0)
 
+add_subdirectory(facetools)
+
 if (NOT APPLE)
     add_subdirectory(raspicam)
 endif ()

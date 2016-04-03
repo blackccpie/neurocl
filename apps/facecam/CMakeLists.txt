@@ -43,7 +43,7 @@ add_executable(facecam ${sources_list} ${headers_list})
 
 target_link_libraries(facecam
 neurocl
-tools
+facetools
 pthread
 ${extra_link_libs}
 )
