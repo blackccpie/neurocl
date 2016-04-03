@@ -20,51 +20,15 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-cmake_minimum_required (VERSION 3.0)
-project (neurocl)
-
-include_directories(
-    .
-    "${CMAKE_SOURCE_DIR}/../vexcl"
-    "${CMAKE_SOURCE_DIR}/../CImg"
-)
-
-include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
-
-set (sources_list
-samples_manager.cpp
-network_file_handler.cpp
-network_manager.cpp
-network_vexcl.cpp
-network_bnu.cpp
-)
-
-set (headers_list
-samples_manager.h
-network_sample.h
-network_exception.h
-network_file_handler.h
-network_manager.h
-network_interface.h
-network_vexcl.h
-network_bnu.h
-)
-
-if (NOT APPLE)
-	add_definitions( -Dcimg_use_png )
+if (APPLE)
+    set (extra_includes "/opt/X11/include")
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
+    set (boost_suffix -mt)
 endif ()
 
-add_library(neurocl SHARED ${sources_list} ${headers_list})
-
-target_link_libraries(neurocl
-boost_thread${boost_suffix}
-boost_system${boost_suffix}
-boost_chrono${boost_suffix}
-boost_filesystem${boost_suffix}
-boost_serialization${boost_suffix}
-${OpenCL_LIBRARIES}
-X11
-png
+include_directories(
+	${extra_includes}
 )
 
-target_compile_features(neurocl PRIVATE cxx_auto_type)
+link_directories(${extra_link_paths})

@@ -23,13 +23,6 @@
 cmake_minimum_required (VERSION 3.0)
 project (test_mnist)
 
-if (APPLE)
-    set (extra_link_paths "/usr/X11/lib")
-    set (extra_link_libs X11)
-endif ()
-
-link_directories(${extra_link_paths})
-
 set (sources_list
 main.cpp
 )

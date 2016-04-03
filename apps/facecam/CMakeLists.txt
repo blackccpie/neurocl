@@ -23,18 +23,9 @@
 cmake_minimum_required (VERSION 3.0)
 project (facecam)
 
-if (APPLE)
-    set (extra_includes "/opt/X11/include")
-    set (extra_link_paths "/usr/X11/lib")
-    set (extra_link_libs X11)
-endif ()
-
 include_directories(
 	"${CMAKE_SOURCE_DIR}/../CImg"
-	${extra_includes}
 )
-
-link_directories(${extra_link_paths})
 
 set (sources_list
 main.cpp
@@ -51,10 +42,10 @@ endif ()
 add_executable(facecam ${sources_list} ${headers_list})
 
 target_link_libraries(facecam
-${extra_link_libs}
 neurocl
 tools
 pthread
+${extra_link_libs}
 )
 
 target_compile_features(facecam PRIVATE cxx_auto_type)
