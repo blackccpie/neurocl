@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "raspicam.h"
+#include "speech_manager.h"
 #include "network_manager.h"
 #include "network_exception.h"
 
@@ -211,6 +212,7 @@ void draw_message( CImg<unsigned char>& image, const std::string& message )
 
 int main ( int argc,char **argv )
 {
+    speech_manager speech_mgr;
 	raspicam::RaspiCam camera;
 
 	try

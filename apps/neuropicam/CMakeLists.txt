@@ -33,6 +33,7 @@ main.cpp
 )
 
 set (headers_list
+speech_manager.h
 )
 
 add_executable(neuropicam ${sources_list} ${headers_list})
@@ -44,4 +45,3 @@ raspicam
 X11
 pthread
 )
-
