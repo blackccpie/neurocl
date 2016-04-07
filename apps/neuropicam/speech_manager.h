@@ -22,21 +22,53 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include <string>
+
+#include <stdlib.h>
+
+typedef enum
+{
+	FT_UNKNOWN = 0,
+    FT_ALBERT,
+    FT_ELSA,
+} face_type;
+
 class speech_manager
 {
 public:
-    speech_manager() {}
+    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
     virtual ~speech_manager() {}
 
-    speak( const std::string& message )
+    void speak( const std::string& message )
     {
     #ifdef __APPLE__
         // NOT IMPLEMENTED YET
     #else
-        std::string command = std::string( "sh speak.sh \"" ) + message + std::string( "\"" );
+        std::string command = std::string( "cd ../../picoPi2/tts;sh speak.sh \"" ) 
+			+ message + std::string( "\";cd -" );
 
         // grab using raspistill utility
         system( command.c_str() );
     #endif
     }
+    
+    void set_listener( const face_type& type )
+    {
+		switch( type )
+		{
+		case FT_ALBERT:
+			speak( "Hello Albert" );
+			break;
+		case FT_ELSA:
+			speak( "Hello Elsa" );
+			break;
+		case FT_UNKNOWN:
+		default:
+			break;
+		}
+		
+		m_current_listener = type;
+	}
+private:
+	face_type m_current_listener;
 };

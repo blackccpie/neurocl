@@ -119,16 +119,6 @@ public:
 
 static const unsigned char red[] = { 255,0,0 };
 
-typedef enum
-{
-    FT_GUESS = 0,
-    FT_ALBERT,
-    FT_ELSA,
-    FT_UNKNOWN,
-    //FT_NOT_A_FACE,
-    FT_MAX
-} face_type;
-
 struct face_result
 {
     face_result( face_type _type, float _score1, float _score2 )
@@ -190,7 +180,9 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 
 	//std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
-	if ( sample.max_comp_idx() == 0 )
+	if (sample.max_comp_val() < 0.25f )
+		return face_result( FT_UNKNOWN, output[0], output[1] );
+	else if ( sample.max_comp_idx() == 0 )
 		return face_result( FT_ALBERT, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 1 )
 		return face_result( FT_ELSA, output[0], output[1] );
@@ -214,6 +206,8 @@ void draw_message( CImg<unsigned char>& image, const std::string& message )
 int main ( int argc,char **argv )
 {
     speech_manager speech_mgr;
+    speech_mgr.speak( "Welcome in NeuroPiCam" );
+    
 	raspicam::RaspiCam camera;
 
 	try
@@ -287,6 +281,9 @@ int main ( int argc,char **argv )
 			{
 				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
 				draw_metadata( display_image, faces, fres.result() );
+				
+				if ( fres.type != FT_UNKNOWN )
+					speech_mgr.set_listener( fres.type );
 			}
 
 			my_display.display( display_image );
