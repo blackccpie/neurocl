@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "chrono_manager.h"
 #include "speech_manager.h"
 #include "network_manager.h"
 #include "network_exception.h"
@@ -46,8 +47,6 @@ using namespace cimg_library;
 
 #define IMAGE_SIZEX 480
 #define IMAGE_SIZEY 320
-
-size_t nFramesCaptured=1000;
 
 // EXPOSURE - raspicam::RASPICAM_EXPOSURE
 /*
@@ -96,26 +95,7 @@ cout<<"[-awb_r val:(0,8):set the value for the red component of white balance]"<
 cout<<"[-awb_g val:(0,8):set the value for the green component of white balance]"<<endl;
 */
 
-//timer functions
-#include <sys/time.h>
-#include <unistd.h>
-class Timer{
-    private:
-    struct timeval _start, _end;
-
-public:
-    Timer(){}
-    void start(){
-        gettimeofday(&_start, NULL);
-    }
-    void end(){
-        gettimeofday(&_end, NULL);
-    }
-    double getSecs(){
-    return double(((_end.tv_sec  - _start.tv_sec) * 1000 + (_end.tv_usec - _start.tv_usec)/1000.0) + 0.5)/1000.;
-    }
-
-};
+chrono_manager g_chrono;
 
 static const unsigned char red[] = { 255,0,0 };
 
@@ -172,11 +152,15 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 
     face_preprocess( work_image );
 
+    g_chrono.step( "preprocessing" );
+
     std::string label;
     float output[2] = { 0.f, 0.f };
     neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
 
 	net_manager.compute_output( sample );
+
+    g_chrono.step( "classification" );
 
 	//std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
@@ -207,7 +191,7 @@ int main ( int argc,char **argv )
 {
     speech_manager speech_mgr;
     speech_mgr.speak( "Welcome in NeuroPiCam" );
-    
+
 	raspicam::RaspiCam camera;
 
 	try
@@ -245,8 +229,6 @@ int main ( int argc,char **argv )
 
 		boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 
-		Timer timer;
-
 		cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
 		my_display.set_title( "NeuroPiCam" );
 		my_display.set_fullscreen( true );
@@ -267,8 +249,12 @@ int main ( int argc,char **argv )
 				break;
 			}
 
+            g_chrono.start()
+
 			camera.grab();
 			camera.retrieve( data.get() );
+
+            g_chrono.step( "grabbing" );
 
 			cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
 
@@ -281,19 +267,16 @@ int main ( int argc,char **argv )
 			{
 				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
 				draw_metadata( display_image, faces, fres.result() );
-				
+
 				if ( fres.type != FT_UNKNOWN )
 					speech_mgr.set_listener( fres.type );
 			}
 
+            std::cout << g_chrono.summary() << std::endl
+
 			my_display.display( display_image );
 
-		} while(++i<nFramesCaptured || nFramesCaptured==0); //stops when nFrames captured or at infinity lpif nFramesCaptured<0
-
-		timer.end();
-
-		std::cerr << timer.getSecs()<< " seconds for "<< i << "  frames : FPS " << ( ( float ) ( i ) / timer.getSecs() ) << std::endl;
-
+		} while(true);
 	}
     catch( neurocl::network_exception& e )
     {
