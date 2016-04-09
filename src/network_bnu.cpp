@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_bnu.h"
+#include "network_config.h"
 #include "network_exception.h"
 #include "network_utils.h"
 
@@ -123,6 +124,8 @@ const std::string layer_bnu::dump_activations() const
 
 network_bnu::network_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
 {
+    const network_config& nc = network_config::instance();
+    nc.update_optional( "learning_rate", m_learning_rate );
 }
 
 void network_bnu::set_input(  const size_t& in_size, const float* in )

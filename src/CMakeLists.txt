@@ -41,6 +41,7 @@ network_bnu.cpp
 
 set (headers_list
 samples_manager.h
+network_config.h
 network_sample.h
 network_exception.h
 network_file_handler.h

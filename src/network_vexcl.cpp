@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_vexcl.h"
+#include "network_config.h"
 #include "network_exception.h"
 #include "network_utils.h"
 
@@ -122,6 +123,9 @@ const std::string layer_vexcl::dump_activations() const
 
 network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
 {
+    const network_config& nc = network_config::instance();
+    nc.update_optional( "learning_rate", m_learning_rate );
+
     vex::Context& _ctx = my_vex_ctx::instance().get();
 
     if ( !_ctx ) throw std::runtime_error( "No devices available." );
