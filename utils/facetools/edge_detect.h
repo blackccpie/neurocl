@@ -24,12 +24,7 @@ THE SOFTWARE.
 
 #include "CImg.h"
 
-#include <iostream>
-#include <type_traits>
-
 #include <boost/multi_array.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/math/special_functions/pow.hpp>
 
 using namespace cimg_library;
 

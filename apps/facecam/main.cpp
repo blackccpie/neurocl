@@ -28,8 +28,8 @@ THE SOFTWARE.
 #include "network_manager.h"
 #include "network_exception.h"
 
-#include "tools/edge_detection.h"
-#include "tools/face_detect.h"
+#include "facetools/edge_detect.h"
+#include "facetools/face_detect.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -129,7 +129,7 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( image.width() * work_image.height(), work_image.data(), 2, output );
+    neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
 
     bool compute = false;
 

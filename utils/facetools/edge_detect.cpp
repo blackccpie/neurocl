@@ -22,7 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "edge_detection.h"
+#include "edge_detect.h"
+
+#include <boost/type_traits/is_same.hpp>
+#include <boost/math/special_functions/pow.hpp>
 
 #include <iostream>
 

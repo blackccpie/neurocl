@@ -23,20 +23,11 @@
 cmake_minimum_required (VERSION 3.0)
 project (neurocl)
 
-if (APPLE)
-    set (extra_includes "/opt/X11/include")
-    set (extra_link_paths "/usr/X11/lib")
-	set (boost_suffix -mt)
-endif ()
-
 include_directories(
     .
     "${CMAKE_SOURCE_DIR}/../vexcl"
     "${CMAKE_SOURCE_DIR}/../CImg"
-    ${extra_includes}
 )
-
-link_directories(${extra_link_paths})
 
 include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 

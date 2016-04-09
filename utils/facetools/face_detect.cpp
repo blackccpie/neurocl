@@ -48,7 +48,8 @@ public:
         ccv_scd_classifier_cascade_free( m_cascade );
     }
 
-    const std::vector<face_detect::face_rect>& detect( CImg<float>& image )
+	template<typename T>
+    const std::vector<face_detect::face_rect>& detect( CImg<T>& image )
     {
         m_face_rects.clear();
 
@@ -97,7 +98,11 @@ face_detect::~face_detect()
 {
 }
 
-const std::vector<face_detect::face_rect>&  face_detect::detect( CImg<float>& image )
+template<typename T>
+const std::vector<face_detect::face_rect>&  face_detect::detect( CImg<T>& image )
 {
-    return m_face_detect_impl->detect( image );
+    return m_face_detect_impl->detect<T>( image );
 }
+
+template const std::vector<face_detect::face_rect>&  face_detect::detect<float>( CImg<float>& image );
+template const std::vector<face_detect::face_rect>&  face_detect::detect<unsigned char>( CImg<unsigned char>& image );

@@ -24,7 +24,6 @@ cmake_minimum_required (VERSION 3.0)
 project (neuropicam)
 
 include_directories(
-	"${CMAKE_SOURCE_DIR}/utils/raspicam"
 	"${CMAKE_SOURCE_DIR}/../CImg"
 )
 
@@ -33,13 +32,15 @@ main.cpp
 )
 
 set (headers_list
+speech_manager.h
 )
 
 add_executable(neuropicam ${sources_list} ${headers_list})
 
 target_link_libraries(neuropicam
+neurocl
+facetools
 raspicam
 X11
 pthread
 )
-

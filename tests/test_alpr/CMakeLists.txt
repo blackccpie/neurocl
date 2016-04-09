@@ -23,17 +23,8 @@
 cmake_minimum_required (VERSION 3.0)
 project (test_alpr)
 
-if (APPLE)
-    set (extra_includes "/opt/X11/include")
-    set (extra_link_paths "/usr/X11/lib")
-    set (extra_link_libs X11)
-endif ()
-
-link_directories(${extra_link_paths})
-
 include_directories(
     "${CMAKE_SOURCE_DIR}/../CImg"
-    ${extra_includes}
 )
 
 set (headers_list

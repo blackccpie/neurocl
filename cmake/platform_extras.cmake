@@ -20,16 +20,15 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-cmake_minimum_required (VERSION 3.0)
+if (APPLE)
+    set (extra_includes "/opt/X11/include")
+    set (extra_link_paths "/usr/X11/lib")
+    set (extra_link_libs X11)
+    set (boost_suffix -mt)
+endif ()
 
 include_directories(
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/utils"
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+	${extra_includes}
 )
 
-add_subdirectory(facecam)
-
-if (NOT APPLE)
-    add_subdirectory(neuropicam)
-endif ()
+link_directories(${extra_link_paths})
