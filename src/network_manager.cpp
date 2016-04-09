@@ -131,7 +131,7 @@ void network_manager::batch_train( const samples_manager& smp_manager, const siz
             train( samples );
             finalize_training_iteration();
 
-            progress_size += batch_size;
+            progress_size += samples.size();
 
             std::cout << "\rnetwork_manager::batch_train - progress " << ( ( 100 * progress_size ) / pbm_size ) << "%";// << std::endl;
         }
