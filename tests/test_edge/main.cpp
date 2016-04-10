@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 int main( int argc, char *argv[] )
 {
-    CImg<float> image_in( "/Users/albertmurienne/Public/facecam_faces/E/0.png" );
+    CImg<float> image_in( "/home/pi/Pictures/facecam_faces/E/0.png" );
 
     boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
 
@@ -38,7 +38,7 @@ int main( int argc, char *argv[] )
     image_in.channel(0);
 
     CImg<float> image_out( image_in.width(), image_in.height(), 1, 1 );
-
+sm
     sobel::process( image_in, image_out );
 
     boost::chrono::microseconds duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
