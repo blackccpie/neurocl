@@ -21,12 +21,28 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (test_edge)
 
 include_directories(
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/utils"
+    "${CMAKE_SOURCE_DIR}/../CImg"
 )
 
-add_subdirectory(test_mnist)
-add_subdirectory(test_edge)
-add_subdirectory(test_alpr)
+set (headers_list
+)
+
+set (sources_list
+main.cpp
+)
+
+if (NOT APPLE)
+	add_definitions( -Dcimg_use_png )
+endif ()
+
+add_executable(test_edge ${sources_list} ${headers_list})
+
+target_link_libraries(test_edge
+facetools
+boost_chrono${boost_suffix}
+boost_system${boost_suffix}
+${extra_link_libs}
+)
