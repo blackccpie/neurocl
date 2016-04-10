@@ -22,27 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include <boost/circular_buffer.hpp>
 #include <boost/chrono.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <string>
+#include <vector>
 
 class chrono_manager
 {
 public:
-    chrono_manager() {}
+    chrono_manager() : m_frame_periods( 10 ) {}
     virtual ~chrono_manager() {}
 
 	void start()
 	{
 		m_labelled_durations.clear();
-		m_key_time = bc::system_clock::now();
+		m_key_time = boost::chrono::system_clock::now();
+		m_last_frame_key_time = boost::chrono::system_clock::now();
 	}
 
 	void step( const std::string& label )
 	{
-		boost::chrono::milliseconds duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - m_key_time );
+		boost::chrono::milliseconds duration = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - m_key_time );
 		m_labelled_durations.push_back( std::make_pair( label, duration.count() ) );
-		m_key_time = bc::system_clock::now();
+		m_key_time = boost::chrono::system_clock::now();
 	}
 
 	const std::string summary()
@@ -55,13 +60,34 @@ public:
 			summary += lms.first;
 			summary += "=";
 			summary += boost::lexical_cast<std::string>( lms.second );
-			summary += "ms|"
+			summary += "ms|";
 		}
 		return summary;
+	}
+	
+	void frame()
+	{
+		boost::chrono::milliseconds duration = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - m_last_frame_key_time );
+		m_frame_periods.push_back( duration.count() );
+		m_last_frame_key_time = boost::chrono::system_clock::now();
+	}
+	
+	float framerate()
+	{
+		float mean_fps = 0.f;
+		BOOST_FOREACH( const int& period, m_frame_periods )
+		{
+			mean_fps += 1000.f / static_cast<float>( period );
+		}
+		mean_fps /= static_cast<float>( m_frame_periods.size() );
+		return mean_fps;
 	}
 
 private:
 
 	boost::chrono::system_clock::time_point m_key_time;
 	std::vector< std::pair<std::string,int> > m_labelled_durations;
+	
+	boost::chrono::system_clock::time_point m_last_frame_key_time;
+	boost::circular_buffer<int> m_frame_periods;
 };

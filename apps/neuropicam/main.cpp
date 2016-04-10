@@ -187,6 +187,13 @@ void draw_message( CImg<unsigned char>& image, const std::string& message )
     image.draw_text( IMAGE_SIZEX/2, IMAGE_SIZEY/2, message.c_str(), red );
 }
 
+void draw_fps( CImg<unsigned char>& image, const float& fps )
+{
+	std::stringstream ss;
+	ss << std::setprecision(1) << fps << "FPS";
+    image.draw_text( 15, 15, ss.str().c_str(), red );
+}
+
 int main ( int argc,char **argv )
 {
     speech_manager speech_mgr;
@@ -239,8 +246,6 @@ int main ( int argc,char **argv )
 
 		size_t i=0;
 
-		timer.start();
-
 		do
 		{
 			if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
@@ -249,7 +254,7 @@ int main ( int argc,char **argv )
 				break;
 			}
 
-            g_chrono.start()
+            g_chrono.start();
 
 			camera.grab();
 			camera.retrieve( data.get() );
@@ -272,8 +277,11 @@ int main ( int argc,char **argv )
 					speech_mgr.set_listener( fres.type );
 			}
 
-            std::cout << g_chrono.summary() << std::endl
-
+            std::cout << g_chrono.summary() << std::endl;
+			
+			g_chrono.frame();
+			draw_fps( display_image, g_chrono.framerate() );
+			
 			my_display.display( display_image );
 
 		} while(true);
