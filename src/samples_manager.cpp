@@ -71,13 +71,12 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
 
     while ( std::getline( data_in, line ) )
     {
-        std::string token;
-
         std::stringstream ss( line );
-        ss >> token;
 
-        // we may have an image filename (instead of an explicit list of values):
-        std::string image_filename = token;
+        // parse image filename
+        std::string image_filename;
+        ss >> image_filename;
+
         // skip blank and comment lines:
         if ( image_filename.size() == 0 || image_filename[0] == '#')
             continue;
