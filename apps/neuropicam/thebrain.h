@@ -22,50 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "face_commons.h"
+#include "speech_manager.h"
 
-#include <string>
+#include <boost/lockfree/spsc_queue.hpp>
+#include <boost/thread.hpp>
 
-#include <stdlib.h>
+#define BRAIN_QUEUE_SIZE 10
 
-class speech_manager
+class thebrain
 {
 public:
-    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
-    virtual ~speech_manager() {}
+    thebrain();
+    virtual ~thebrain() {}
 
-    void speak( const std::string& message )
-    {
-    #ifdef __APPLE__
-        // NOT IMPLEMENTED YET
-    #else
-        std::string command = std::string( "cd ../../picoPi2/tts;sh speak.sh \"" )
-			+ message + std::string( "\";cd -" );
+    void push_face_type( int type );
 
-        // grab using raspistill utility
-        system( command.c_str() );
-    #endif
-    }
-
-    void set_listener( const face_type& type )
-    {
-		switch( type )
-		{
-		case FT_ALBERT:
-			speak( "Hello Albert" );
-			speak( "What can I do you for?" );
-			break;
-		case FT_ELSA:
-			speak( "Hello Elsa" );
-			speak( "What can I do you for?" );
-			break;
-		case FT_UNKNOWN:
-		default:
-			break;
-		}
-
-		m_current_listener = type;
-	}
 private:
-	face_type m_current_listener;
+
+    void _run();
+
+private:
+
+    int m_current_face_type;
+
+    speech_manager m_speech_manager;
+    boost::shared_ptr<boost::thread> m_thread;
+
+    boost::lockfree::spsc_queue<int, boost::lockfree::capacity<BRAIN_QUEUE_SIZE> > m_queue;
 };

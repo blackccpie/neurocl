@@ -22,50 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "face_commons.h"
-
-#include <string>
-
-#include <stdlib.h>
-
-class speech_manager
+typedef enum
 {
-public:
-    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
-    virtual ~speech_manager() {}
-
-    void speak( const std::string& message )
-    {
-    #ifdef __APPLE__
-        // NOT IMPLEMENTED YET
-    #else
-        std::string command = std::string( "cd ../../picoPi2/tts;sh speak.sh \"" )
-			+ message + std::string( "\";cd -" );
-
-        // grab using raspistill utility
-        system( command.c_str() );
-    #endif
-    }
-
-    void set_listener( const face_type& type )
-    {
-		switch( type )
-		{
-		case FT_ALBERT:
-			speak( "Hello Albert" );
-			speak( "What can I do you for?" );
-			break;
-		case FT_ELSA:
-			speak( "Hello Elsa" );
-			speak( "What can I do you for?" );
-			break;
-		case FT_UNKNOWN:
-		default:
-			break;
-		}
-
-		m_current_listener = type;
-	}
-private:
-	face_type m_current_listener;
-};
+	FT_UNKNOWN = 0,
+    FT_ALBERT,
+    FT_ELSA,
+} face_type;

@@ -31,6 +31,14 @@ THE SOFTWARE.
 
 using namespace cimg_library;
 
+//#define USE_CCV_PROCESSING
+
+#ifdef USE_CCV_PROCESSING
+	extern "C" {
+		#include "ccv.h"
+	}
+#endif
+
 ////////////////////////////////////// SOBEL /////////////////////////////////////////////////
 
 // use with normalized [0,1] floating point images
@@ -40,6 +48,17 @@ void sobel::process( const CImg<T>& image_in, CImg<T>& image_out )
 	static_assert( boost::is_same<T,float>::value || boost::is_same<T,double>::value,
 		"Template type should be floating point type!" );
 
+#ifdef USE_CCV_PROCESSING
+
+	ccv_dense_matrix_t* ccv_image_in;
+	ccv_read( image_in.data(), &ccv_image_in, CCV_IO_GRAY_RAW | CCV_IO_NO_COPY, image_in.height(), image_in.width(), image_in.width() * sizeof(T) );
+
+	ccv_dense_matrix_t* ccv_image_out;
+	ccv_read( image_out.data(), &ccv_image_out, CCV_IO_GRAY_RAW | CCV_IO_NO_COPY, image_out.height(), image_out.width(), image_out.width() * sizeof(T) );
+
+	ccv_sobel( ccv_image_in, &ccv_image_out, CCV_32S/*float!!*/, 3, 3 );
+
+#else
 	T upper_bound = 1;
 	T lower_bound = 0;
 	T sum;
@@ -104,6 +123,7 @@ void sobel::process( const CImg<T>& image_in, CImg<T>& image_out )
 			//std::cout << "x " << x << " y " << y << " SUM " << image_out(x,y) << std::endl;
 		}
 	}
+#endif
 }
 
 template void sobel::process<float>( const CImg<float>& image_in, CImg<float>& image_out );
@@ -263,7 +283,7 @@ void canny<T>::_no_max( CImg<T>& image )
 	{
 	    for( int i=1 ; i < m_columns-1 ; i++ )
 		{
-			 	std::cout << m_thetas[i][j] << std::endl;
+			 	//std::cout << m_thetas[i][j] << std::endl;
 
 				switch( m_thetas[i][j] )
 				{
@@ -399,15 +419,26 @@ void canny<T>::process( const CImg<T>& image_in, CImg<T>& image_out )
 	m_low_thresh = 0.66 * mean;
 	m_high_thresh = 1.33 * mean;
 
-	std::cout << "PROBE1" << std::endl;
+#ifdef USE_CCV_PROCESSING
+
+	ccv_dense_matrix_t* ccv_image_in;
+	ccv_read( image_in.data(), &ccv_image_in, CCV_IO_GRAY_RAW | CCV_IO_NO_COPY, image_in.height(), image_in.width(), image_in.width() * sizeof(T) );
+
+	ccv_dense_matrix_t* ccv_image_out;
+	ccv_read( image_out.data(), &ccv_image_out, CCV_IO_GRAY_RAW | CCV_IO_NO_COPY, image_out.height(), image_out.width(), image_out.width() * sizeof(T) );
+
+	ccv_canny( ccv_image_in, &ccv_image_out, CCV_32S/*float!!*/, 3, m_low_thresh, m_high_thresh );
+
+#else
+
 	_gaussian_blur( image_in, image_out );
-	image_out.display();
-	std::cout << "PROBE2" << std::endl;
-    _sobel( image_out );
-	std::cout << "PROBE3" << std::endl;
-    _no_max( image_out );
-	std::cout << "PROBE4" << std::endl;
-    _hysteresis( image_out );
+	_sobel( image_out );
+	_no_max( image_out );
+	_hysteresis( image_out );
+
+	cimg_for_borderXY( image_out, x, y, 1 ) { image_out( x, y ) = 0; }
+
+#endif
 }
 
 template void canny<float>::process( const CImg<float>& image_in, CImg<float>& image_out );

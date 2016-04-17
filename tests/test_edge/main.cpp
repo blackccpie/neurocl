@@ -28,24 +28,36 @@ THE SOFTWARE.
 
 int main( int argc, char *argv[] )
 {
-    CImg<float> image_in( "/Users/albertmurienne/Public/facecam_faces/E/0.png" );
-
-    boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
+    CImg<float> image_in( argv[1] );
 
     image_in.resize( 50, 50 );
     image_in.equalize( 256, 0, 255 );
     image_in.normalize( 0.f, 1.f );
     image_in.channel(0);
 
-    CImg<float> image_out( image_in.width(), image_in.height(), 1, 1 );
+    CImg<float> image_out1( image_in.width(), image_in.height(), 1, 1 );
+    CImg<float> image_out2( image_in.width(), image_in.height(), 1, 1 );
 
-    sobel::process( image_in, image_out );
+    boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
+
+    sobel::process( image_in, image_out1 );
 
     boost::chrono::microseconds duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
 
-    std::cout << "EDGE DETECTION IN : " << duration.count() << "us" << std::endl;
+    std::cout << "SOBEL EDGE DETECTION IN : " << duration.count() << "us" << std::endl;
 
-    image_out.display();
+    start = boost::chrono::system_clock::now();
+
+    canny<float> can( image_in.width(), image_in.height() );
+    can.process( image_in, image_out2 );
+
+    duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
+
+    std::cout << "CANNY EDGE DETECTION IN : " << duration.count() << "us" << std::endl;
+
+    CImgList<float> list( image_out1, image_out2 );
+
+    list.display();
 
     return 0;
 }

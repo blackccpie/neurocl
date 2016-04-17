@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "thebrain.h"
 #include "chrono_manager.h"
-#include "speech_manager.h"
 #include "network_manager.h"
 #include "network_exception.h"
 
@@ -97,6 +97,8 @@ cout<<"[-awb_g val:(0,8):set the value for the green component of white balance]
 
 chrono_manager g_chrono;
 
+#define MIN_FACE_RECO_SCORE 0.3f
+
 static const unsigned char red[] = { 255,0,0 };
 
 struct face_result
@@ -168,7 +170,7 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 
 	//std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
-	if (sample.max_comp_val() < 0.25f )
+	if (sample.max_comp_val() < MIN_FACE_RECO_SCORE )
 		return face_result( FT_UNKNOWN, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 0 )
 		return face_result( FT_ALBERT, output[0], output[1] );
@@ -200,9 +202,7 @@ void draw_fps( CImg<unsigned char>& image, const float& fps )
 
 int main ( int argc,char **argv )
 {
-    speech_manager speech_mgr;
-    speech_mgr.speak( "Welcome in NeuroPiCam" );
-
+    thebrain my_brain;
 	raspicam::RaspiCam camera;
 
 	try
@@ -278,15 +278,14 @@ int main ( int argc,char **argv )
 				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
 				draw_metadata( display_image, faces, fres.result() );
 
-				if ( fres.type != FT_UNKNOWN )
-					speech_mgr.set_listener( fres.type );
+				my_brain.push_face_type( fres.type );
 			}
 
             std::cout << g_chrono.summary() << std::endl;
-			
+
 			g_chrono.frame();
 			draw_fps( display_image, g_chrono.framerate() );
-			
+
 			my_display.display( display_image );
 
 		} while(true);
