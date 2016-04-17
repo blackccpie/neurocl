@@ -22,50 +22,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "face_commons.h"
+#include "thebrain.h"
 
-#include <string>
-
-#include <stdlib.h>
-
-class speech_manager
+thebrain::thebrain()
 {
-public:
-    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
-    virtual ~speech_manager() {}
+    m_speech_manager.speak( "Welcome in NeuroPiCam" );
+}
 
-    void speak( const std::string& message )
+void thebrain::push_face_type( int type )
+{
+    m_queue.push( type );
+}
+
+void thebrain::_average_type( int type )
+{
+    m_current_face_type += type;
+}
+
+void thebrain::_run()
+{
+    if ( m_queue.read_available() == BRAIN_QUEUE_SIZE )
     {
-    #ifdef __APPLE__
-        // NOT IMPLEMENTED YET
-    #else
-        std::string command = std::string( "cd ../../picoPi2/tts;sh speak.sh \"" )
-			+ message + std::string( "\";cd -" );
-
-        // grab using raspistill utility
-        system( command.c_str() );
-    #endif
+        // compute average face value
+        m_current_face_type = 0;
+        m_queue.consume_all( boost::bind( &thebrain::_average_type, this, _1 ) );
+        m_current_face_type = m_current_face_type / BRAIN_QUEUE_SIZE;
+        speech_mgr.set_listener( static_cast<face_type>( m_current_face_type ) );
     }
 
-    void set_listener( const face_type& type )
-    {
-		switch( type )
-		{
-		case FT_ALBERT:
-			speak( "Hello Albert" );
-			speak( "What can I do you for?" );
-			break;
-		case FT_ELSA:
-			speak( "Hello Elsa" );
-			speak( "What can I do you for?" );
-			break;
-		case FT_UNKNOWN:
-		default:
-			break;
-		}
-
-		m_current_listener = type;
-	}
-private:
-	face_type m_current_listener;
-};
+    boost::this_thread::sleep( boost::posix_time::milliseconds( 500 ) );
+}
