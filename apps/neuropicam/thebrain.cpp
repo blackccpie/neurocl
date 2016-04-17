@@ -24,9 +24,18 @@ THE SOFTWARE.
 
 #include "thebrain.h"
 
-thebrain::thebrain()
+#include <boost/make_shared.hpp>
+
+thebrain::thebrain() : m_current_compute_range( 0 ), m_current_face_type( 0 ), m_bStop( false )
 {
     m_speech_manager.speak( "Welcome in NeuroPiCam" );
+    m_thread = boost::make_shared<boost::thread>( boost::bind( &thebrain::_run, this ) );
+}
+
+thebrain::~thebrain()
+{
+	m_bStop = true;
+	m_thread->join();
 }
 
 void thebrain::push_face_type( int type )
@@ -41,14 +50,19 @@ void thebrain::_average_type( int type )
 
 void thebrain::_run()
 {
-    if ( m_queue.read_available() == BRAIN_QUEUE_SIZE )
-    {
-        // compute average face value
-        m_current_face_type = 0;
-        m_queue.consume_all( boost::bind( &thebrain::_average_type, this, _1 ) );
-        m_current_face_type = m_current_face_type / BRAIN_QUEUE_SIZE;
-        speech_mgr.set_listener( static_cast<face_type>( m_current_face_type ) );
-    }
+	while( !m_bStop )
+	{
+		// compute average face value
+		m_current_compute_range += m_queue.consume_all( boost::bind( &thebrain::_average_type, this, _1 ) );
 
-    boost::this_thread::sleep( boost::posix_time::milliseconds( 500 ) );
+		if ( m_current_compute_range >= BRAIN_QUEUE_SIZE )
+		{
+			m_current_face_type = m_current_face_type / m_current_compute_range;
+			m_speech_manager.set_listener( static_cast<face_type>( m_current_face_type ) );
+			m_current_face_type = 0;
+			m_current_compute_range = 0;
+		}
+
+		boost::this_thread::sleep( boost::posix_time::milliseconds( 500 ) );
+	}
 }

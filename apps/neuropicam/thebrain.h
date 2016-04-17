@@ -33,16 +33,20 @@ class thebrain
 {
 public:
     thebrain();
-    virtual ~thebrain() {}
+    virtual ~thebrain();
 
     void push_face_type( int type );
 
 private:
 
     void _run();
+	void _average_type( int type );
 
 private:
 
+	bool m_bStop;
+
+	size_t m_current_compute_range;
     int m_current_face_type;
 
     speech_manager m_speech_manager;

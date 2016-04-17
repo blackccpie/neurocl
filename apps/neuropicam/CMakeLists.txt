@@ -29,10 +29,12 @@ include_directories(
 
 set (sources_list
 main.cpp
+thebrain.cpp
 )
 
 set (headers_list
 speech_manager.h
+thebrain.h
 )
 
 add_executable(neuropicam ${sources_list} ${headers_list})
