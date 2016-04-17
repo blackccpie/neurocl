@@ -145,10 +145,14 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 {
 	CImg<float> work_image( image );
 
+	g_chrono.step( "copying" );
+
     work_image.resize( 50, 50 );
     work_image.equalize( 256, 0, 255 );
     work_image.normalize( 0.f, 1.f );
     work_image.channel(0);
+
+	g_chrono.step( "preparing" );
 
     face_preprocess( work_image );
 
@@ -266,6 +270,7 @@ int main ( int argc,char **argv )
 			display_image = input_image;
 
 			faces = my_face_detect.detect( input_image );
+			
 			if ( faces.empty() )
 				draw_message( display_image, "NO FACE DETECTED!" );
 			else

@@ -44,5 +44,6 @@ target_link_libraries(test_edge
 facetools
 boost_chrono${boost_suffix}
 boost_system${boost_suffix}
+pthread
 ${extra_link_libs}
 )
