@@ -228,7 +228,7 @@ int main ( int argc,char **argv )
             /******** TRAIN ********/
 
             neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
-            neurocl::samples_manager::instance().load_samples(  "../nets/facecam/facecam-train.txt",
+            smp_manager.load_samples(  "../nets/facecam/facecam-train.txt",
                                                                 true /*shuffle*/,
                                                                 &face_preprocess_generic /* extra_preproc*/ );
 

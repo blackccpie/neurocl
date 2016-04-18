@@ -23,7 +23,9 @@ THE SOFTWARE.
 */
 
 #include "thebrain.h"
+#include "face_filer.h"
 #include "chrono_manager.h"
+#include "samples_manager.h"
 #include "network_manager.h"
 #include "network_exception.h"
 
@@ -143,6 +145,12 @@ void face_preprocess( CImg<>& image )
     //image.display();
 }
 
+void face_preprocess_generic( float* image, const size_t sizeX, const size_t sizeY )
+{
+    CImg<float> _image( image, sizeX, sizeY, 1, 1, true /*shared*/ );
+    face_preprocess( _image );
+}
+
 const face_result face_process(  CImg<unsigned char> image, neurocl::network_manager& net_manager )
 {
 	CImg<float> work_image( image );
@@ -200,14 +208,17 @@ void draw_fps( CImg<unsigned char>& image, const float& fps )
     image.draw_text( 15, 15, ss.str().c_str(), red );
 }
 
+void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay );
+void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay );
+
 int main ( int argc,char **argv )
 {
     std::cout << "Welcome to neuropicam!" << std::endl;
 
+	raspicam::RaspiCam camera;
+
 	try
 	{
-        raspicam::RaspiCam camera;
-
         camera.setWidth( IMAGE_SIZEX );
         camera.setHeight( IMAGE_SIZEY );
         camera.setBrightness( 50 );
@@ -216,10 +227,10 @@ int main ( int argc,char **argv )
         camera.setSaturation( 0 );
         camera.setShutterSpeed( 0 );
         camera.setISO( 400 );
-        //camera.setVideoStabilization( true );
+        //camer3.setVideoStabilization( true );
         camera.setExposureCompensation( 0 );
-        camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
-        //camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
+        //camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
+        camera.setFormat(raspicam::RASPICAM_FORMAT_RGB);
         //camera.setExposure( /**/ );
         //camera.setAWB( /**/ );
         camera.setAWB_RB( 1, 1 );
@@ -266,33 +277,91 @@ int main ( int argc,char **argv )
     return 0;
 }
 
-void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay )
+void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
 {
+	std::vector<face_detect::face_rect> faces;
+    face_detect my_face_detect;
+	
     // TODO : remove/backup existing weights
 
     neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
     net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
+	// TODO : remove existing training file
+	std::ofstream auto_train_file( "../nets/facecam/auto-train.txt" );
+
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 
     std::cout << "Capturing...." << std::endl;
 
+	CImg<unsigned char> display_image;
+
+	face_filer face_files;
+
     for ( int i=0; i<20; i++ )
     {
         // CAPTURE USER A
+        camera.grab();
+        camera.retrieve( data.get() );
+        
+        cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+
+        display_image = input_image;
+
+        faces = my_face_detect.detect( input_image );
+
+        bool valid_face = false;
+		if ( !faces.empty() )
+		{
+			int face_width = faces[0].x1 - faces[0].x0;
+			int face_height = faces[0].y1 - faces[0].y0;
+			valid_face = ( face_width > 100 ) && ( face_width < 250 ) 
+				&& ( face_height > 100 ) && ( face_height < 250 );
+		}
+			
+		if ( valid_face )
+        {
+			CImg<float> work_image( input_image );
+			
+			work_image.resize( 50, 50 );
+			work_image.equalize( 256, 0, 255 );
+			work_image.normalize( 0.f, 1.f );
+			work_image.channel(0);
+
+			face_preprocess( work_image );
+			
+			face_files.save_face( "autoA", work_image );
+			
+			auto_train_file << "../nets/facecam/faces/autoA/TODO 1 0" << std::endl;
+			
+            //draw_metadata( display_image, faces, fres.result() );
+        }
     }
 
-    // CHANGE user
+    // CHANGE USER
 
     for ( int i=0; i<20; i++ )
     {
         // CAPTURE USER B
+        camera.grab();
+        camera.retrieve( data.get() );
+        
+        //face_files.save_face( "autoB", image );
+        
+        auto_train_file << "../nets/facecam/faces/autoB/TODO 0 1" << std::endl;
     }
 
     // TRAIN THE WHOLE NETWORK
+    
+	neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+	smp_manager.load_samples(  "../nets/facecam/auto-train.txt",
+														true /*shuffle*/,
+														&face_preprocess_generic /* extra_preproc*/ );
+
+	net_manager.batch_train( smp_manager, 500 /*epoch*/, 20 /*batch*/ );
 }
 
-void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay )
+void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
 {
     thebrain my_brain;
 
@@ -304,9 +373,10 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_dipla
 
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 
-    std::cout << "Capturing...." << std::endl;
+    std::cout << "Capturing.... (buffer size : " << camera.getImageBufferSize() << ")" << std::endl;
 
     CImg<unsigned char> display_image;
+	cimg_library::CImg<unsigned char> input_image( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3, true );
 
     size_t i=0;
 
@@ -325,7 +395,9 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_dipla
 
         g_chrono.step( "grabbing" );
 
-        cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+        //cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+
+		cimg_forXYC(input_image,x,y,v) { input_image(x,y,v) = data[3*(x+(y*IMAGE_SIZEX))+v]; }
 
         display_image = input_image;
 

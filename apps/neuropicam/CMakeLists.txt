@@ -33,6 +33,8 @@ thebrain.cpp
 )
 
 set (headers_list
+chrono_manager.h
+face_filer.h
 speech_manager.h
 thebrain.h
 )
