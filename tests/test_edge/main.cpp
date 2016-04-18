@@ -26,21 +26,29 @@ THE SOFTWARE.
 
 #include <boost/chrono.hpp>
 
-int main( int argc, char *argv[] )
-{
-    CImg<float> image_in( argv[1] );
+//#define USE_CCV_IMP
 
-    image_in.resize( 50, 50 );
+template<typename T>
+void run_test( const char* in )
+{
+    CImg<T> image_in( in );
+
     image_in.equalize( 256, 0, 255 );
+#ifndef USE_CCV_IMP
     image_in.normalize( 0.f, 1.f );
+#endif
     image_in.channel(0);
 
-    CImg<float> image_out1( image_in.width(), image_in.height(), 1, 1 );
-    CImg<float> image_out2( image_in.width(), image_in.height(), 1, 1 );
+    CImg<T> image_out1( image_in.width(), image_in.height(), 1, 1 );
+    CImg<T> image_out2( image_in.width(), image_in.height(), 1, 1 );
 
     boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
 
-    sobel::process( image_in, image_out1 );
+#ifdef USE_CCV_IMP
+    sobel_ccv::process<T>( image_in, image_out1 );
+#else
+    sobel::process<T>( image_in, image_out1 );
+#endif
 
     boost::chrono::microseconds duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
 
@@ -48,16 +56,29 @@ int main( int argc, char *argv[] )
 
     start = boost::chrono::system_clock::now();
 
-    canny<float> can( image_in.width(), image_in.height() );
+#ifdef USE_CCV_IMP
+    canny_ccv::process<T>( image_in, image_out2 );
+#else
+    canny<T> can( image_in.width(), image_in.height() );
     can.process( image_in, image_out2 );
+#endif
 
     duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
 
     std::cout << "CANNY EDGE DETECTION IN : " << duration.count() << "us" << std::endl;
 
-    CImgList<float> list( image_out1, image_out2 );
+    CImgList<T> list( image_out1, image_out2 );
 
     list.display();
+}
+
+int main( int argc, char *argv[] )
+{
+#ifdef USE_CCV_IMP
+    run_test<unsigned char>( argv[1] );
+#else
+    run_test<float>( argv[1] );
+#endif
 
     return 0;
 }
