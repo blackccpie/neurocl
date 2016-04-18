@@ -38,7 +38,7 @@ class face_detect_impl
 {
 public:
 
-    face_detect_impl() : m_image( 0 ), m_cascade( 0 )
+    face_detect_impl( int speedup_factor = 1 ) : m_image( 0 ), m_cascade( 0 ), m_speedup_factor( speedup_factor )
     {
         m_cascade = ccv_scd_classifier_cascade_read( "../../ccv/samples/face.sqlite3" );
     }
@@ -57,7 +57,8 @@ public:
         // FIND A WAY TO WORK WITH COLOR RGB IMAGE!
         CImg<unsigned char> grey_image = image.get_channel(0);
 
-		//grey_image.resize( grey_image.width()/4, grey_image.height()/4 );
+		if ( m_speedup_factor > 1 )
+			grey_image.resize( grey_image.width()/m_speedup_factor, grey_image.height()/m_speedup_factor );
 
         ccv_read( grey_image.data(), &m_image, CCV_IO_GRAY_RAW | CCV_IO_NO_COPY, grey_image.height(), grey_image.width(), grey_image.width() );
 
@@ -69,11 +70,8 @@ public:
         {
             ccv_comp_t* face = (ccv_comp_t*)ccv_array_get( faces, i );
             
-            face_detect::face_rect face_rec( face->rect.x, face->rect.y,
-				face->rect.x + face->rect.width, face->rect.y + face->rect.height );
-            
-            //face_detect::face_rect face_rec( 4*face->rect.x, 4*face->rect.y,
-                //4*(face->rect.x + face->rect.width), 4*(face->rect.y + face->rect.height) );
+            face_detect::face_rect face_rec( m_speedup_factor*face->rect.x, m_speedup_factor*face->rect.y,
+                m_speedup_factor*(face->rect.x + face->rect.width), m_speedup_factor*(face->rect.y + face->rect.height) );
             
             m_face_rects.push_back( face_rec );
 
@@ -90,6 +88,8 @@ public:
 
 private:
 
+	int m_speedup_factor;
+
     std::vector<face_detect::face_rect> m_face_rects;
 
     ccv_dense_matrix_t* m_image;
@@ -98,7 +98,7 @@ private:
 
 face_detect::face_detect()
 {
-    m_face_detect_impl = boost::make_shared<face_detect_impl>();
+    m_face_detect_impl = boost::make_shared<face_detect_impl>( 2 ); // speedup x2
 }
 
 face_detect::~face_detect()

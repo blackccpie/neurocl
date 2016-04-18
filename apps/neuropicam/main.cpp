@@ -271,7 +271,16 @@ int main ( int argc,char **argv )
 
 			faces = my_face_detect.detect( input_image );
 			
-			if ( faces.empty() )
+			bool valid_face = false;
+			if ( !faces.empty() )
+			{
+				int face_width = faces[0].x1 - faces[0].x0;
+				int face_height = faces[0].y1 - faces[0].y0;
+				valid_face = ( face_width > 100 ) && ( face_width < 250 ) 
+					&& ( face_height > 100 ) && ( face_height < 250 );
+			}
+			
+			if ( !valid_face )
 				draw_message( display_image, "NO FACE DETECTED!" );
 			else
 			{
