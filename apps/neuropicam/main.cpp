@@ -202,93 +202,49 @@ void draw_fps( CImg<unsigned char>& image, const float& fps )
 
 int main ( int argc,char **argv )
 {
-    thebrain my_brain;
-	raspicam::RaspiCam camera;
+    std::cout << "Welcome to neuropicam!" << std::endl;
 
 	try
 	{
-		std::vector<face_detect::face_rect> faces;
-		face_detect my_face_detect;
+        raspicam::RaspiCam camera;
 
-		neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+        camera.setWidth( IMAGE_SIZEX );
+        camera.setHeight( IMAGE_SIZEY );
+        camera.setBrightness( 50 );
+        camera.setSharpness( 0 );
+        camera.setContrast( 0 );
+        camera.setSaturation( 0 );
+        camera.setShutterSpeed( 0 );
+        camera.setISO( 400 );
+        //camera.setVideoStabilization( true );
+        camera.setExposureCompensation( 0 );
+        camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
+        //camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
+        //camera.setExposure( /**/ );
+        //camera.setAWB( /**/ );
+        camera.setAWB_RB( 1, 1 );
 
-		camera.setWidth( IMAGE_SIZEX );
-		camera.setHeight( IMAGE_SIZEY );
-		camera.setBrightness( 50 );
-		camera.setSharpness( 0 );
-		camera.setContrast( 0 );
-		camera.setSaturation( 0 );
-		camera.setShutterSpeed( 0 );
-		camera.setISO( 400 );
-		//camera.setVideoStabilization( true );
-		camera.setExposureCompensation( 0 );
-		camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
-		//camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
-		//camera.setExposure( /**/ );
-		//camera.setAWB( /**/ );
-		camera.setAWB_RB( 1, 1 );
+        std::cout << "Connecting to camera" << std::endl;
 
-		std::cout << "Connecting to camera" << std::endl;
+        if ( !camera.open() )
+        {
+            std::cerr << "Error opening camera" << std::endl;
+            return -1;
+        }
+        std::cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << std::endl;
 
-		if ( !camera.open() )
-		{
-			std::cerr << "Error opening camera" << std::endl;
-			return -1;
-		}
-		std::cout << "Connected to camera =" << camera.getId() << " bufs=" << camera.getImageBufferSize() << std::endl;
+        cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
+        my_display.set_title( "NeuroPiCam" );
+        my_display.set_fullscreen( true );
 
-		boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
+        bool auto_training = ( argc == 2 ) && ( boost::lexical_cast<int>( argv[1] ) == 1 );
 
-		cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
-		my_display.set_title( "NeuroPiCam" );
-		my_display.set_fullscreen( true );
-
-		std::cout << "Capturing...." << std::endl;
-
-		CImg<unsigned char> display_image;
-
-		size_t i=0;
-
-		do
-		{
-			if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
-			{
-				std::cout << "Bye Bye!" << std::endl;
-				break;
-			}
-
-            g_chrono.start();
-
-			camera.grab();
-			camera.retrieve( data.get() );
-
-            g_chrono.step( "grabbing" );
-
-			cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
-
-			display_image = input_image;
-
-			faces = my_face_detect.detect( input_image );
-			
-			if ( faces.empty() )
-				draw_message( display_image, "NO FACE DETECTED!" );
-			else
-			{
-				const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
-				draw_metadata( display_image, faces, fres.result() );
-
-				my_brain.push_face_type( fres.type );
-			}
-
-            std::cout << g_chrono.summary() << std::endl;
-
-			g_chrono.frame();
-			draw_fps( display_image, g_chrono.framerate() );
-
-			my_display.display( display_image );
-
-		} while(true);
+        if ( auto_training )
+        {
+            _main_train( camera, my_display );
+        }
+        else
+            _main_live( camera, my_display );
 	}
     catch( neurocl::network_exception& e )
     {
@@ -303,9 +259,94 @@ int main ( int argc,char **argv )
         std::cerr << "unknown exception" << std::endl;
     }
 
-    std::cout << "Bye bye facecam!" << std::endl;
+    std::cout << "Bye bye neuropicam!" << std::endl;
 
     camera.release();
 
     return 0;
+}
+
+void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay )
+{
+    // TODO : remove/backup existing weights
+
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+    net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+
+    boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
+
+    std::cout << "Capturing...." << std::endl;
+
+    for ( int i=0; i<20; i++ )
+    {
+        // CAPTURE USER A
+    }
+
+    // CHANGE user
+
+    for ( int i=0; i<20; i++ )
+    {
+        // CAPTURE USER B
+    }
+
+    // TRAIN THE WHOLE NETWORK
+}
+
+void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay )
+{
+    thebrain my_brain;
+
+    std::vector<face_detect::face_rect> faces;
+    face_detect my_face_detect;
+
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+    net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+
+    boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
+
+    std::cout << "Capturing...." << std::endl;
+
+    CImg<unsigned char> display_image;
+
+    size_t i=0;
+
+    do
+    {
+        if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
+        {
+            std::cout << "Bye Bye!" << std::endl;
+            break;
+        }
+
+        g_chrono.start();
+
+        camera.grab();
+        camera.retrieve( data.get() );
+
+        g_chrono.step( "grabbing" );
+
+        cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+
+        display_image = input_image;
+
+        faces = my_face_detect.detect( input_image );
+
+        if ( faces.empty() )
+            draw_message( display_image, "NO FACE DETECTED!" );
+        else
+        {
+            const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
+            draw_metadata( display_image, faces, fres.result() );
+
+            my_brain.push_face_type( fres.type );
+        }
+
+        std::cout << g_chrono.summary() << std::endl;
+
+        g_chrono.frame();
+        draw_fps( display_image, g_chrono.framerate() );
+
+        my_display.display( display_image );
+
+    } while(true);
 }
