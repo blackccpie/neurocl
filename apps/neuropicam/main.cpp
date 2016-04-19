@@ -208,6 +208,14 @@ void draw_fps( CImg<unsigned char>& image, const float& fps )
     image.draw_text( 15, 15, ss.str().c_str(), red );
 }
 
+bool _is_valid_face( face_detect::face_rect face )
+{
+	int face_width = face.x1 - face.x0;
+	int face_height = face.y1 - face.y0;
+	return ( face_width > 100 ) && ( face_width < 250 ) 
+		&& ( face_height > 100 ) && ( face_height < 250 );
+}
+
 void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay );
 void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay );
 
@@ -298,7 +306,9 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 	face_filer face_files;
 
-    for ( int i=0; i<20; i++ )
+	size_t user_faces = 0;
+
+    do
     {
         // CAPTURE USER A
         camera.grab();
@@ -310,14 +320,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
         faces = my_face_detect.detect( input_image );
 
-        bool valid_face = false;
-		if ( !faces.empty() )
-		{
-			int face_width = faces[0].x1 - faces[0].x0;
-			int face_height = faces[0].y1 - faces[0].y0;
-			valid_face = ( face_width > 100 ) && ( face_width < 250 ) 
-				&& ( face_height > 100 ) && ( face_height < 250 );
-		}
+        bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
 			
 		if ( valid_face )
         {
@@ -332,24 +335,58 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 			
 			face_files.save_face( "autoA", work_image );
 			
-			auto_train_file << "../nets/facecam/faces/autoA/TODO 1 0" << std::endl;
+			auto_train_file << face_files.last_path() << " 1 0" << std::endl;
 			
             //draw_metadata( display_image, faces, fres.result() );
+
+			++user_faces;
         }
-    }
+    } while( user_faces < 20 );
+
+	user_faces = 0;
 
     // CHANGE USER
 
-    for ( int i=0; i<20; i++ )
+    do
     {
         // CAPTURE USER B
         camera.grab();
         camera.retrieve( data.get() );
         
-        //face_files.save_face( "autoB", image );
-        
-        auto_train_file << "../nets/facecam/faces/autoB/TODO 0 1" << std::endl;
-    }
+		cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+
+        display_image = input_image;
+
+        faces = my_face_detect.detect( input_image );
+
+        bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
+			
+		if ( valid_face )
+        {
+			CImg<float> work_image( input_image );
+			
+			work_image.resize( 50, 50 );
+			work_image.equalize( 256, 0, 255 );
+			work_image.normalize( 0.f, 1.f );
+			work_image.channel(0);
+
+			face_preprocess( work_image );
+			
+			face_files.save_face( "autoB", work_image );
+			
+			auto_train_file << face_files.last_path() << " 1 0" << std::endl;
+			
+            //draw_metadata( display_image, faces, fres.result() );
+
+			++user_faces;
+        }
+    } while( user_faces < 20 );
+
+	// ADD UNKNOWN USER
+	for ( int i=0; i<20; i++ )
+		auto_train_file << "../nets/facecam/faces/autoU/" << i << ".png 0 1" << std::endl;
+
+	auto_train_file.close();
 
     // TRAIN THE WHOLE NETWORK
     
@@ -403,14 +440,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
 
         faces = my_face_detect.detect( input_image );
 
-        bool valid_face = false;
-		if ( !faces.empty() )
-		{
-			int face_width = faces[0].x1 - faces[0].x0;
-			int face_height = faces[0].y1 - faces[0].y0;
-			valid_face = ( face_width > 100 ) && ( face_width < 250 ) 
-				&& ( face_height > 100 ) && ( face_height < 250 );
-		}
+        bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
 			
 		if ( !valid_face )
             draw_message( display_image, "NO FACE DETECTED!" );

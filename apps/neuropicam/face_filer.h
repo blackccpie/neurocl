@@ -36,7 +36,7 @@ THE SOFTWARE.
 class face_filer
 {
 public:
-    face_filer() : m_save_path( "../nets/facecam/faces" )
+    face_filer() : m_save_path( "../nets/facecam/faces" ), m_last_path( "" )
     {
     }
     virtual ~face_filer() {}
@@ -56,7 +56,8 @@ public:
                     create_directory( _path.parent_path() );
 
                 image.normalize( 0, 255 );
-                image.save( _path.string().c_str() );
+				m_last_path = _path.string();
+                image.save( m_last_path.c_str() );
                 saved = true;
             }
             idx++;
@@ -64,8 +65,11 @@ public:
         } while ( !saved );
     }
 
+	const std::string& last_path() { return m_last_path; }
+
 private:
 
+	std::string m_last_path;
     boost::filesystem::path m_save_path;
 };
 
