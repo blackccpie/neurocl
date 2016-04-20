@@ -102,21 +102,23 @@ chrono_manager g_chrono;
 #define MIN_FACE_RECO_SCORE 0.3f
 
 static const unsigned char red[] = { 255,0,0 };
+static const unsigned char green[] = { 0,255,0 };
+static const unsigned char blue[] = { 0,0,255 };
 
 struct face_result
 {
     face_result( face_type _type, float _score1, float _score2 )
         : type( _type ), score1( _score1 ), score2( _score2 ) {}
 
-    const std::string result() const
+    const std::string result( bool scores = false ) const
     {
         std::string str_type;
         switch( type )
         {
-        case FT_ALBERT:
+        case FT_USERA:
             str_type = "YOU ARE ALBERT! ";
             break;
-        case FT_ELSA:
+        case FT_USERB:
             str_type = "YOU ARE ELSA! ";
             break;
         case FT_UNKNOWN:
@@ -124,10 +126,27 @@ struct face_result
             str_type = "YOU ARE UNKNOWN... ";
             break;
         }
-        return str_type
+        if ( scores )
+			return str_type
             + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
             + boost::lexical_cast<std::string>( score2 ) + ")";
+		else
+           return str_type;
     }
+
+    const unsigned char* result_color() const
+	{
+		switch( type )
+        {
+        case FT_USERA:
+            return green;
+        case FT_USERB:
+            return blue;
+        case FT_UNKNOWN:
+        default:
+            return red;
+        }
+	}
 
     face_type type;
     float score1;
@@ -181,18 +200,18 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 	if (sample.max_comp_val() < MIN_FACE_RECO_SCORE )
 		return face_result( FT_UNKNOWN, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 0 )
-		return face_result( FT_ALBERT, output[0], output[1] );
+		return face_result( FT_USERA, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 1 )
-		return face_result( FT_ELSA, output[0], output[1] );
+		return face_result( FT_USERB, output[0], output[1] );
 }
 
-void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces, const std::string& message )
+void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces, const face_result& fresult )
 {
     if ( !faces.empty() )
     {
         const face_detect::face_rect& frect = faces[0];
-    	image.draw_rectangle( frect.x0, frect.y0, frect.x1, frect.y1, red, 1.f, ~0L );
-    	image.draw_text( frect.x0, frect.y0-20, message.c_str(), red );
+    	image.draw_rectangle( frect.x0, frect.y0, frect.x1, frect.y1, fresult.result_color(), 1.f, ~0L );
+    	image.draw_text( frect.x0, frect.y0-20, fresult.result().c_str(), fresult.result_color() );
     }
 }
 
@@ -254,7 +273,9 @@ int main ( int argc,char **argv )
 
         cimg_library::CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
         my_display.set_title( "NeuroPiCam" );
+#ifdef __arm__
         my_display.set_fullscreen( true );
+#endif
 
         bool auto_training = ( argc == 2 ) && ( boost::lexical_cast<int>( argv[1] ) == 1 );
 
@@ -337,7 +358,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 			
 			auto_train_file << face_files.last_path() << " 1 0" << std::endl;
 			
-            //draw_metadata( display_image, faces, fres.result() );
+            //draw_metadata( display_image, faces, fres );
 
 			++user_faces;
         }
@@ -376,7 +397,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 			
 			auto_train_file << face_files.last_path() << " 1 0" << std::endl;
 			
-            //draw_metadata( display_image, faces, fres.result() );
+            //draw_metadata( display_image, faces, fres );
 
 			++user_faces;
         }
@@ -434,6 +455,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
 
         //cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
 
+		// RGB deinterlacing
 		cimg_forXYC(input_image,x,y,v) { input_image(x,y,v) = data[3*(x+(y*IMAGE_SIZEX))+v]; }
 
         display_image = input_image;
@@ -447,7 +469,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
         else
         {
             const face_result fres = face_process( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), net_manager );
-            draw_metadata( display_image, faces, fres.result() );
+            draw_metadata( display_image, faces, fres );
 
             my_brain.push_face_type( fres.type );
         }

@@ -51,11 +51,11 @@ public:
     {
 		switch( type )
 		{
-		case FT_ALBERT:
+		case FT_USERA:
 			speak( "Hello Albert" );
 			speak( "What can I do you for?" );
 			break;
-		case FT_ELSA:
+		case FT_USERB:
 			speak( "Hello Elsa" );
 			speak( "What can I do you for?" );
 			break;

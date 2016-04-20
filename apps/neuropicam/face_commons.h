@@ -25,6 +25,6 @@ THE SOFTWARE.
 typedef enum
 {
 	FT_UNKNOWN = 0,
-    FT_ALBERT,
-    FT_ELSA,
+    FT_USERA,
+    FT_USERB,
 } face_type;
