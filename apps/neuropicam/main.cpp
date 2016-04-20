@@ -37,6 +37,8 @@ THE SOFTWARE.
 #include "CImg.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/assign/list_of.hpp>
+using boost::assign::list_of;
 
 #include <iostream>
 #include <ctime>
@@ -215,6 +217,16 @@ void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::f
     }
 }
 
+void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces, const std::string& label )
+{
+    if ( !faces.empty() )
+    {
+		const face_detect::face_rect& frect = faces[0];
+    	image.draw_rectangle( frect.x0, frect.y0, frect.x1, frect.y1, green, 1.f, ~0L );
+    	image.draw_text( frect.x0, frect.y0-20, label.c_str(), green );
+	}
+}
+
 void draw_message( CImg<unsigned char>& image, const std::string& message )
 {
     image.draw_text( IMAGE_SIZEX/2, IMAGE_SIZEY/2, message.c_str(), red );
@@ -306,6 +318,8 @@ int main ( int argc,char **argv )
     return 0;
 }
 
+#define NB_TRAINING_FACES 20
+
 void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
 {
 	std::vector<face_detect::face_rect> faces;
@@ -316,7 +330,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
     neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
     net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
-	// TODO : remove existing training file
+	// TODO : remove existing training file + image files?
 	std::ofstream auto_train_file( "../nets/facecam/auto-train.txt" );
 
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
@@ -327,81 +341,49 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 	face_filer face_files;
 
-	size_t user_faces = 0;
+	// TODO : define in face_commons?
+	std::vector<std::string> users = list_of("autoA")("autoB");
+	std::vector<std::string> scores = list_of("1 0")("0 1");
 
-    do
-    {
-        // CAPTURE USER A
-        camera.grab();
-        camera.retrieve( data.get() );
-        
-        cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
-
-        display_image = input_image;
-
-        faces = my_face_detect.detect( input_image );
-
-        bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
+	for ( size_t u=0; u<users.size(); u++ )
+	{
+		size_t user_faces = 0;
+		
+		do
+		{
+			// CAPTURE USER A
+			camera.grab();
+			camera.retrieve( data.get() );
 			
-		if ( valid_face )
-        {
-			CImg<float> work_image( input_image );
-			
-			work_image.resize( 50, 50 );
-			work_image.equalize( 256, 0, 255 );
-			work_image.normalize( 0.f, 1.f );
-			work_image.channel(0);
+			cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
 
-			face_preprocess( work_image );
-			
-			face_files.save_face( "autoA", work_image );
-			
-			auto_train_file << face_files.last_path() << " 1 0" << std::endl;
-			
-            //draw_metadata( display_image, faces, fres );
+			display_image = input_image;
 
-			++user_faces;
-        }
-    } while( user_faces < 20 );
+			faces = my_face_detect.detect( input_image );
 
-	user_faces = 0;
+			bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
+				
+			if ( valid_face )
+			{
+				CImg<float> work_image( input_image );
+				
+				work_image.resize( 50, 50 );
+				work_image.equalize( 256, 0, 255 );
+				work_image.normalize( 0.f, 1.f );
+				work_image.channel(0);
 
-    // CHANGE USER
+				face_preprocess( work_image );
+				
+				face_files.save_face( users[u], work_image );
+				
+				auto_train_file << face_files.last_path() << " " << scores[u] << std::endl;
+				
+				draw_metadata( display_image, faces, users[u] );
 
-    do
-    {
-        // CAPTURE USER B
-        camera.grab();
-        camera.retrieve( data.get() );
-        
-		cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
-
-        display_image = input_image;
-
-        faces = my_face_detect.detect( input_image );
-
-        bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
-			
-		if ( valid_face )
-        {
-			CImg<float> work_image( input_image );
-			
-			work_image.resize( 50, 50 );
-			work_image.equalize( 256, 0, 255 );
-			work_image.normalize( 0.f, 1.f );
-			work_image.channel(0);
-
-			face_preprocess( work_image );
-			
-			face_files.save_face( "autoB", work_image );
-			
-			auto_train_file << face_files.last_path() << " 1 0" << std::endl;
-			
-            //draw_metadata( display_image, faces, fres );
-
-			++user_faces;
-        }
-    } while( user_faces < 20 );
+				++user_faces;
+			}
+		} while( user_faces < NB_TRAINING_FACES );
+	}
 
 	// ADD UNKNOWN USER
 	for ( int i=0; i<20; i++ )
@@ -415,6 +397,8 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	smp_manager.load_samples(  "../nets/facecam/auto-train.txt",
 														true /*shuffle*/,
 														&face_preprocess_generic /* extra_preproc*/ );
+
+	// TODO : manage progression display
 
 	net_manager.batch_train( smp_manager, 500 /*epoch*/, 20 /*batch*/ );
 }
