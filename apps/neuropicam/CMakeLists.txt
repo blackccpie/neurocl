@@ -39,6 +39,10 @@ speech_manager.h
 thebrain.h
 )
 
+if (NOT APPLE)
+	add_definitions( -Dcimg_use_png )
+endif ()
+
 add_executable(neuropicam ${sources_list} ${headers_list})
 
 target_link_libraries(neuropicam

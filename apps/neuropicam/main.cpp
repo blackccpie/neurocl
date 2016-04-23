@@ -36,6 +36,7 @@ THE SOFTWARE.
 
 #include "CImg.h"
 
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
 using boost::assign::list_of;
@@ -101,7 +102,7 @@ cout<<"[-awb_g val:(0,8):set the value for the green component of white balance]
 
 chrono_manager g_chrono;
 
-#define MIN_FACE_RECO_SCORE 0.3f
+#define MIN_FACE_RECO_SCORE 0.5f
 
 static const unsigned char red[] = { 255,0,0 };
 static const unsigned char green[] = { 0,255,0 };
@@ -320,38 +321,71 @@ int main ( int argc,char **argv )
 
 #define NB_TRAINING_FACES 20
 
+const std::string g_weights_facecam_auto = "../nets/facecam/weights-facecam-auto.bin";
+const std::string g_training_file_auto = "../nets/facecam/auto-train.txt";
+
+void progress( int percent )
+{
+}
+
 void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
 {
+	using namespace boost::filesystem;
+	
+	// TODO : define in face_commons?
+	std::vector<std::string> users = list_of("autoA")("autoB");
+	std::vector<std::string> scores = list_of("1 0")("0 1");
+	
 	std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 	
-    // TODO : remove/backup existing weights
+    // remove/backup existing auto weights
+    if ( exists( g_weights_facecam_auto ) )
+	{
+		copy_file( g_weights_facecam_auto, g_weights_facecam_auto + ".save", copy_option::overwrite_if_exists );
+		remove( g_weights_facecam_auto );
+	}
 
     neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-    net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+    net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
-	// TODO : remove existing training file + image files?
-	std::ofstream auto_train_file( "../nets/facecam/auto-train.txt" );
+	// remove existing training file + image files
+	if ( exists( g_training_file_auto ) )
+		remove( g_training_file_auto );
+	BOOST_FOREACH( const std::string& user, users )
+	{
+		if ( exists( "/home/pi/Pictures/facecam_faces/" + user ) )
+			remove_all( "/home/pi/Pictures/facecam_faces/" + user );
+	}
+	
+	// create new training file
+	std::ofstream auto_train_file( g_training_file_auto.c_str() );
 
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 
     std::cout << "Capturing...." << std::endl;
 
-	CImg<unsigned char> display_image;
+	CImg<unsigned char> display_image( IMAGE_SIZEX, IMAGE_SIZEY, 1, 1 );
 
 	face_filer face_files;
-
-	// TODO : define in face_commons?
-	std::vector<std::string> users = list_of("autoA")("autoB");
-	std::vector<std::string> scores = list_of("1 0")("0 1");
 
 	for ( size_t u=0; u<users.size(); u++ )
 	{
 		size_t user_faces = 0;
 		
+		draw_message( display_image, "Press a key when ready to capture user " + users[u] );
+		
+		my_display.display( display_image );
+		
 		do
 		{
-			// CAPTURE USER A
+			my_display.wait();
+		}
+		while( my_display.key() == 0 );
+		
+		do
+		{
+			// CAPTURE USER
 			camera.grab();
 			camera.retrieve( data.get() );
 			
@@ -378,7 +412,9 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 				
 				auto_train_file << face_files.last_path() << " " << scores[u] << std::endl;
 				
-				draw_metadata( display_image, faces, users[u] );
+				draw_metadata( display_image, faces, users[u] + " - " + boost::lexical_cast<std::string>( user_faces+1 ) );
+
+				my_display.display( display_image );
 
 				++user_faces;
 			}
@@ -392,15 +428,15 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	auto_train_file.close();
 
     // TRAIN THE WHOLE NETWORK
-    
 	neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
 	smp_manager.load_samples(  "../nets/facecam/auto-train.txt",
 														true /*shuffle*/,
 														&face_preprocess_generic /* extra_preproc*/ );
 
-	// TODO : manage progression display
-
-	net_manager.batch_train( smp_manager, 500 /*epoch*/, 20 /*batch*/ );
+	net_manager.batch_train( 	smp_manager, 
+								500 /*epoch*/, 
+								20 /*batch*/,
+								&progress );
 }
 
 void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )

@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "network_sample.h"
 
+#include <boost/function.hpp>
 #include <boost/shared_array.hpp>
 
 #include <vector>
@@ -40,6 +41,8 @@ class samples_manager;
 class network_manager
 {
 public:
+
+	typedef boost::function<void(int)> t_progress_fct;
 
     typedef enum
     {
@@ -57,7 +60,10 @@ public:
 
     void train( const sample& s );
     void train( const std::vector<sample>& training_set );
-    void batch_train( const samples_manager& smp_manager, const size_t& epoch_size, const size_t& batch_size );
+    void batch_train(	const samples_manager& smp_manager, 
+						const size_t& epoch_size, 
+						const size_t& batch_size,
+						t_progress_fct progress_fct = t_progress_fct() );
 
     // prepare gradient descent
     void prepare_training_iteration();

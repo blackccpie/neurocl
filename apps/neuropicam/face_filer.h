@@ -36,7 +36,7 @@ THE SOFTWARE.
 class face_filer
 {
 public:
-    face_filer() : m_save_path( "../nets/facecam/faces" ), m_last_path( "" )
+    face_filer() : m_save_path( "/home/pi/Pictures/facecam_faces" ), m_last_path( "" )
     {
     }
     virtual ~face_filer() {}

@@ -22,9 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include <string>
+
 typedef enum
 {
 	FT_UNKNOWN = 0,
     FT_USERA,
     FT_USERB,
 } face_type;
+	
+struct facecam_users
+{	
+	static facecam_users& instance() { static facecam_users s; return s; }
+	
+	std::string nicknameA;
+	std::string nicknameB;
+};
