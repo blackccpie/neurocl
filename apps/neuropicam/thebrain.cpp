@@ -22,50 +22,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "face_commons.h"
+#include "thebrain.h"
 
-#include <string>
+#include <boost/make_shared.hpp>
 
-#include <stdlib.h>
-
-class speech_manager
+thebrain::thebrain() : m_current_compute_range( 0 ), m_current_face_type( 0 ), m_bStop( false )
 {
-public:
-    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
-    virtual ~speech_manager() {}
+    m_speech_manager.speak( "Welcome in NeuroPiCam" );
+    m_thread = boost::make_shared<boost::thread>( boost::bind( &thebrain::_run, this ) );
+}
 
-    void speak( const std::string& message )
-    {
-    #ifdef __APPLE__
-        // NOT IMPLEMENTED YET
-    #else
-        std::string command = std::string( "cd ../../picoPi2/tts;sh speak.sh \"" )
-			+ message + std::string( "\";cd -" );
+thebrain::~thebrain()
+{
+	m_bStop = true;
+	m_thread->join();
+}
 
-        // grab using raspistill utility
-        system( command.c_str() );
-    #endif
-    }
+void thebrain::push_face_type( int type )
+{
+    m_queue.push( type );
+}
 
-    void set_listener( const face_type& type )
-    {
-		switch( type )
+void thebrain::_average_type( int type )
+{
+    m_current_face_type += type;
+}
+
+void thebrain::_run()
+{
+	while( !m_bStop )
+	{
+		// compute average face value
+		m_current_compute_range += m_queue.consume_all( boost::bind( &thebrain::_average_type, this, _1 ) );
+
+		if ( m_current_compute_range >= BRAIN_QUEUE_SIZE )
 		{
-		case FT_USERA:
-			speak( "Hello " + facecam_users::instance().nicknameA() );
-			speak( "What can I do you for?" );
-			break;
-		case FT_USERB:
-			speak( "Hello " + facecam_users::instance().nicknameA() );
-			speak( "What can I do you for?" );
-			break;
-		case FT_UNKNOWN:
-		default:
-			break;
+			m_current_face_type = m_current_face_type / m_current_compute_range;
+			m_speech_manager.set_listener( static_cast<face_type>( m_current_face_type ) );
+			m_current_face_type = 0;
+			m_current_compute_range = 0;
 		}
 
-		m_current_listener = type;
+		boost::this_thread::sleep( boost::posix_time::milliseconds( 500 ) );
 	}
-private:
-	face_type m_current_listener;
-};
+}

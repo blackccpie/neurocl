@@ -108,7 +108,10 @@ void network_manager::train( const std::vector<sample>& training_set )
     }
 }
 
-void network_manager::batch_train( const samples_manager& smp_manager, const size_t& epoch_size, const size_t& batch_size )
+void network_manager::batch_train( 	const samples_manager& smp_manager, 
+									const size_t& epoch_size, 
+									const size_t& batch_size,
+									t_progress_fct progress_fct )
 {
     _assert_loaded();
 
@@ -131,9 +134,14 @@ void network_manager::batch_train( const samples_manager& smp_manager, const siz
             train( samples );
             finalize_training_iteration();
 
-            progress_size += batch_size;
+            progress_size += samples.size();
 
-            std::cout << "\rnetwork_manager::batch_train - progress " << ( ( 100 * progress_size ) / pbm_size ) << "%";// << std::endl;
+			int progress = ( ( 100 * progress_size ) / pbm_size );
+			
+			if ( progress_fct )
+				progress_fct( progress );
+
+            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
         }
 
         smp_manager.rewind();

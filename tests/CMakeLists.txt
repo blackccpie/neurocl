@@ -22,7 +22,10 @@
 
 cmake_minimum_required (VERSION 3.0)
 
-include_directories("${CMAKE_SOURCE_DIR}/src")
+include_directories(
+    "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/utils"
+)
 
 add_subdirectory(test_mnist)
-add_subdirectory(test_alpr)
+add_subdirectory(test_edge)

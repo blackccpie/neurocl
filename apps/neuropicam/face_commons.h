@@ -22,50 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "face_commons.h"
-
 #include <string>
 
-#include <stdlib.h>
-
-class speech_manager
+typedef enum
 {
+	FT_UNKNOWN = 0,
+    FT_USERA,
+    FT_USERB,
+} face_type;
+	
+class facecam_users
+{	
 public:
-    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
-    virtual ~speech_manager() {}
-
-    void speak( const std::string& message )
-    {
-    #ifdef __APPLE__
-        // NOT IMPLEMENTED YET
-    #else
-        std::string command = std::string( "cd ../../picoPi2/tts;sh speak.sh \"" )
-			+ message + std::string( "\";cd -" );
-
-        // grab using raspistill utility
-        system( command.c_str() );
-    #endif
-    }
-
-    void set_listener( const face_type& type )
-    {
-		switch( type )
-		{
-		case FT_USERA:
-			speak( "Hello " + facecam_users::instance().nicknameA() );
-			speak( "What can I do you for?" );
-			break;
-		case FT_USERB:
-			speak( "Hello " + facecam_users::instance().nicknameA() );
-			speak( "What can I do you for?" );
-			break;
-		case FT_UNKNOWN:
-		default:
-			break;
-		}
-
-		m_current_listener = type;
-	}
+	static facecam_users& instance() { static facecam_users s; return s; }
+	
+	const std::string& nicknameA() { return m_nicknameA; }
+	const std::string& nicknameB() { return m_nicknameB; }
+	
 private:
-	face_type m_current_listener;
+	
+	facecam_users() : m_nicknameA( "John" ), m_nicknameB( "Jane" ) {}
+	
+private:
+
+	std::string m_nicknameA;
+	std::string m_nicknameB;
 };

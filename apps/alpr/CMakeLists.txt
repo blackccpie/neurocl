@@ -21,51 +21,32 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
-project (neurocl)
+project (alpr)
 
 include_directories(
-    .
-    "${CMAKE_SOURCE_DIR}/../vexcl"
     "${CMAKE_SOURCE_DIR}/../CImg"
 )
 
-include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
-
-set (sources_list
-samples_manager.cpp
-network_file_handler.cpp
-network_manager.cpp
-network_vexcl.cpp
-network_bnu.cpp
+set (headers_list
+alphanum.h
+alpr.h
+plate_resolution.h
 )
 
-set (headers_list
-samples_manager.h
-network_config.h
-network_sample.h
-network_exception.h
-network_file_handler.h
-network_manager.h
-network_interface.h
-network_vexcl.h
-network_bnu.h
+set (sources_list
+main.cpp
+alpr.cpp
+plate_resolution.cpp
 )
 
 if (NOT APPLE)
 	add_definitions( -Dcimg_use_png )
 endif ()
 
-add_library(neurocl SHARED ${sources_list} ${headers_list})
+add_executable(alpr ${sources_list} ${headers_list})
 
-target_link_libraries(neurocl
-boost_thread${boost_suffix}
-boost_system${boost_suffix}
-boost_chrono${boost_suffix}
-boost_filesystem${boost_suffix}
-boost_serialization${boost_suffix}
-${OpenCL_LIBRARIES}
-X11
-png
+target_link_libraries(alpr
+neurocl
+pthread
+${extra_link_libs}
 )
-
-target_compile_features(neurocl PRIVATE cxx_auto_type)

@@ -41,9 +41,10 @@ template<typename T>
 class canny
 {
 public:
-	canny( const int& rows, const int& columns );
+	canny( const int& columns, const int& rows ); // width , height
 	virtual ~canny();
 
+	// use with normalized [0,1] floating point images
 	void process( const cimg_library::CImg<T>& image_in, cimg_library::CImg<T>& image_out );
 
 private:
@@ -63,4 +64,22 @@ private:
 
 	boost::multi_array<int,2>  m_thetas;
 	boost::multi_array<T,2> m_mag_array;
+};
+
+/*** CCV IMPLEMENTATION WRAPPERS ***/
+
+class sobel_ccv
+{
+public:
+
+	template<typename T>
+	static void process( const CImg<T>& image_in, CImg<T>& image_out );
+};
+
+class canny_ccv
+{
+public:
+
+	template<typename T>
+	static void process( const CImg<T>& image_in, CImg<T>& image_out );
 };

@@ -29,11 +29,19 @@ include_directories(
 
 set (sources_list
 main.cpp
+thebrain.cpp
 )
 
 set (headers_list
+chrono_manager.h
+face_filer.h
 speech_manager.h
+thebrain.h
 )
+
+if (NOT APPLE)
+	add_definitions( -Dcimg_use_png )
+endif ()
 
 add_executable(neuropicam ${sources_list} ${headers_list})
 

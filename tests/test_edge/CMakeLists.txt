@@ -21,32 +21,29 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
-project (test_alpr)
+project (test_edge)
 
 include_directories(
     "${CMAKE_SOURCE_DIR}/../CImg"
 )
 
 set (headers_list
-alphanum.h
-alpr.h
-plate_resolution.h
 )
 
 set (sources_list
 main.cpp
-alpr.cpp
-plate_resolution.cpp
 )
 
 if (NOT APPLE)
 	add_definitions( -Dcimg_use_png )
 endif ()
 
-add_executable(test_alpr ${sources_list} ${headers_list})
+add_executable(test_edge ${sources_list} ${headers_list})
 
-target_link_libraries(test_alpr
-neurocl
+target_link_libraries(test_edge
+facetools
+boost_chrono${boost_suffix}
+boost_system${boost_suffix}
 pthread
 ${extra_link_libs}
 )
