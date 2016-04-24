@@ -250,7 +250,7 @@ bool _is_valid_face( face_detect::face_rect face )
 }
 
 void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay );
-void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay );
+void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_diplay, bool auto_trained );
 
 int main ( int argc,char **argv )
 {
@@ -292,13 +292,14 @@ int main ( int argc,char **argv )
 #endif
 
         bool auto_training = ( argc == 2 ) && ( boost::lexical_cast<int>( argv[1] ) == 1 );
+        bool auto_trained = ( argc == 2 ) && ( boost::lexical_cast<int>( argv[1] ) == 2 );
 
         if ( auto_training )
         {
             _main_train( camera, my_display );
         }
         else
-            _main_live( camera, my_display );
+            _main_live( camera, my_display, auto_trained );
 	}
     catch( neurocl::network_exception& e )
     {
@@ -432,7 +433,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 	// ADD UNKNOWN USER
 	for ( int i=0; i<20; i++ )
-		auto_train_file << "/home/pi/Pictures/facecam_faces/autoU/" << i << ".png 0 1" << std::endl;
+		auto_train_file << "/home/pi/Pictures/facecam_faces/autoU/" << i << ".png 0 0" << std::endl;
 
 	auto_train_file.close();
 
@@ -450,7 +451,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 								boost::bind( &progress, _1, my_display, display_image ) );
 }
 
-void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
+void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display, bool auto_trained )
 {
     thebrain my_brain;
 
@@ -458,7 +459,10 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     face_detect my_face_detect;
 
     neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
-    net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+    if ( !auto_trained )
+		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+	else
+		net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 
