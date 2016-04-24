@@ -53,8 +53,8 @@ static const unsigned char red[] = { 255,0,0 };
 typedef enum
 {
     FT_GUESS = 0,
-    FT_ALBERT,
-    FT_ELSA,
+    FT_USERA,
+    FT_USERB,
     FT_UNKNOWN,
     //FT_NOT_A_FACE,
     FT_MAX
@@ -70,11 +70,11 @@ struct face_result
         std::string str_type;
         switch( type )
         {
-        case FT_ALBERT:
-            str_type = "YOU ARE ALBERT! ";
+        case FT_USERA:
+            str_type = "YOU ARE JOHN! ";
             break;
-        case FT_ELSA:
-            str_type = "YOU ARE ELSA! ";
+        case FT_USERB:
+            str_type = "YOU ARE JANE! ";
             break;
         case FT_UNKNOWN:
         default:
@@ -135,12 +135,12 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     switch( ftype )
     {
-    case FT_ALBERT:
+    case FT_USERA:
         label = "A";
         output[0] = 1.f;
         break;
-    case FT_ELSA:
-        label = "E";
+    case FT_USERB:
+        label = "B";
         output[1] = 1.f;
         break;
     case FT_UNKNOWN:
@@ -165,9 +165,9 @@ void face_process(  CImg<float> image, const face_type& ftype,
         std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
         if ( sample.max_comp_idx() == 0 )
-            opt_computed_face = face_result( FT_ALBERT, output[0], output[1] );
+            opt_computed_face = face_result( FT_USERA, output[0], output[1] );
         else if ( sample.max_comp_idx() == 1 )
-            opt_computed_face = face_result( FT_ELSA, output[0], output[1] );
+            opt_computed_face = face_result( FT_USERB, output[0], output[1] );
     }
     else
     {
@@ -191,7 +191,7 @@ void grab_image( CImg<float>& image )
 
 void draw_metadata( CImg<float>& image, const std::vector<face_detect::face_rect>& faces )
 {
-    std::string label( "Please center your face in the green rectangle and type:\nG = Guess?\nA = Albert\nE = Elsa\nU = Unknown" );
+    std::string label( "Please center your face in the green rectangle and type:\nG = Guess?\nA = John\nE = Jane\nU = Unknown" );
     image.draw_text( 5, 5, label.c_str(), green );
     image.draw_rectangle( IMAGE_SIZEX/2 - FACE_SIZEX, IMAGE_SIZEY/2 - FACE_SIZEY,
         IMAGE_SIZEX/2 + FACE_SIZEX, IMAGE_SIZEY/2 + FACE_SIZEY, green, 1.f, ~0L );
@@ -302,13 +302,13 @@ int main ( int argc,char **argv )
                 }
                 else if ( my_display.is_key( cimg::keyA ) )
                 {
-                    std::cout << "This is Albert!" << std::endl;
-                    ftype = FT_ALBERT;
+                    std::cout << "This is John!" << std::endl;
+                    ftype = FT_USERA;
                 }
                 else if ( my_display.is_key( cimg::keyE ) )
                 {
-                    std::cout << "This is Elsa!" << std::endl;
-                    ftype = FT_ELSA;
+                    std::cout << "This is Jane!" << std::endl;
+                    ftype = FT_USERB;
                 }
                 else if ( my_display.is_key( cimg::keyU ) )
                 {
