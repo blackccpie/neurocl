@@ -21,7 +21,7 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
-project (test_alpr)
+project (alpr)
 
 include_directories(
     "${CMAKE_SOURCE_DIR}/../CImg"
@@ -43,9 +43,9 @@ if (NOT APPLE)
 	add_definitions( -Dcimg_use_png )
 endif ()
 
-add_executable(test_alpr ${sources_list} ${headers_list})
+add_executable(alpr ${sources_list} ${headers_list})
 
-target_link_libraries(test_alpr
+target_link_libraries(alpr
 neurocl
 pthread
 ${extra_link_libs}
