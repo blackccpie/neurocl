@@ -31,10 +31,20 @@ typedef enum
     FT_USERB,
 } face_type;
 	
-struct facecam_users
+class facecam_users
 {	
+public:
 	static facecam_users& instance() { static facecam_users s; return s; }
 	
-	std::string nicknameA;
-	std::string nicknameB;
+	const std::string& nicknameA() { return m_nicknameA; }
+	const std::string& nicknameB() { return m_nicknameB; }
+	
+private:
+	
+	facecam_users() : m_nicknameA( "John" ), m_nicknameB( "Jane" ) {}
+	
+private:
+
+	std::string m_nicknameA;
+	std::string m_nicknameB;
 };

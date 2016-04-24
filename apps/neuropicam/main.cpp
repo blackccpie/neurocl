@@ -36,6 +36,7 @@ THE SOFTWARE.
 
 #include "CImg.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
@@ -119,10 +120,10 @@ struct face_result
         switch( type )
         {
         case FT_USERA:
-            str_type = "YOU ARE ALBERT! ";
+            str_type = "YOU ARE " + boost::to_upper_copy( facecam_users::instance().nicknameA() ) + "! ";
             break;
         case FT_USERB:
-            str_type = "YOU ARE ELSA! ";
+            str_type = "YOU ARE " + boost::to_upper_copy( facecam_users::instance().nicknameB() ) + "! ";
             break;
         case FT_UNKNOWN:
         default:
@@ -228,9 +229,9 @@ void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::f
 	}
 }
 
-void draw_message( CImg<unsigned char>& image, const std::string& message )
+void draw_message( CImg<unsigned char>& image, const std::string& message, const int xorig = IMAGE_SIZEX/2 )
 {
-    image.draw_text( IMAGE_SIZEX/2, IMAGE_SIZEY/2, message.c_str(), red );
+    image.draw_text( xorig, IMAGE_SIZEY/2, message.c_str(), red );
 }
 
 void draw_fps( CImg<unsigned char>& image, const float& fps )
@@ -324,8 +325,11 @@ int main ( int argc,char **argv )
 const std::string g_weights_facecam_auto = "../nets/facecam/weights-facecam-auto.bin";
 const std::string g_training_file_auto = "../nets/facecam/auto-train.txt";
 
-void progress( int percent )
+void progress( int percent, cimg_library::CImgDisplay& my_display, cimg_library::CImg<unsigned char>& display_image )
 {
+	display_image = (unsigned char)0;
+	draw_message( display_image, "NEURAL NETWORK TRAINING PROGRESS : " + boost::lexical_cast<std::string>( percent ) + "%", 20 );
+	my_display.display( display_image );
 }
 
 void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
@@ -365,7 +369,8 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
     std::cout << "Capturing...." << std::endl;
 
-	CImg<unsigned char> display_image( IMAGE_SIZEX, IMAGE_SIZEY, 1, 1 );
+	CImg<unsigned char> display_image( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3 );
+	cimg_library::CImg<unsigned char> input_image( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3, true );
 
 	face_filer face_files;
 
@@ -373,7 +378,8 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	{
 		size_t user_faces = 0;
 		
-		draw_message( display_image, "Press a key when ready to capture user " + users[u] );
+		display_image = (unsigned char)0;
+		draw_message( display_image, "PRESS A KEY WHEN READY TO CAPTURE USER : " + users[u], 10 );
 		
 		my_display.display( display_image );
 		
@@ -389,7 +395,10 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 			camera.grab();
 			camera.retrieve( data.get() );
 			
-			cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+			//cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
+
+			// RGB deinterlacing
+			cimg_forXYC(input_image,x,y,v) { input_image(x,y,v) = data[3*(x+(y*IMAGE_SIZEX))+v]; }
 
 			display_image = input_image;
 
@@ -423,9 +432,11 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 	// ADD UNKNOWN USER
 	for ( int i=0; i<20; i++ )
-		auto_train_file << "../nets/facecam/faces/autoU/" << i << ".png 0 1" << std::endl;
+		auto_train_file << "/home/pi/Pictures/facecam_faces/autoU/" << i << ".png 0 1" << std::endl;
 
 	auto_train_file.close();
+
+	camera.release();
 
     // TRAIN THE WHOLE NETWORK
 	neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
@@ -436,7 +447,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	net_manager.batch_train( 	smp_manager, 
 								500 /*epoch*/, 
 								20 /*batch*/,
-								&progress );
+								boost::bind( &progress, _1, my_display, display_image ) );
 }
 
 void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )

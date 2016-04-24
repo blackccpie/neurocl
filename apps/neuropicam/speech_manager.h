@@ -52,11 +52,11 @@ public:
 		switch( type )
 		{
 		case FT_USERA:
-			speak( "Hello Albert" );
+			speak( "Hello " + facecam_users::instance().nicknameA() );
 			speak( "What can I do you for?" );
 			break;
 		case FT_USERB:
-			speak( "Hello Elsa" );
+			speak( "Hello " + facecam_users::instance().nicknameA() );
 			speak( "What can I do you for?" );
 			break;
 		case FT_UNKNOWN:
