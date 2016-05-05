@@ -1,5 +1,13 @@
 # neurocl
-Neural networks implementations
+::: Neural networks implementations :::
+
+Neurocl was meant to experiment various 'from scratch' implementations of neural network layer schemes, focusing on matrix expression of feed forwarding/backward propagation.
+It only implements Fully Connected Neural Network (FCNN) scheme for now, but my plan is to have a Convolutional Neural Network (CNN) scheme ready as soon as possible.
+There are two different FCNN implementations in neurocl : one using standard Boost.ublas containers, and another one based on VexCL containers.  
+
+The upcoming evolutions will also focus on optimizations dedicated to running NN based algorithms on small low power devices, like the ARM based raspberry pi.
+
+I've been experimenting Neurocl on three main topics : mnist handwritten caracters recognition, automatic license plate recognition, and face recognition.
 
 ## Prerequisite:
 
@@ -73,6 +81,7 @@ net_manager.compute_output( sample );
 ## Targeted platforms:
 
 - Mac OSX
+- Debian Jessie
 - Raspberry Pi Raspbian
 
 ## References:
