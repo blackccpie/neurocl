@@ -1,7 +1,7 @@
 # neurocl
 ::: Neural network C++ implementations :::
 
-Neurocl was meant to experiment various 'from scratch' implementations of neural network layer schemes, focusing on matrix expression of feed forwarding/backward propagating.
+Neurocl (**Neuro** **C**omputing **L**ibrary) was meant to experiment various 'from scratch' implementations of neural network layer schemes, focusing on matrix expression of feed forwarding/backward propagating.
 It only implements Fully Connected Neural Network (FCNN) scheme for now, but my plan is to have a Convolutional Neural Network (CNN) scheme ready as soon as possible.
 There are two different FCNN implementations in Neurocl : one using standard Boost.ublas containers, and another one based on VexCL containers.  
 
