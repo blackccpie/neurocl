@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
         neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
         neurocl::samples_manager::instance().load_samples( argv[1] );
 
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
+        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
         net_manager.load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//
@@ -61,7 +61,10 @@ int main( int argc, char *argv[] )
         //net_manager.dump_weights();
         //net_manager.dump_bias();
 
-        net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+        if ( argc == 5 )
+            net_manager.batch_train( smp_manager, boost::lexical_cast<int>( argv[4] ), NEUROCL_BATCH_SIZE );
+        else
+            net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
         boost::chrono::milliseconds duration_training = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - start );
 

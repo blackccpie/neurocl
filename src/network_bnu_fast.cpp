@@ -24,71 +24,117 @@ THE SOFTWARE.
 
 #include "network_bnu_fast.h"
 
+// for tips about boost ublas matrix traversing, see:
+// http://stackoverflow.com/questions/26044603/traversing-a-boostublas-matrix-using-iterators
+// please note that boost ublas matrix are default row major ordered
+
+namespace bnu = boost::numeric::ublas;
+
 namespace neurocl {
 
 network_bnu_fast::network_bnu_fast()
 {
 }
 
+inline float sigmoid( float x )
+{
+    return 1.f / ( 1.f + std::exp(-x) );
+}
+
 void network_bnu_fast::feed_forward()
 {
-    //std::cout << m_layers.size() << " layers propagation" << std::endl;
+    //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
-    // for ( size_t i=0; i<m_layers.size()-1; i++ )
-    // {
-    //     vectorF& _activations = m_layers[i+1].activations();
-    //
-    //     // apply weights and bias
-    //     _activations = bnu::prod( m_layers[i].weights(), m_layers[i].activations() )
-    //         + m_layers[i].bias();
-    //
-    //     // apply sigmoid function
-    //     std::transform( _activations.data().begin(), _activations.data().end(),
-    //         _activations.data().begin(), std::ptr_fun( sigmoid ) );
-    // }
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    {
+        vectorF& _activations1 = m_layers[i].activations();
+        vectorF& _activations2 = m_layers[i+1].activations();
+        matrixF& _weights = m_layers[i].weights();
+        vectorF& _bias = m_layers[i].bias();
+
+        float _temp_sum;
+
+        // Reference implementation :
+        //_activations = bnu::prod( m_layers[i].weights(), m_layers[i].activations() )
+        //         + m_layers[i].bias();
+        //
+        //std::transform( _activations2.data().begin(), _activations2.data().end(),
+        //    _activations2.data().begin(), std::ptr_fun( sigmoid ) );
+
+        // apply weights and bias, equivalent to AX + B computation
+        for ( auto i = 0; i < _weights.size1(); i++ )
+        {
+            _temp_sum = 0.f;
+
+            for ( auto j = 0; j < _weights.size2(); j++ )
+            {
+                _temp_sum += _weights(i,j) * _activations1[j];
+            }
+            _activations2[i] = sigmoid( _temp_sum + _bias[i] );
+        }
+    }
 }
 
 void network_bnu_fast::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
 
-    // // Output layer error vector
-    // layer_bnu& output_layer = m_layers.back();
-    // output_layer.errors() = bnu::element_prod(
-    //         bnu::element_prod(  output_layer.activations(),
-    //                             ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
-    //         ( output_layer.activations() - m_training_output ) );
-    //
-    // // Hidden layers error vectors
-    // for ( size_t i=m_layers.size()-2; i>0; i-- )
-    // {
-    //     m_layers[i].errors() = bnu::element_prod(
-    //         bnu::element_prod(  m_layers[i].activations(),
-    //                             ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
-    //         bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );
-    // }
-    //
-    // // Update gradients
-    // for ( size_t i=0; i<m_layers.size()-1; i++ )
-    // {
-    //     m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
-    //     m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
-    // }
-    //
-    // ++m_training_samples;
+    // Output layer error vector
+    layer_bnu& output_layer = m_layers.back();
+    output_layer.errors() = bnu::element_prod(
+            bnu::element_prod(  output_layer.activations(),
+                                ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
+            ( output_layer.activations() - m_training_output ) );
+
+    // Hidden layers error vectors
+    for ( size_t i=m_layers.size()-2; i>0; i-- )
+    {
+        // Reference implementation :
+        // m_layers[i].errors() = bnu::element_prod(
+        //     bnu::element_prod(  m_layers[i].activations(),
+        //                         ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
+        //     bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );
+
+        matrixF& _weights = m_layers[i].weights();
+        vectorF& _activations = m_layers[i].activations();
+        vectorF& _errors1 = m_layers[i].errors();
+        vectorF& _errors2 = m_layers[i+1].errors();
+
+        float _temp_sum;
+
+        for ( auto j = 0; j < _weights.size2(); j++ )
+        {
+            _temp_sum = 0.f;
+
+            for ( auto i = 0; i < _weights.size1(); i++ )
+            {
+                _temp_sum += _weights(i,j) * _errors2[i];
+            }
+            _errors1[j] = _activations[j] * ( 1.f - _activations[j] ) * _temp_sum;
+        }
+    }
+
+    // Update gradients
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    {
+        m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
+        m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
+    }
+
+    ++m_training_samples;
 }
 
 void network_bnu_fast::gradient_descent()
 {
     //std::cout << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
 
-    // float invm = 1.f / static_cast<float>( m_training_samples );
-    //
-    // for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
-    // {
-    //     m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
-    //     m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
-    // }
+    float invm = 1.f / static_cast<float>( m_training_samples );
+
+    for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
+    {
+        m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
+        m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
+    }
 }
 
 }; //namespace neurocl
