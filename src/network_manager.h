@@ -46,7 +46,8 @@ public:
 
     typedef enum
     {
-        NEURAL_IMPL_BNU = 0,
+        NEURAL_IMPL_BNU_REF = 0,
+		NEURAL_IMPL_BNU_FAST,
         NEURAL_IMPL_VEXCL
     } t_neural_impl;
 
@@ -60,8 +61,8 @@ public:
 
     void train( const sample& s );
     void train( const std::vector<sample>& training_set );
-    void batch_train(	const samples_manager& smp_manager, 
-						const size_t& epoch_size, 
+    void batch_train(	const samples_manager& smp_manager,
+						const size_t& epoch_size,
 						const size_t& batch_size,
 						t_progress_fct progress_fct = t_progress_fct() );
 

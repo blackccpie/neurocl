@@ -213,7 +213,7 @@ int main ( int argc,char **argv )
 
     try
     {
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
         net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
         // TODO : check command arguments with boost

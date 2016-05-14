@@ -245,7 +245,7 @@ bool _is_valid_face( face_detect::face_rect face )
 {
 	int face_width = face.x1 - face.x0;
 	int face_height = face.y1 - face.y0;
-	return ( face_width > 100 ) && ( face_width < 250 ) 
+	return ( face_width > 100 ) && ( face_width < 250 )
 		&& ( face_height > 100 ) && ( face_height < 250 );
 }
 
@@ -336,14 +336,14 @@ void progress( int percent, cimg_library::CImgDisplay& my_display, cimg_library:
 void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display )
 {
 	using namespace boost::filesystem;
-	
+
 	// TODO : define in face_commons?
 	std::vector<std::string> users = list_of("autoA")("autoB");
 	std::vector<std::string> scores = list_of("1 0")("0 1");
-	
+
 	std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
-	
+
     // remove/backup existing auto weights
     if ( exists( g_weights_facecam_auto ) )
 	{
@@ -351,7 +351,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		remove( g_weights_facecam_auto );
 	}
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
     net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
 	// remove existing training file + image files
@@ -362,7 +362,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		if ( exists( "/home/pi/Pictures/facecam_faces/" + user ) )
 			remove_all( "/home/pi/Pictures/facecam_faces/" + user );
 	}
-	
+
 	// create new training file
 	std::ofstream auto_train_file( g_training_file_auto.c_str() );
 
@@ -378,24 +378,24 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	for ( size_t u=0; u<users.size(); u++ )
 	{
 		size_t user_faces = 0;
-		
+
 		display_image = (unsigned char)0;
 		draw_message( display_image, "PRESS A KEY WHEN READY TO CAPTURE USER : " + users[u], 10 );
-		
+
 		my_display.display( display_image );
-		
+
 		do
 		{
 			my_display.wait();
 		}
 		while( my_display.key() == 0 );
-		
+
 		do
 		{
 			// CAPTURE USER
 			camera.grab();
 			camera.retrieve( data.get() );
-			
+
 			//cimg_library::CImg<unsigned char> input_image( data.get(), IMAGE_SIZEX, IMAGE_SIZEY, 1, 1, true );
 
 			// RGB deinterlacing
@@ -406,22 +406,22 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 			faces = my_face_detect.detect( input_image );
 
 			bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
-				
+
 			if ( valid_face )
 			{
 				CImg<float> work_image( input_image );
-				
+
 				work_image.resize( 50, 50 );
 				work_image.equalize( 256, 0, 255 );
 				work_image.normalize( 0.f, 1.f );
 				work_image.channel(0);
 
 				face_preprocess( work_image );
-				
+
 				face_files.save_face( users[u], work_image );
-				
+
 				auto_train_file << face_files.last_path() << " " << scores[u] << std::endl;
-				
+
 				draw_metadata( display_image, faces, users[u] + " - " + boost::lexical_cast<std::string>( user_faces+1 ) );
 
 				my_display.display( display_image );
@@ -445,8 +445,8 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 														true /*shuffle*/,
 														&face_preprocess_generic /* extra_preproc*/ );
 
-	net_manager.batch_train( 	smp_manager, 
-								500 /*epoch*/, 
+	net_manager.batch_train( 	smp_manager,
+								500 /*epoch*/,
 								20 /*batch*/,
 								boost::bind( &progress, _1, my_display, display_image ) );
 }
@@ -458,7 +458,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
     if ( !auto_trained )
 		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 	else
@@ -498,7 +498,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
         faces = my_face_detect.detect( input_image );
 
         bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
-			
+
 		if ( !valid_face )
             draw_message( display_image, "NO FACE DETECTED!" );
         else

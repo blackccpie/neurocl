@@ -52,7 +52,7 @@ int main( int argc, char *argv[] )
         {
             /******** TRAIN ********/
 
-            neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+            neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
             net_manager.load_network( argv[3], argv[4] );
 
             neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
@@ -102,10 +102,10 @@ int main( int argc, char *argv[] )
 
         else
         {
-            neurocl::network_manager net_num( neurocl::network_manager::NEURAL_IMPL_BNU );
+            neurocl::network_manager net_num( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
             net_num.load_network( argv[3], argv[4] );
 
-            neurocl::network_manager net_let( neurocl::network_manager::NEURAL_IMPL_BNU );
+            neurocl::network_manager net_let( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
             net_let.load_network( argv[5], argv[6] );
 
             alpr::license_plate lic( argv[2], net_num, net_let );

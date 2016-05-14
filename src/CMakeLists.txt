@@ -36,7 +36,9 @@ samples_manager.cpp
 network_file_handler.cpp
 network_manager.cpp
 network_vexcl.cpp
-network_bnu.cpp
+network_bnu_base.cpp
+network_bnu_ref.cpp
+network_bnu_fast.cpp
 )
 
 set (headers_list
@@ -48,7 +50,9 @@ network_file_handler.h
 network_manager.h
 network_interface.h
 network_vexcl.h
-network_bnu.h
+network_bnu_base.h
+network_bnu_ref.h
+network_bnu_fast.h
 )
 
 if (NOT APPLE)

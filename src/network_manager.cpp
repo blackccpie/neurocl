@@ -23,7 +23,8 @@ THE SOFTWARE.
 */
 
 #include "network_vexcl.h"
-#include "network_bnu.h"
+#include "network_bnu_ref.h"
+#include "network_bnu_fast.h"
 #include "network_manager.h"
 #include "network_exception.h"
 #include "network_file_handler.h"
@@ -47,8 +48,11 @@ network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded
 {
     switch( impl )
     {
-    case NEURAL_IMPL_BNU:
-        m_net = boost::make_shared<network_bnu>();
+    case NEURAL_IMPL_BNU_REF:
+        m_net = boost::make_shared<network_bnu_ref>();
+        break;
+    case NEURAL_IMPL_BNU_FAST:
+        m_net = boost::make_shared<network_bnu_fast>();
         break;
     case NEURAL_IMPL_VEXCL:
         m_net = boost::make_shared<network_vexcl>();
@@ -108,8 +112,8 @@ void network_manager::train( const std::vector<sample>& training_set )
     }
 }
 
-void network_manager::batch_train( 	const samples_manager& smp_manager, 
-									const size_t& epoch_size, 
+void network_manager::batch_train( 	const samples_manager& smp_manager,
+									const size_t& epoch_size,
 									const size_t& batch_size,
 									t_progress_fct progress_fct )
 {
@@ -137,11 +141,11 @@ void network_manager::batch_train( 	const samples_manager& smp_manager,
             progress_size += samples.size();
 
 			int progress = ( ( 100 * progress_size ) / pbm_size );
-			
+
 			if ( progress_fct )
 				progress_fct( progress );
 
-            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
+            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%%";// << std::endl;
         }
 
         smp_manager.rewind();
