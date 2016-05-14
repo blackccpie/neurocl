@@ -45,6 +45,9 @@ void network_bnu_fast::feed_forward()
 {
     //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
+#ifdef __arm__
+    // NOT IMPLEMENTED YET
+#else
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         vectorF& _activations1 = m_layers[i].activations();
@@ -73,11 +76,18 @@ void network_bnu_fast::feed_forward()
             _activations2[i] = sigmoid( _temp_sum + _bias[i] );
         }
     }
+
+#endif
+
 }
 
 void network_bnu_fast::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
+
+#ifdef __arm__
+    // NOT IMPLEMENTED YET
+#else
 
     // Output layer error vector
     layer_bnu& output_layer = m_layers.back();
@@ -117,9 +127,25 @@ void network_bnu_fast::back_propagate()
     // Update gradients
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
-        m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
+        // Reference implementation :
+        //m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
+
+        matrixF& _w_deltas = m_layers[i].w_deltas();
+        vectorF& _activations = m_layers[i].activations();
+        vectorF& _errors = m_layers[i+1].errors();
+
+        for ( auto k = 0; k < _w_deltas.size1(); k++ )
+        {
+            for ( auto l = 0; l < _w_deltas.size2(); l++ )
+            {
+                _w_deltas(k,l) += _errors[k] * _activations[l];
+            }
+        }
+
         m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
     }
+
+#endif
 
     ++m_training_samples;
 }
