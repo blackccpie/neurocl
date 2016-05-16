@@ -24,6 +24,10 @@ THE SOFTWARE.
 
 #include "network_bnu_fast.h"
 
+#ifdef __x86_64__
+#include "xmmintrin.h"
+#endif
+
 // for tips about boost ublas matrix traversing, see:
 // http://stackoverflow.com/questions/26044603/traversing-a-boostublas-matrix-using-iterators
 // please note that boost ublas matrix are default row major ordered
@@ -41,13 +45,46 @@ inline float sigmoid( float x )
     return 1.f / ( 1.f + std::exp(-x) );
 }
 
+#ifdef __x86_64__
+inline float _reduce_sum( __m128 value )
+{
+	/*
+	 * Shuffle the input vector such that we have 1,0,3,2
+	 * This is equivalent to a pairwise swap where the first
+	 * two elements are swapped with the next two
+	 */
+	__m128 shufl = _mm_shuffle_ps(value,value, _MM_SHUFFLE(1,0,3,2));
+
+	//Sum both values
+	shufl = _mm_add_ps(value, shufl);
+	//shufl = |3|2|1|0| + |1|0|3|2| = |3+1|2+0|1+3|0+2|
+
+	/*
+	 * Second shuffle 2,3,0,1
+	 * This is equivalent to 1 by 1 swap between every
+	 * two neighboring elements from the first swap
+	 */
+	__m128 shufl2 = _mm_shuffle_ps(shufl,shufl, _MM_SHUFFLE(2,3,0,1));
+	//shufl2 = |2+0|3+1|0+2|1+3|
+
+	//Sum both values
+	shufl = _mm_add_ps(shufl, shufl2);
+	//shufl = |3+1|2+0|1+3|0+2| + |2+0|3+1|0+2|1+3|
+
+	//Copy the lower single-precision (32-bit) floating-point element of a to dst.
+	return _mm_cvtss_f32( shufl );
+	//We also could have used to extract the 0th element:
+	//return _mm_extract_ps (shufl a, 0);
+}
+#endif
+
 void network_bnu_fast::feed_forward()
 {
     //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
 #ifdef __arm__
     // NOT IMPLEMENTED YET
-#else
+#elif defined __x86_64__
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         vectorF& _activations1 = m_layers[i].activations();
@@ -57,23 +94,33 @@ void network_bnu_fast::feed_forward()
 
         float _temp_sum;
 
-        // Reference implementation :
-        //_activations = bnu::prod( m_layers[i].weights(), m_layers[i].activations() )
-        //         + m_layers[i].bias();
-        //
-        //std::transform( _activations2.data().begin(), _activations2.data().end(),
-        //    _activations2.data().begin(), std::ptr_fun( sigmoid ) );
+        __m128 _mm_temp_sum;
 
-        // apply weights and bias, equivalent to AX + B computation
+        // apply weights and bias, equivalent to MA + B computation
         for ( auto i = 0; i < _weights.size1(); i++ )
         {
             _temp_sum = 0.f;
 
-            for ( auto j = 0; j < _weights.size2(); j++ )
+            _mm_temp_sum = _mm_set_ps( 0.f, 0.f, 0.f, 0.f );
+
+            auto j = 0;
+            for ( j = 0; j < _weights.size2(); j+=4 )
             {
+                __m128 _mm_a1x4 = _mm_load_ps( &_activations1[j] );
+                __m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
+
+                // AVX not available on my platform :-(
+                //_mm_temp_sum = _mm_fmadd_ps( _mm_wx4, _mm_a1x4, _mm_temp_sum );
+
+                _mm_temp_sum = _mm_add_ps( _mm_temp_sum, _mm_mul_ps( _mm_wx4, _mm_a1x4 ) );
+            }
+            // could be optimized more...
+            for ( j = j-4; j < _weights.size2(); j++ )
+            {
+                //std::cout << "je finis..."<< std::endl;
                 _temp_sum += _weights(i,j) * _activations1[j];
             }
-            _activations2[i] = sigmoid( _temp_sum + _bias[i] );
+            _activations2[i] = sigmoid( _temp_sum + _reduce_sum( _mm_temp_sum ) + _bias[i] );
         }
     }
 
@@ -87,7 +134,7 @@ void network_bnu_fast::back_propagate()
 
 #ifdef __arm__
     // NOT IMPLEMENTED YET
-#else
+#elif defined __x86_64__
 
     // Output layer error vector
     layer_bnu& output_layer = m_layers.back();
@@ -99,12 +146,6 @@ void network_bnu_fast::back_propagate()
     // Hidden layers error vectors
     for ( size_t i=m_layers.size()-2; i>0; i-- )
     {
-        // Reference implementation :
-        // m_layers[i].errors() = bnu::element_prod(
-        //     bnu::element_prod(  m_layers[i].activations(),
-        //                         ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
-        //     bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );
-
         matrixF& _weights = m_layers[i].weights();
         vectorF& _activations = m_layers[i].activations();
         vectorF& _errors1 = m_layers[i].errors();
@@ -127,9 +168,6 @@ void network_bnu_fast::back_propagate()
     // Update gradients
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
-        // Reference implementation :
-        //m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
-
         matrixF& _w_deltas = m_layers[i].w_deltas();
         vectorF& _activations = m_layers[i].activations();
         vectorF& _errors = m_layers[i+1].errors();
