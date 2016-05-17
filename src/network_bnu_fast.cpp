@@ -25,7 +25,9 @@ THE SOFTWARE.
 #include "network_bnu_fast.h"
 
 #ifdef __x86_64__
-#include "xmmintrin.h"
+	#include "xmmintrin.h"
+#elif __arm__
+	#include <arm_neon.h>
 #endif
 
 // for tips about boost ublas matrix traversing, see:
@@ -76,6 +78,13 @@ inline float _reduce_sum( __m128 value )
 	//We also could have used to extract the 0th element:
 	//return _mm_extract_ps (shufl a, 0);
 }
+#elif __arm__
+inline float _reduce_sum( float32x4_t value )
+{
+	float32x2_t r = vadd_f32( vget_high_f32( value ), vget_low_f32( value ) );
+	return vget_lane_f32( vpadd_f32( r, r ), 0 );
+	//return vgetq_lane_f32(value,0) + vgetq_lane_f32(value,1) + vgetq_lane_f32(value,2) + vgetq_lane_f32(value,3);
+}
 #endif
 
 void network_bnu_fast::feed_forward()
@@ -83,8 +92,45 @@ void network_bnu_fast::feed_forward()
     //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
 #ifdef __arm__
-    // NOT IMPLEMENTED YET
-#elif defined __x86_64__
+    
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    {
+        vectorF& _activations1 = m_layers[i].activations();
+        vectorF& _activations2 = m_layers[i+1].activations();
+        matrixF& _weights = m_layers[i].weights();
+        vectorF& _bias = m_layers[i].bias();
+
+        float _temp_sum;
+
+        float32x4_t _neon_temp_sum;
+
+        // apply weights and bias, equivalent to MA + B computation
+        for ( auto i = 0; i < _weights.size1(); i++ )
+        {
+            _temp_sum = 0.f;
+
+            _neon_temp_sum = vdupq_n_f32( 0.f );
+
+            auto j = 0;
+            for ( j = 0; j < _weights.size2(); j+=4 )
+            {
+                float32x4_t _neon_a1x4 = vld1q_f32( &_activations1[j] );
+                float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
+                
+                _neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, _neon_a1x4 );
+            }
+            // could be optimized more...
+            for ( j = j-4; j < _weights.size2(); j++ )
+            {
+                //std::cout << "je finis..."<< std::endl;
+                _temp_sum += _weights(i,j) * _activations1[j];
+            }
+            _activations2[i] = sigmoid( _temp_sum + _reduce_sum( _neon_temp_sum ) + _bias[i] );
+        }
+    }
+    
+#elif __x86_64__
+
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         vectorF& _activations1 = m_layers[i].activations();
@@ -132,9 +178,9 @@ void network_bnu_fast::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
 
-#ifdef __arm__
-    // NOT IMPLEMENTED YET
-#elif defined __x86_64__
+//#ifdef __arm__
+//    // NOT IMPLEMENTED YET
+//#elif __x86_64__
 
     // Output layer error vector
     layer_bnu& output_layer = m_layers.back();
@@ -183,7 +229,7 @@ void network_bnu_fast::back_propagate()
         m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
     }
 
-#endif
+//#endif
 
     ++m_training_samples;
 }
