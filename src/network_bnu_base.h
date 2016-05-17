@@ -27,11 +27,17 @@ THE SOFTWARE.
 
 #include "network_interface.h"
 
+#include <boost/align/aligned_allocator.hpp>
+#include <boost/numeric/ublas/storage.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
-typedef typename boost::numeric::ublas::vector<float> vectorF;
-typedef typename boost::numeric::ublas::matrix<float> matrixF;
+#define NEUROCL_MEM_ALIGN 32
+
+typedef typename boost::numeric::ublas::vector< float,
+    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > vectorF;
+typedef typename boost::numeric::ublas::matrix< float, boost::numeric::ublas::row_major,
+    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > matrixF;
 
 namespace neurocl {
 
