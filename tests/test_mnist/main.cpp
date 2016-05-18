@@ -42,7 +42,7 @@ int main( int argc, char *argv[] )
     if ( argc == 1 )
     {
         std::cout << "Invalid arguments!" << std::endl;
-        std::cout << "example: ./test_mnist mnist-train.txt topology-mnist.txt weights-mnist.bin" << std::cout;
+        std::cout << "example: ./test_mnist mnist-train.txt topology-mnist.txt weights-mnist.bin" << std::endl;
         return -1;
     }
 

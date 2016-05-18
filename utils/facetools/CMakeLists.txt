@@ -51,5 +51,3 @@ target_link_libraries(facetools
 ${ccv_libs}
 X11
 )
-
-target_compile_features(facetools PRIVATE cxx_static_assert)
