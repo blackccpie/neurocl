@@ -111,20 +111,23 @@ void network_bnu_fast::feed_forward()
 
             _neon_temp_sum = vdupq_n_f32( 0.f );
 
-            auto j = 0;
-            for ( j = 0; j < _weights.size2(); j+=4 )
+            for ( auto j = 0; j < _weights.size2(); j+=4 )
             {
                 float32x4_t _neon_a1x4 = vld1q_f32( &_activations1[j] );
                 float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
 
                 _neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, _neon_a1x4 );
             }
-            // could be optimized more...
-            for ( j = j-4; j < _weights.size2(); j++ )
-            {
-                //std::cout << "je finis..."<< std::endl;
-                _temp_sum += _weights(i,j) * _activations1[j];
-            }
+
+			size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
+
+			// end of the vector in non-dividable-by-4 size case
+			// could be optimized more...
+			for ( auto r = tail_start; r < _weights.size2(); r++ )
+			{
+				_temp_sum += _weights(i,r) * _activations1[r];
+			}
+
             _activations2[i] = _sigmoid( _temp_sum + _reduce_sum( _neon_temp_sum ) + _bias[i] );
 		}
 
@@ -158,6 +161,7 @@ void network_bnu_fast::feed_forward()
 			{
 				_temp_sum += _weights(i,r) * _activations1[r];
 			}
+
 			_activations2[i] = _sigmoid( _temp_sum + _reduce_sum( _mm_temp_sum ) + _bias[i] );
 		}
 
@@ -207,7 +211,33 @@ void network_bnu_fast::back_propagate()
         vectorF& _errors = m_layers[i+1].errors();
 
 #ifdef __arm__
-		//    // NOT IMPLEMENTED YET
+
+		for ( auto k = 0; k < _w_deltas.size1(); k++ )
+		{
+			float32x4_t _neon_ex4 = vdupq_n_f32( _errors[k] );
+
+			for ( auto l = 0; l < _w_deltas.size2(); l+=4 )
+			{
+				float* p_w_deltas = &_w_deltas(k,l);
+
+				float32x4_t _neon_ax4 = vld1q_f32( &_activations[l] );
+				float32x4_t _neon_wdx4 = vld1q_f32( p_w_deltas );
+
+				_neon_wdx4 = vmlaq_f32( _neon_wdx4, _neon_ax4, _neon_ex4 );
+
+				vst1q_f32( p_w_deltas, _neon_wdx4 );
+			}
+
+			size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
+
+			// end of the vector in non-dividable-by-4 size case
+			// could be optimized more...
+			for ( auto r = tail_start; r < _w_deltas.size2(); r++ )
+			{
+				_w_deltas(k,r) += _errors[k] * _activations[r];
+			}
+		}
+
 #elif __x86_64__
 
         for ( auto k = 0; k < _w_deltas.size1(); k++ )
