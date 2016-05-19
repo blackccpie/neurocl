@@ -119,7 +119,7 @@ void network_bnu_fast::feed_forward()
                 _neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, _neon_a1x4 );
             }
 
-			size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
+			size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
 			// end of the vector in non-dividable-by-4 size case
 			// could be optimized more...
