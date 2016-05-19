@@ -5,7 +5,7 @@
     - [ ] try a fast exp(x) implementation for sigmoid function
     - [ ] Try to use boost specific containers (static_vector etc...)
     - [ ] Try to use boost bounded_array as ublas matrix/vector storage
-    - [ ] Work with compiler flags (fast-math, simd flags etc...)
+    - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
 - [ ] Work on CNN implementation
 

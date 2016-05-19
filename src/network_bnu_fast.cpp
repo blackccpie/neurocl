@@ -42,7 +42,7 @@ network_bnu_fast::network_bnu_fast()
 {
 }
 
-inline float sigmoid( float x )
+inline float _sigmoid( float x )
 {
     return 1.f / ( 1.f + std::exp(-x) );
 }
@@ -91,8 +91,6 @@ void network_bnu_fast::feed_forward()
 {
     //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
-#ifdef __arm__
-    
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         vectorF& _activations1 = m_layers[i].activations();
@@ -101,6 +99,8 @@ void network_bnu_fast::feed_forward()
         vectorF& _bias = m_layers[i].bias();
 
         float _temp_sum;
+
+#ifdef __arm__
 
         float32x4_t _neon_temp_sum;
 
@@ -116,7 +116,7 @@ void network_bnu_fast::feed_forward()
             {
                 float32x4_t _neon_a1x4 = vld1q_f32( &_activations1[j] );
                 float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
-                
+
                 _neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, _neon_a1x4 );
             }
             // could be optimized more...
@@ -125,62 +125,50 @@ void network_bnu_fast::feed_forward()
                 //std::cout << "je finis..."<< std::endl;
                 _temp_sum += _weights(i,j) * _activations1[j];
             }
-            _activations2[i] = sigmoid( _temp_sum + _reduce_sum( _neon_temp_sum ) + _bias[i] );
-        }
-    }
-    
+            _activations2[i] = _sigmoid( _temp_sum + _reduce_sum( _neon_temp_sum ) + _bias[i] );
+		}
+
 #elif __x86_64__
 
-    for ( size_t i=0; i<m_layers.size()-1; i++ )
-    {
-        vectorF& _activations1 = m_layers[i].activations();
-        vectorF& _activations2 = m_layers[i+1].activations();
-        matrixF& _weights = m_layers[i].weights();
-        vectorF& _bias = m_layers[i].bias();
+		__m128 _mm_temp_sum;
 
-        float _temp_sum;
+		// apply weights and bias, equivalent to MA + B computation
+		for ( auto i = 0; i < _weights.size1(); i++ )
+		{
+			_temp_sum = 0.f;
 
-        __m128 _mm_temp_sum;
+			_mm_temp_sum = _mm_setzero_ps();
 
-        // apply weights and bias, equivalent to MA + B computation
-        for ( auto i = 0; i < _weights.size1(); i++ )
-        {
-            _temp_sum = 0.f;
+			for ( auto j = 0; j < _weights.size2(); j+=4 )
+			{
+				__m128 _mm_a1x4 = _mm_load_ps( &_activations1[j] );
+				__m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
 
-            _mm_temp_sum = _mm_set_ps( 0.f, 0.f, 0.f, 0.f );
+				// AVX not available on my platform :-(
+				//_mm_temp_sum = _mm_fmadd_ps( _mm_wx4, _mm_a1x4, _mm_temp_sum );
 
-            auto j = 0;
-            for ( j = 0; j < _weights.size2(); j+=4 )
-            {
-                __m128 _mm_a1x4 = _mm_load_ps( &_activations1[j] );
-                __m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
+				_mm_temp_sum = _mm_add_ps( _mm_temp_sum, _mm_mul_ps( _mm_wx4, _mm_a1x4 ) );
+			}
 
-                // AVX not available on my platform :-(
-                //_mm_temp_sum = _mm_fmadd_ps( _mm_wx4, _mm_a1x4, _mm_temp_sum );
+			size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
-                _mm_temp_sum = _mm_add_ps( _mm_temp_sum, _mm_mul_ps( _mm_wx4, _mm_a1x4 ) );
-            }
-            // could be optimized more...
-            for ( j = j-4; j < _weights.size2(); j++ )
-            {
-                //std::cout << "je finis..."<< std::endl;
-                _temp_sum += _weights(i,j) * _activations1[j];
-            }
-            _activations2[i] = sigmoid( _temp_sum + _reduce_sum( _mm_temp_sum ) + _bias[i] );
-        }
-    }
+			// end of the vector in non-dividable-by-4 size case
+			// could be optimized more...
+			for ( auto r = tail_start; r < _weights.size2(); r++ )
+			{
+				_temp_sum += _weights(i,r) * _activations1[r];
+			}
+			_activations2[i] = _sigmoid( _temp_sum + _reduce_sum( _mm_temp_sum ) + _bias[i] );
+		}
 
 #endif
 
+    }
 }
 
 void network_bnu_fast::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS
-
-//#ifdef __arm__
-//    // NOT IMPLEMENTED YET
-//#elif __x86_64__
 
     // Output layer error vector
     layer_bnu& output_layer = m_layers.back();
@@ -218,18 +206,40 @@ void network_bnu_fast::back_propagate()
         vectorF& _activations = m_layers[i].activations();
         vectorF& _errors = m_layers[i+1].errors();
 
+#ifdef __arm__
+		//    // NOT IMPLEMENTED YET
+#elif __x86_64__
+
         for ( auto k = 0; k < _w_deltas.size1(); k++ )
         {
-            for ( auto l = 0; l < _w_deltas.size2(); l++ )
+			__m128 _mm_ex4 = _mm_set1_ps( _errors[k] );
+
+            for ( auto l = 0; l < _w_deltas.size2(); l+=4 )
             {
-                _w_deltas(k,l) += _errors[k] * _activations[l];
+				float* p_w_deltas = &_w_deltas(k,l);
+
+				__m128 _mm_ax4 = _mm_load_ps( &_activations[l] );
+				__m128 _mm_wdx4 = _mm_load_ps( p_w_deltas );
+
+				_mm_wdx4 = _mm_add_ps( _mm_wdx4, _mm_mul_ps( _mm_ax4, _mm_ex4 ) );
+
+                _mm_store_ps( p_w_deltas, _mm_wdx4 );
             }
+
+			size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
+
+			// end of the vector in non-dividable-by-4 size case
+			// could be optimized more...
+			for ( auto r = tail_start; r < _w_deltas.size2(); r++ )
+			{
+				_w_deltas(k,r) += _errors[k] * _activations[r];
+			}
         }
+
+#endif
 
         m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
     }
-
-//#endif
 
     ++m_training_samples;
 }
