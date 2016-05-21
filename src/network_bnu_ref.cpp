@@ -72,7 +72,7 @@ void network_bnu_ref::back_propagate()
         m_layers[i].errors() = bnu::element_prod(
             bnu::element_prod(  m_layers[i].activations(),
                                 ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
-            bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );
+            bnu::prod( m_layers[i].weights_trans(), m_layers[i+1].errors() ) );
     }
 
     // Update gradients
@@ -94,6 +94,7 @@ void network_bnu_ref::gradient_descent()
     for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
     {
         m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
+        m_layers[i].weights_trans() = bnu::trans( m_layers[i].weights() );
         m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
     }
 }
