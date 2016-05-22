@@ -92,7 +92,6 @@ void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& ne
         m_output_weights = matrixF( next_layer_size.size(), cur_layer_size.size() );
         // cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
         random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
-        m_output_weights_trans = bnu::trans( m_output_weights );
         m_deltas_weight = matrixF( next_layer_size.size(), cur_layer_size.size() );
         m_deltas_weight.clear();
 
@@ -198,9 +197,7 @@ void network_bnu_base::set_layer_ptr( const size_t layer_idx, const layer_ptr& l
     std::cout << "network_bnu_base::set_layer_ptr - setting layer  " << layer_idx << std::endl;
 
     matrixF& weights = m_layers[layer_idx].weights();
-    matrixF& weights_trans = m_layers[layer_idx].weights_trans();
     std::copy( layer.weights.get(), layer.weights.get() + layer.num_weights, &weights.data()[0] );
-    weights_trans = bnu::trans( weights );
     vectorF& bias = m_layers[layer_idx].bias();
     std::copy( layer.bias.get(), layer.bias.get() + layer.num_bias, &bias.data()[0] );
 }

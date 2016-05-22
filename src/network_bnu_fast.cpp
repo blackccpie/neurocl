@@ -91,12 +91,12 @@ void network_bnu_fast::feed_forward()
 {
     //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
-    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    for ( size_t c=0; c<m_layers.size()-1; c++ )
     {
-        vectorF& _activations1 = m_layers[i].activations();
-        vectorF& _activations2 = m_layers[i+1].activations();
-        matrixF& _weights = m_layers[i].weights();
-        vectorF& _bias = m_layers[i].bias();
+        vectorF& _activations1 = m_layers[c].activations();
+        vectorF& _activations2 = m_layers[c+1].activations();
+        matrixF& _weights = m_layers[c].weights();
+        vectorF& _bias = m_layers[c].bias();
 
 		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
@@ -179,34 +179,66 @@ void network_bnu_fast::back_propagate()
                                 ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
             ( output_layer.activations() - m_training_output ) );
 
-    // Hidden layers error vectors
-    for ( size_t i=m_layers.size()-2; i>0; i-- )
+	// Hidden layers error vectors
+    for ( size_t c=m_layers.size()-2; c>0; c-- )
     {
-        matrixF& _weights_trans = m_layers[i].weights_trans();
-        vectorF& _activations = m_layers[i].activations();
-        vectorF& _errors1 = m_layers[i].errors();
-        vectorF& _errors2 = m_layers[i+1].errors();
+        matrixF& _weights = m_layers[c].weights();
+        vectorF& _activations = m_layers[c].activations();
+        vectorF& _errors1 = m_layers[c].errors();
+        vectorF& _errors2 = m_layers[c+1].errors();
 
-        float _temp_sum;
+		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
-        for ( auto i = 0; i < _weights_trans.size1(); i++ )
+#ifdef __arm__
+
+		// NOT IMPLEMENTED YET
+
+#elif __x86_64__
+
+        __m128 _mm_temp_sum;
+		__m128 _mm_one = _mm_set1_ps( 1.f );
+
+        for ( auto j = 0; j < tail_start; j+=4 )
         {
-            _temp_sum = 0.f;
+            _mm_temp_sum = _mm_setzero_ps();
 
-            for ( auto j = 0; j < _weights_trans.size2(); j++ )
+			__m128 _mm_ax4 = _mm_load_ps( &_activations[j] );
+
+            for ( auto i = 0; i < _weights.size1(); i++ )
             {
-                _temp_sum += _weights_trans(i,j) * _errors2[j];
+				__m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
+				_mm_temp_sum = _mm_add_ps( _mm_temp_sum, _mm_mul_ps( _mm_wx4, _mm_set1_ps( _errors2[i] ) ) );
             }
-            _errors1[i] = _activations[i] * ( 1.f - _activations[i] ) * _temp_sum;
+
+			_mm_store_ps( &_errors1[j],
+				_mm_mul_ps( _mm_temp_sum, _mm_mul_ps( _mm_ax4, _mm_sub_ps( _mm_one, _mm_ax4 ) ) ) );
         }
+
+		float _temp_sum;
+
+		// end of the vector in non-dividable-by-4 size case
+		// could be optimized more...
+		for ( auto r = tail_start; r < _weights.size2(); r++ )
+		{
+			_temp_sum = 0.f;
+
+			for ( auto i = 0; i < _weights.size1(); i++ )
+            {
+                _temp_sum += _weights(i,r) * _errors2[i];
+			}
+			_errors1[r] = _activations[r] * ( 1.f - _activations[r] ) * _temp_sum;
+		}
+
+#endif
+
     }
 
     // Update gradients
-    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    for ( size_t c=0; c<m_layers.size()-1; c++ )
     {
-        matrixF& _w_deltas = m_layers[i].w_deltas();
-        vectorF& _activations = m_layers[i].activations();
-        vectorF& _errors = m_layers[i+1].errors();
+        matrixF& _w_deltas = m_layers[c].w_deltas();
+        vectorF& _activations = m_layers[c].activations();
+        vectorF& _errors = m_layers[c+1].errors();
 
 		size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
 
@@ -262,7 +294,7 @@ void network_bnu_fast::back_propagate()
 
 #endif
 
-        m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
+        m_layers[c].b_deltas() = m_layers[c].b_deltas() + m_layers[c+1].errors();
     }
 
     ++m_training_samples;
@@ -274,11 +306,10 @@ void network_bnu_fast::gradient_descent()
 
     float invm = 1.f / static_cast<float>( m_training_samples );
 
-    for ( size_t i=0; i<m_layers.size()-1; i++ ) // avoid output layer
+    for ( size_t c=0; c<m_layers.size()-1; c++ ) // avoid output layer
     {
-        m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
-        m_layers[i].weights_trans() = bnu::trans( m_layers[i].weights() );
-        m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
+        m_layers[c].weights() -= m_learning_rate * ( ( invm * m_layers[c].w_deltas() ) + ( m_weight_decay * m_layers[c].weights() ) );
+        m_layers[c].bias() -= m_learning_rate * ( invm * m_layers[c].b_deltas() );
     }
 }
 

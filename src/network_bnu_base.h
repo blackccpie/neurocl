@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
-#define NEUROCL_MEM_ALIGN 32
+#define NEUROCL_MEM_ALIGN 16
 
 typedef typename boost::numeric::ublas::vector< float,
     boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > vectorF;
@@ -53,7 +53,6 @@ public:
     vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
     matrixF& weights() { return m_output_weights; }
-    matrixF& weights_trans() { return m_output_weights_trans; }
     vectorF& errors() { return m_errors; }
     matrixF& w_deltas() { return m_deltas_weight; }
     vectorF& b_deltas() { return m_deltas_bias; }
@@ -73,10 +72,6 @@ private:
     // http://web.stanford.edu/class/cs294a/sparseAutoencoder.pdf
     matrixF m_output_weights;
     matrixF m_deltas_weight;
-
-    // storing transposed weights matrix implies heavy memory consumption,
-    // but it allows optimized memory contiguous access during back propagation
-    matrixF m_output_weights_trans;
 };
 
 class network_bnu_base : public network_interface
