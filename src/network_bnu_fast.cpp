@@ -359,12 +359,12 @@ for ( auto i = 0; i < _weights.size1(); i++ )
 {
 	for ( auto j = 0; j < _weights.size2(); j+=4 )
 	{
-		float32x4_t _neon_wx4 = _mm_load_ps( &_weights(i,j) );
-		float32x4_t _neon_wdx4 = _mm_load_ps( &_w_deltas(i,j) );
+		float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
+		float32x4_t _neon_wdx4 = vld1q_f32( &_w_deltas(i,j) );
 
 		vst1q_f32( &_weights(i,j),
 			vmlsq_f32( _neon_wx4, vdupq_n_f32( m_learning_rate ),
-				vmlaq_f32( vmulq_f32( vdupq_n_f32( invm ), _neon_wdx4 ), vdupq_n_f32( m_weight_decay ), _neon_wx4 ) );
+				vmlaq_f32( vmulq_f32( vdupq_n_f32( invm ), _neon_wdx4 ), vdupq_n_f32( m_weight_decay ), _neon_wx4 ) ) );
 	}
 
 	// end of the vector in non-dividable-by-4 size case
