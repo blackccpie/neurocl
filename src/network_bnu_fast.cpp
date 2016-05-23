@@ -192,6 +192,9 @@ void network_bnu_fast::back_propagate()
 
 		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
+		// NB : still, the following section seems to remain slightly slower than the regular for loop...
+		// It is kept in place for further simd optimizations on avx/armv8 platforms
+
 #ifdef __arm__
 
 		float32x4_t _neon_temp_sum;
@@ -211,7 +214,6 @@ void network_bnu_fast::back_propagate()
 
 			vst1q_f32( &_errors1[j],
 				vmulq_f32( _neon_temp_sum, vmlsq_f32( _neon_ax4, _neon_ax4, _neon_ax4 ) ) );
-				//vmulq_f32( _neon_temp_sum, vmulq_f32( _neon_ax4, vsubq_f32 ( _neon_one, _neon_ax4 ) ) ) );
 		}
 
 		float _temp_sum;
@@ -344,7 +346,61 @@ void network_bnu_fast::gradient_descent()
 
     for ( size_t c=0; c<m_layers.size()-1; c++ ) // avoid output layer
     {
-        m_layers[c].weights() -= m_learning_rate * ( ( invm * m_layers[c].w_deltas() ) + ( m_weight_decay * m_layers[c].weights() ) );
+        //m_layers[c].weights() -= m_learning_rate * ( ( invm * m_layers[c].w_deltas() ) + ( m_weight_decay * m_layers[c].weights() ) );
+
+		matrixF& _weights = m_layers[c].weights();
+		matrixF& _w_deltas = m_layers[c].w_deltas();
+
+		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+
+#ifdef __arm__
+
+for ( auto i = 0; i < _weights.size1(); i++ )
+{
+	for ( auto j = 0; j < _weights.size2(); j+=4 )
+	{
+		float32x4_t _neon_wx4 = _mm_load_ps( &_weights(i,j) );
+		float32x4_t _neon_wdx4 = _mm_load_ps( &_w_deltas(i,j) );
+
+		vst1q_f32( &_weights(i,j),
+			vmlsq_f32( _neon_wx4, vdupq_n_f32( m_learning_rate ),
+				vmlaq_f32( vmulq_f32( vdupq_n_f32( invm ), _neon_wdx4 ), vdupq_n_f32( m_weight_decay ), _neon_wx4 ) );
+	}
+
+	// end of the vector in non-dividable-by-4 size case
+	// could be optimized more...
+	for ( auto r = tail_start; r < _weights.size2(); r++ )
+	{
+		_weights(i,r) -= m_learning_rate * ( ( invm * _w_deltas(i,r) ) + ( m_weight_decay * _weights(i,r) ) );
+	}
+}
+
+#elif __x86_64__
+
+		for ( auto i = 0; i < _weights.size1(); i++ )
+		{
+			for ( auto j = 0; j < _weights.size2(); j+=4 )
+			{
+				__m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
+				__m128 _mm_wdx4 = _mm_load_ps( &_w_deltas(i,j) );
+
+				_mm_store_ps( &_weights(i,j),
+					_mm_sub_ps( _mm_wx4, _mm_mul_ps ( _mm_add_ps(
+						_mm_mul_ps( _mm_wdx4, _mm_set1_ps( invm ) ),
+						_mm_mul_ps( _mm_wx4, _mm_set1_ps( m_weight_decay ) ) ),
+					 	_mm_set1_ps( m_learning_rate ) ) ) );
+			}
+
+			// end of the vector in non-dividable-by-4 size case
+			// could be optimized more...
+			for ( auto r = tail_start; r < _weights.size2(); r++ )
+			{
+				_weights(i,r) -= m_learning_rate * ( ( invm * _w_deltas(i,r) ) + ( m_weight_decay * _weights(i,r) ) );
+			}
+		}
+
+#endif
+
         m_layers[c].bias() -= m_learning_rate * ( invm * m_layers[c].b_deltas() );
     }
 }
