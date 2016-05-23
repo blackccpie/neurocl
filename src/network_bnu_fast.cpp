@@ -210,7 +210,8 @@ void network_bnu_fast::back_propagate()
 			}
 
 			vst1q_f32( &_errors1[j],
-				vmulq_f32( _neon_temp_sum, vmulq_f32( _neon_ax4, _mm_sub_ps( _neon_one, _neon_ax4 ) ) ) );
+				vmulq_f32( _neon_temp_sum, vmlsq_f32( _neon_ax4, _neon_ax4, _neon_ax4 ) ) );
+				//vmulq_f32( _neon_temp_sum, vmulq_f32( _neon_ax4, vsubq_f32 ( _neon_one, _neon_ax4 ) ) ) );
 		}
 
 		float _temp_sum;
