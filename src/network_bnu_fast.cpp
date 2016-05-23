@@ -48,6 +48,7 @@ inline float _sigmoid( float x )
 }
 
 #ifdef __x86_64__
+
 inline float _reduce_sum( __m128 value )
 {
 	/*
@@ -79,12 +80,14 @@ inline float _reduce_sum( __m128 value )
 	//return _mm_extract_ps (shufl a, 0);
 }
 #elif __arm__
+
 inline float _reduce_sum( float32x4_t value )
 {
 	float32x2_t r = vadd_f32( vget_high_f32( value ), vget_low_f32( value ) );
 	return vget_lane_f32( vpadd_f32( r, r ), 0 );
 	//return vgetq_lane_f32(value,0) + vgetq_lane_f32(value,1) + vgetq_lane_f32(value,2) + vgetq_lane_f32(value,3);
 }
+
 #endif
 
 void network_bnu_fast::feed_forward()
@@ -191,7 +194,39 @@ void network_bnu_fast::back_propagate()
 
 #ifdef __arm__
 
-		// NOT IMPLEMENTED YET
+		float32x4_t _neon_temp_sum;
+		float32x4_t _neon_one = vdupq_n_f32( 1.f );
+
+		for ( auto j = 0; j < tail_start; j+=4 )
+		{
+			_neon_temp_sum = vdupq_n_f32( 0.f );
+
+			float32x4_t _neon_ax4 = vld1q_f32( &_activations[j] );
+
+			for ( auto i = 0; i < _weights.size1(); i++ )
+			{
+				float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
+				_neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, vdupq_n_f32( _errors2[i] ) );
+			}
+
+			vst1q_f32( &_errors1[j],
+				vmulq_f32( _neon_temp_sum, vmulq_f32( _neon_ax4, _mm_sub_ps( _neon_one, _neon_ax4 ) ) ) );
+		}
+
+		float _temp_sum;
+
+		// end of the vector in non-dividable-by-4 size case
+		// could be optimized more...
+		for ( auto r = tail_start; r < _weights.size2(); r++ )
+		{
+			_temp_sum = 0.f;
+
+			for ( auto i = 0; i < _weights.size1(); i++ )
+			{
+				_temp_sum += _weights(i,r) * _errors2[i];
+			}
+			_errors1[r] = _activations[r] * ( 1.f - _activations[r] ) * _temp_sum;
+		}
 
 #elif __x86_64__
 
