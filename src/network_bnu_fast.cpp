@@ -32,6 +32,7 @@ THE SOFTWARE.
 #elif __arm__
 	#include <arm_neon.h>
 
+	// for neon, alignment doesn't matter, so _mm_load_ps and _mm_loadu_ps are equivalent
 	#define simd_load vld1q_f32
 	#define simd_store vst1q_f32
 #endif
