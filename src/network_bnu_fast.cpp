@@ -26,8 +26,14 @@ THE SOFTWARE.
 
 #ifdef __x86_64__
 	#include "xmmintrin.h"
+
+	#define simd_load _mm_load_ps
+	#define simd_store _mm_store_ps
 #elif __arm__
 	#include <arm_neon.h>
+
+	#define simd_load vld1q_f32
+	#define simd_store vst1q_f32
 #endif
 
 // for tips about boost ublas matrix traversing, see:
@@ -118,8 +124,8 @@ void network_bnu_fast::feed_forward()
 
             for ( auto j = 0; j < tail_start; j+=4 )
             {
-                float32x4_t _neon_a1x4 = vld1q_f32( &_activations1[j] );
-                float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
+                float32x4_t _neon_a1x4 = simd_load( &_activations1[j] );
+                float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
 
                 _neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, _neon_a1x4 );
             }
@@ -147,8 +153,8 @@ void network_bnu_fast::feed_forward()
 
 			for ( auto j = 0; j < tail_start; j+=4 )
 			{
-				__m128 _mm_a1x4 = _mm_load_ps( &_activations1[j] );
-				__m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
+				__m128 _mm_a1x4 = simd_load( &_activations1[j] );
+				__m128 _mm_wx4 = simd_load( &_weights(i,j) );
 
 				// AVX not available on my platform :-(
 				//_mm_temp_sum = _mm_fmadd_ps( _mm_wx4, _mm_a1x4, _mm_temp_sum );
@@ -204,15 +210,15 @@ void network_bnu_fast::back_propagate()
 		{
 			_neon_temp_sum = vdupq_n_f32( 0.f );
 
-			float32x4_t _neon_ax4 = vld1q_f32( &_activations[j] );
+			float32x4_t _neon_ax4 = simd_load( &_activations[j] );
 
 			for ( auto i = 0; i < _weights.size1(); i++ )
 			{
-				float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
+				float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
 				_neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, vdupq_n_f32( _errors2[i] ) );
 			}
 
-			vst1q_f32( &_errors1[j],
+			simd_store( &_errors1[j],
 				vmulq_f32( _neon_temp_sum, vmlsq_f32( _neon_ax4, _neon_ax4, _neon_ax4 ) ) );
 		}
 
@@ -240,15 +246,15 @@ void network_bnu_fast::back_propagate()
         {
             _mm_temp_sum = _mm_setzero_ps();
 
-			__m128 _mm_ax4 = _mm_load_ps( &_activations[j] );
+			__m128 _mm_ax4 = simd_load( &_activations[j] );
 
             for ( auto i = 0; i < _weights.size1(); i++ )
             {
-				__m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
+				__m128 _mm_wx4 = simd_load( &_weights(i,j) );
 				_mm_temp_sum = _mm_add_ps( _mm_temp_sum, _mm_mul_ps( _mm_wx4, _mm_set1_ps( _errors2[i] ) ) );
             }
 
-			_mm_store_ps( &_errors1[j],
+			simd_store( &_errors1[j],
 				_mm_mul_ps( _mm_temp_sum, _mm_mul_ps( _mm_ax4, _mm_sub_ps( _mm_one, _mm_ax4 ) ) ) );
         }
 
@@ -290,12 +296,12 @@ void network_bnu_fast::back_propagate()
 			{
 				float* p_w_deltas = &_w_deltas(k,l);
 
-				float32x4_t _neon_ax4 = vld1q_f32( &_activations[l] );
-				float32x4_t _neon_wdx4 = vld1q_f32( p_w_deltas );
+				float32x4_t _neon_ax4 = simd_load( &_activations[l] );
+				float32x4_t _neon_wdx4 = simd_load( p_w_deltas );
 
 				_neon_wdx4 = vmlaq_f32( _neon_wdx4, _neon_ax4, _neon_ex4 );
 
-				vst1q_f32( p_w_deltas, _neon_wdx4 );
+				simd_store( p_w_deltas, _neon_wdx4 );
 			}
 
 			// end of the vector in non-dividable-by-4 size case
@@ -316,10 +322,10 @@ void network_bnu_fast::back_propagate()
             {
 				float* p_w_deltas = &_w_deltas(k,l);
 
-				__m128 _mm_ax4 = _mm_load_ps( &_activations[l] );
-				__m128 _mm_wdx4 = _mm_load_ps( p_w_deltas );
+				__m128 _mm_ax4 = simd_load( &_activations[l] );
+				__m128 _mm_wdx4 = simd_load( p_w_deltas );
 
-                _mm_store_ps( p_w_deltas, _mm_add_ps( _mm_wdx4, _mm_mul_ps( _mm_ax4, _mm_ex4 ) ) );
+                simd_store( p_w_deltas, _mm_add_ps( _mm_wdx4, _mm_mul_ps( _mm_ax4, _mm_ex4 ) ) );
             }
 
 			// end of the vector in non-dividable-by-4 size case
@@ -359,10 +365,10 @@ void network_bnu_fast::gradient_descent()
 		{
 			for ( auto j = 0; j < _weights.size2(); j+=4 )
 			{
-				float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
-				float32x4_t _neon_wdx4 = vld1q_f32( &_w_deltas(i,j) );
+				float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
+				float32x4_t _neon_wdx4 = simd_load( &_w_deltas(i,j) );
 
-				vst1q_f32( &_weights(i,j),
+				simd_store( &_weights(i,j),
 					vmlsq_f32( _neon_wx4, vdupq_n_f32( m_learning_rate ),
 						vmlaq_f32( vmulq_f32( vdupq_n_f32( invm ), _neon_wdx4 ), vdupq_n_f32( m_weight_decay ), _neon_wx4 ) ) );
 			}
@@ -381,10 +387,10 @@ void network_bnu_fast::gradient_descent()
 		{
 			for ( auto j = 0; j < _weights.size2(); j+=4 )
 			{
-				__m128 _mm_wx4 = _mm_load_ps( &_weights(i,j) );
-				__m128 _mm_wdx4 = _mm_load_ps( &_w_deltas(i,j) );
+				__m128 _mm_wx4 = simd_load( &_weights(i,j) );
+				__m128 _mm_wdx4 = simd_load( &_w_deltas(i,j) );
 
-				_mm_store_ps( &_weights(i,j),
+				simd_store( &_weights(i,j),
 					_mm_sub_ps( _mm_wx4, _mm_mul_ps ( _mm_add_ps(
 						_mm_mul_ps( _mm_wdx4, _mm_set1_ps( invm ) ),
 						_mm_mul_ps( _mm_wx4, _mm_set1_ps( m_weight_decay ) ) ),
