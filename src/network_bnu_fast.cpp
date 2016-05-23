@@ -355,25 +355,25 @@ void network_bnu_fast::gradient_descent()
 
 #ifdef __arm__
 
-for ( auto i = 0; i < _weights.size1(); i++ )
-{
-	for ( auto j = 0; j < _weights.size2(); j+=4 )
-	{
-		float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
-		float32x4_t _neon_wdx4 = vld1q_f32( &_w_deltas(i,j) );
+		for ( auto i = 0; i < _weights.size1(); i++ )
+		{
+			for ( auto j = 0; j < _weights.size2(); j+=4 )
+			{
+				float32x4_t _neon_wx4 = vld1q_f32( &_weights(i,j) );
+				float32x4_t _neon_wdx4 = vld1q_f32( &_w_deltas(i,j) );
 
-		vst1q_f32( &_weights(i,j),
-			vmlsq_f32( _neon_wx4, vdupq_n_f32( m_learning_rate ),
-				vmlaq_f32( vmulq_f32( vdupq_n_f32( invm ), _neon_wdx4 ), vdupq_n_f32( m_weight_decay ), _neon_wx4 ) ) );
-	}
+				vst1q_f32( &_weights(i,j),
+					vmlsq_f32( _neon_wx4, vdupq_n_f32( m_learning_rate ),
+						vmlaq_f32( vmulq_f32( vdupq_n_f32( invm ), _neon_wdx4 ), vdupq_n_f32( m_weight_decay ), _neon_wx4 ) ) );
+			}
 
-	// end of the vector in non-dividable-by-4 size case
-	// could be optimized more...
-	for ( auto r = tail_start; r < _weights.size2(); r++ )
-	{
-		_weights(i,r) -= m_learning_rate * ( ( invm * _w_deltas(i,r) ) + ( m_weight_decay * _weights(i,r) ) );
-	}
-}
+			// end of the vector in non-dividable-by-4 size case
+			// could be optimized more...
+			for ( auto r = tail_start; r < _weights.size2(); r++ )
+			{
+				_weights(i,r) -= m_learning_rate * ( ( invm * _w_deltas(i,r) ) + ( m_weight_decay * _weights(i,r) ) );
+			}
+		}
 
 #elif __x86_64__
 
