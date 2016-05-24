@@ -99,11 +99,6 @@ public:
 
 private:
 
-    void _back_propagate();
-    void _gradient_descent();
-
-private:
-
     size_t m_training_samples;
 
     float m_learning_rate;  // [0.0..1.0]

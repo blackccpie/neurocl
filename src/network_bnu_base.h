@@ -22,16 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_BNU_H
-#define NETWORK_BNU_H
+#ifndef NETWORK_BNU_BASE_H
+#define NETWORK_BNU_BASE_H
 
 #include "network_interface.h"
 
+#include <boost/align/aligned_allocator.hpp>
+#include <boost/numeric/ublas/storage.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
-typedef typename boost::numeric::ublas::vector<float> vectorF;
-typedef typename boost::numeric::ublas::matrix<float> matrixF;
+#define NEUROCL_MEM_ALIGN 16
+
+typedef typename boost::numeric::ublas::vector< float,
+    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > vectorF;
+typedef typename boost::numeric::ublas::matrix< float, boost::numeric::ublas::row_major,
+    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > matrixF;
 
 namespace neurocl {
 
@@ -68,12 +74,12 @@ private:
     matrixF m_deltas_weight;
 };
 
-class network_bnu : public network_interface
+class network_bnu_base : public network_interface
 {
 public:
 
-	network_bnu();
-	virtual ~network_bnu() {}
+	network_bnu_base();
+	virtual ~network_bnu_base() {}
 
     // Convention : input layer is index 0
     void add_layers_2d( const std::vector<layer_size>& layer_sizes );
@@ -81,11 +87,12 @@ public:
     void set_input(  const size_t& in_size, const float* in );
     void set_output( const size_t& out_size, const float* out );
 
-    void feed_forward();
-
     void prepare_training();
-    void back_propagate();
-    void gradient_descent();
+
+    // pure compute-critic virtuals to be implemented in inherited classes
+    virtual void feed_forward() = 0;
+    virtual void back_propagate() = 0;
+    virtual void gradient_descent() = 0;
 
     const size_t count_layers() { return m_layers.size(); }
     const layer_ptr get_layer_ptr( const size_t layer_idx );
@@ -97,23 +104,18 @@ public:
     const std::string dump_bias();
     const std::string dump_activations();
 
-private:
-
-    void _back_propagate();
-    void _gradient_descent();
-
-private:
+protected:
 
     size_t m_training_samples;
-
-    float m_learning_rate;  // [0.0..1.0]
-    float m_weight_decay;   // [0.0..1.0]
 
     vectorF m_training_output;
 
     std::vector<layer_bnu> m_layers;
+
+    float m_learning_rate;  // [0.0..1.0]
+    float m_weight_decay;   // [0.0..1.0]
 };
 
 } //namespace neurocl
 
-#endif //NETWORK_BNU_H
+#endif //NETWORK_BNU_BASE_H

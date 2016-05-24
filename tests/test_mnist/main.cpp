@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "network_exception.h"
 #include "samples_manager.h"
 
+#include <boost/chrono.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
@@ -38,27 +39,34 @@ int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to test_mnist!" << std::endl;
 
+    if ( argc == 1 )
+    {
+        std::cout << "Invalid arguments!" << std::endl;
+        std::cout << "example: ./test_mnist mnist-train.txt topology-mnist.txt weights-mnist.bin" << std::endl;
+        return -1;
+    }
+
     try
     {
-        // TODO : check command arguments with boost
-
-        bool training_enabled = boost::lexical_cast<bool>( argv[4] );
-
         neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
         neurocl::samples_manager::instance().load_samples( argv[1] );
 
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU );
+        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
         net_manager.load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//
 
+        boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
+
         //net_manager.dump_weights();
         //net_manager.dump_bias();
 
-        if ( training_enabled )
-        {
+        if ( argc == 5 )
+            net_manager.batch_train( smp_manager, boost::lexical_cast<int>( argv[4] ), NEUROCL_BATCH_SIZE );
+        else
             net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
-        }
+
+        boost::chrono::milliseconds duration_training = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - start );
 
         // Dump weights for debugging purposes
         //net_manager.dump_weights();
@@ -67,40 +75,46 @@ int main( int argc, char *argv[] )
 
         //************************* TESTING *************************//
 
-        else
+        start = boost::chrono::system_clock::now();
+
+        const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+
+        float mean_rmse = 0.f;
+        size_t _rmse_score = 0;
+        size_t _classif_score = 0;
+
+        for ( size_t i = 0; i<training_samples.size(); i++ )
         {
-            const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+            neurocl::test_sample tsample( smp_manager.get_samples()[i] );
+            net_manager.compute_output( tsample );
 
-            float mean_rmse = 0.f;
-            size_t _rmse_score = 0;
-            size_t _classif_score = 0;
+            //std::cout << tsample.output() << std::endl;
+            //std::cout << tsample.ref_output() << std::endl;
+            //std::cout << tsample.RMSE() << std::endl;
 
-            for ( size_t i = 0; i<training_samples.size(); i++ )
-            {
-                neurocl::test_sample tsample( smp_manager.get_samples()[i] );
-                net_manager.compute_output( tsample );
+            mean_rmse += tsample.RMSE();
 
-                std::cout << tsample.output() << std::endl;
-                std::cout << tsample.ref_output() << std::endl;
-                std::cout << tsample.RMSE() << std::endl;
+            if ( tsample.RMSE() < MAX_MATCH_ERROR )
+                ++ _rmse_score;
 
-                mean_rmse += tsample.RMSE();
+            if ( tsample.classified() )
+                ++_classif_score;
 
-                if ( tsample.RMSE() < MAX_MATCH_ERROR )
-                    ++ _rmse_score;
-
-                if ( tsample.classified() )
-                    ++_classif_score;
-
-            	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
-            }
-
-            mean_rmse /= static_cast<float>( training_samples.size() );
-
-            std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
-            std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size() << std::endl;
-            std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
+        	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
         }
+
+        boost::chrono::milliseconds duration_testing = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - start );
+
+        mean_rmse /= static_cast<float>( training_samples.size() );
+
+        std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
+        std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size()
+            << " (" << static_cast<int>( 100 * _rmse_score / training_samples.size() ) << "%%)" << std::endl;
+        std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size()
+            << " (" << static_cast<int>( 100 * _classif_score / training_samples.size() ) << "%%)" << std::endl;
+
+        std::cout << "TRAINING DONE IN : " << duration_training.count() << "ms" << std::endl;
+        std::cout << "TESTING DONE IN : " << duration_testing.count() << "ms" << std::endl;
     }
     catch( neurocl::network_exception& e )
     {

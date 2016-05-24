@@ -47,5 +47,3 @@ facetools
 pthread
 ${extra_link_libs}
 )
-
-target_compile_features(facecam PRIVATE cxx_auto_type)
