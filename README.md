@@ -19,7 +19,8 @@ main library dependencies:
 
 sample applications dependencies:
 
-- [ccv](http://libccv.org)
+- [ccv](http://libccv.org) - modern computer vision library
+- [picoPi2](https://github.com/ch3ll0v3k/picoPi2) - simple TTS API
 
 ## Building:
 
@@ -29,6 +30,14 @@ $ git clone https://github.com/liuliu/ccv.git
 $ cd ccv/lib
 $ ./configure
 $ make
+```
+
+building picoPi2 (used for Text-To-Speech on the Pi):
+```
+$ git clone https://github.com/ch3ll0v3k/picoPi2.git
+$ cd picoPi2/lib
+$ make
+$ TODO...
 ```
 
 building neurocl (mainly header-only dependencies):
@@ -63,11 +72,25 @@ layer:2:10x1
 ...
 ```
 
+4. neurocl has basic xml configuration support: if present in the runtime directory, the _neurocl.xml_ file will be parsed, but for now only one key parameter is manager, which is the neural network learning rate. The _neurocl.xml_ file is formatted as shown below:
+```
+<neurocl>
+	<learning_rate>1.5</learning_rate>
+</neurocl>
+```
+
 neurocl main entry point is class **network_manager**:
 - the network implementation backend is chosen at construction
 ```
 neurocl::network_manager net_manager(neurocl::network_manager::NEURAL_IMPL_BNU );
 ```
+- for now there are 3 backends available:
+
+    * **NEURAL_IMPL_BNU_REF** : the reference implementation only using boost::numeric::ublas containers and operators
+    * **NEURAL_IMPL_BNU_FAST** : fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators
+    * **NEURAL_IMPL_VEXCL** : _experimental_ vexcl reference implementation.
+
+
 - a given network can be loaded, given its topology and weights file names
 ```
 net_manager.load_network( "topology.txt", "weights.bin" );
