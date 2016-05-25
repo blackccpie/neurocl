@@ -181,9 +181,11 @@ void grab_image( CImg<float>& image )
 #ifdef __APPLE__
     // grab using ImageCapture utility
     system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
-#else
+#elif __arm__
     // grab using raspistill utility
     system( "raspistill -w 480 -h 320 -e png -o face_scene.png");
+#else
+	system( "fswebcam -r 480x320 --png -D face_scene.png");
 #endif
     image.load( "face_scene.png" );
     image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
@@ -282,7 +284,7 @@ int main ( int argc,char **argv )
 
             CImgDisplay my_display( IMAGE_SIZEX, IMAGE_SIZEY );
             my_display.set_title( "FaceCam" );
-        #ifndef __APPLE__
+        #ifdef __arm__
             my_display.set_fullscreen( true );
         #endif
             CImg<unsigned char> welcome( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3 );
