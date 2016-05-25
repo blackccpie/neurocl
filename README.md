@@ -33,13 +33,16 @@ $ ./configure
 $ make
 ```
 
-building picoPi2 (used for Text-To-Speech on the Pi):
+building picoPi2 (used for Text-To-Speech on the Pi) and create an invokable TTS bash script:
 
 ```shell
 $ git clone https://github.com/ch3ll0v3k/picoPi2.git
 $ cd picoPi2/lib
 $ make
-$ TODO...
+$ cd ../tts
+$ ./configure.py --make --2wav
+$ echo -e '#!/bin/sh\nexport LD_LIBRARY_PATH="../lib"\n./picoPi2Wav "$1" -o speech.wav\naplay speech.wav' > speak.sh
+$ sh speak.sh "This is a test"
 ```
 
 building neurocl (mainly header-only dependencies):
