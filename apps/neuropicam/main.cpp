@@ -351,7 +351,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		remove( g_weights_facecam_auto );
 	}
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
     net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
 	// remove existing training file + image files
@@ -409,14 +409,12 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 			if ( valid_face )
 			{
-				CImg<float> work_image( input_image );
+				CImg<float> work_image( input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ) );
 
 				work_image.resize( 50, 50 );
 				work_image.equalize( 256, 0, 255 );
 				work_image.normalize( 0.f, 1.f );
 				work_image.channel(0);
-
-				face_preprocess( work_image );
 
 				face_files.save_face( users[u], work_image );
 
@@ -446,7 +444,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 														&face_preprocess_generic /* extra_preproc*/ );
 
 	net_manager.batch_train( 	smp_manager,
-								500 /*epoch*/,
+								100 /*epoch*/,
 								20 /*batch*/,
 								boost::bind( &progress, _1, my_display, display_image ) );
 }
@@ -458,7 +456,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
+    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
     if ( !auto_trained )
 		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 	else
