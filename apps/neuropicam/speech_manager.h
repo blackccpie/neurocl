@@ -56,7 +56,7 @@ public:
 			speak( "What can I do you for?" );
 			break;
 		case FT_USERB:
-			speak( "Hello " + facecam_users::instance().nicknameA() );
+			speak( "Hello " + facecam_users::instance().nicknameB() );
 			speak( "What can I do you for?" );
 			break;
 		case FT_UNKNOWN:
