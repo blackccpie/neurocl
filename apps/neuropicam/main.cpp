@@ -42,12 +42,7 @@ THE SOFTWARE.
 #include <boost/assign/list_of.hpp>
 using boost::assign::list_of;
 
-#include <iostream>
-#include <ctime>
-#include <cstdlib>
 #include <fstream>
-#include <sstream>
-#include <sys/timeb.h>
 
 using namespace cimg_library;
 
@@ -207,6 +202,11 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 		return face_result( FT_USERA, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 1 )
 		return face_result( FT_USERB, output[0], output[1] );
+    else
+    {
+        std::cout << "Warning : unmanaged use case" << std::endl;
+        return face_result( FT_UNKNOWN, output[0], output[1] );
+    }
 }
 
 void draw_metadata( CImg<unsigned char>& image, const std::vector<face_detect::face_rect>& faces, const face_result& fresult )
