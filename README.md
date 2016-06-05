@@ -99,7 +99,7 @@ neurocl main entry point is class **network_manager**:
 - for now there are 3 backends available:
 
     * **NEURAL_IMPL_BNU_REF** : the reference implementation only using boost::numeric::ublas containers and operators
-    * **NEURAL_IMPL_BNU_FAST** : fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators
+    * **NEURAL_IMPL_BNU_FAST** : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4)
     * **NEURAL_IMPL_VEXCL** : _experimental_ vexcl reference implementation.
 
 
@@ -108,7 +108,7 @@ neurocl main entry point is class **network_manager**:
     ```c++
     net_manager.load_network( "topology.txt", "weights.bin" );
     ```
-    
+
 - once a network is loaded, it can be trained, or used for direct output computation
 
     ```c++
