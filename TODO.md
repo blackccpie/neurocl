@@ -1,6 +1,6 @@
 # TODO - General
 - [ ] Conclude with FCNN weight decay management implementation
-- [ ] Update doc with xml config, picoPi2 TTS use, new network type enums...
+- [x] Update doc with xml config, picoPi2 TTS use, new network type enums...
 - [ ] Optimization works:
     - [x] end major/obvious simd optimizations in the bnu fast implementation
     - [x] Try to use boost specific containers (static_vector etc...)
