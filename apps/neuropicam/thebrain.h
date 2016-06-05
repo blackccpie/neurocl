@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/thread.hpp>
 
-#define BRAIN_QUEUE_SIZE 10
+#define BRAIN_QUEUE_SIZE 15
 
 class thebrain
 {
@@ -40,7 +40,6 @@ public:
 private:
 
     void _run();
-	void _average_type( int type );
 
 private:
 

@@ -21,12 +21,19 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (test_denoising)
 
 include_directories(
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/utils"
+	"${CMAKE_SOURCE_DIR}/../CImg"
 )
 
-add_subdirectory(test_mnist)
-add_subdirectory(test_edge)
-#add_subdirectory(test_denoising)
+set (sources_list
+main.cpp
+)
+
+add_executable(test_denoising ${sources_list} ${headers_list})
+
+target_link_libraries(test_denoising
+neurocl
+${extra_link_libs}
+)

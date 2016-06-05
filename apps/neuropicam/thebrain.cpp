@@ -43,21 +43,19 @@ void thebrain::push_face_type( int type )
     m_queue.push( type );
 }
 
-void thebrain::_average_type( int type )
-{
-    m_current_face_type += type;
-}
-
 void thebrain::_run()
 {
+	auto avg_func = [this] ( int type ) { m_current_face_type += type; };
+
 	while( !m_bStop )
 	{
 		// compute average face value
-		m_current_compute_range += m_queue.consume_all( boost::bind( &thebrain::_average_type, this, _1 ) );
+		m_current_compute_range += m_queue.consume_all( avg_func );
 
 		if ( m_current_compute_range >= BRAIN_QUEUE_SIZE )
 		{
-			m_current_face_type = m_current_face_type / m_current_compute_range;
+			m_current_face_type = static_cast<int>( 0.5f + 
+				( static_cast<float>( m_current_face_type ) / m_current_compute_range ) );
 			m_speech_manager.set_listener( static_cast<face_type>( m_current_face_type ) );
 			m_current_face_type = 0;
 			m_current_compute_range = 0;
