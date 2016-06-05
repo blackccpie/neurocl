@@ -28,5 +28,5 @@ include_directories(
 )
 
 add_subdirectory(test_mnist)
-add_subdirectory(test_denoising)
 add_subdirectory(test_edge)
+#add_subdirectory(test_denoising)
