@@ -58,9 +58,9 @@ const std::string dump_vec( const vectorF& vec, boost::optional<std::string> lab
     std::string separator;
     std::stringstream ss;
     ss << ( label ? label.get() : "" ) << std::endl;
-    for( vectorF::const_iterator it = vec.begin(); it != vec.end(); ++it )
+    for( auto val : vec )
     {
-            ss << separator << *it;
+            ss << separator << val;
             separator = " ";
     }
     ss << std::endl;

@@ -349,7 +349,7 @@ void network_bnu_fast::gradient_descent()
 {
     //std::cout << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
 
-    float invm = 1.f / static_cast<float>( m_training_samples );
+    auto invm = 1.f / static_cast<float>( m_training_samples );
 
     for ( size_t c=0; c<m_layers.size()-1; c++ ) // avoid output layer
     {
