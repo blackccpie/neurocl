@@ -37,7 +37,16 @@ THE SOFTWARE.
 
 int main( int argc, char *argv[] )
 {
-    std::cout << "Welcome to test_alpr!" << std::endl;
+    std::cout << "Welcome to alpr!" << std::endl;
+
+    if ( argc == 1 )
+    {
+        std::cout << "Invalid arguments!" << std::endl;
+        std::cout << "example training numbers: ./alpr 1 alpr-train-num.txt topology-alpr-num.txt weights-alpr-num.bin" << std::endl;
+        std::cout << "example training letters: ./alpr 1 alpr-train-let.txt topology-alpr-let.txt weights-alpr-let.bin" << std::endl;
+        std::cout << "example testing: ./alpr 0 plaque.png topology-alpr-num.txt weights-alpr-num.bin topology-alpr-let.txt weights-alpr-let.bin" << std::endl;
+        return -1;
+    }
 
     try
     {
