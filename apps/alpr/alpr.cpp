@@ -208,20 +208,20 @@ void license_plate::_compute_distance_map()
         //std::cout << "TEST OUTPUT IS : " << sample.output() << std::endl;
     }
 
+    unsigned char blue[] = { 0,0,255 };
+    unsigned char green[] = { 0,255,0 };
+    unsigned char red[] = { 255,0,0 };
+    unsigned char black[] = { 0,0,0 };
+
 #ifdef DISPLAY_DISTANCE_MAP
     // Display distance map graph
     CImg<float> dist_graph( m_work_plate.width(), 400, 1, 3, 0 );
-    unsigned char red[] = { 255,0,0 };
     dist_graph.draw_graph( dist_map, red, 1, 1, 1 );
     dist_graph.display();
 #endif
 
     const std::string plate = m_plate_resol.compute_results();
 
-    unsigned char blue[] = { 0,0,255 };
-    unsigned char green[] = { 0,255,0 };
-    unsigned char red[] = { 255,0,0 };
-    unsigned char black[] = { 0,0,0 };
     m_input_plate.draw_rectangle( 0, 0, m_input_plate.width(), m_input_plate.height(), black, 0.5f );
     std::string global_confidence = boost::lexical_cast<std::string>( (int)( 100 * m_plate_resol.global_confidence() ) ) + "%%";
     m_input_plate.draw_text( 10, 10, global_confidence.c_str(), blue, 0, 1.f, 30 );
