@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef NETWORK_EXCEPTION_H
 #define NETWORK_EXCEPTION_H
 
+#include <stdexcept>
+
 namespace neurocl {
 
 class network_exception : public std::runtime_error
