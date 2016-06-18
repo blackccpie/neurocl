@@ -27,7 +27,6 @@ THE SOFTWARE.
 #include "network_exception.h"
 #include "network_utils.h"
 
-#include <boost/foreach.hpp>
 #include <boost/optional.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
@@ -40,7 +39,7 @@ void random_normal_init( T& container, const float stddev = 1.f )
 {
     utils::rand_gaussian_generator rgg( 0.f, stddev );
 
-    BOOST_FOREACH( float& element, container.data() )
+    for( auto& element : container.data() )
     {
         element = rgg();
     }
@@ -51,7 +50,9 @@ full_layer_bnu::full_layer_bnu()
 }
 
 // WARNING : size is the square side size
-void full_layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
+void full_layer_bnu::populate(  const layer_iface* prev_layer,
+                                const layer_size& cur_layer_size,
+                                const layer_size& next_layer_size )
 {
     //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
@@ -75,7 +76,7 @@ void full_layer_bnu::populate( const layer_size& cur_layer_size, const layer_siz
     m_errors.clear();
 }
 
-void full_layer_bnu::feed_forward( const layer_iface* prev_layer )
+void full_layer_bnu::feed_forward()
 {
     // NOT IMPLEMENTED YET
 }
@@ -105,41 +106,120 @@ void conv_layer_bnu::set_filter_size( const size_t filter_size, const size_t fil
     m_filter_stride = filter_stride;
 }
 
-void conv_layer_bnu::populate( const size_t width, const size_t height, const size_t depth )
+void conv_layer_bnu::populate(  const layer_iface* prev_layer,
+                                const size_t width,
+                                const size_t height,
+                                const size_t depth )
 {
-    m_filters = boost::shared_array<matrixF>( new matrixF[depth] );
-    m_feature_maps = boost::shared_array<matrixF>( new matrixF[depth] );
+    // TODO-CNN : zero padding is not managed yet, so add a size check somewhere!
+
+    m_filters = marray2F( boost::extents[depth][prev_layer->depth()] );
+    m_feature_maps = marray1F( boost::extents[depth] );
     for ( size_t i = 0; i<depth; i++ )
     {
         m_feature_maps[i] = matrixF( width, height );
-        m_filters[i] = matrixF( width, height );
-        random_normal_init( m_filters[i], 1.f / std::sqrt( m_filter_size * m_filter_size ) );
+        for ( auto& _filter : m_filters[i] )
+        {
+            _filter = matrixF( m_filter_size, m_filter_size );
+            random_normal_init( _filter, 1.f / std::sqrt( m_filter_size * m_filter_size ) );
+        }
     }
 }
 
-void conv_layer_bnu::feed_forward( const layer_iface* prev_layer )
+void conv_layer_bnu::_convolve_add( const matrixF& prev_feature_map,
+                                    const matrixF& filter, const size_t stride,
+                                    matrixF& feature_map )
 {
-    // NOT IMPLEMENTED YET
+    using namespace boost::numeric::ublas;
+
+    // assumption stepsX = stepsY could be easily made...
+    auto stepsX = prev_feature_map.size1() - filter.size1() + 1;
+    auto stepsY = prev_feature_map.size2() - filter.size2() + 1;
+    for ( auto j=0; j<stepsY; j++ )
+        for ( auto i=0; i<stepsX; i++ )
+        {
+            matrixF conv = element_prod( filter,
+                project( prev_feature_map,
+                    range( i, i+m_filter_size ),
+                    range( j, j+m_filter_size ) ) );
+
+            feature_map(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+        }
 }
 
-pool_layer_bnu::pool_layer_bnu()
+void conv_layer_bnu::feed_forward()
 {
-
-}
-
-void pool_layer_bnu::populate( const size_t width, const size_t height, const size_t depth )
-{
-    m_feature_maps = boost::shared_array<matrixF>( new matrixF[depth] );
-    for ( size_t i = 0; i<depth; i++ )
+    int j = 0;
+    for ( auto& feature_map : m_feature_maps )
     {
-        m_feature_maps[i] = matrixF( width, height );
-        random_normal_init( m_feature_maps[i], 1.f / std::sqrt( width * height ) );
+        feature_map.clear();
+
+        for ( auto i=0; i<m_prev_layer->depth(); i++ )
+        {
+            const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
+            matrixF& filter = m_filters[j][i];
+
+            _convolve_add( prev_feature_map, filter, m_filter_stride, feature_map );
+        }
+        j++;
     }
 }
 
-void pool_layer_bnu::feed_forward( const layer_iface* prev_layer )
+pool_layer_bnu::pool_layer_bnu() : m_subsample( 1 )
 {
-    // NOT IMPLEMENTED YET
+
+}
+
+void pool_layer_bnu::populate(  const layer_iface* prev_layer,
+                                const size_t width,
+                                const size_t height,
+                                const size_t depth )
+{
+    m_prev_layer = prev_layer;
+
+    // compute subsampling rate, throw error if not integer
+    if ( ( prev_layer->width() % width) == 0 )
+        m_subsample = prev_layer->width() / width;
+    else
+        throw network_exception( "invalid subsampling for max pooling" );
+
+    m_feature_maps = marray1F( boost::extents[depth] );
+    for ( auto& _feature : m_feature_maps )
+    {
+        _feature = matrixF( width, height );
+        random_normal_init( _feature, 1.f / std::sqrt( width * height ) );
+    }
+}
+
+void pool_layer_bnu::feed_forward()
+{
+    for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
+    {
+        const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
+        matrixF& feature_map = m_feature_maps[i];
+        auto prev_width = prev_feature_map.size1();
+        auto prev_it1 = prev_feature_map.begin1();
+        for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); ++it1, prev_it1 += m_subsample )
+        {
+            auto prev_it2 = prev_it1.begin();
+            for( auto it2 = it1.begin(); it2 !=it1.end(); ++it2, prev_it2 += m_subsample )
+            {
+                float max_value = std::numeric_limits<float_t>::lowest();
+
+                // could use ublas::project + std::accumulate + std::max for more compact expression
+
+                for ( auto i =0; i<m_subsample; i++ )
+                    for ( auto j =0; j<m_subsample; i++ )
+                    {
+                        const float& value = *(prev_it2 + i + (j*prev_width) );
+                        if ( value > max_value )
+                            max_value = value;
+                    }
+
+                *it2 = max_value;
+            }
+        }
+    }
 }
 
 lenet_bnu::lenet_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
@@ -172,18 +252,18 @@ void lenet_bnu::set_output( const size_t& out_size, const float* out )
 
 void lenet_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 {
-    m_layer_input.populate( layer_size( 32, 32 ), layer_size( /*TODO*/0, 0 ) );
+    m_layer_input.populate( nullptr, layer_size( 32, 32 ), layer_size( /*TODO*/0, 0 ) );
     m_layer_c1.set_filter_size( 5 );
-    m_layer_c1.populate( 28, 28, 6 );               //conv
-    m_layer_s2.populate( 14, 14, 6 );               //pool
+    m_layer_c1.populate( &m_layer_input, 28, 28, 6 );               //conv
+    m_layer_s2.populate( &m_layer_c1, 14, 14, 6 );               //pool
     m_layer_c3.set_filter_size( 6 );
-    m_layer_c3.populate( 10, 10, 16 );              //conv
-    m_layer_s4.populate( 5, 5, 16 );                //pool
+    m_layer_c3.populate( &m_layer_s2, 10, 10, 16 );              //conv
+    m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                //pool
     //TBC m_layer_c5.populate( 120 );    //conv
-    m_layer_f6.populate( layer_size( 12, 7 ), layer_size( 10, 1 ) );     //full
-    m_layer_output.populate( layer_size( 10, 1 ), layer_size( 0, 0 ) );
+    m_layer_f6.populate( &m_layer_c5, layer_size( 12, 7 ), layer_size( 10, 1 ) );     //full
+    m_layer_output.populate( &m_layer_f6, layer_size( 10, 1 ), layer_size( 0, 0 ) );
 
-    m_layers = { &m_layer_c1 };
+    m_layers = { &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4 };
 
     // TODO-CNN : STUBBED FOR NOW
     /*
@@ -269,6 +349,14 @@ void lenet_bnu::prepare_training()
 
 void lenet_bnu::feed_forward()
 {
+    auto start = m_layers.begin() + 1;
+    auto prev_layer_iter = m_layers.cbegin();
+    auto end = m_layers.end();
+    for ( auto layer_iter = start; layer_iter != end; layer_iter++, prev_layer_iter++ )
+    {
+        (*layer_iter)->feed_forward();
+    }
+
     /*for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
         vectorF& _activations = m_layers[i+1].activations();

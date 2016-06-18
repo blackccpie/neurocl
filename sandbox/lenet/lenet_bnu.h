@@ -27,19 +27,30 @@ THE SOFTWARE.
 
 #include "network_interface.h"
 
+#include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
 typedef typename boost::numeric::ublas::vector<float> vectorF;
 typedef typename boost::numeric::ublas::matrix<float> matrixF;
 
+typedef typename boost::multi_array<matrixF,1> marray1F;
+typedef typename boost::multi_array<matrixF,2> marray2F;
+
 namespace neurocl {
 
 class layer_iface
 {
+
 public:
 
-    virtual void feed_forward( const layer_iface* prev_layer ) = 0;
+    virtual size_t width() const = 0;
+    virtual size_t height() const = 0;
+    virtual size_t depth() const = 0;
+
+    virtual const matrixF& feature_map( const int depth ) const = 0;
+
+    virtual void feed_forward() = 0;
 };
 
 class full_layer_bnu : public layer_iface
@@ -49,9 +60,18 @@ public:
     full_layer_bnu();
 	virtual ~full_layer_bnu() {}
 
-    void populate( const layer_size& cur_layer_size, const layer_size& next_layer_size );
+    void populate(  const layer_iface* prev_layer,
+                    const layer_size& cur_layer_size,
+                    const layer_size& next_layer_size );
 
-    virtual void feed_forward( const layer_iface* prev_layer );
+    virtual size_t width() const { return 1; };
+    virtual size_t height() const { return 1; };
+    virtual size_t depth() const { return 1; }
+
+    virtual const matrixF& feature_map( const int depth ) const
+        { return /*TODO-CNN*/ m_deltas_weight; }
+
+    virtual void feed_forward();
 
     vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
@@ -65,6 +85,8 @@ public:
     const std::string dump_activations() const;
 
 private:
+
+    const layer_iface* m_prev_layer;
 
     vectorF m_activations;
     vectorF m_errors;
@@ -85,17 +107,35 @@ public:
 	virtual ~conv_layer_bnu() {}
 
     void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 );
-    void populate( const size_t width, const size_t height, const size_t depth );
+    void populate(  const layer_iface* prev_layer,
+                    const size_t width,
+                    const size_t height,
+                    const size_t depth );
 
-    virtual void feed_forward( const layer_iface* prev_layer );
+    virtual size_t width() const { return 1; };
+    virtual size_t height() const { return 1; };
+    virtual size_t depth() const { return m_feature_maps.shape()[0]; }
+
+    virtual const matrixF& feature_map( const int depth ) const
+        { return m_feature_maps[depth]; }
+
+    virtual void feed_forward();
 
 private:
+
+    void _convolve_add( const matrixF& prev_feature_map,
+                        const matrixF& filter, const size_t stride,
+                        matrixF& feature_map );
+
+private:
+
+    const layer_iface* m_prev_layer;
 
     size_t m_filter_size;
     size_t m_filter_stride;
 
-    boost::shared_array<matrixF> m_filters;
-    boost::shared_array<matrixF> m_feature_maps;
+    marray2F m_filters;
+    marray1F m_feature_maps;
 };
 
 class pool_layer_bnu  : public layer_iface
@@ -105,13 +145,27 @@ public:
     pool_layer_bnu();
 	virtual ~pool_layer_bnu() {}
 
-    void populate( const size_t width, const size_t height, const size_t depth );
+    void populate(  const layer_iface* prev_layer,
+                    const size_t width,
+                    const size_t height,
+                    const size_t depth );
 
-    virtual void feed_forward( const layer_iface* prev_layer );
+    virtual size_t width() const { return 1; };
+    virtual size_t height() const { return 1; };
+    virtual size_t depth() const { return m_feature_maps.shape()[0]; }
+
+    virtual const matrixF& feature_map( const int depth ) const
+        { return m_feature_maps[depth]; }
+
+    virtual void feed_forward();
 
 private:
 
-    boost::shared_array<matrixF> m_feature_maps;
+    size_t m_subsample;
+
+    const layer_iface* m_prev_layer;
+
+    marray1F m_feature_maps;
 };
 
 class lenet_bnu final : public network_interface
