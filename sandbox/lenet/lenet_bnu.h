@@ -37,6 +37,8 @@ typedef typename boost::numeric::ublas::matrix<float> matrixF;
 typedef typename boost::multi_array<matrixF,1> marray1F;
 typedef typename boost::multi_array<matrixF,2> marray2F;
 
+// LeNet-5 : http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf
+
 namespace neurocl {
 
 class layer_iface
@@ -44,7 +46,7 @@ class layer_iface
 
 public:
 
-    //virtual bool is_input() { return false; }
+    virtual bool is_input() { return false; }
 
     virtual bool has_feature_maps() const = 0;
 
@@ -56,7 +58,11 @@ public:
     virtual const vectorF& activations() const = 0;
     virtual const matrixF& feature_map( const int depth ) const = 0;
 
+    virtual matrixF& error_map( const int depth ) const { empty::matrix; } // TODO-CN : temporary empty impl
+
     virtual void feed_forward() = 0;
+    virtual void back_propagate() = 0;
+    virtual void gradient_descent() {}; // TODO-CN : temporary empty impl
 
 protected:
 
@@ -78,6 +84,7 @@ public:
                     const size_t height,
                     const size_t depth  );
 
+    virtual bool is_input() { return true; }
     virtual bool has_feature_maps() const { return true; }
 
     virtual size_t width() const { return m_inputs[0].size1(); };
@@ -90,6 +97,7 @@ public:
         { return m_inputs[depth]; }
 
     virtual void feed_forward() { /*NOTHING TO DO YET*/ }
+    virtual void back_propagate() { /*NOTHING TO DO YET*/ }
 
 private:
 
@@ -118,6 +126,7 @@ public:
         { return empty::matrix; }
 
     virtual void feed_forward();
+    virtual void back_propagate();
 
     /*vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
@@ -166,6 +175,7 @@ public:
         { return m_feature_maps[depth]; }
 
     virtual void feed_forward();
+    virtual void back_propagate();
 
 private:
 
@@ -181,6 +191,7 @@ private:
     size_t m_filter_stride;
 
     marray2F m_filters;
+    marray2F m_error_maps;
     marray1F m_feature_maps;
 };
 
@@ -208,6 +219,7 @@ public:
         { return m_feature_maps[depth]; }
 
     virtual void feed_forward();
+    virtual void back_propagate();
 
 private:
 
@@ -216,6 +228,7 @@ private:
     const layer_iface* m_prev_layer;
 
     marray1F m_feature_maps;
+    marray1F m_error_maps;
 };
 
 class lenet_bnu final : public network_interface
@@ -262,7 +275,7 @@ protected:
     pool_layer_bnu m_layer_s2;
     conv_layer_bnu m_layer_c3;
     pool_layer_bnu m_layer_s4;
-    full_layer_bnu m_layer_c5;
+    conv_layer_bnu m_layer_c5;
     full_layer_bnu m_layer_f6;
     full_layer_bnu m_layer_output;
 

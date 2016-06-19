@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include <boost/optional.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace bnu = boost::numeric::ublas;
 
@@ -129,6 +130,14 @@ void full_layer_bnu::feed_forward()
     std::for_each( m_activations.data().begin(), m_activations.data().end(), std::ptr_fun( sigmoid ) );
 }
 
+void full_layer_bnu::back_propagate()
+{
+    /*m_layers[i].errors() = bnu::element_prod(
+        bnu::element_prod(  m_layers[i].activations(),
+                            ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
+        bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );*/
+}
+
 conv_layer_bnu::conv_layer_bnu() : m_filter_size( 0 ), m_filter_stride( 0 )
 {
 }
@@ -194,6 +203,8 @@ void conv_layer_bnu::_convolve_add( const matrixF& prev_feature_map,
 
 void conv_layer_bnu::feed_forward()
 {
+    // TODO-CNN : what if previous layer has no feature maps!
+
     int j = 0;
     for ( auto& feature_map : m_feature_maps )
     {
@@ -204,11 +215,15 @@ void conv_layer_bnu::feed_forward()
             const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
             matrixF& filter = m_filters[j][i];
 
-            std::cout << "convolve_add" << std::endl;
             _convolve_add( prev_feature_map, filter, m_filter_stride, feature_map );
         }
         j++;
     }
+}
+
+void conv_layer_bnu::back_propagate()
+{
+
 }
 
 pool_layer_bnu::pool_layer_bnu() : m_subsample( 1 )
@@ -243,8 +258,6 @@ void pool_layer_bnu::feed_forward()
 {
     for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
     {
-        std::cout << "subsample " << m_subsample << std::endl;
-
         const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
         matrixF& feature_map = m_feature_maps[i];
         auto prev_width = prev_feature_map.size1();
@@ -274,6 +287,22 @@ void pool_layer_bnu::feed_forward()
     }
 }
 
+void pool_layer_bnu::back_propagate()
+{
+    // TODO-CNN : what if previous layer has no error maps!
+
+    for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
+    {
+        const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
+
+        matrixF& prev_error_map = m_prev_layer->error_map(i);
+
+        const matrixF& error_map = m_error_maps[i];
+
+		// NOT IMPLEMEMENTED YET
+    }
+}
+
 lenet_bnu::lenet_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
 {
     const network_config& nc = network_config::instance();
@@ -282,22 +311,25 @@ lenet_bnu::lenet_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f 
 
 void lenet_bnu::set_input(  const size_t& in_size, const float* in )
 {
-    // TODO-CNN
-    /*if ( in_size > m_layers[0].activations().size() )
+    if ( in_size > m_layers[0]->size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
-    //std::cout << "network_bnu::set_input - input (" << in << ") size = " << in_size << std::endl;
+    std::cout << "lenet_bnu::set_input - input (" << in << ") size = " << in_size << std::endl;
 
-    vectorF& input_activations = m_layers[0].activations();
-    std::copy( in, in + in_size, input_activations.begin() );*/
+    // TODO-CNN : for now works only because first layer is one dimensional
+
+    auto input_feature_map = m_layers[0]->feature_map(0).data();
+    std::copy( in, in + in_size, input_feature_map.begin() );
 }
 
 void lenet_bnu::set_output( const size_t& out_size, const float* out )
 {
+    // TODO-CNN : for now works only because last layer is one dimensional fcnn
+
     if ( out_size > m_training_output.size() )
         throw network_exception( "output size exceeds allocated layer size!" );
 
-    //std::cout << "network_bnu::set_output - output (" << out << ") size = " << out_size << std::endl;
+    std::cout << "lenet_bnu::set_output - output (" << out << ") size = " << out_size << std::endl;
 
     std::copy( out, out + out_size, m_training_output.begin() );
 }
@@ -310,31 +342,13 @@ void lenet_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
     m_layer_s2.populate( &m_layer_c1, 14, 14, 6 );                  //pool
     m_layer_c3.set_filter_size( 5 ); // 5x5
     m_layer_c3.populate( &m_layer_s2, 10, 10, 16 );                 //conv
-    m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                    //pool
-    //TBC m_layer_c5.populate( 120 );    //conv
-    m_layer_f6.populate( &m_layer_c5, layer_size( 12, 7 ) );         //full
+    m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                   //pool
+    m_layer_c5.set_filter_size( 5 );
+    m_layer_c5.populate( &m_layer_s4, 1, 1, 120 );                  //conv
+    m_layer_f6.populate( &m_layer_c5, layer_size( 84, 1 ) );        //full
     m_layer_output.populate( &m_layer_f6, layer_size( 10, 1 ) );
 
-    m_layers = { &m_layer_input, &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4 };
-
-    // TODO-CNN : STUBBED FOR NOW
-    /*
-    m_layers.resize( layer_sizes.size() );
-
-    // Last layer should be output layer
-    const layer_size& _last_size = layer_sizes.back();
-    m_layers.back().populate( _last_size, layer_size( 0, 0 ) );
-
-    // Initialize training output
-    m_training_output = vectorF( _last_size.size() );
-
-    // Populate all but input layer
-    for ( int idx=layer_sizes.size()-2; idx>=0; idx-- )
-    {
-        const layer_size& _size = layer_sizes[idx];
-        const layer_size& _next_layer_size = layer_sizes[idx+1];
-        m_layers[idx].populate( _size, _next_layer_size );
-    }*/
+    m_layers = { &m_layer_input, &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4, &m_layer_c5, &m_layer_f6, &m_layer_output };
 }
 
 const layer_ptr lenet_bnu::get_layer_ptr( const size_t layer_idx )
@@ -375,13 +389,13 @@ void lenet_bnu::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
 
 const output_ptr lenet_bnu::output()
 {
-    // TODO-CNN
-    /*vectorF& output = m_layers.back().activations();
+    // TODO-CNN : for now works only because last layer is one dimensional fcnn
+
+    const vectorF& output = m_layers.back()->activations();
     output_ptr o( output.size() );
     std::copy( &output[0], &output[0] + output.size(), o.outputs.get() );
 
-    return o;*/
-    return output_ptr(0);
+    return o;
 }
 
 void lenet_bnu::prepare_training()
@@ -401,32 +415,19 @@ void lenet_bnu::prepare_training()
 
 void lenet_bnu::feed_forward()
 {
-    auto start = m_layers.begin() + 1;
-    auto prev_layer_iter = m_layers.cbegin();
-    auto end = m_layers.end();
-    for ( auto layer_iter = start; layer_iter != end; layer_iter++, prev_layer_iter++ )
+    for ( auto& _layer : m_layers )
     {
         std::cout << "--> feed forwarding" << std::endl;
-        (*layer_iter)->feed_forward();
+        _layer->feed_forward();
     }
-
-    /*for ( size_t i=0; i<m_layers.size()-1; i++ )
-    {
-        vectorF& _activations = m_layers[i+1].activations();
-
-        // apply weights and bias
-        _activations = bnu::prod( m_layers[i].weights(), m_layers[i].activations() )
-            + m_layers[i].bias();
-
-        // apply sigmoid function
-        std::transform( _activations.data().begin(), _activations.data().end(),
-            _activations.data().begin(), std::ptr_fun( sigmoid ) );
-    }*/
 }
 
 void lenet_bnu::back_propagate()
 {
-
+    for ( auto& _layer : boost::adaptors::reverse( m_layers ) )
+    {
+        _layer->back_propagate();
+    }
 }
 
 void lenet_bnu::gradient_descent()
