@@ -178,17 +178,24 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
 void grab_image( CImg<float>& image )
 {
+    int res = 0;
 #ifdef __APPLE__
     // grab using ImageCapture utility
-    system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
+    res = system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
 #elif __arm__
     // grab using raspistill utility
-    system( "raspistill -w 480 -h 320 -e png -o face_scene.png");
+    res = system( "raspistill -w 480 -h 320 -e png -o face_scene.png");
 #else
-	system( "fswebcam -r 480x320 --png -D face_scene.png");
+    res = system( "fswebcam -r 480x320 --png -D face_scene.png");
 #endif
-    image.load( "face_scene.png" );
-    image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
+
+    if ( res != -1 )
+    {
+    	image.load( "face_scene.png" );
+    	image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
+    }
+    else
+        std::cerr << "error trying to grab webcam image!" << std::endl;
 }
 
 void draw_metadata( CImg<float>& image, const std::vector<face_detect::face_rect>& faces )
