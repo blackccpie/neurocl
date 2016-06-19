@@ -44,14 +44,31 @@ class layer_iface
 
 public:
 
+    //virtual bool is_input() { return false; }
+
+    virtual bool has_feature_maps() const = 0;
+
+    size_t size() const { return width()*height()*depth(); }
     virtual size_t width() const = 0;
     virtual size_t height() const = 0;
     virtual size_t depth() const = 0;
 
+    virtual const vectorF& activations() const = 0;
     virtual const matrixF& feature_map( const int depth ) const = 0;
 
     virtual void feed_forward() = 0;
+
+protected:
+
+    struct empty
+    {
+        static const matrixF matrix;
+        static const vectorF vector;
+    };
 };
+
+const matrixF layer_iface::empty::matrix = matrixF();
+const vectorF layer_iface::empty::vector = vectorF();
 
 class full_layer_bnu : public layer_iface
 {
@@ -61,28 +78,27 @@ public:
 	virtual ~full_layer_bnu() {}
 
     void populate(  const layer_iface* prev_layer,
-                    const layer_size& cur_layer_size,
-                    const layer_size& next_layer_size );
+                    const layer_size& lsize );
+
+    virtual bool has_feature_maps() const { return false; }
 
     virtual size_t width() const { return 1; };
     virtual size_t height() const { return 1; };
     virtual size_t depth() const { return 1; }
 
+    virtual const vectorF& activations() const
+        { return m_activations; }
     virtual const matrixF& feature_map( const int depth ) const
-        { return /*TODO-CNN*/ m_deltas_weight; }
+        { return empty::matrix; }
 
     virtual void feed_forward();
 
-    vectorF& bias() { return m_bias; }
+    /*vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
     matrixF& weights() { return m_output_weights; }
     vectorF& errors() { return m_errors; }
     matrixF& w_deltas() { return m_deltas_weight; }
-    vectorF& b_deltas() { return m_deltas_bias; }
-
-    const std::string dump_weights() const;
-    const std::string dump_bias() const;
-    const std::string dump_activations() const;
+    vectorF& b_deltas() { return m_deltas_bias; }*/
 
 private:
 
@@ -95,7 +111,7 @@ private:
 
     // We follow stanford convention:
     // http://web.stanford.edu/class/cs294a/sparseAutoencoder.pdf
-    matrixF m_output_weights;
+    matrixF m_weights;
     matrixF m_deltas_weight;
 };
 
@@ -112,10 +128,14 @@ public:
                     const size_t height,
                     const size_t depth );
 
-    virtual size_t width() const { return 1; };
-    virtual size_t height() const { return 1; };
+    virtual bool has_feature_maps() const { return true; }
+
+    virtual size_t width() const { return m_feature_maps[0].size1(); };
+    virtual size_t height() const { return m_feature_maps[0].size2(); };
     virtual size_t depth() const { return m_feature_maps.shape()[0]; }
 
+    virtual const vectorF& activations() const
+        { return empty::vector; }
     virtual const matrixF& feature_map( const int depth ) const
         { return m_feature_maps[depth]; }
 
@@ -150,10 +170,14 @@ public:
                     const size_t height,
                     const size_t depth );
 
-    virtual size_t width() const { return 1; };
-    virtual size_t height() const { return 1; };
+    virtual bool has_feature_maps() const { return true; }
+
+    virtual size_t width() const { return m_feature_maps[0].size1(); };
+    virtual size_t height() const { return m_feature_maps[0].size2(); };
     virtual size_t depth() const { return m_feature_maps.shape()[0]; }
 
+    virtual const vectorF& activations() const
+        { return empty::vector; }
     virtual const matrixF& feature_map( const int depth ) const
         { return m_feature_maps[depth]; }
 

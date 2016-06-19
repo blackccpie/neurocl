@@ -34,6 +34,11 @@ namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
 
+float sigmoid( float x )
+{
+    return 1.f / ( 1.f + std::exp(-x) );
+}
+
 template<class T>
 void random_normal_init( T& container, const float stddev = 1.f )
 {
@@ -51,52 +56,58 @@ full_layer_bnu::full_layer_bnu()
 
 // WARNING : size is the square side size
 void full_layer_bnu::populate(  const layer_iface* prev_layer,
-                                const layer_size& cur_layer_size,
-                                const layer_size& next_layer_size )
+                                const layer_size& lsize )
 {
-    //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
+    m_prev_layer = prev_layer;
 
-    if ( next_layer_size.size() ) // non-output layer
+    if ( m_prev_layer ) // create a separate layer type for input???
     {
-        m_output_weights = matrixF( next_layer_size.size(), cur_layer_size.size() );
+        m_weights = matrixF( lsize.size(), m_prev_layer->size() );
         // cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
-        random_normal_init( m_output_weights, 1.f / std::sqrt( cur_layer_size.size() ) );
-        m_deltas_weight = matrixF( next_layer_size.size(), cur_layer_size.size() );
+        random_normal_init( m_weights, 1.f / std::sqrt( m_prev_layer->size() ) );
+        m_deltas_weight = matrixF( lsize.size(), m_prev_layer->size() );
         m_deltas_weight.clear();
 
-        m_bias = vectorF( next_layer_size.size() );
+        m_bias = vectorF( lsize.size() );
         random_normal_init( m_bias, 1.f );
-        m_deltas_bias = vectorF( next_layer_size.size() );
+        m_deltas_bias = vectorF( lsize.size() );
         m_deltas_bias.clear();
     }
 
-    m_activations = vectorF( cur_layer_size.size() );
+    m_activations = vectorF( lsize.size() );
     m_activations.clear();
-    m_errors = vectorF( cur_layer_size.size() ); // not needed for input layer...?
+    m_errors = vectorF( lsize.size() ); // not needed for input layer...?
     m_errors.clear();
 }
 
 void full_layer_bnu::feed_forward()
 {
-    // NOT IMPLEMENTED YET
+    if ( m_prev_layer->has_feature_maps() )
+    {
+        vectorF reconstructed_vector( m_prev_layer->width() * m_prev_layer->height() * m_prev_layer->depth() );
+
+        for ( auto i=0; i<m_prev_layer->depth(); i++ )
+        {
+            auto& feature_map = m_prev_layer->feature_map(i).data();
+
+            std::copy( feature_map.begin(), feature_map.end(),
+                reconstructed_vector.data().begin() + ( i * m_prev_layer->width() * m_prev_layer->height() ) );
+        }
+    }
+    else
+    {
+        const vectorF& prev_activations = m_prev_layer->activations();
+
+        // apply weights and bias
+        m_activations = bnu::prod( m_weights, prev_activations )
+            + m_bias;
+    }
+
+    // apply sigmoid function
+    std::for_each( m_activations.data().begin(), m_activations.data().end(), std::ptr_fun( sigmoid ) );
 }
 
-const std::string full_layer_bnu::dump_weights() const
-{
-    return "NOT IMPLEMENTED YET";
-}
-
-const std::string full_layer_bnu::dump_bias() const
-{
-    return "NOT IMPLEMENTED YET";
-}
-
-const std::string full_layer_bnu::dump_activations() const
-{
-    return "NOT IMPLEMENTED YET";
-}
-
-conv_layer_bnu::conv_layer_bnu()
+conv_layer_bnu::conv_layer_bnu() : m_filter_size( 0 ), m_filter_stride( 0 )
 {
 }
 
@@ -111,7 +122,15 @@ void conv_layer_bnu::populate(  const layer_iface* prev_layer,
                                 const size_t height,
                                 const size_t depth )
 {
-    // TODO-CNN : zero padding is not managed yet, so add a size check somewhere!
+    if ( ( width != ( prev_layer->width() - m_filter_size ) ) ||
+        ( height != ( prev_layer->height() - m_filter_size ) ) )
+    {
+        std::cerr << "conv_layer_bnu::populate - zero padding not managed for now, \
+            so layer size should be consistent with filter size and previous layer size" << std::endl;
+        throw network_exception( "inconsistent convolutional layer size" );
+    }
+
+    m_prev_layer = prev_layer;
 
     m_filters = marray2F( boost::extents[depth][prev_layer->depth()] );
     m_feature_maps = marray1F( boost::extents[depth] );
@@ -143,7 +162,7 @@ void conv_layer_bnu::_convolve_add( const matrixF& prev_feature_map,
                     range( i, i+m_filter_size ),
                     range( j, j+m_filter_size ) ) );
 
-            feature_map(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+            feature_map(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
         }
 }
 
@@ -208,6 +227,7 @@ void pool_layer_bnu::feed_forward()
 
                 // could use ublas::project + std::accumulate + std::max for more compact expression
 
+                // compute max in subsampling zone
                 for ( auto i =0; i<m_subsample; i++ )
                     for ( auto j =0; j<m_subsample; i++ )
                     {
@@ -216,6 +236,7 @@ void pool_layer_bnu::feed_forward()
                             max_value = value;
                     }
 
+                // update value in the destination feature map
                 *it2 = max_value;
             }
         }
@@ -252,16 +273,16 @@ void lenet_bnu::set_output( const size_t& out_size, const float* out )
 
 void lenet_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 {
-    m_layer_input.populate( nullptr, layer_size( 32, 32 ), layer_size( /*TODO*/0, 0 ) );
+    m_layer_input.populate( nullptr, layer_size( 32, 32 ) );
     m_layer_c1.set_filter_size( 5 );
     m_layer_c1.populate( &m_layer_input, 28, 28, 6 );               //conv
-    m_layer_s2.populate( &m_layer_c1, 14, 14, 6 );               //pool
+    m_layer_s2.populate( &m_layer_c1, 14, 14, 6 );                  //pool
     m_layer_c3.set_filter_size( 6 );
-    m_layer_c3.populate( &m_layer_s2, 10, 10, 16 );              //conv
-    m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                //pool
+    m_layer_c3.populate( &m_layer_s2, 10, 10, 16 );                 //conv
+    m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                    //pool
     //TBC m_layer_c5.populate( 120 );    //conv
-    m_layer_f6.populate( &m_layer_c5, layer_size( 12, 7 ), layer_size( 10, 1 ) );     //full
-    m_layer_output.populate( &m_layer_f6, layer_size( 10, 1 ), layer_size( 0, 0 ) );
+    m_layer_f6.populate( &m_layer_c5, layer_size( 12, 7 ) );         //full
+    m_layer_output.populate( &m_layer_f6, layer_size( 10, 1 ) );
 
     m_layers = { &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4 };
 
