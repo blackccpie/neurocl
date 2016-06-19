@@ -26,12 +26,22 @@ project (lenet)
 include_directories( ../../src )
 
 set (headers_list
+layer_bnu.h
+input_layer_bnu.h
+full_layer_bnu.h
+conv_layer_bnu.h
+pool_layer_bnu.h
 lenet_bnu.h
 lenet_manager.h
 )
 
 set (sources_list
 main.cpp
+layer_bnu.cpp
+input_layer_bnu.cpp
+full_layer_bnu.cpp
+conv_layer_bnu.cpp
+pool_layer_bnu.cpp
 lenet_bnu.cpp
 lenet_manager.cpp
 )

@@ -26,210 +26,14 @@ THE SOFTWARE.
 #define LENET_BNU_H
 
 #include "network_interface.h"
-
-#include <boost/multi_array.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-
-typedef typename boost::numeric::ublas::vector<float> vectorF;
-typedef typename boost::numeric::ublas::matrix<float> matrixF;
-
-typedef typename boost::multi_array<matrixF,1> marray1F;
-typedef typename boost::multi_array<matrixF,2> marray2F;
+#include "input_layer_bnu.h"
+#include "conv_layer_bnu.h"
+#include "full_layer_bnu.h"
+#include "pool_layer_bnu.h"
 
 // LeNet-5 : http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf
 
 namespace neurocl {
-
-class layer_iface
-{
-
-public:
-
-    virtual bool is_input() { return false; }
-
-    virtual bool has_feature_maps() const = 0;
-
-    size_t size() const { return width()*height()*depth(); }
-    virtual size_t width() const = 0;
-    virtual size_t height() const = 0;
-    virtual size_t depth() const = 0;
-
-    virtual const vectorF& activations() const = 0;
-    virtual const matrixF& feature_map( const int depth ) const = 0;
-
-    virtual matrixF& error_map( const int depth ) const { empty::matrix; } // TODO-CN : temporary empty impl
-
-    virtual void feed_forward() = 0;
-    virtual void back_propagate() = 0;
-    virtual void gradient_descent() {}; // TODO-CN : temporary empty impl
-
-protected:
-
-    struct empty
-    {
-        static const matrixF matrix;
-        static const vectorF vector;
-    };
-};
-
-class input_layer_bnu : public layer_iface
-{
-public:
-
-    input_layer_bnu();
-	virtual ~input_layer_bnu() {}
-
-    void populate(  const size_t width,
-                    const size_t height,
-                    const size_t depth  );
-
-    virtual bool is_input() { return true; }
-    virtual bool has_feature_maps() const { return true; }
-
-    virtual size_t width() const { return m_inputs[0].size1(); };
-    virtual size_t height() const { return m_inputs[0].size2(); };
-    virtual size_t depth() const { return m_inputs.shape()[0]; }
-
-    virtual const vectorF& activations() const
-        { return empty::vector; }
-    virtual const matrixF& feature_map( const int depth ) const
-        { return m_inputs[depth]; }
-
-    virtual void feed_forward() { /*NOTHING TO DO YET*/ }
-    virtual void back_propagate() { /*NOTHING TO DO YET*/ }
-
-private:
-
-    marray1F m_inputs;
-};
-
-class full_layer_bnu : public layer_iface
-{
-public:
-
-    full_layer_bnu();
-	virtual ~full_layer_bnu() {}
-
-    void populate(  const layer_iface* prev_layer,
-                    const layer_size& lsize );
-
-    virtual bool has_feature_maps() const { return false; }
-
-    virtual size_t width() const { return m_activations.size(); };
-    virtual size_t height() const { return 1; };
-    virtual size_t depth() const { return 1; }
-
-    virtual const vectorF& activations() const
-        { return m_activations; }
-    virtual const matrixF& feature_map( const int depth ) const
-        { return empty::matrix; }
-
-    virtual void feed_forward();
-    virtual void back_propagate();
-
-    /*vectorF& bias() { return m_bias; }
-    vectorF& activations() { return m_activations; }
-    matrixF& weights() { return m_output_weights; }
-    vectorF& errors() { return m_errors; }
-    matrixF& w_deltas() { return m_deltas_weight; }
-    vectorF& b_deltas() { return m_deltas_bias; }*/
-
-private:
-
-    const layer_iface* m_prev_layer;
-
-    vectorF m_activations;
-    vectorF m_errors;
-    vectorF m_bias;
-    vectorF m_deltas_bias;
-
-    // We follow stanford convention:
-    // http://web.stanford.edu/class/cs294a/sparseAutoencoder.pdf
-    matrixF m_weights;
-    matrixF m_deltas_weight;
-};
-
-class conv_layer_bnu  : public layer_iface
-{
-public:
-
-    conv_layer_bnu();
-	virtual ~conv_layer_bnu() {}
-
-    void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 );
-    void populate(  const layer_iface* prev_layer,
-                    const size_t width,
-                    const size_t height,
-                    const size_t depth );
-
-    virtual bool has_feature_maps() const { return true; }
-
-    virtual size_t width() const { return m_feature_maps[0].size1(); };
-    virtual size_t height() const { return m_feature_maps[0].size2(); };
-    virtual size_t depth() const { return m_feature_maps.shape()[0]; }
-
-    virtual const vectorF& activations() const
-        { return empty::vector; }
-    virtual const matrixF& feature_map( const int depth ) const
-        { return m_feature_maps[depth]; }
-
-    virtual void feed_forward();
-    virtual void back_propagate();
-
-private:
-
-    void _convolve_add( const matrixF& prev_feature_map,
-                        const matrixF& filter, const size_t stride,
-                        matrixF& feature_map );
-
-private:
-
-    const layer_iface* m_prev_layer;
-
-    size_t m_filter_size;
-    size_t m_filter_stride;
-
-    marray2F m_filters;
-    marray2F m_error_maps;
-    marray1F m_feature_maps;
-};
-
-class pool_layer_bnu  : public layer_iface
-{
-public:
-
-    pool_layer_bnu();
-	virtual ~pool_layer_bnu() {}
-
-    void populate(  const layer_iface* prev_layer,
-                    const size_t width,
-                    const size_t height,
-                    const size_t depth );
-
-    virtual bool has_feature_maps() const { return true; }
-
-    virtual size_t width() const { return m_feature_maps[0].size1(); };
-    virtual size_t height() const { return m_feature_maps[0].size2(); };
-    virtual size_t depth() const { return m_feature_maps.shape()[0]; }
-
-    virtual const vectorF& activations() const
-        { return empty::vector; }
-    virtual const matrixF& feature_map( const int depth ) const
-        { return m_feature_maps[depth]; }
-
-    virtual void feed_forward();
-    virtual void back_propagate();
-
-private:
-
-    size_t m_subsample;
-
-    const layer_iface* m_prev_layer;
-
-    marray1F m_feature_maps;
-    marray1F m_error_maps;
-};
 
 class lenet_bnu final : public network_interface
 {
@@ -280,7 +84,7 @@ protected:
     full_layer_bnu m_layer_output;
 
     // temporary storage during proof of concept
-    std::vector<layer_iface*> m_layers;
+    std::vector<layer_bnu*> m_layers;
 
     float m_learning_rate;  // [0.0..1.0]
     float m_weight_decay;   // [0.0..1.0]
