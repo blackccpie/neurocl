@@ -27,11 +27,13 @@ include_directories( ../../src )
 
 set (headers_list
 lenet_bnu.h
+lenet_manager.h
 )
 
 set (sources_list
 main.cpp
 lenet_bnu.cpp
+lenet_manager.cpp
 )
 
 add_executable(lenet ${sources_list} ${headers_list})

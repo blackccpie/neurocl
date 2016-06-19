@@ -34,6 +34,9 @@ namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
 
+const matrixF layer_iface::empty::matrix = matrixF();
+const vectorF layer_iface::empty::vector = vectorF();
+
 float sigmoid( float x )
 {
     return 1.f / ( 1.f + std::exp(-x) );
@@ -50,6 +53,23 @@ void random_normal_init( T& container, const float stddev = 1.f )
     }
 }
 
+input_layer_bnu::input_layer_bnu()
+{
+}
+
+void input_layer_bnu::populate(  const size_t width,
+                                const size_t height,
+                                const size_t depth  )
+{
+    std::cout << "populating input layer " << std::endl;
+
+    m_inputs.resize( boost::extents[depth] );
+    for ( auto&& _input : m_inputs )
+    {
+        _input = matrixF( width, height );
+    }
+}
+
 full_layer_bnu::full_layer_bnu()
 {
 }
@@ -58,6 +78,8 @@ full_layer_bnu::full_layer_bnu()
 void full_layer_bnu::populate(  const layer_iface* prev_layer,
                                 const layer_size& lsize )
 {
+    std::cout << "populating full layer" << std::endl;
+
     m_prev_layer = prev_layer;
 
     if ( m_prev_layer ) // create a separate layer type for input???
@@ -122,8 +144,12 @@ void conv_layer_bnu::populate(  const layer_iface* prev_layer,
                                 const size_t height,
                                 const size_t depth )
 {
-    if ( ( width != ( prev_layer->width() - m_filter_size ) ) ||
-        ( height != ( prev_layer->height() - m_filter_size ) ) )
+    std::cout << "populating convolutional layer " << m_filter_size << " " << m_filter_stride << std::endl;
+
+    std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
+
+    if ( ( width != ( prev_layer->width() - m_filter_size + 1 ) ) ||
+        ( height != ( prev_layer->height() - m_filter_size + 1 ) ) )
     {
         std::cerr << "conv_layer_bnu::populate - zero padding not managed for now, \
             so layer size should be consistent with filter size and previous layer size" << std::endl;
@@ -132,8 +158,8 @@ void conv_layer_bnu::populate(  const layer_iface* prev_layer,
 
     m_prev_layer = prev_layer;
 
-    m_filters = marray2F( boost::extents[depth][prev_layer->depth()] );
-    m_feature_maps = marray1F( boost::extents[depth] );
+    m_filters.resize( boost::extents[depth][prev_layer->depth()] );
+    m_feature_maps.resize( boost::extents[depth] );
     for ( size_t i = 0; i<depth; i++ )
     {
         m_feature_maps[i] = matrixF( width, height );
@@ -178,6 +204,7 @@ void conv_layer_bnu::feed_forward()
             const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
             matrixF& filter = m_filters[j][i];
 
+            std::cout << "convolve_add" << std::endl;
             _convolve_add( prev_feature_map, filter, m_filter_stride, feature_map );
         }
         j++;
@@ -194,6 +221,8 @@ void pool_layer_bnu::populate(  const layer_iface* prev_layer,
                                 const size_t height,
                                 const size_t depth )
 {
+    std::cout << "populating pooling layer" << std::endl;
+
     m_prev_layer = prev_layer;
 
     // compute subsampling rate, throw error if not integer
@@ -202,7 +231,7 @@ void pool_layer_bnu::populate(  const layer_iface* prev_layer,
     else
         throw network_exception( "invalid subsampling for max pooling" );
 
-    m_feature_maps = marray1F( boost::extents[depth] );
+    m_feature_maps.resize( boost::extents[depth] );
     for ( auto& _feature : m_feature_maps )
     {
         _feature = matrixF( width, height );
@@ -214,14 +243,16 @@ void pool_layer_bnu::feed_forward()
 {
     for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
     {
+        std::cout << "subsample " << m_subsample << std::endl;
+
         const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
         matrixF& feature_map = m_feature_maps[i];
         auto prev_width = prev_feature_map.size1();
         auto prev_it1 = prev_feature_map.begin1();
-        for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); ++it1, prev_it1 += m_subsample )
+        for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); it1++, prev_it1 += m_subsample )
         {
             auto prev_it2 = prev_it1.begin();
-            for( auto it2 = it1.begin(); it2 !=it1.end(); ++it2, prev_it2 += m_subsample )
+            for( auto it2 = it1.begin(); it2 !=it1.end(); it2++, prev_it2 += m_subsample )
             {
                 float max_value = std::numeric_limits<float_t>::lowest();
 
@@ -229,7 +260,7 @@ void pool_layer_bnu::feed_forward()
 
                 // compute max in subsampling zone
                 for ( auto i =0; i<m_subsample; i++ )
-                    for ( auto j =0; j<m_subsample; i++ )
+                    for ( auto j =0; j<m_subsample; j++ )
                     {
                         const float& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )
@@ -273,18 +304,18 @@ void lenet_bnu::set_output( const size_t& out_size, const float* out )
 
 void lenet_bnu::add_layers_2d( const std::vector<layer_size>& layer_sizes )
 {
-    m_layer_input.populate( nullptr, layer_size( 32, 32 ) );
-    m_layer_c1.set_filter_size( 5 );
+    m_layer_input.populate( 32, 32, 1 );
+    m_layer_c1.set_filter_size( 5 ); // 5x5
     m_layer_c1.populate( &m_layer_input, 28, 28, 6 );               //conv
     m_layer_s2.populate( &m_layer_c1, 14, 14, 6 );                  //pool
-    m_layer_c3.set_filter_size( 6 );
+    m_layer_c3.set_filter_size( 5 ); // 5x5
     m_layer_c3.populate( &m_layer_s2, 10, 10, 16 );                 //conv
     m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                    //pool
     //TBC m_layer_c5.populate( 120 );    //conv
     m_layer_f6.populate( &m_layer_c5, layer_size( 12, 7 ) );         //full
     m_layer_output.populate( &m_layer_f6, layer_size( 10, 1 ) );
 
-    m_layers = { &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4 };
+    m_layers = { &m_layer_input, &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4 };
 
     // TODO-CNN : STUBBED FOR NOW
     /*
@@ -375,6 +406,7 @@ void lenet_bnu::feed_forward()
     auto end = m_layers.end();
     for ( auto layer_iter = start; layer_iter != end; layer_iter++, prev_layer_iter++ )
     {
+        std::cout << "--> feed forwarding" << std::endl;
         (*layer_iter)->feed_forward();
     }
 

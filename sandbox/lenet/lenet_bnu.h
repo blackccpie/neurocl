@@ -67,8 +67,34 @@ protected:
     };
 };
 
-const matrixF layer_iface::empty::matrix = matrixF();
-const vectorF layer_iface::empty::vector = vectorF();
+class input_layer_bnu : public layer_iface
+{
+public:
+
+    input_layer_bnu();
+	virtual ~input_layer_bnu() {}
+
+    void populate(  const size_t width,
+                    const size_t height,
+                    const size_t depth  );
+
+    virtual bool has_feature_maps() const { return true; }
+
+    virtual size_t width() const { return m_inputs[0].size1(); };
+    virtual size_t height() const { return m_inputs[0].size2(); };
+    virtual size_t depth() const { return m_inputs.shape()[0]; }
+
+    virtual const vectorF& activations() const
+        { return empty::vector; }
+    virtual const matrixF& feature_map( const int depth ) const
+        { return m_inputs[depth]; }
+
+    virtual void feed_forward() { /*NOTHING TO DO YET*/ }
+
+private:
+
+    marray1F m_inputs;
+};
 
 class full_layer_bnu : public layer_iface
 {
@@ -82,7 +108,7 @@ public:
 
     virtual bool has_feature_maps() const { return false; }
 
-    virtual size_t width() const { return 1; };
+    virtual size_t width() const { return m_activations.size(); };
     virtual size_t height() const { return 1; };
     virtual size_t depth() const { return 1; }
 
@@ -231,7 +257,7 @@ protected:
 
     vectorF m_training_output;
 
-    full_layer_bnu m_layer_input;
+    input_layer_bnu m_layer_input;
     conv_layer_bnu m_layer_c1;
     pool_layer_bnu m_layer_s2;
     conv_layer_bnu m_layer_c3;
