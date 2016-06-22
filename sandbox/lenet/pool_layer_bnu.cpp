@@ -31,7 +31,7 @@ pool_layer_bnu::pool_layer_bnu() : m_subsample( 1 )
 {
 }
 
-void pool_layer_bnu::populate(  const layer_bnu* prev_layer,
+void pool_layer_bnu::populate(  layer_bnu* prev_layer,
                                 const size_t width,
                                 const size_t height,
                                 const size_t depth )
@@ -51,16 +51,25 @@ void pool_layer_bnu::populate(  const layer_bnu* prev_layer,
     {
         _feature = matrixF( width, height );
     }
+
+    m_error_maps.resize( boost::extents[depth] );
+    for ( auto& _error : m_error_maps )
+    {
+        _error = matrixF( width, height );
+        _error.clear();
+    }
 }
 
 void pool_layer_bnu::feed_forward()
 {
     for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
     {
-        const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
         matrixF& feature_map = m_feature_maps[i];
+
+        const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
         auto prev_width = prev_feature_map.size1();
         auto prev_it1 = prev_feature_map.begin1();
+
         for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); it1++, prev_it1 += m_subsample )
         {
             auto prev_it2 = prev_it1.begin();
@@ -86,20 +95,58 @@ void pool_layer_bnu::feed_forward()
     }
 }
 
+void pool_layer_bnu::prepare_training()
+{
+    // TODO-CNN : clear errors?
+}
+
 void pool_layer_bnu::back_propagate()
 {
     // TODO-CNN : what if previous layer has no error maps!
+    // manage this wih template type indicating prev layer type??
 
     for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
     {
         const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
-
-        matrixF& prev_error_map = m_prev_layer->error_map(i);
+        auto prev_width = prev_feature_map.size1();
 
         const matrixF& error_map = m_error_maps[i];
+        auto err_it1 = error_map.begin1();
 
-		// NOT IMPLEMEMENTED YET
+        matrixF& prev_error_map = m_prev_layer->error_map(i);
+        auto prev_err_iter1 = prev_error_map.begin1();
+
+        for( auto prev_it1 = prev_feature_map.begin1(); prev_it1 != prev_feature_map.end1();
+            prev_it1 += m_subsample, prev_err_iter1 += m_subsample, ++err_it1 )
+        {
+            auto prev_err_it2 = prev_err_iter1.begin();
+            auto err_it2 = err_it1.begin();
+            for( auto prev_it2 = prev_it1.begin(); prev_it2 !=prev_it1.end();
+                prev_it2 += m_subsample, prev_err_it2 += m_subsample, ++err_it2 )
+            {
+                float max_value = std::numeric_limits<float_t>::lowest();
+
+                int max_offset = 0;
+
+                // compute max in subsampling zone
+                for ( auto i =0; i<m_subsample; i++ )
+                    for ( auto j =0; j<m_subsample; j++ )
+                    {
+                        const float& value = *(prev_it2 + i + (j*prev_width) );
+                        if ( value > max_value )
+                            max_offset = i + (j*prev_width);
+                    }
+
+                // update error on last layer max value pixel
+                *(prev_err_it2 + max_offset) = *err_it2;
+            }
+        }
     }
+}
+
+void pool_layer_bnu::gradient_descent()
+{
+    // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
 }
 
 }; //namespace neurocl

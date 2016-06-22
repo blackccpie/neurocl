@@ -50,7 +50,7 @@ full_layer_bnu::full_layer_bnu()
 }
 
 // WARNING : size is the square side size
-void full_layer_bnu::populate(  const layer_bnu* prev_layer,
+void full_layer_bnu::populate(  layer_bnu* prev_layer,
                                 const layer_size& lsize )
 {
     std::cout << "populating full layer" << std::endl;
@@ -104,12 +104,26 @@ void full_layer_bnu::feed_forward()
     std::for_each( m_activations.data().begin(), m_activations.data().end(), std::ptr_fun( sigmoid ) );
 }
 
+void full_layer_bnu::prepare_training()
+{
+    m_deltas_weight.clear();
+    m_deltas_bias.clear();
+}
+
 void full_layer_bnu::back_propagate()
 {
     /*m_layers[i].errors() = bnu::element_prod(
         bnu::element_prod(  m_layers[i].activations(),
                             ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
         bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );*/
+}
+
+void full_layer_bnu::gradient_descent()
+{
+    /*auto invm = 1.f / static_cast<float>( m_training_samples );
+
+    m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
+    m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );*/
 }
 
 }; //namespace neurocl

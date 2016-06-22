@@ -134,17 +134,13 @@ const output_ptr lenet_bnu::output()
 
 void lenet_bnu::prepare_training()
 {
-    // TODO-CNN
-    /*
-    // Clear gradients
-    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    for ( auto& _layer : m_layers )
     {
-        m_layers[i].w_deltas().clear();
-        m_layers[i].b_deltas().clear();
+        _layer->prepare_training();
     }
 
-    m_training_samples = 0;
-    */
+    // TODO-CNN
+    //m_training_samples = 0;
 }
 
 void lenet_bnu::feed_forward()

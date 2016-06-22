@@ -36,30 +36,37 @@ public:
     pool_layer_bnu();
 	virtual ~pool_layer_bnu() {}
 
-    void populate(  const layer_bnu* prev_layer,
+    void populate(  layer_bnu* prev_layer,
                     const size_t width,
                     const size_t height,
                     const size_t depth );
 
-    virtual bool has_feature_maps() const { return true; }
+    virtual bool has_feature_maps() const override { return true; }
 
-    virtual size_t width() const { return m_feature_maps[0].size1(); };
-    virtual size_t height() const { return m_feature_maps[0].size2(); };
-    virtual size_t depth() const { return m_feature_maps.shape()[0]; }
+    virtual size_t width() const override { return m_feature_maps[0].size1(); };
+    virtual size_t height() const override{ return m_feature_maps[0].size2(); };
+    virtual size_t depth() const override { return m_feature_maps.shape()[0]; }
 
-    virtual const vectorF& activations() const
+    virtual const vectorF& activations() const override
         { return empty::vector; }
-    virtual const matrixF& feature_map( const int depth ) const
+    virtual const matrixF& feature_map( const int depth ) const override
         { return m_feature_maps[depth]; }
 
-    virtual void feed_forward();
-    virtual void back_propagate();
+    virtual void prepare_training() override;
+    virtual void feed_forward() override;
+    virtual void back_propagate() override;
+    virtual void gradient_descent() override;
+
+protected:
+
+    virtual matrixF& error_map( const int depth ) override
+        { return m_error_maps[depth]; }
 
 private:
 
     size_t m_subsample;
 
-    const layer_bnu* m_prev_layer;
+    layer_bnu* m_prev_layer;
 
     marray1F m_feature_maps;
     marray1F m_error_maps;

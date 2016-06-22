@@ -56,7 +56,7 @@ void conv_layer_bnu::set_filter_size( const size_t filter_size, const size_t fil
     m_filter_stride = filter_stride;
 }
 
-void conv_layer_bnu::populate(  const layer_bnu* prev_layer,
+void conv_layer_bnu::populate(  layer_bnu* prev_layer,
                                 const size_t width,
                                 const size_t height,
                                 const size_t depth )
@@ -129,7 +129,17 @@ void conv_layer_bnu::feed_forward()
     }
 }
 
+void conv_layer_bnu::prepare_training()
+{
+    // TODO-CNN
+}
+
 void conv_layer_bnu::back_propagate()
+{
+
+}
+
+void conv_layer_bnu::gradient_descent()
 {
 
 }

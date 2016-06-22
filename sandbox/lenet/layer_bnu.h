@@ -56,11 +56,16 @@ public:
     virtual const vectorF& activations() const = 0;
     virtual const matrixF& feature_map( const int depth ) const = 0;
 
-    virtual matrixF& error_map( const int depth ) const { empty::matrix; } // TODO-CN : temporary empty impl
-
+    virtual void prepare_training() = 0;
     virtual void feed_forward() = 0;
     virtual void back_propagate() = 0;
-    virtual void gradient_descent() {}; // TODO-CN : temporary empty impl
+    virtual void gradient_descent() = 0;
+
+protected:
+
+    friend class pool_layer_bnu;
+
+    virtual matrixF& error_map( const int depth ) { return const_cast<matrixF&>(empty::matrix); } // TODO-CN : temporary empty impl
 
 protected:
 

@@ -36,22 +36,24 @@ public:
     full_layer_bnu();
 	virtual ~full_layer_bnu() {}
 
-    void populate(  const layer_bnu* prev_layer,
+    void populate(  layer_bnu* prev_layer,
                     const layer_size& lsize );
 
-    virtual bool has_feature_maps() const { return false; }
+    virtual bool has_feature_maps() const override { return false; }
 
-    virtual size_t width() const { return m_activations.size(); };
-    virtual size_t height() const { return 1; };
-    virtual size_t depth() const { return 1; }
+    virtual size_t width() const override { return m_activations.size(); };
+    virtual size_t height() const override { return 1; };
+    virtual size_t depth() const override { return 1; }
 
-    virtual const vectorF& activations() const
+    virtual const vectorF& activations() const override
         { return m_activations; }
-    virtual const matrixF& feature_map( const int depth ) const
+    virtual const matrixF& feature_map( const int depth ) const override
         { return empty::matrix; }
 
-    virtual void feed_forward();
-    virtual void back_propagate();
+    virtual void prepare_training() override;
+    virtual void feed_forward() override;
+    virtual void back_propagate() override;
+    virtual void gradient_descent() override;
 
     /*vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
@@ -62,7 +64,7 @@ public:
 
 private:
 
-    const layer_bnu* m_prev_layer;
+    layer_bnu* m_prev_layer;
 
     vectorF m_activations;
     vectorF m_errors;
