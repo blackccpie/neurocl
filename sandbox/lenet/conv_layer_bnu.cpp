@@ -28,6 +28,8 @@ THE SOFTWARE.
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
+namespace bnu = boost::numeric::ublas;
+
 namespace neurocl {
 
 inline float sigmoid( float x )
@@ -76,14 +78,24 @@ void conv_layer_bnu::populate(  layer_bnu* prev_layer,
     m_prev_layer = prev_layer;
 
     m_filters.resize( boost::extents[depth][prev_layer->depth()] );
+    m_filters_delta.resize( boost::extents[depth][prev_layer->depth()] );
     m_feature_maps.resize( boost::extents[depth] );
+    m_error_maps.resize( boost::extents[depth] );
+
     for ( size_t i = 0; i<depth; i++ )
     {
         m_feature_maps[i] = matrixF( width, height );
+        m_error_maps[i] = matrixF( width, height );
+        m_error_maps[i].clear();
         for ( auto& _filter : m_filters[i] )
         {
             _filter = matrixF( m_filter_size, m_filter_size );
             random_normal_init( _filter, 1.f / std::sqrt( m_filter_size * m_filter_size ) );
+        }
+        for ( auto& _filter_delta : m_filters_delta[i] )
+        {
+            _filter_delta = matrixF( m_filter_size, m_filter_size );
+            _filter_delta.clear();
         }
     }
 }
@@ -113,35 +125,84 @@ void conv_layer_bnu::feed_forward()
 {
     // TODO-CNN : what if previous layer has no feature maps!
 
-    int j = 0;
+    int i = 0;
     for ( auto& feature_map : m_feature_maps )
     {
         feature_map.clear();
 
-        for ( auto i=0; i<m_prev_layer->depth(); i++ )
+        for ( auto j=0; j<m_prev_layer->depth(); i++ )
         {
-            const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
-            matrixF& filter = m_filters[j][i];
+            const matrixF& prev_feature_map = m_prev_layer->feature_map(j);
+            const matrixF& filter = m_filters[i][j];
 
+            // TODO-CNN : wrong convolution, use new convolution class and DO FLIP filter!!!
             _convolve_add( prev_feature_map, filter, m_filter_stride, feature_map );
         }
-        j++;
+        i++;
     }
 }
 
 void conv_layer_bnu::prepare_training()
 {
-    // TODO-CNN
+    // TODO-CNN : : clear errors, deltas...?
 }
 
 void conv_layer_bnu::back_propagate()
 {
+    // Compute errors
 
+    for ( auto j=0; j<m_prev_layer->depth(); j++ )
+    {
+        const matrixF& prev_feature_map = m_prev_layer->feature_map(j);
+        matrixF& prev_error_map = m_prev_layer->error_map(j);
+
+        int i = 0;
+        for ( auto& feature_map : m_feature_maps )
+        {
+            const matrixF& filter = m_filters[i][j];
+            // TODO-CNN : wrong convolution, use new convolution class and DON'T FLIP filter!!!
+            _convolve_add( m_error_maps[i], filter, m_filter_stride, prev_error_map );
+            i++;
+        }
+
+        // multiply by sigma derivative
+        prev_error_map = bnu::element_prod(
+            bnu::element_prod(  prev_feature_map,
+                                ( bnu::scalar_matrix<float>(    prev_feature_map.size1(),
+                                                                prev_feature_map.size2(), 1.f ) - prev_feature_map ) ),
+            prev_error_map
+        );
+    }
+
+    // Compute gradients
+
+    matrixF grad( m_filter_size, m_filter_size );
+
+    for ( auto i = 0; i < m_filters_delta.shape()[0]; i++ )
+    {
+        const matrixF& feature_map = m_feature_maps[i];
+
+        for ( auto j = 0; j < m_filters_delta.shape()[1]; j++ )
+        {
+            const matrixF& prev_error_map = m_prev_layer->error_map(j);
+
+            // TODO-CNN : wrong convolution, use new convolution class and DON'T FLIP filter!!!
+            _convolve_add( prev_error_map, feature_map, m_filter_stride, grad );
+
+            m_filters_delta[i][j] += grad / static_cast<float>( m_filters_delta.shape()[1] );
+        }
+    }
 }
 
 void conv_layer_bnu::gradient_descent()
 {
+    // Update weights and bias according to gradients
 
+    // TODO-CNN common to all layers??
+    /*auto invm = 1.f / static_cast<float>( m_training_samples );
+
+    m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
+    m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );*/
 }
 
 }; //namespace neurocl

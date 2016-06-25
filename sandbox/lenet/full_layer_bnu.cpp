@@ -112,14 +112,28 @@ void full_layer_bnu::prepare_training()
 
 void full_layer_bnu::back_propagate()
 {
-    /*m_layers[i].errors() = bnu::element_prod(
-        bnu::element_prod(  m_layers[i].activations(),
-                            ( bnu::scalar_vector<float>( m_layers[i].activations().size(), 1.f ) - m_layers[i].activations() ) ),
-        bnu::prod( bnu::trans( m_layers[i].weights() ), m_layers[i+1].errors() ) );*/
+    // Compute errors
+    for ( auto i=0; i<m_prev_layer->depth(); i++ )
+    {
+        // TODO-CNN
+    	/*m_prev_layer->errors_maps(i) = bnu::element_prod(
+        	bnu::element_prod(  m_activations,
+                            	( bnu::scalar_vector<float>( m_activations.size(), 1.f ) - m_activations ) ),
+        	bnu::prod( bnu::trans( m_weights ), m_errors ) );*/
+    }
+
+    // Compute gradients
+
+    /*
+    m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
+    m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
+    */
 }
 
 void full_layer_bnu::gradient_descent()
 {
+    // Update weights and bias according to gradients
+
     /*auto invm = 1.f / static_cast<float>( m_training_samples );
 
     m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );

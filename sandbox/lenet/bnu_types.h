@@ -22,52 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LAYER_BNU_H
-#define LAYER_BNU_H
+#ifndef BNU_TYPES_H
+#define BNU_TYPES_H
 
-#include "network_interface.h"
-#include "bnu_types.h"
+#include <boost/multi_array.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 
-namespace neurocl {
+typedef typename boost::numeric::ublas::vector<float> vectorF;
+typedef typename boost::numeric::ublas::matrix<float> matrixF;
 
-class layer_bnu
-{
+typedef typename boost::multi_array<matrixF,1> marray1F;
+typedef typename boost::multi_array<matrixF,2> marray2F;
 
-public:
-
-    virtual bool is_input() { return false; }
-
-    virtual bool has_feature_maps() const = 0;
-
-    size_t size() const { return width()*height()*depth(); }
-    virtual size_t width() const = 0;
-    virtual size_t height() const = 0;
-    virtual size_t depth() const = 0;
-
-    virtual const vectorF& activations() const = 0;
-    virtual const matrixF& feature_map( const int depth ) const = 0;
-
-    virtual void prepare_training() = 0;
-    virtual void feed_forward() = 0;
-    virtual void back_propagate() = 0;
-    virtual void gradient_descent() = 0;
-
-protected:
-
-    friend class pool_layer_bnu;
-    friend class conv_layer_bnu;
-
-    virtual matrixF& error_map( const int depth ) { return const_cast<matrixF&>(empty::matrix); } // TODO-CN : temporary empty impl
-
-protected:
-
-    struct empty
-    {
-        static const matrixF matrix;
-        static const vectorF vector;
-    };
-};
-
-} //namespace neurocl
-
-#endif //LAYER_BNU_H
+#endif //BNU_TYPES_H

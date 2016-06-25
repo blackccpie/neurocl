@@ -107,6 +107,7 @@ void pool_layer_bnu::back_propagate()
 
     for ( auto i = 0; i < m_feature_maps.shape()[0]; i++ )
     {
+        // Initialize iterators
         const matrixF& prev_feature_map = m_prev_layer->feature_map(i);
         auto prev_width = prev_feature_map.size1();
 
@@ -116,6 +117,7 @@ void pool_layer_bnu::back_propagate()
         matrixF& prev_error_map = m_prev_layer->error_map(i);
         auto prev_err_iter1 = prev_error_map.begin1();
 
+        // Iterate
         for( auto prev_it1 = prev_feature_map.begin1(); prev_it1 != prev_feature_map.end1();
             prev_it1 += m_subsample, prev_err_iter1 += m_subsample, ++err_it1 )
         {

@@ -58,6 +58,11 @@ public:
     virtual void back_propagate() override;
     virtual void gradient_descent() override;
 
+protected:
+
+    virtual matrixF& error_map( const int depth ) override
+        { return m_error_maps[depth]; }
+
 private:
 
     void _convolve_add( const matrixF& prev_feature_map,
@@ -72,8 +77,9 @@ private:
     size_t m_filter_stride;
 
     marray2F m_filters;
-    marray2F m_error_maps;
+    marray2F m_filters_delta;
     marray1F m_feature_maps;
+    marray1F m_error_maps;
 };
 
 } //namespace neurocl
