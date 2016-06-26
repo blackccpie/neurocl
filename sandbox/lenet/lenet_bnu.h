@@ -86,8 +86,7 @@ protected:
     // temporary storage during proof of concept
     std::vector<layer_bnu*> m_layers;
 
-    float m_learning_rate;  // [0.0..1.0]
-    float m_weight_decay;   // [0.0..1.0]
+	boost::shared_ptr<optimizer> m_optimizer;
 };
 
 } //namespace neurocl

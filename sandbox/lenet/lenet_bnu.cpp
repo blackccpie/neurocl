@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "network_utils.h"
 
 #include <boost/optional.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -35,10 +36,17 @@ namespace bnu = boost::numeric::ublas;
 
 namespace neurocl {
 
-lenet_bnu::lenet_bnu() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
+lenet_bnu::lenet_bnu() : m_training_samples( 0 )
 {
+    float learning_rate = 3.0f/*0.01f*/;
+    float weight_decay = 0.f;
+
     const network_config& nc = network_config::instance();
-    nc.update_optional( "learning_rate", m_learning_rate );
+    nc.update_optional( "learning_rate", learning_rate );
+    nc.update_optional( "weight_decay", weight_decay );
+
+    // build optimizer given learning rate and weight decay
+    m_optimizer = boost::make_shared<optimizer>( learning_rate, weight_decay );
 }
 
 void lenet_bnu::set_input(  const size_t& in_size, const float* in )
@@ -132,6 +140,7 @@ const output_ptr lenet_bnu::output()
     return o;
 }
 
+// TODO-CNN : rename??
 void lenet_bnu::prepare_training()
 {
     for ( auto& _layer : m_layers )
@@ -139,8 +148,7 @@ void lenet_bnu::prepare_training()
         _layer->prepare_training();
     }
 
-    // TODO-CNN
-    //m_training_samples = 0;
+    m_training_samples = 0;
 }
 
 void lenet_bnu::feed_forward()
@@ -158,11 +166,18 @@ void lenet_bnu::back_propagate()
     {
         _layer->back_propagate();
     }
+
+    ++m_training_samples;
 }
 
 void lenet_bnu::gradient_descent()
 {
+    m_optimizer->set_size( m_training_samples );
 
+    for ( auto& _layer : m_layers )
+    {
+        _layer->gradient_descent( m_optimizer );
+    }
 }
 
 const std::string lenet_bnu::dump_weights()

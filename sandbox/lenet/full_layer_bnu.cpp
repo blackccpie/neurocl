@@ -130,7 +130,7 @@ void full_layer_bnu::back_propagate()
     */
 }
 
-void full_layer_bnu::gradient_descent()
+void full_layer_bnu::gradient_descent( boost::shared_ptr<optimizer> optimizer )
 {
     // Update weights and bias according to gradients
 

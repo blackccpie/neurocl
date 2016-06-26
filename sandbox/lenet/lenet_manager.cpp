@@ -42,35 +42,6 @@ lenet_manager::lenet_manager()
     m_net->add_layers_2d( std::vector<layer_size>() ); // STUBBED FOR NOW
 }
 
-void lenet_manager::prepare_training_iteration()
-{
-    m_net->prepare_training();
-}
-
-void lenet_manager::finalize_training_iteration()
-{
-    m_net->gradient_descent();
-}
-
-void lenet_manager::train( const sample& s )
-{
-    _train( s );
-}
-
-void lenet_manager::train( const std::vector<sample>& training_set )
-{
-    size_t index = 0;
-
-    BOOST_FOREACH( const neurocl::sample& s, training_set )
-    {
-        //std::cout << "lenet_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
-
-        _train( s );
-
-        ++index;
-    }
-}
-
 void lenet_manager::batch_train( 	const samples_manager& smp_manager,
 									const size_t& epoch_size,
 									const size_t& batch_size,
@@ -111,6 +82,35 @@ void lenet_manager::batch_train( 	const samples_manager& smp_manager,
     std::cout << std::endl;
 
     save_network();
+}
+
+void lenet_manager::prepare_training_iteration()
+{
+    m_net->prepare_training();
+}
+
+void lenet_manager::finalize_training_iteration()
+{
+    m_net->gradient_descent();
+}
+
+void lenet_manager::train( const sample& s )
+{
+    _train( s );
+}
+
+void lenet_manager::train( const std::vector<sample>& training_set )
+{
+    size_t index = 0;
+
+    BOOST_FOREACH( const neurocl::sample& s, training_set )
+    {
+        //std::cout << "lenet_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
+
+        _train( s );
+
+        ++index;
+    }
 }
 
 void lenet_manager::_train( const sample& s )

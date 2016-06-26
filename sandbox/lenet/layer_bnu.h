@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define LAYER_BNU_H
 
 #include "network_interface.h"
+#include "optimizer.h"
 #include "bnu_types.h"
 
 namespace neurocl {
@@ -50,7 +51,7 @@ public:
     virtual void prepare_training() = 0;
     virtual void feed_forward() = 0;
     virtual void back_propagate() = 0;
-    virtual void gradient_descent() = 0;
+    virtual void gradient_descent( boost::shared_ptr<optimizer> optimizer ) = 0;
 
 protected:
 

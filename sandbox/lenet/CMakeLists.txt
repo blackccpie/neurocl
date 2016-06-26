@@ -27,6 +27,7 @@ include_directories( ../../src )
 
 set (headers_list
 bnu_types.h
+optimizer.h
 layer_bnu.h
 input_layer_bnu.h
 full_layer_bnu.h

@@ -53,7 +53,7 @@ public:
     virtual void prepare_training() override;
     virtual void feed_forward() override;
     virtual void back_propagate() override;
-    virtual void gradient_descent() override;
+    virtual void gradient_descent( boost::shared_ptr<optimizer> optimizer ) override;
 
     /*vectorF& bias() { return m_bias; }
     vectorF& activations() { return m_activations; }
