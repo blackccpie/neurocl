@@ -41,35 +41,31 @@ public:
 
     virtual bool has_feature_maps() const override { return false; }
 
-    virtual size_t width() const override { return m_activations.size(); };
+    virtual size_t width() const override { return m_feature_map.size1() * m_feature_map.size2(); };
     virtual size_t height() const override { return 1; };
     virtual size_t depth() const override { return 1; }
 
-    virtual const vectorF& activations() const override
-        { return m_activations; }
     virtual const matrixF& feature_map( const int depth ) const override
-        { return empty::matrix; }
+        { return m_feature_map; }
 
     virtual void prepare_training() override;
     virtual void feed_forward() override;
     virtual void back_propagate() override;
     virtual void gradient_descent( boost::shared_ptr<optimizer> optimizer ) override;
 
-    /*vectorF& bias() { return m_bias; }
-    vectorF& activations() { return m_activations; }
-    matrixF& weights() { return m_output_weights; }
-    vectorF& errors() { return m_errors; }
-    matrixF& w_deltas() { return m_deltas_weight; }
-    vectorF& b_deltas() { return m_deltas_bias; }*/
+protected:
+
+    virtual matrixF& error_map( const int depth ) override
+        { return m_error_map; }
 
 private:
 
     layer_bnu* m_prev_layer;
 
-    vectorF m_activations;
-    vectorF m_errors;
-    vectorF m_bias;
-    vectorF m_deltas_bias;
+    matrixF m_feature_map;
+    matrixF m_error_map;
+    matrixF m_bias;
+    matrixF m_deltas_bias;
 
     // We follow stanford convention:
     // http://web.stanford.edu/class/cs294a/sparseAutoencoder.pdf

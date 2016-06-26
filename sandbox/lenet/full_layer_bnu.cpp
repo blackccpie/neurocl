@@ -65,16 +65,16 @@ void full_layer_bnu::populate(  layer_bnu* prev_layer,
         m_deltas_weight = matrixF( lsize.size(), m_prev_layer->size() );
         m_deltas_weight.clear();
 
-        m_bias = vectorF( lsize.size() );
+        m_bias = matrixF( lsize.size(), 1 );
         random_normal_init( m_bias, 1.f );
-        m_deltas_bias = vectorF( lsize.size() );
+        m_deltas_bias = matrixF( lsize.size(), 1 );
         m_deltas_bias.clear();
     }
 
-    m_activations = vectorF( lsize.size() );
-    m_activations.clear();
-    m_errors = vectorF( lsize.size() ); // not needed for input layer...?
-    m_errors.clear();
+    m_feature_map = matrixF( lsize.size(), 1 );
+    m_feature_map.clear();
+    m_error_map = matrixF( lsize.size(), 1 );
+    m_error_map.clear();
 }
 
 void full_layer_bnu::feed_forward()
@@ -93,15 +93,15 @@ void full_layer_bnu::feed_forward()
     }
     else
     {
-        const vectorF& prev_activations = m_prev_layer->activations();
+        const matrixF& prev_feature_map = m_prev_layer->feature_map(0);
 
         // apply weights and bias
-        m_activations = bnu::prod( m_weights, prev_activations )
+        m_feature_map = bnu::prod( m_weights, prev_feature_map )
             + m_bias;
     }
 
     // apply sigmoid function
-    std::for_each( m_activations.data().begin(), m_activations.data().end(), std::ptr_fun( sigmoid ) );
+    std::for_each( m_feature_map.data().begin(), m_feature_map.data().end(), std::ptr_fun( sigmoid ) );
 }
 
 void full_layer_bnu::prepare_training()

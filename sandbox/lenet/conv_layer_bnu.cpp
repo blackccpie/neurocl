@@ -186,7 +186,7 @@ void conv_layer_bnu::back_propagate()
         {
             const matrixF& prev_error_map = m_prev_layer->error_map(j);
 
-            // TODO-CNN : wrong convolution, use new convolution class and DON'T FLIP filter!!!
+            // TODO-CNN : wrong convolution, use new convolution class and DO FLIP feature_map!!!
             _convolve_add( prev_error_map, feature_map, m_filter_stride, grad );
 
             m_filters_delta[i][j] += grad / static_cast<float>( m_filters_delta.shape()[1] );
@@ -199,10 +199,16 @@ void conv_layer_bnu::gradient_descent( boost::shared_ptr<optimizer> optimizer )
     // Update weights and bias according to gradients
 
     // TODO-CNN common to all layers??
-    /*auto invm = 1.f / static_cast<float>( m_training_samples );
 
-    m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
-    m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );*/
+    for ( auto i = 0; i < m_filters_delta.shape()[0]; i++ )
+    {
+        for ( auto j = 0; j < m_filters_delta.shape()[1]; j++ )
+        {
+            optimizer->update( m_filters[i][j], m_filters_delta[i][j] );
+            // TODO-CNN : no bias managed for now
+			//m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );*/
+        }
+    }
 }
 
 }; //namespace neurocl

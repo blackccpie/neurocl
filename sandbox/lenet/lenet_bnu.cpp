@@ -133,9 +133,9 @@ const output_ptr lenet_bnu::output()
 {
     // TODO-CNN : for now works only because last layer is one dimensional fcnn
 
-    const vectorF& output = m_layers.back()->activations();
-    output_ptr o( output.size() );
-    std::copy( &output[0], &output[0] + output.size(), o.outputs.get() );
+    const matrixF& output = m_layers.back()->feature_map(0);
+    output_ptr o( output.size1() * output.size2() );
+    std::copy( output.data().begin(), output.data().end(), o.outputs.get() );
 
     return o;
 }

@@ -48,8 +48,6 @@ public:
     virtual size_t height() const override { return m_feature_maps[0].size2(); };
     virtual size_t depth() const override { return m_feature_maps.shape()[0]; }
 
-    virtual const vectorF& activations() const override
-        { return empty::vector; }
     virtual const matrixF& feature_map( const int depth ) const override
         { return m_feature_maps[depth]; }
 

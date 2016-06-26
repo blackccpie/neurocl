@@ -47,8 +47,6 @@ public:
     virtual size_t height() const override { return m_inputs[0].size2(); };
     virtual size_t depth() const override { return m_inputs.shape()[0]; }
 
-    virtual const vectorF& activations() const override
-        { return empty::vector; }
     virtual const matrixF& feature_map( const int depth ) const override
         { return m_inputs[depth]; }
 
@@ -57,8 +55,14 @@ public:
     virtual void back_propagate() override { /*NOTHING TO DO YET*/ }
     virtual void gradient_descent( boost::shared_ptr<optimizer> optimizer ) override { /*NOTHING TO DO YET*/ }
 
+protected:
+
+    virtual matrixF& error_map( const int depth ) override
+        { return m_empty_errors; }
+
 private:
 
+    matrixF m_empty_errors;
     marray1F m_inputs;
 };
 

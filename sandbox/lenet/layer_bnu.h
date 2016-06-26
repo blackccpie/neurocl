@@ -45,7 +45,6 @@ public:
     virtual size_t height() const = 0;
     virtual size_t depth() const = 0;
 
-    virtual const vectorF& activations() const = 0;
     virtual const matrixF& feature_map( const int depth ) const = 0;
 
     virtual void prepare_training() = 0;
@@ -58,15 +57,7 @@ protected:
     friend class pool_layer_bnu;
     friend class conv_layer_bnu;
 
-    virtual matrixF& error_map( const int depth ) { return const_cast<matrixF&>(empty::matrix); } // TODO-CN : temporary empty impl
-
-protected:
-
-    struct empty
-    {
-        static const matrixF matrix;
-        static const vectorF vector;
-    };
+    virtual matrixF& error_map( const int depth ) = 0;
 };
 
 } //namespace neurocl
