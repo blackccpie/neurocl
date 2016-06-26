@@ -39,7 +39,6 @@ lenet_manager.h
 
 set (sources_list
 main.cpp
-layer_bnu.cpp
 input_layer_bnu.cpp
 full_layer_bnu.cpp
 conv_layer_bnu.cpp

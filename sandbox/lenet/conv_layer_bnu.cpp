@@ -194,7 +194,7 @@ void conv_layer_bnu::back_propagate()
     }
 }
 
-void conv_layer_bnu::gradient_descent( boost::shared_ptr<optimizer> optimizer )
+void conv_layer_bnu::gradient_descent( const boost::shared_ptr<optimizer>& optimizer )
 {
     // Update weights and bias according to gradients
 

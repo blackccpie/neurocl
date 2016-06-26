@@ -112,32 +112,62 @@ void full_layer_bnu::prepare_training()
 
 void full_layer_bnu::back_propagate()
 {
-    // Compute errors
-    for ( auto i=0; i<m_prev_layer->depth(); i++ )
+    if ( m_prev_layer->has_feature_maps() )
     {
-        // TODO-CNN
-    	/*m_prev_layer->errors_maps(i) = bnu::element_prod(
-        	bnu::element_prod(  m_activations,
-                            	( bnu::scalar_vector<float>( m_activations.size(), 1.f ) - m_activations ) ),
-        	bnu::prod( bnu::trans( m_weights ), m_errors ) );*/
+        matrixF prev_unified_errors( m_prev_layer->size(), 1 );
+
+        prev_unified_errors = bnu::element_prod(
+                                bnu::element_prod(
+                                    m_feature_map,
+                                    ( bnu::scalar_matrix<float>( m_feature_map.size1() * m_feature_map.size2(), 1.f ) - m_feature_map ) ),
+                                bnu::prod(
+                                    bnu::trans( m_weights ),
+                                    m_error_map ) );
+
+        // Compute errors
+        for ( auto i=0; i<m_prev_layer->depth(); i++ )
+        {
+            // TODO-CNN
+        	/*m_prev_layer->errors_maps(i) = bnu::element_prod(
+            	bnu::element_prod(  m_activations,
+                                	( bnu::scalar_vector<float>( m_activations.size(), 1.f ) - m_activations ) ),
+            	bnu::prod( bnu::trans( m_weights ), m_errors ) );*/
+        }
+
+        // Compute gradients
+
+        /*
+        m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
+        m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
+        */
     }
+    else
+    {
+        // Compute errors
 
-    // Compute gradients
+        m_prev_layer->error_map(0) = bnu::element_prod(
+                                            bnu::element_prod(
+                                                m_feature_map,
+                                                ( bnu::scalar_matrix<float>( m_feature_map.size1() * m_feature_map.size2(), 1.f ) - m_feature_map ) ),
+                                            bnu::prod(
+                                                bnu::trans( m_weights ),
+                                                m_error_map ) );
 
-    /*
-    m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
-    m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
-    */
+        // Compute gradients
+
+        /*
+        m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
+        m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
+        */
+    }
 }
 
-void full_layer_bnu::gradient_descent( boost::shared_ptr<optimizer> optimizer )
+void full_layer_bnu::gradient_descent( const boost::shared_ptr<optimizer>& optimizer )
 {
     // Update weights and bias according to gradients
 
-    /*auto invm = 1.f / static_cast<float>( m_training_samples );
-
-    m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
-    m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );*/
+    optimizer->update( m_weights, m_deltas_weight );
+    optimizer->update_redux( m_bias, m_deltas_bias );
 }
 
 }; //namespace neurocl

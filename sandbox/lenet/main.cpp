@@ -52,6 +52,12 @@ int main( int argc, char *argv[] )
 
         neurocl::lenet_manager lenet;
 
+        //************************* TRAINING *************************//
+
+        lenet.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+
+        //************************* TESTING *************************//
+
         float mean_rmse = 0.f;
         size_t _rmse_score = 0;
         size_t _classif_score = 0;

@@ -146,7 +146,7 @@ void pool_layer_bnu::back_propagate()
     }
 }
 
-void pool_layer_bnu::gradient_descent( boost::shared_ptr<optimizer> optimizer )
+void pool_layer_bnu::gradient_descent( const boost::shared_ptr<optimizer>& optimizer )
 {
     // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
 }

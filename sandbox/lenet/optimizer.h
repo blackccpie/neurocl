@@ -45,6 +45,14 @@ public:
         input -= m_learning_rate * ( invm * gradient + m_weight_decay * input );
     }
 
+    template<typename T>
+    void update_redux( T& input, const T& gradient )
+    {
+        auto invm = 1.f / static_cast<float>( m_set_size );
+
+        input -= m_learning_rate * ( invm * gradient );
+    }
+
 private:
 
     size_t m_set_size;

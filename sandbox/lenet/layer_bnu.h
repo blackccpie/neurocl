@@ -50,12 +50,13 @@ public:
     virtual void prepare_training() = 0;
     virtual void feed_forward() = 0;
     virtual void back_propagate() = 0;
-    virtual void gradient_descent( boost::shared_ptr<optimizer> optimizer ) = 0;
+    virtual void gradient_descent( const boost::shared_ptr<optimizer>& optimizer ) = 0;
 
 protected:
 
     friend class pool_layer_bnu;
     friend class conv_layer_bnu;
+    friend class full_layer_bnu;
 
     virtual matrixF& error_map( const int depth ) = 0;
 };
