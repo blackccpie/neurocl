@@ -22,41 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LAYER_H
-#define LAYER_H
-
 #include "tensor.h"
 
 namespace neurocl {
 
-class optimizer;
+template <>
+void tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+    const tensor& input, const tensor& filter, tensor& output, const int stride )
+{
+    /*using namespace boost::numeric::ublas;
 
-class layer
+    // assumption stepsX = stepsY could be easily made...
+    auto stepsX = input.size1() - filter.size1() + 1;
+    auto stepsY = input.size2() - filter.size2() + 1;
+    for ( auto j=0; j<stepsY; j++ )
+        for ( auto i=0; i<stepsX; i++ )
+        {
+        }*/
+}
+
+template <>
+void tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_full>(
+    const tensor& input, const tensor& filter, tensor& output, const int stride )
 {
 
-public:
+}
 
-    size_t size() const { return width()*height()*depth(); }
-    virtual size_t width() const = 0;
-    virtual size_t height() const = 0;
-    virtual size_t depth() const = 0;
+template <>
+void tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_full>(
+    const tensor& input, const tensor& filter, tensor& output, const int stride )
+{
 
-    virtual const tensor& feature_maps() const = 0;
-
-    virtual void prepare_training() = 0;
-    virtual void feed_forward() = 0;
-    virtual void back_propagate() = 0;
-    virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) = 0;
-
-protected:
-
-    friend class pool_layer;
-    friend class conv_layer;
-    friend class full_layer;
-
-    virtual tensor& error_maps() = 0;
-};
+}
 
 } //namespace neurocl
-
-#endif //LAYER_H

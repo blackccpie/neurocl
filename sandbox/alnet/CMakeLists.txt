@@ -36,6 +36,7 @@ lenet.h
 set (sources_list
 main.cpp
 lenet.cpp
+tensor.cpp
 )
 
 add_executable(alnet ${sources_list} ${headers_list})
