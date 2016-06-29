@@ -25,6 +25,10 @@ THE SOFTWARE.
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+#include <cstddef>
+
+namespace neurocl {
+
 class optimizer
 {
 public:
@@ -60,5 +64,7 @@ private:
     float m_learning_rate; // [0.0..1.0]
     float m_weight_decay; // [0.0..1.0]
 };
+
+} //namespace neurocl
 
 #endif //OPTIMIZER_H

@@ -25,16 +25,15 @@ THE SOFTWARE.
 #ifndef LENET_H
 #define LENET_H
 
+#include <memory>
 #include <vector>
-
-// TODO : find why fwd declaration fails here
-#include "optimizer.h"
 
 // LeNet-5 : http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf
 
 namespace neurocl {
 
 class layer;
+class optimizer;
 
 class lenet
 {

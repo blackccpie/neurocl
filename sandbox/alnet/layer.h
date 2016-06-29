@@ -25,10 +25,11 @@ THE SOFTWARE.
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "optimizer.h"
 #include "tensor.h"
 
 namespace neurocl {
+
+class optimizer;
 
 class layer
 {

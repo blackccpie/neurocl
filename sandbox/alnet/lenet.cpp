@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "lenet.h"
+#include "optimizer.h"
 #include "conv_layer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
