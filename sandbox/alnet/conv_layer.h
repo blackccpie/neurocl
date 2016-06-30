@@ -25,6 +25,7 @@ THE SOFTWARE.
 #ifndef CONV_LAYER_H
 #define CONV_LAYER_H
 
+#include "network_exception.h"
 #include "layer.h"
 
 namespace neurocl {
@@ -44,7 +45,24 @@ public:
                     const size_t height,
                     const size_t depth )
     {
+        std::cout << "populating convolutional layer " << m_filter_size << " " << m_filter_stride << std::endl;
+
+        std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
+
+        if ( ( width != ( prev_layer->width() - m_filter_size + 1 ) ) ||
+            ( height != ( prev_layer->height() - m_filter_size + 1 ) ) )
+        {
+            std::cerr << "conv_layer::populate - zero padding not managed for now, \
+                so layer size should be consistent with filter size and previous layer size" << std::endl;
+            throw network_exception( "inconsistent convolutional layer size" );
+        }
+
         m_prev_layer = prev_layer;
+
+        m_filters.resize( m_filter_size, m_filter_size, depth, prev_layer->depth() );
+        m_filters_delta.resize( m_filter_size, m_filter_size, depth, prev_layer->depth() );
+        m_feature_maps.resize( width, height, depth, 1 );
+        m_error_maps.resize( width, height, depth, 1 );
     }
 
     virtual size_t width() const override { return 0; };

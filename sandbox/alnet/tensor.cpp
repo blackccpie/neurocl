@@ -24,21 +24,35 @@ THE SOFTWARE.
 
 #include "tensor.h"
 
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 namespace neurocl {
 
 template <>
 void tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
     const tensor& input, const tensor& filter, tensor& output, const int stride )
 {
-    /*using namespace boost::numeric::ublas;
+    using namespace boost::numeric::ublas;
 
-    // assumption stepsX = stepsY could be easily made...
-    auto stepsX = input.size1() - filter.size1() + 1;
-    auto stepsY = input.size2() - filter.size2() + 1;
-    for ( auto j=0; j<stepsY; j++ )
-        for ( auto i=0; i<stepsX; i++ )
+    auto stepsX = input.w() - filter.w() + 1;
+    auto stepsY = input.h() - filter.h() + 1;
+
+    for ( auto d1 = 0; d1 < filter.d1(); d1++ )
+    {
+        for ( auto d2 = 0; d2 < filter.d2(); d2++ )
         {
-        }*/
+        for ( auto j=0; j<stepsY; j++ )
+            for ( auto i=0; i<stepsX; i++ )
+            {
+                matrixF conv = element_prod( filter.const_array(d1,d2),
+                    project( input.const_array(d1,1),
+                        range( i, i+filter.w() ),
+                        range( j, j+filter.h() ) ) );
+
+                output.array(d2,1)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+            }
+        }
+    }
 }
 
 template <>

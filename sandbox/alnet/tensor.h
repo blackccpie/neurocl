@@ -26,12 +26,12 @@ THE SOFTWARE.
 #define TENSOR_H
 
 #include <boost/multi_array.hpp>
-#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 
 #include <memory>
 
-typedef typename boost::numeric::ublas::vector<float> vectorF;
-typedef typename boost::multi_array<vectorF,2> mvector2F;
+typedef typename boost::numeric::ublas::matrix<float> matrixF;
+typedef typename boost::multi_array<matrixF,2> matrix2F;
 
 namespace neurocl {
 
@@ -40,21 +40,47 @@ class optimizer;
 class tensor
 {
 public:
-    tensor() {}
+    tensor() : m_width(0), m_height(0), m_depth1(0), m_depth2(0) {}
     virtual ~tensor() {}
 
-    void resize( const size_t vec_size, const size_t depth1, const size_t depth2 )
+    void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
     {
-        m_tensor_array.resize( boost::extents[depth1][depth2] );
+        m_width = width;
+        m_depth1 = depth1;
+        m_depth2 = depth2;
+
+        m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+        for( auto _matrices : m_tensor_array )
+            for( auto _matrix : _matrices )
+                _matrix = matrixF( m_width, m_height );
     }
+
+    size_t w() const { return m_width; }
+    size_t h() const { return m_height; }
+    size_t d1() const { return m_depth1; }
+    size_t d2() const { return m_depth2; }
+
+protected:
+
+    friend class tensor_operation;
+
+    matrixF& array( size_t i, size_t j )  { return m_tensor_array[i][j]; }
+    const matrixF& const_array( size_t i, size_t j ) const { return m_tensor_array[i][j]; }
 
 private:
 
-    mvector2F m_tensor_array;
+    size_t m_width;
+    size_t m_height;
+    size_t m_depth1;
+    size_t m_depth2;
+
+    matrix2F m_tensor_array;
 };
 
-struct tensor_operation
+class tensor_operation
 {
+public:
+
     enum kernel_mode
     {
         kernel_std = 0,
@@ -67,6 +93,8 @@ struct tensor_operation
         pad_same,
         pad_full
     };
+
+public:
 
     template<kernel_mode km, pad_mode pm>
     static void convolve_add(
