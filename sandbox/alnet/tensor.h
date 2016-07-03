@@ -43,6 +43,40 @@ public:
     tensor() : m_width(0), m_height(0), m_depth1(0), m_depth2(0) {}
     virtual ~tensor() {}
 
+    // move constructor
+    tensor( const tensor&& t )
+    {
+        for ( auto d1 = 0; d1 < m_depth1; d1++ )
+            for ( auto d2 = 0; d2 < m_depth2; d2++ )
+                m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
+    }
+
+    // copy constructor
+    tensor( const tensor& t )
+    {
+        for ( auto d1 = 0; d1 < m_depth1; d1++ )
+            for ( auto d2 = 0; d2 < m_depth2; d2++ )
+                m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
+    }
+
+    // move assignment operator
+    tensor& operator=( tensor&& other )
+    {
+        *this = std::move( other );
+
+        return *this;
+    }
+
+    // assignment operator
+    tensor& operator=( tensor& other )
+    {
+        for ( auto d1 = 0; d1 < other.d1(); d1++ )
+            for ( auto d2 = 0; d2 < other.d2(); d2++ )
+                m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
+
+        return *this;
+    }
+
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
     {
         m_width = width;
@@ -64,8 +98,8 @@ protected:
 
     friend class tensor_operation;
 
-    matrixF& array( size_t i, size_t j )  { return m_tensor_array[i][j]; }
-    const matrixF& const_array( size_t i, size_t j ) const { return m_tensor_array[i][j]; }
+    matrixF& m( size_t i, size_t j )  { return m_tensor_array[i][j]; }
+    const matrixF& c_m( size_t i, size_t j ) const { return m_tensor_array[i][j]; }
 
 private:
 
@@ -96,21 +130,16 @@ public:
 
 public:
 
+    static tensor muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC );
+
+    static void relu( tensor& input );
+
+    static void d_relu( tensor& input, const tensor& output );
+
     template<kernel_mode km, pad_mode pm>
-    static void convolve_add(
-        const tensor& input, const tensor& filter, tensor& output, const int stride );
+    static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );
 
     static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
-    {
-
-    }
-
-    static void relu( tensor& input )
-    {
-
-    }
-
-    static void d_relu( tensor& input, const tensor& output )
     {
 
     }

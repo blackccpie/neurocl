@@ -78,10 +78,9 @@ public:
     }
     virtual void feed_forward() override
     {
-        nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
+        m_feature_maps = nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
             m_prev_layer->feature_maps(),
             m_filters,
-            m_feature_maps,
             m_filter_stride );
 
         nto::relu( m_feature_maps );
@@ -90,21 +89,18 @@ public:
     {
         // Compute errors
 
-        nto::convolve_add<nto::kernel_std,nto::pad_full>( //padding?????
+        m_prev_layer->error_maps() = nto::convolve_add<nto::kernel_std,nto::pad_full>( //padding?????
             m_error_maps,
             m_filters,
-            m_prev_layer->error_maps(),
             m_filter_stride );
 
         nto::d_relu( m_prev_layer->error_maps(), m_prev_layer->feature_maps() );
 
         // Compute gradients
 
-        tensor grad;
-        nto::convolve_add<nto::kernel_flip,nto::pad_full>( //padding?????
+        tensor grad = nto::convolve_add<nto::kernel_flip,nto::pad_full>( //padding?????
             m_prev_layer->error_maps(),
             m_prev_layer->feature_maps(),
-            grad,
             m_filter_stride);
 
         //m_filters_delta += grad / static_cast<float>( m_filters_delta.shape()[1] );

@@ -28,45 +28,108 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-template <>
-void tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
-    const tensor& input, const tensor& filter, tensor& output, const int stride )
+inline float sigmoid( float x )
+{
+    return 1.f / ( 1.f + std::exp(-x) );
+}
+
+tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC )
 {
     using namespace boost::numeric::ublas;
 
+    tensor output;
+
+    for ( auto d1 = 0; d1 < inputA.d1(); d1++ )
+    {
+        for ( auto d2 = 0; d2 < inputA.d2(); d2++ )
+        {
+            output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) )
+                + inputC.c_m(d1,d2);
+        }
+    }
+
+    return output;
+}
+
+void tensor_operation::relu( tensor& input )
+{
+    for ( auto d1 = 0; d1 < input.d1(); d1++ )
+    {
+        for ( auto d2 = 0; d2 < input.d2(); d2++ )
+        {
+            std::for_each(  input.m(d1,d2).data().begin(),
+                            input.m(d1,d2).data().end(),
+                            std::ptr_fun( sigmoid ) );
+        }
+    }
+}
+
+void tensor_operation::d_relu( tensor& input, const tensor& output )
+{
+
+}
+
+struct flipper
+{
+    flipper( int sx, int sy ) { m_flipped = matrixF(sx,sy); }
+    const matrixF& flipped( const matrixF& in )
+    { m_flipped = in; std::reverse( m_flipped.data().begin(), m_flipped.data().end() ); return m_flipped; }
+    matrixF m_flipped;
+};
+
+template <>
+tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+    const tensor& input, const tensor& filter, const int stride )
+{
+    using namespace boost::numeric::ublas;
+
+    tensor output;
+
     auto stepsX = input.w() - filter.w() + 1;
     auto stepsY = input.h() - filter.h() + 1;
+
+    output.resize( stepsX, stepsY, 1, input.d2() );
+
+    flipper f( filter.w(), filter.h() );
 
     for ( auto d1 = 0; d1 < filter.d1(); d1++ )
     {
         for ( auto d2 = 0; d2 < filter.d2(); d2++ )
         {
-        for ( auto j=0; j<stepsY; j++ )
-            for ( auto i=0; i<stepsX; i++ )
+            for ( auto j=0; j<stepsY; j++ )
             {
-                matrixF conv = element_prod( filter.const_array(d1,d2),
-                    project( input.const_array(d1,1),
-                        range( i, i+filter.w() ),
-                        range( j, j+filter.h() ) ) );
+                for ( auto i=0; i<stepsX; i++ )
+                {
+                    matrixF conv = element_prod( f.flipped( filter.c_m(d1,d2) ),
+                        project( input.c_m(d1,1),
+                            range( i, i+filter.w() ),
+                            range( j, j+filter.h() ) ) );
 
-                output.array(d2,1)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    output.m(d2,1)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                }
             }
         }
     }
+
+    return output;
 }
 
 template <>
-void tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_full>(
-    const tensor& input, const tensor& filter, tensor& output, const int stride )
+tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_full>(
+    const tensor& input, const tensor& filter, const int stride )
 {
+    tensor output;
 
+    return output;
 }
 
 template <>
-void tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_full>(
-    const tensor& input, const tensor& filter, tensor& output, const int stride )
+tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_full>(
+    const tensor& input, const tensor& filter, const int stride )
 {
+    tensor output;
 
+    return output;
 }
 
 } //namespace neurocl

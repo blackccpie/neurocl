@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "lenet.h"
 #include "optimizer.h"
 #include "conv_layer.h"
+#include "full_layer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -44,6 +45,7 @@ lenet::lenet() : m_training_samples( 0 )
 void lenet::add_layers()
 {
     m_layers.emplace_back( std::make_shared<conv_layer>() );
+    m_layers.emplace_back( std::make_shared<full_layer>() );
 
     // TODO-CNN : harmonize populating prototypes :-(
 
