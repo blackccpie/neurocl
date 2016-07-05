@@ -33,40 +33,106 @@ inline float sigmoid( float x )
     return 1.f / ( 1.f + std::exp(-x) );
 }
 
-tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC )
+tensor tensor::operator +=( const tensor& other )
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] += other.c_m(d1,d2);
+    }
+
+    return *this;
+}
+
+tensor tensor::operator /( const float val )
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] /= val;
+    }
+
+    return *this;
+}
+
+tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )
 {
     using namespace boost::numeric::ublas;
 
     tensor output;
+    output.resize( inputA );
 
-    for ( auto d1 = 0; d1 < inputA.d1(); d1++ )
-    {
-        for ( auto d2 = 0; d2 < inputA.d2(); d2++ )
-        {
-            output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) )
-                + inputC.c_m(d1,d2);
-        }
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m(d1,d2) = element_prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) );
     }
 
     return output;
 }
 
-void tensor_operation::relu( tensor& input )
+tensor tensor_operation::mul( const tensor& inputA, const tensor& inputB )
 {
-    for ( auto d1 = 0; d1 < input.d1(); d1++ )
-    {
-        for ( auto d2 = 0; d2 < input.d2(); d2++ )
-        {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
-                            std::ptr_fun( sigmoid ) );
-        }
+    using namespace boost::numeric::ublas;
+
+    tensor output;
+    output.resize( inputA );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) );
+    }
+
+    return output;
+}
+
+tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC )
+{
+    using namespace boost::numeric::ublas;
+
+    tensor output;
+    output.resize( inputA );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) )
+                + inputC.c_m(d1,d2);
+    }
+
+    return output;
+}
+
+tensor tensor_operation::multrans( const tensor& inputA, const tensor& inputB )
+{
+    using namespace boost::numeric::ublas;
+
+    tensor output;
+    output.resize( inputA );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m(d1,d2) = prod( trans( inputA.c_m(d1,d2) ), inputB.c_m(d1,d2) );
+    }
+
+    return output;
+}
+
+void tensor_operation::sig( tensor& input )
+{
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        std::for_each(  input.m(d1,d2).data().begin(),
+                        input.m(d1,d2).data().end(),
+                        std::ptr_fun( sigmoid ) );
     }
 }
 
-void tensor_operation::d_relu( tensor& input, const tensor& output )
+tensor tensor_operation::d_sig( tensor& input )
 {
+    using namespace boost::numeric::ublas;
 
+    tensor output;
+    output.resize( input );
+
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        const matrixF& feature_map = input.m(d1,d2);
+        output.m(d1,d2) = element_prod(
+            feature_map,
+            ( scalar_matrix<float>( feature_map.size1() * feature_map.size2(), 1.f ) - feature_map )
+        );
+    }
+
+    return output;
 }
 
 struct flipper
@@ -115,19 +181,12 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
 }
 
 template <>
-tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_full>(
+tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_same>(
     const tensor& input, const tensor& filter, const int stride )
 {
     tensor output;
 
-    return output;
-}
-
-template <>
-tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_full>(
-    const tensor& input, const tensor& filter, const int stride )
-{
-    tensor output;
+    // TODO-CNN
 
     return output;
 }

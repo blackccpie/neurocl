@@ -64,20 +64,17 @@ public:
         m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
 
         // apply sigmoid function
-        nto::relu( m_feature_maps );
+        nto::sig( m_feature_maps );
     }
 
     virtual void back_propagate() override
     {
         // Compute errors
 
-        // m_prev_layer->error_map(0) = bnu::element_prod(
-        //                                     bnu::element_prod(
-        //                                         m_feature_map,
-        //                                         ( bnu::scalar_matrix<float>( m_feature_map.size1() * m_feature_map.size2(), 1.f ) - m_feature_map ) ),
-        //                                     bnu::prod(
-        //                                         bnu::trans( m_weights ),
-        //                                         m_error_map ) );
+        m_prev_layer->error_maps() = nto::elemul(
+            nto::d_sig( m_feature_maps ),
+            nto::multrans( m_feature_maps, m_error_maps )
+        );
 
         // Compute gradients
 

@@ -37,6 +37,12 @@ namespace neurocl {
 
 class optimizer;
 
+#define tensor_foreach() for ( auto d1 = 0; d1 < m_depth1; d1++ ) \
+                            for ( auto d2 = 0; d2 < m_depth2; d2++ )
+
+#define tensor_foreach_p(n1,n2) for ( auto d1 = 0; d1 < n1; d1++ ) \
+                            for ( auto d2 = 0; d2 < n2; d2++ )
+
 class tensor
 {
 public:
@@ -46,17 +52,17 @@ public:
     // move constructor
     tensor( const tensor&& t )
     {
-        for ( auto d1 = 0; d1 < m_depth1; d1++ )
-            for ( auto d2 = 0; d2 < m_depth2; d2++ )
-                m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
+        tensor_foreach() {
+            m_tensor_array[d1][d2] = std::move( t.m_tensor_array[d1][d2] );
+        }
     }
 
     // copy constructor
     tensor( const tensor& t )
     {
-        for ( auto d1 = 0; d1 < m_depth1; d1++ )
-            for ( auto d2 = 0; d2 < m_depth2; d2++ )
-                m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
+        tensor_foreach() {
+            m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
+        }
     }
 
     // move assignment operator
@@ -70,11 +76,16 @@ public:
     // assignment operator
     tensor& operator=( tensor& other )
     {
-        for ( auto d1 = 0; d1 < other.d1(); d1++ )
-            for ( auto d2 = 0; d2 < other.d2(); d2++ )
-                m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
+        tensor_foreach_p( other.d1(), other.d2() ) {
+            m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
+        }
 
         return *this;
+    }
+
+    void resize( const tensor& other )
+    {
+        resize( other.w(), other.h(), other.d1(), other.d2() );
     }
 
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
@@ -93,6 +104,10 @@ public:
     size_t h() const { return m_height; }
     size_t d1() const { return m_depth1; }
     size_t d2() const { return m_depth2; }
+
+    // operators overload
+    tensor operator +=( const tensor& other );
+    tensor operator /( const float val );
 
 protected:
 
@@ -130,11 +145,21 @@ public:
 
 public:
 
+    // returns A.B (standard product)
+    static tensor elemul( const tensor& inputA, const tensor& inputB );
+
+    // returns A.B (element product)
+    static tensor mul( const tensor& inputA, const tensor& inputB );
+
+    // returns A.B + C
     static tensor muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC );
 
-    static void relu( tensor& input );
+    // returns trans(A).B
+    static tensor multrans( const tensor& inputA, const tensor& inputB );
 
-    static void d_relu( tensor& input, const tensor& output );
+    static void sig( tensor& input );
+
+    static tensor d_sig( tensor& input );
 
     template<kernel_mode km, pad_mode pm>
     static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );

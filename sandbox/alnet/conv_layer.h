@@ -83,27 +83,30 @@ public:
             m_filters,
             m_filter_stride );
 
-        nto::relu( m_feature_maps );
+        nto::sig( m_feature_maps );
     }
     virtual void back_propagate() override
     {
         // Compute errors
 
-        m_prev_layer->error_maps() = nto::convolve_add<nto::kernel_std,nto::pad_full>( //padding?????
+        m_prev_layer->error_maps() = nto::convolve_add<nto::kernel_std,nto::pad_same>(
             m_error_maps,
             m_filters,
             m_filter_stride );
 
-        nto::d_relu( m_prev_layer->error_maps(), m_prev_layer->feature_maps() );
+        // TODO-CNN
+        //m_prev_layer->error_maps() = elem_prod...
+        //... nto::d_sig( m_prev_layer->feature_maps() );
 
         // Compute gradients
 
-        tensor grad = nto::convolve_add<nto::kernel_flip,nto::pad_full>( //padding?????
+        tensor grad = nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
             m_prev_layer->error_maps(),
             m_prev_layer->feature_maps(),
             m_filter_stride);
 
-        //m_filters_delta += grad / static_cast<float>( m_filters_delta.shape()[1] );
+        // TODO-CNN : which size, d1, d2???
+        m_filters_delta += grad / static_cast<float>( m_filters_delta.d1() );
     }
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
