@@ -78,15 +78,15 @@ public:
 
         // Compute gradients
 
-        /*
-        m_layers[i].w_deltas() = m_layers[i].w_deltas() + bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() );
-        m_layers[i].b_deltas() = m_layers[i].b_deltas() + m_layers[i+1].errors();
-        */
+        // TODO-CNN : is this real equivalent to:
+        // bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() )
+        m_deltas_weights += nto::multrans( m_prev_layer->error_maps(), m_feature_maps );
+        m_deltas_bias += m_prev_layer->error_maps();
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
-
+        nto::optimize( optimizer, m_weights, m_deltas_weights );
     }
 
 protected:

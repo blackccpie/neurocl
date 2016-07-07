@@ -45,6 +45,8 @@ public:
                     const size_t height,
                     const size_t depth )
     {
+        // TODO-CNN :  review the entire method
+
         std::cout << "populating convolutional layer " << m_filter_size << " " << m_filter_stride << std::endl;
 
         std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
@@ -94,9 +96,11 @@ public:
             m_filters,
             m_filter_stride );
 
-        // TODO-CNN
-        //m_prev_layer->error_maps() = elem_prod...
-        //... nto::d_sig( m_prev_layer->feature_maps() );
+        // multiply by sigma derivative
+        m_prev_layer->error_maps() = nto::elemul(
+            nto::d_sig( m_prev_layer->feature_maps() ),
+            m_prev_layer->error_maps()
+        );
 
         // Compute gradients
 

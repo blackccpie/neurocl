@@ -117,7 +117,7 @@ void tensor_operation::sig( tensor& input )
     }
 }
 
-tensor tensor_operation::d_sig( tensor& input )
+tensor tensor_operation::d_sig( const tensor& input )
 {
     using namespace boost::numeric::ublas;
 
@@ -125,10 +125,10 @@ tensor tensor_operation::d_sig( tensor& input )
     output.resize( input );
 
     tensor_foreach_p( input.d1(), input.d2() ) {
-        const matrixF& feature_map = input.m(d1,d2);
+        const matrixF& mat = input.c_m(d1,d2);
         output.m(d1,d2) = element_prod(
-            feature_map,
-            ( scalar_matrix<float>( feature_map.size1() * feature_map.size2(), 1.f ) - feature_map )
+            mat,
+            ( scalar_matrix<float>( mat.size1() * mat.size2(), 1.f ) - mat )
         );
     }
 

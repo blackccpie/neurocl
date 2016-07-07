@@ -159,7 +159,7 @@ public:
 
     static void sig( tensor& input );
 
-    static tensor d_sig( tensor& input );
+    static tensor d_sig( const tensor& input );
 
     template<kernel_mode km, pad_mode pm>
     static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );
