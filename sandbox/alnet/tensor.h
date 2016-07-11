@@ -91,6 +91,7 @@ public:
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
     {
         m_width = width;
+        m_height = height;
         m_depth1 = depth1;
         m_depth2 = depth2;
 
@@ -113,15 +114,19 @@ protected:
 
     friend class tensor_operation;
 
-    matrixF& m( size_t i, size_t j )  { return m_tensor_array[i][j]; }
-    const matrixF& c_m( size_t i, size_t j ) const { return m_tensor_array[i][j]; }
+    matrixF& m( size_t d1, size_t d2 )  { return m_tensor_array[d1][d2]; }
+    const matrixF& c_m( size_t d1, size_t d2 ) const { return m_tensor_array[d1][d2]; }
+
+private:
+
+    void _assert_same_size( const tensor& t );
 
 private:
 
     size_t m_width;
     size_t m_height;
-    size_t m_depth1;
-    size_t m_depth2;
+    size_t m_depth1; // number of feature maps
+    size_t m_depth2; // replication level of feature maps
 
     matrix2F m_tensor_array;
 };

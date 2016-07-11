@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "network_exception.h"
 #include "tensor.h"
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
@@ -33,8 +34,34 @@ inline float sigmoid( float x )
     return 1.f / ( 1.f + std::exp(-x) );
 }
 
+void _assert_same_depths1( const tensor& t1, const tensor& t2 )
+{
+    if ( t1.d1() != t2.d1() )
+        throw network_exception( "inconsistent tensor number of feature maps" );
+}
+
+void _assert_same_sizes( const tensor& t1, const tensor& t2 )
+{
+    if ( ( t1.w() != t2.w() ) ||
+        ( t1.h() != t2.h() ) ||
+        ( t1.d1() != t2.d1() ) ||
+        ( t1.d2() != t2.d2() ) )
+        throw network_exception( "inconsistent tensor sizes" );
+}
+
+void tensor::_assert_same_size( const tensor& t )
+{
+    if ( ( m_width != t.w() ) ||
+        ( m_height != t.h() ) ||
+        ( m_depth1 != t.d1() ) ||
+        ( m_depth2 != t.d2() ) )
+        throw network_exception( "inconsistent tensor size" );
+}
+
 tensor tensor::operator +=( const tensor& other )
 {
+    _assert_same_size( other );
+
     tensor_foreach() {
         m_tensor_array[d1][d2] += other.c_m(d1,d2);
     }
@@ -55,6 +82,8 @@ tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )
 {
     using namespace boost::numeric::ublas;
 
+    _assert_same_sizes( inputA, inputB );
+
     tensor output;
     output.resize( inputA );
 
@@ -68,6 +97,8 @@ tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )
 tensor tensor_operation::mul( const tensor& inputA, const tensor& inputB )
 {
     using namespace boost::numeric::ublas;
+
+    _assert_same_sizes( inputA, inputB );
 
     tensor output;
     output.resize( inputA );
@@ -83,6 +114,9 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
 {
     using namespace boost::numeric::ublas;
 
+    _assert_same_sizes( inputA, inputB );
+    _assert_same_sizes( inputA, inputC );
+
     tensor output;
     output.resize( inputA );
 
@@ -97,6 +131,8 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
 tensor tensor_operation::multrans( const tensor& inputA, const tensor& inputB )
 {
     using namespace boost::numeric::ublas;
+
+    _assert_same_sizes( inputA, inputB );
 
     tensor output;
     output.resize( inputA );
@@ -149,14 +185,20 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
 {
     using namespace boost::numeric::ublas;
 
+    _assert_same_depths1( input, filter );
+
     tensor output;
 
     auto stepsX = input.w() - filter.w() + 1;
     auto stepsY = input.h() - filter.h() + 1;
 
-    output.resize( stepsX, stepsY, 1, input.d2() );
+    output.resize( stepsX, stepsY, 1, filter.d2() );
 
     flipper f( filter.w(), filter.h() );
+
+    // NOTE : tricky thing is that filter tensor replication level (filter.d2)
+    // is equal to input tensor feature maps level (prev_layer.d1);
+    // whereas filter feature maps level is equal to output tensor feature maps level
 
     for ( auto d1 = 0; d1 < filter.d1(); d1++ )
     {
@@ -167,11 +209,11 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
                 for ( auto i=0; i<stepsX; i++ )
                 {
                     matrixF conv = element_prod( f.flipped( filter.c_m(d1,d2) ),
-                        project( input.c_m(d1,1),
+                        project( input.c_m(1,d1),
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
-                    output.m(d2,1)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    output.m(1,d2)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
         }

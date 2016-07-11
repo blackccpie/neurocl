@@ -28,6 +28,7 @@ include_directories( ../../src )
 set (headers_list
 layer.h
 conv_layer.h
+pool_layer.h
 optimizer.h
 tensor.h
 lenet.h

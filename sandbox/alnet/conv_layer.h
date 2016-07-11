@@ -45,8 +45,6 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        // TODO-CNN :  review the entire method
-
         std::cout << "populating convolutional layer " << m_filter_size << " " << m_filter_stride << std::endl;
 
         std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
@@ -61,15 +59,15 @@ public:
 
         m_prev_layer = prev_layer;
 
-        m_filters.resize( m_filter_size, m_filter_size, depth, prev_layer->depth() );
-        m_filters_delta.resize( m_filter_size, m_filter_size, depth, prev_layer->depth() );
-        m_feature_maps.resize( width, height, depth, 1 );
-        m_error_maps.resize( width, height, depth, 1 );
+        m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        m_feature_maps.resize( width, height, 1, depth );
+        m_error_maps.resize( width, height, 1, depth );
     }
 
-    virtual size_t width() const override { return 0; };
-    virtual size_t height() const override { return 0; };
-    virtual size_t depth() const override { return 0; }
+    virtual size_t width() const override { return m_feature_maps.w(); }
+    virtual size_t height() const override { return m_feature_maps.h(); }
+    virtual size_t depth() const override { return m_feature_maps.d2(); }
 
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
@@ -109,9 +107,9 @@ public:
             m_prev_layer->feature_maps(),
             m_filter_stride);
 
-        // TODO-CNN : which size, d1, d2???
-        m_filters_delta += grad / static_cast<float>( m_filters_delta.d1() );
+        m_filters_delta += grad / static_cast<float>( m_filters_delta.d2() );
     }
+
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
         nto::optimize( optimizer, m_filters, m_filters_delta );

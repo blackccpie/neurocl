@@ -22,37 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef FULL_LAYER_H
-#define FULL_LAYER_H
+#ifndef POOL_LAYER_H
+#define POOL_LAYER_H
 
+#include "network_exception.h"
 #include "layer.h"
 
 namespace neurocl {
 
-class full_layer : public layer
+class pool_layer  : public layer
 {
 public:
 
-    full_layer() {}
-	virtual ~full_layer() {}
+    pool_layer() {}
+	virtual ~pool_layer() {}
 
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating full layer " << std::endl;
+        std::cout << "populating pooling layer" << std::endl;
 
-        std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
+        // compute subsampling rate, throw error if not integer
+        if ( ( prev_layer->width() % width) == 0 )
+            m_subsample = prev_layer->width() / width;
+        else
+            throw network_exception( "invalid subsampling for max pooling" );
 
         m_prev_layer = prev_layer;
 
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
-        m_bias.resize( width, height, 1, depth );
-        m_deltas_bias.resize( width, height, 1, depth );
-        m_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
-        m_deltas_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); }
@@ -69,35 +70,17 @@ public:
 
     virtual void feed_forward() override
     {
-        const tensor& prev_feature_maps = m_prev_layer->feature_maps();
-
-        // apply weights and bias
-        m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
-
-        // apply sigmoid function
-        nto::sig( m_feature_maps );
+        // TODO-CNN
     }
 
     virtual void back_propagate() override
     {
-        // Compute errors
-
-        m_prev_layer->error_maps() = nto::elemul(
-            nto::d_sig( m_feature_maps ),
-            nto::multrans( m_feature_maps, m_error_maps )
-        );
-
-        // Compute gradients
-
-        // TODO-CNN : is this real equivalent to:
-        // bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() )
-        m_deltas_weights += nto::multrans( m_prev_layer->error_maps(), m_feature_maps );
-        m_deltas_bias += m_prev_layer->error_maps();
+        // TODO-CNN
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
-        nto::optimize( optimizer, m_weights, m_deltas_weights );
+        // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
 protected:
@@ -107,17 +90,14 @@ protected:
 
 private:
 
+    size_t m_subsample;
+
     std::shared_ptr<layer> m_prev_layer;
 
     tensor m_feature_maps;
     tensor m_error_maps;
-    tensor m_bias;
-    tensor m_deltas_bias;
-
-    tensor m_weights;
-    tensor m_deltas_weights;
 };
 
 } //namespace neurocl
 
-#endif //FULL_LAYER_BNU_H
+#endif //POOL_LAYER_BNU_H
