@@ -169,6 +169,10 @@ public:
     template<kernel_mode km, pad_mode pm>
     static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );
 
+    static tensor subsample( const tensor& input, const size_t subsample );
+
+    static tensor d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample );
+
     static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
     {
 

@@ -70,12 +70,14 @@ public:
 
     virtual void feed_forward() override
     {
-        // TODO-CNN
+        m_feature_maps = nto::subsample( m_prev_layer->feature_maps(), m_subsample );
     }
 
     virtual void back_propagate() override
     {
-        // TODO-CNN
+        // TODO-CNN : what if previous layer has no error maps!
+
+        m_prev_layer->error_maps() = nto::d_subsample( m_error_maps, m_feature_maps, m_subsample );
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override

@@ -233,4 +233,96 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operat
     return output;
 }
 
+tensor tensor_operation::subsample( const tensor& input, const size_t subsample )
+{
+    // TODO-CNN : size assert + resize
+
+    tensor output;
+    //output.resize();
+
+    tensor_foreach_p( input.d1(), input.d2() )
+    {
+        matrixF& feature_map = output.m(d1,d2);
+
+        const matrixF& prev_feature_map = input.c_m(d1,d2);
+        auto prev_width = prev_feature_map.size1();
+        auto prev_it1 = prev_feature_map.begin1();
+
+        for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); it1++, prev_it1 += subsample )
+        {
+            auto prev_it2 = prev_it1.begin();
+            for( auto it2 = it1.begin(); it2 !=it1.end(); it2++, prev_it2 += subsample )
+            {
+                float max_value = std::numeric_limits<float_t>::lowest();
+
+                // could use ublas::project + std::accumulate + std::max for more compact expression
+
+                // compute max in subsampling zone
+                for ( auto i =0; i<subsample; i++ )
+                    for ( auto j =0; j<subsample; j++ )
+                    {
+                        const float& value = *(prev_it2 + i + (j*prev_width) );
+                        if ( value > max_value )
+                            max_value = value;
+                    }
+
+                // update value in the destination feature map
+                *it2 = max_value;
+            }
+        }
+    }
+
+    return output;
+}
+
+tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample )
+{
+    // TODO-CNN : size assert + resize
+
+    tensor output;
+    //output.resize();
+
+    tensor_foreach_p( input.d1(), input.d2() )
+    {
+        // Initialize iterators
+        const matrixF& prev_feature_map = input_ref.c_m(d1,d2);
+        auto prev_width = prev_feature_map.size1();
+
+        const matrixF& error_map = input.c_m(d1,d2);
+        auto err_it1 = error_map.begin1();
+
+        matrixF& prev_error_map = output.m(d1,d2);
+        auto prev_err_iter1 = prev_error_map.begin1();
+
+        // Iterate
+        for( auto prev_it1 = prev_feature_map.begin1(); prev_it1 != prev_feature_map.end1();
+            prev_it1 += subsample, prev_err_iter1 += subsample, ++err_it1 )
+        {
+            auto prev_err_it2 = prev_err_iter1.begin();
+            auto err_it2 = err_it1.begin();
+            for( auto prev_it2 = prev_it1.begin(); prev_it2 !=prev_it1.end();
+                prev_it2 += subsample, prev_err_it2 += subsample, ++err_it2 )
+            {
+                float max_value = std::numeric_limits<float_t>::lowest();
+
+                int max_offset = 0;
+
+                // compute max in subsampling zone
+                for ( auto i =0; i<subsample; i++ )
+                    for ( auto j =0; j<subsample; j++ )
+                    {
+                        const float& value = *(prev_it2 + i + (j*prev_width) );
+                        if ( value > max_value )
+                            max_offset = i + (j*prev_width);
+                    }
+
+                // update error on last layer max value pixel
+                *(prev_err_it2 + max_offset) = *err_it2;
+            }
+        }
+    }
+
+    return output;
+}
+
 } //namespace neurocl
