@@ -21,13 +21,20 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.0)
+project (test_vexcl)
 
 include_directories(
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/utils"
+    .
+    "${CMAKE_SOURCE_DIR}/../vexcl"
 )
 
-add_subdirectory(test_mnist)
-add_subdirectory(test_vexcl)
-add_subdirectory(test_edge)
-#add_subdirectory(test_denoising)
+set (sources_list
+main.cpp
+)
+
+add_executable(test_vexcl ${sources_list} ${headers_list})
+
+target_link_libraries(test_vexcl
+boost_system${boost_suffix}
+${OpenCL_LIBRARIES}
+)
