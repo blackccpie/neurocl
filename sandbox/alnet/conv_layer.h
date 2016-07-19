@@ -39,7 +39,12 @@ public:
     conv_layer() {}
 	virtual ~conv_layer() {}
 
-    void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 );
+    void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 )
+    {
+        m_filter_size = filter_size;
+        m_filter_stride = filter_stride;
+    }
+    
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
                     const size_t height,

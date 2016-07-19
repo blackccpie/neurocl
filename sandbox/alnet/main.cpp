@@ -22,8 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "lenet.h"
 #include "network_exception.h"
+#include "lenet_manager.h"
+#include "samples_manager.h"
 
 #include <iostream>
 
@@ -44,7 +45,42 @@ int main( int argc, char *argv[] )
 
     try
     {
-        neurocl::lenet alnet;
+        neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+        neurocl::samples_manager::instance().load_samples( argv[1] );
+
+        const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+
+        neurocl::lenet_manager lenet;
+
+        //************************* TRAINING *************************//
+
+        lenet.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+
+        //************************* TESTING *************************//
+
+        float mean_rmse = 0.f;
+        size_t _rmse_score = 0;
+        size_t _classif_score = 0;
+
+        for ( size_t i = 0; i<training_samples.size(); i++ )
+        {
+            neurocl::test_sample tsample( smp_manager.get_samples()[i] );
+            lenet.compute_output( tsample );
+
+            std::cout << tsample.output() << std::endl;
+            std::cout << tsample.ref_output() << std::endl;
+            std::cout << tsample.RMSE() << std::endl;
+
+            mean_rmse += tsample.RMSE();
+
+            if ( tsample.RMSE() < MAX_MATCH_ERROR )
+                ++ _rmse_score;
+
+            if ( tsample.classified() )
+                ++_classif_score;
+
+        	std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
+        }
     }
     catch( neurocl::network_exception& e )
     {

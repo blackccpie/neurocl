@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include "conv_layer.h"
 #include "full_layer.h"
 #include "pool_layer.h"
+#include "input_layer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -45,25 +46,40 @@ lenet::lenet() : m_training_samples( 0 )
 
 void lenet::add_layers()
 {
-    m_layers.emplace_back( std::make_shared<conv_layer>() );
-    m_layers.emplace_back( std::make_shared<full_layer>() );
-    m_layers.emplace_back( std::make_shared<pool_layer>() );
+    std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
+    in->populate( 32, 32, 1 );
+    m_layers.emplace_back( in );
 
-    // TODO-CNN : harmonize populating prototypes :-(
+    std::shared_ptr<conv_layer> c1 = std::make_shared<conv_layer>();
+    c1->set_filter_size( 5 ); // 5x5
+    c1->populate( m_layers.back(), 28, 28, 6 );
+    m_layers.emplace_back( c1 );
 
-    /*m_layer_input.populate( 32, 32, 1 );
-    m_layer_c1.set_filter_size( 5 ); // 5x5
-    m_layer_c1.populate( &m_layer_input, 28, 28, 6 );               //conv
-    m_layer_s2.populate( &m_layer_c1, 14, 14, 6 );                  //pool
-    m_layer_c3.set_filter_size( 5 ); // 5x5
-    m_layer_c3.populate( &m_layer_s2, 10, 10, 16 );                 //conv
-    m_layer_s4.populate( &m_layer_c3, 5, 5, 16 );                   //pool
-    m_layer_c5.set_filter_size( 5 );
-    m_layer_c5.populate( &m_layer_s4, 1, 1, 120 );                  //conv
-    m_layer_f6.populate( &m_layer_c5, layer_size( 84, 1 ) );        //full
-    m_layer_output.populate( &m_layer_f6, layer_size( 10, 1 ) );
+    std::shared_ptr<pool_layer> s2 = std::make_shared<pool_layer>();
+    s2->populate( m_layers.back(), 14, 14, 6 );
+    m_layers.emplace_back( s2 );
 
-    m_layers = { &m_layer_input, &m_layer_c1, &m_layer_s2, &m_layer_c3, &m_layer_s4, &m_layer_c5, &m_layer_f6, &m_layer_output };*/
+    std::shared_ptr<conv_layer> c3 = std::make_shared<conv_layer>();
+    c3->set_filter_size( 5 ); // 5x5
+    c3->populate( m_layers.back(), 10, 10, 16 );
+    m_layers.emplace_back( c3 );
+
+    std::shared_ptr<pool_layer> s4 = std::make_shared<pool_layer>();
+    s4->populate( m_layers.back(), 5, 5, 16 );
+    m_layers.emplace_back( s4 );
+
+    std::shared_ptr<conv_layer> c5 = std::make_shared<conv_layer>();
+    c5->set_filter_size( 5 ); // 5x5
+    c5->populate( m_layers.back(), 1, 1, 120 );
+    m_layers.emplace_back( c5 );
+
+    std::shared_ptr<full_layer> f6 = std::make_shared<full_layer>();
+    f6->populate( m_layers.back(), 84, 1, 1 );
+    m_layers.emplace_back( f6 );
+
+    std::shared_ptr<full_layer> out = std::make_shared<full_layer>();
+    out->populate( m_layers.back(), 10, 1, 1 );
+    m_layers.emplace_back( out );
 }
 
 void lenet::prepare_training()

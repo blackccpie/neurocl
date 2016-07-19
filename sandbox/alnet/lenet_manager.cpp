@@ -22,14 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "lenet_bnu.h"
+#include "lenet.h"
 #include "lenet_manager.h"
 #include "network_exception.h"
 #include "samples_manager.h"
 
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
 
 //#define TRAIN_CHRONO
 
@@ -37,8 +36,8 @@ namespace neurocl {
 
 lenet_manager::lenet_manager()
 {
-    m_net = boost::make_shared<lenet_bnu>();
-    m_net->add_layers_2d( std::vector<layer_size>() ); // STUBBED FOR NOW
+    m_net = std::make_shared<lenet>();
+    m_net->add_layers();
 }
 
 void lenet_manager::batch_train( 	const samples_manager& smp_manager,
@@ -121,8 +120,8 @@ void lenet_manager::_train( const sample& s )
 #endif
 
     // set input/output
-    m_net->set_input( s.isample_size, s.isample );
-    m_net->set_output( s.osample_size, s.osample );
+    //TODO-CNN m_net->set_input( s.isample_size, s.isample );
+    //TODO-CNN m_net->set_output( s.osample_size, s.osample );
 
     // forward/backward propagation
     m_net->feed_forward();
@@ -136,10 +135,10 @@ void lenet_manager::_train( const sample& s )
 
 void lenet_manager::compute_output( sample& s )
 {
-    m_net->set_input( s.isample_size, s.isample );
+    //TODO-CNN m_net->set_input( s.isample_size, s.isample );
     m_net->feed_forward();
-    output_ptr output_layer = m_net->output();
-    std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
+    //TODO-CNN output_ptr output_layer = m_net->output();
+    //TODO-CNN std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
 }; //namespace neurocl

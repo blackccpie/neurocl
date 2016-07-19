@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-class network_interface;
+class lenet;
 class samples_manager;
 
 class lenet_manager
@@ -71,7 +71,7 @@ private:
 
 private:
 
-    boost::shared_ptr<network_interface> m_net;
+    std::shared_ptr<lenet> m_net;
 };
 
 } //namespace neurocl
