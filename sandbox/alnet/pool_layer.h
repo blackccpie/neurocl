@@ -37,6 +37,8 @@ public:
     pool_layer() {}
 	virtual ~pool_layer() {}
 
+	virtual const std::string type() const override { return "pool"; }
+
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
                     const size_t height,

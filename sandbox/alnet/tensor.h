@@ -68,7 +68,11 @@ public:
     // move assignment operator
     tensor& operator=( tensor&& other )
     {
-        *this = std::move( other );
+        m_width = std::move( other.m_width );
+        m_height = std::move( other.m_height );
+        m_depth1 = std::move( other.m_depth1 );
+        m_depth2 = std::move( other.m_depth2 );
+        m_tensor_array = std::move( other.m_tensor_array );
 
         return *this;
     }
@@ -97,7 +101,7 @@ public:
 
         m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
         for( auto _matrices : m_tensor_array )
-            for( auto _matrix : _matrices )
+            for( auto& _matrix : _matrices )
                 _matrix = matrixF( m_width, m_height );
     }
 
@@ -125,8 +129,8 @@ private:
 
     size_t m_width;
     size_t m_height;
-    size_t m_depth1; // number of feature maps
-    size_t m_depth2; // replication level of feature maps
+    size_t m_depth1; // --> replication level of feature maps
+    size_t m_depth2; // --> number of feature maps
 
     matrix2F m_tensor_array;
 };

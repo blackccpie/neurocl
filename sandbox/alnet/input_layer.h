@@ -36,6 +36,8 @@ public:
     input_layer() {}
 	virtual ~input_layer() {}
 
+    virtual const std::string type() const override { return "input"; }
+
     void populate(  const size_t width,
                     const size_t height,
                     const size_t depth )

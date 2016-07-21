@@ -34,10 +34,31 @@ inline float sigmoid( float x )
     return 1.f / ( 1.f + std::exp(-x) );
 }
 
-void _assert_same_depths1( const tensor& t1, const tensor& t2 )
+// check that t1.depth2 == t2.depth1
+inline void _assert_cross_depths21( const tensor& t1, const tensor& t2 )
 {
-    if ( t1.d1() != t2.d1() )
+    if ( t1.d2() != t2.d1() )
         throw network_exception( "inconsistent tensor number of feature maps" );
+}
+
+inline void _assert_muladd_sizes( const tensor& t1, const tensor& t2, const tensor& t3 )
+{
+    if ( ( t1.h() != t2.w() ) ||
+        ( t1.w() != t3.w() ) ||
+        ( t2.h() != t3.h() ) ||
+        ( t1.d1() != t2.d1() ) ||
+        ( t1.d2() != t2.d2() ) ||
+        ( t1.d1() != t3.d1() ) ||
+        ( t1.d2() != t3.d2() ) )
+        throw network_exception( "inconsistent tensor multiply/add size" );
+}
+
+inline void _assert_multrans_sizes( const tensor& t1, const tensor& t2 )
+{
+    if ( ( t1.w() != t2.w() ) ||
+        ( t1.d1() != t2.d1() ) ||
+        ( t1.d2() != t2.d2() ) )
+        throw network_exception( "inconsistent tensor multiply/trans size" );
 }
 
 void _assert_same_sizes( const tensor& t1, const tensor& t2 )
@@ -114,8 +135,7 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
 {
     using namespace boost::numeric::ublas;
 
-    _assert_same_sizes( inputA, inputB );
-    _assert_same_sizes( inputA, inputC );
+    _assert_muladd_sizes( inputA, inputB, inputC );
 
     tensor output;
     output.resize( inputA );
@@ -132,10 +152,10 @@ tensor tensor_operation::multrans( const tensor& inputA, const tensor& inputB )
 {
     using namespace boost::numeric::ublas;
 
-    _assert_same_sizes( inputA, inputB );
+    _assert_multrans_sizes( inputA, inputB );
 
     tensor output;
-    output.resize( inputA );
+    output.resize( inputA.h(), inputB.h(), inputA.d1(), inputB.d2() );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
         output.m(d1,d2) = prod( trans( inputA.c_m(d1,d2) ), inputB.c_m(d1,d2) );
@@ -185,7 +205,7 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
 {
     using namespace boost::numeric::ublas;
 
-    _assert_same_depths1( input, filter );
+    _assert_cross_depths21( input, filter );
 
     tensor output;
 
@@ -209,11 +229,11 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
                 for ( auto i=0; i<stepsX; i++ )
                 {
                     matrixF conv = element_prod( f.flipped( filter.c_m(d1,d2) ),
-                        project( input.c_m(1,d1),
+                        project( input.c_m(0,d1),
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
-                    output.m(1,d2)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    output.m(0,d2)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
         }
@@ -238,7 +258,7 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
     // TODO-CNN : size assert + resize
 
     tensor output;
-    //output.resize();
+    output.resize( input.w() / subsample, input.h() / subsample, input.d1(), input.d2() );
 
     tensor_foreach_p( input.d1(), input.d2() )
     {

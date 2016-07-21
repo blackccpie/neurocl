@@ -96,7 +96,7 @@ void lenet::feed_forward()
 {
     for ( auto _layer : m_layers )
     {
-        std::cout << "--> feed forwarding" << std::endl;
+        std::cout << "--> feed forwarding " << _layer->type() << " layer" << std::endl;
         _layer->feed_forward();
     }
 }
@@ -105,6 +105,7 @@ void lenet::back_propagate()
 {
     for ( auto _layer : boost::adaptors::reverse( m_layers ) )
     {
+        std::cout << "--> back propagating " << _layer->type() << " layer" << std::endl;
         _layer->back_propagate();
     }
 

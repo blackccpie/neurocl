@@ -37,6 +37,9 @@ class layer
 public:
 
     size_t size() const { return width()*height()*depth(); }
+
+    virtual const std::string type() const = 0;
+
     virtual size_t width() const = 0;
     virtual size_t height() const = 0;
     virtual size_t depth() const = 0;

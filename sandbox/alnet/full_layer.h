@@ -36,6 +36,8 @@ public:
     full_layer() {}
 	virtual ~full_layer() {}
 
+    virtual const std::string type() const override { return "full"; }
+
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
                     const size_t height,
