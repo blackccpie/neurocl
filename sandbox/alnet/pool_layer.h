@@ -79,7 +79,7 @@ public:
     {
         // TODO-CNN : what if previous layer has no error maps!
 
-        m_prev_layer->error_maps() = nto::d_subsample( m_error_maps, m_feature_maps, m_subsample );
+        m_prev_layer->error_maps() = nto::d_subsample( m_error_maps, m_prev_layer->feature_maps(), m_subsample );
     }
 
     virtual void update_gradients() override

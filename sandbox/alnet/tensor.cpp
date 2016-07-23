@@ -34,6 +34,12 @@ inline float sigmoid( float x )
     return 1.f / ( 1.f + std::exp(-x) );
 }
 
+inline void _assert_multiple( const tensor& t, const size_t& divider )
+{
+    if ( ( ( t.w() % divider ) != 0 ) || ( ( t.h() % divider ) != 0 ) )
+        throw network_exception( "invalid tensor subsampling" );
+}
+
 inline void _assert_no_replication( const tensor& t )
 {
     if ( t.d1() != 1 )
@@ -145,7 +151,7 @@ void tensor_operation::ungroup( const tensor& input, tensor& output )
 
     tensor_foreach_p( 1, output.d2() ) {
 
-        const size_t _size = input.c_m(d1,d2).size1() * input.c_m(d1,d2).size2();
+        const size_t _size = output.m(d1,d2).size1() * output.m(d1,d2).size2();
 
         std::copy( input_mat_iter, input_mat_iter + _size, output.m(d1,d2).data().begin() );
 
@@ -238,7 +244,7 @@ tensor tensor_operation::d_sig( const tensor& input )
         const matrixF& mat = input.c_m(d1,d2);
         output.m(d1,d2) = element_prod(
             mat,
-            ( scalar_matrix<float>( mat.size1() * mat.size2(), 1.f ) - mat )
+            ( scalar_matrix<float>( mat.size1(), mat.size2(), 1.f ) - mat )
         );
     }
 
@@ -310,7 +316,7 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operat
     auto stepsX = input.w() + filter.w() - 1;
     auto stepsY = input.h() + filter.h() - 1;
 
-    output.resize( stepsX, stepsY, 1, filter.d2() );
+    output.resize( stepsX, stepsY, 1, filter.d1() );
 
     // TODO-CNN
 
@@ -319,7 +325,7 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operat
 
 tensor tensor_operation::subsample( const tensor& input, const size_t subsample )
 {
-    // TODO-CNN : size assert
+    _assert_multiple( input, subsample );
 
     tensor output;
     output.resize( input.w() / subsample, input.h() / subsample, input.d1(), input.d2() );
@@ -361,7 +367,7 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
 
 tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample )
 {
-    // TODO-CNN : size assert
+    _assert_multiple( input_ref, subsample );
 
     tensor output;
     output.resize( input.w() * subsample, input.h() * subsample, input.d1(), input.d2() );
