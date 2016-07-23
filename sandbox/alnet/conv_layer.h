@@ -98,7 +98,7 @@ public:
     {
         // Compute errors
 
-        m_prev_layer->error_maps() = nto::convolve_add<nto::kernel_std,nto::pad_same>(
+        m_prev_layer->error_maps() = nto::convolve_add<nto::kernel_std,nto::pad_full>(
             m_error_maps,
             m_filters,
             m_filter_stride );

@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #ifndef OUTPUT_LAYER_H
-#define OUPUT_LAYER_H
+#define OUTPUT_LAYER_H
 
 #include "layer.h"
 
@@ -35,13 +35,13 @@ public:
 
     output_layer() {}
     virtual ~output_layer() {}
-    
+
      virtual const std::string type() const override { return "output"; }
-    
+
     virtual size_t width() const override { return m_feature_maps.w(); }
     virtual size_t height() const override { return m_feature_maps.h(); }
     virtual size_t depth() const override { return m_feature_maps.d2(); }
-    
+
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
                     const size_t height,
@@ -54,7 +54,7 @@ public:
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
     }
-    
+
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 
@@ -67,11 +67,11 @@ public:
     {
         // TODO-CNN
     }
-    
+
     virtual void back_propagate() override
     {
         // TODO-CNN
-        
+
         // Output layer error vector
 //        layer_bnu& output_layer = m_layers.back();
 //        output_layer.errors() = bnu::element_prod(
@@ -79,24 +79,24 @@ public:
 //                                    ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
 //                ( output_layer.activations() - m_training_output ) );
     }
-    
+
     virtual void update_gradients() override
     {
         // NOTHING TO DO FOR OUTPUT LAYER
     }
-    
+
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
         // NOTHING TO DO FOR OUTPUT LAYER
     }
-    
+
 protected:
 
     virtual tensor& error_maps() override
         { return m_error_maps; }
-    
+
 private:
-    
+
     std::shared_ptr<layer> m_prev_layer;
 
     tensor m_feature_maps;

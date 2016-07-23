@@ -114,7 +114,7 @@ tensor tensor_operation::group( const tensor& input )
 
     auto output_mat_iter = output.m(0,0).data().begin();
 
-    size_t offset = 0;
+    size_t _offset = 0;
 
 	// TODO-CNN : could be written in a smarter way
 	// ie using tensor iterators and C++11
@@ -122,11 +122,11 @@ tensor tensor_operation::group( const tensor& input )
     tensor_foreach_p( 1, input.d2() ) {
 
         auto input_mat_iter = input.c_m(d1,d2).data().begin();
-        size_t _size = input.c_m(d1,d2).size1() * input.c_m(d1,d2).size2();
+        const size_t _size = input.c_m(d1,d2).size1() * input.c_m(d1,d2).size2();
 
-        std::copy( input_mat_iter, input_mat_iter + _size, output_mat_iter + offset );
+        std::copy( input_mat_iter, input_mat_iter + _size, output_mat_iter + _offset );
 
-        offset += _size;
+        _offset += _size;
     }
 
     return output;
@@ -134,7 +134,23 @@ tensor tensor_operation::group( const tensor& input )
 
 void tensor_operation::ungroup( const tensor& input, tensor& output )
 {
+    _assert_no_replication( output );
 
+    auto input_mat_iter = input.c_m(0,0).data().begin();
+
+    size_t _offset = 0;
+
+	// TODO-CNN : could be written in a smarter way
+	// ie using tensor iterators and C++11
+
+    tensor_foreach_p( 1, output.d2() ) {
+
+        const size_t _size = input.c_m(d1,d2).size1() * input.c_m(d1,d2).size2();
+
+        std::copy( input_mat_iter, input_mat_iter + _size, output.m(d1,d2).data().begin() );
+
+        input_mat_iter += _size;
+    }
 }
 
 tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )
@@ -247,9 +263,11 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
 
     tensor output;
 
+    // W2 = W1 - F + 1
     auto stepsX = input.w() - filter.w() + 1;
     auto stepsY = input.h() - filter.h() + 1;
 
+    // no replication in output features
     output.resize( stepsX, stepsY, 1, filter.d2() );
 
     flipper f( filter.w(), filter.h() );
@@ -281,10 +299,18 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
 }
 
 template <>
-tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_same>(
+tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_full>(
     const tensor& input, const tensor& filter, const int stride )
 {
+    // TODO-CNN : size assert
+
     tensor output;
+
+    // W1 = W2 + F - 1
+    auto stepsX = input.w() + filter.w() - 1;
+    auto stepsY = input.h() + filter.h() - 1;
+
+    output.resize( stepsX, stepsY, 1, filter.d2() );
 
     // TODO-CNN
 
@@ -293,7 +319,7 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operat
 
 tensor tensor_operation::subsample( const tensor& input, const size_t subsample )
 {
-    // TODO-CNN : size assert + resize
+    // TODO-CNN : size assert
 
     tensor output;
     output.resize( input.w() / subsample, input.h() / subsample, input.d1(), input.d2() );
@@ -335,10 +361,10 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
 
 tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample )
 {
-    // TODO-CNN : size assert + resize
+    // TODO-CNN : size assert
 
     tensor output;
-    //output.resize();
+    output.resize( input.w() * subsample, input.h() * subsample, input.d1(), input.d2() );
 
     tensor_foreach_p( input.d1(), input.d2() )
     {
