@@ -110,7 +110,7 @@ tensor tensor_operation::group( const tensor& input )
     _assert_no_replication( input );
 
     tensor output;
-    output.resize( input.d2() * input.w(), input.d2() * input.h(), 1, 1 );
+    output.resize( input.d2() * input.w(), input.h(), 1, 1 );
 
     auto output_mat_iter = output.m(0,0).data().begin();
 
@@ -130,6 +130,11 @@ tensor tensor_operation::group( const tensor& input )
     }
 
     return output;
+}
+
+void tensor_operation::ungroup( const tensor& input, tensor& output )
+{
+
 }
 
 tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )
@@ -171,7 +176,7 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
     _assert_muladd_sizes( inputA, inputB, inputC );
 
     tensor output;
-    output.resize( inputA );
+    output.resize( inputC ); // output is homogenous to inputC
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
         output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) )

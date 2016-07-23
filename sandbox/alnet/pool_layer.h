@@ -34,10 +34,10 @@ class pool_layer  : public layer
 {
 public:
 
-    pool_layer() {}
+    pool_layer( const std::string& name ) : m_name( name ) {}
 	virtual ~pool_layer() {}
 
-	virtual const std::string type() const override { return "pool"; }
+	virtual const std::string type() const override { return "pool " + m_name; }
 
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
@@ -82,6 +82,11 @@ public:
         m_prev_layer->error_maps() = nto::d_subsample( m_error_maps, m_feature_maps, m_subsample );
     }
 
+    virtual void update_gradients() override
+    {
+        // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
+    }
+
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
@@ -100,6 +105,8 @@ private:
 
     tensor m_feature_maps;
     tensor m_error_maps;
+
+    const std::string m_name;
 };
 
 } //namespace neurocl

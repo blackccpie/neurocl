@@ -33,10 +33,10 @@ class full_layer : public layer
 {
 public:
 
-    full_layer() : m_group_features( false ) {}
+    full_layer( const std::string& name ) : m_name( name ), m_group_features( false ) {}
 	virtual ~full_layer() {}
 
-    virtual const std::string type() const override { return "full"; }
+    virtual const std::string type() const override { return "full " + m_name; }
 
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
@@ -78,7 +78,7 @@ public:
 
     virtual void prepare_training() override
     {
-
+        // TODO-CNN
     }
 
     virtual void feed_forward() override
@@ -106,11 +106,30 @@ public:
     {
         // Compute errors
 
-        m_prev_layer->error_maps() = nto::elemul(
-            nto::d_sig( m_feature_maps ),
-            nto::multrans( m_feature_maps, m_error_maps )
-        );
+        const tensor& prev_feature_maps = m_prev_layer->feature_maps();
 
+        if ( m_group_features )
+        {
+            const tensor grouped_feature_maps = nto::group( prev_feature_maps );
+
+            const tensor grouped_error_maps = nto::elemul(
+                nto::d_sig( grouped_feature_maps ),
+                nto::multrans( m_weights, m_error_maps )
+            );
+
+            nto::ungroup( grouped_error_maps, m_prev_layer->error_maps() );
+        }
+        else
+        {
+        	m_prev_layer->error_maps() = nto::elemul(
+            	nto::d_sig( prev_feature_maps ),
+            	nto::multrans( m_weights, m_error_maps )
+        	);
+        }
+    }
+
+    virtual void update_gradients() override
+    {
         // Compute gradients
 
         // TODO-CNN : is this real equivalent to:
@@ -121,7 +140,10 @@ public:
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
+        // Optimize gradients
+
         nto::optimize( optimizer, m_weights, m_deltas_weights );
+        // TODO-CNN : what about bias?
     }
 
 protected:
@@ -142,6 +164,9 @@ private:
     tensor m_deltas_weights;
 
     bool m_group_features;
+    bool m_output;
+
+    const std::string m_name;
 };
 
 } //namespace neurocl

@@ -36,10 +36,10 @@ class conv_layer  : public layer
 {
 public:
 
-    conv_layer() {}
+    conv_layer( const std::string& name ) : m_name( name ) {}
 	virtual ~conv_layer() {}
 
-    virtual const std::string type() const override { return "conv"; }
+    virtual const std::string type() const override { return "conv " + m_name; }
 
     void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 )
     {
@@ -83,6 +83,7 @@ public:
     {
 
     }
+
     virtual void feed_forward() override
     {
         m_feature_maps = nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
@@ -92,6 +93,7 @@ public:
 
         nto::sig( m_feature_maps );
     }
+
     virtual void back_propagate() override
     {
         // Compute errors
@@ -106,7 +108,10 @@ public:
             nto::d_sig( m_prev_layer->feature_maps() ),
             m_prev_layer->error_maps()
         );
+    }
 
+    virtual void update_gradients() override
+    {
         // Compute gradients
 
         tensor grad = nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
@@ -119,6 +124,8 @@ public:
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
+        // Optimize gradients
+
         nto::optimize( optimizer, m_filters, m_filters_delta );
     }
 
@@ -138,6 +145,8 @@ private:
     tensor m_filters_delta;
     tensor m_feature_maps;
     tensor m_error_maps;
+
+    const std::string m_name;
 };
 
 } //namespace neurocl

@@ -58,6 +58,7 @@ public:
     virtual void prepare_training() override { /*NOTHING TO DO YET*/ }
     virtual void feed_forward() override { /*NOTHING TO DO YET*/ }
     virtual void back_propagate() override { /*NOTHING TO DO YET*/ }
+    virtual void update_gradients() override { /*NOTHING TO DO YET*/ }
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override { /*NOTHING TO DO YET*/ }
 
 protected:

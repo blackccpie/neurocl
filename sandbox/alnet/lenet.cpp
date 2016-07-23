@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "full_layer.h"
 #include "pool_layer.h"
 #include "input_layer.h"
+#include "output_layer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -50,34 +51,34 @@ void lenet::add_layers()
     in->populate( 32, 32, 1 );
     m_layers.emplace_back( in );
 
-    std::shared_ptr<conv_layer> c1 = std::make_shared<conv_layer>();
+    std::shared_ptr<conv_layer> c1 = std::make_shared<conv_layer>( "c1" );
     c1->set_filter_size( 5 ); // 5x5
     c1->populate( m_layers.back(), 28, 28, 6 );
     m_layers.emplace_back( c1 );
 
-    std::shared_ptr<pool_layer> s2 = std::make_shared<pool_layer>();
+    std::shared_ptr<pool_layer> s2 = std::make_shared<pool_layer>( "s2" );
     s2->populate( m_layers.back(), 14, 14, 6 );
     m_layers.emplace_back( s2 );
 
-    std::shared_ptr<conv_layer> c3 = std::make_shared<conv_layer>();
+    std::shared_ptr<conv_layer> c3 = std::make_shared<conv_layer>( "c3" );
     c3->set_filter_size( 5 ); // 5x5
     c3->populate( m_layers.back(), 10, 10, 16 );
     m_layers.emplace_back( c3 );
 
-    std::shared_ptr<pool_layer> s4 = std::make_shared<pool_layer>();
+    std::shared_ptr<pool_layer> s4 = std::make_shared<pool_layer>( "s4" );
     s4->populate( m_layers.back(), 5, 5, 16 );
     m_layers.emplace_back( s4 );
 
-    std::shared_ptr<conv_layer> c5 = std::make_shared<conv_layer>();
+    std::shared_ptr<conv_layer> c5 = std::make_shared<conv_layer>( "c5" );
     c5->set_filter_size( 5 ); // 5x5
     c5->populate( m_layers.back(), 1, 1, 120 );
     m_layers.emplace_back( c5 );
 
-    std::shared_ptr<full_layer> f6 = std::make_shared<full_layer>();
+    std::shared_ptr<full_layer> f6 = std::make_shared<full_layer>( "f6" );
     f6->populate( m_layers.back(), 84, 1, 1 );
     m_layers.emplace_back( f6 );
 
-    std::shared_ptr<full_layer> out = std::make_shared<full_layer>();
+    std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
     out->populate( m_layers.back(), 10, 1, 1 );
     m_layers.emplace_back( out );
 }
@@ -107,6 +108,12 @@ void lenet::back_propagate()
     {
         std::cout << "--> back propagating " << _layer->type() << " layer" << std::endl;
         _layer->back_propagate();
+    }
+
+    for ( auto _layer : m_layers )
+    {
+        std::cout << "--> updating gradients " << _layer->type() << " layer" << std::endl;
+        _layer->update_gradients();
     }
 
     ++m_training_samples;

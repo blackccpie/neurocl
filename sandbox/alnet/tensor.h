@@ -165,6 +165,9 @@ public:
     // groups all submatrixes into a single one
     static tensor group( const tensor& input );
 
+    // ungroups input matrix into multiple ones
+    static void ungroup( const tensor& input, tensor& output );
+
     // returns A.B (standard product)
     static tensor elemul( const tensor& inputA, const tensor& inputB );
 
