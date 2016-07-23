@@ -33,7 +33,7 @@ class full_layer : public layer
 {
 public:
 
-    full_layer() {}
+    full_layer() : m_group_features( false ) {}
 	virtual ~full_layer() {}
 
     virtual const std::string type() const override { return "full"; }
@@ -49,12 +49,24 @@ public:
 
         m_prev_layer = prev_layer;
 
+        // check if we have to group previous layer feature maps
+        // grouping is only allowed if current depth is 1
+        if ( m_prev_layer->depth() != depth )
+        {
+            if ( depth > 1 )
+                throw network_exception( "depth mismatch between full layer and previous layer" );
+            else
+                m_group_features = true;
+        }
+
+        size_t k_group = m_group_features ? m_prev_layer->depth() : 1;
+
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
         m_bias.resize( width, height, 1, depth );
         m_deltas_bias.resize( width, height, 1, depth );
-        m_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
-        m_deltas_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
+        m_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth );
+        m_deltas_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth );
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); }
@@ -73,8 +85,18 @@ public:
     {
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
 
-        // apply weights and bias
-        m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
+        if ( m_group_features )
+        {
+            const tensor grouped_feature_maps = nto::group( prev_feature_maps );
+
+            // apply weights and bias
+            m_feature_maps = nto::muladd( m_weights, grouped_feature_maps, m_bias );
+        }
+        else
+        {
+        	// apply weights and bias
+        	m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
+        }
 
         // apply sigmoid function
         nto::sig( m_feature_maps );
@@ -118,6 +140,8 @@ private:
 
     tensor m_weights;
     tensor m_deltas_weights;
+
+    bool m_group_features;
 };
 
 } //namespace neurocl

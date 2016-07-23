@@ -34,6 +34,12 @@ inline float sigmoid( float x )
     return 1.f / ( 1.f + std::exp(-x) );
 }
 
+inline void _assert_no_replication( const tensor& t )
+{
+    if ( t.d1() != 1 )
+        throw network_exception( "operation not supported for replicated tensors" );
+}
+
 // check that t1.depth2 == t2.depth1
 inline void _assert_cross_depths21( const tensor& t1, const tensor& t2 )
 {
@@ -97,6 +103,33 @@ tensor tensor::operator /( const float val )
     }
 
     return *this;
+}
+
+tensor tensor_operation::group( const tensor& input )
+{
+    _assert_no_replication( input );
+
+    tensor output;
+    output.resize( input.d2() * input.w(), input.d2() * input.h(), 1, 1 );
+
+    auto output_mat_iter = output.m(0,0).data().begin();
+
+    size_t offset = 0;
+
+	// TODO-CNN : could be written in a smarter way
+	// ie using tensor iterators and C++11
+
+    tensor_foreach_p( 1, input.d2() ) {
+
+        auto input_mat_iter = input.c_m(d1,d2).data().begin();
+        size_t _size = input.c_m(d1,d2).size1() * input.c_m(d1,d2).size2();
+
+        std::copy( input_mat_iter, input_mat_iter + _size, output_mat_iter + offset );
+
+        offset += _size;
+    }
+
+    return output;
 }
 
 tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )

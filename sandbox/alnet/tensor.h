@@ -68,10 +68,11 @@ public:
     // move assignment operator
     tensor& operator=( tensor&& other )
     {
-        m_width = std::move( other.m_width );
-        m_height = std::move( other.m_height );
-        m_depth1 = std::move( other.m_depth1 );
-        m_depth2 = std::move( other.m_depth2 );
+        m_width = other.m_width;
+        m_height = other.m_height;
+        m_depth1 = other.m_depth1;
+        m_depth2 = other.m_depth2;
+
         m_tensor_array = std::move( other.m_tensor_array );
 
         return *this;
@@ -80,6 +81,13 @@ public:
     // assignment operator
     tensor& operator=( tensor& other )
     {
+        m_width = other.m_width;
+        m_height = other.m_height;
+        m_depth1 = other.m_depth1;
+        m_depth2 = other.m_depth2;
+
+        m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+
         tensor_foreach_p( other.d1(), other.d2() ) {
             m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
         }
@@ -154,6 +162,9 @@ public:
 
 public:
 
+    // groups all submatrixes into a single one
+    static tensor group( const tensor& input );
+
     // returns A.B (standard product)
     static tensor elemul( const tensor& inputA, const tensor& inputB );
 
@@ -179,7 +190,7 @@ public:
 
     static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
     {
-
+        // TODO-CNN
     }
 };
 
