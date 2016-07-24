@@ -128,7 +128,14 @@ public:
         m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
         for( auto _matrices : m_tensor_array )
             for( auto& _matrix : _matrices )
-                _matrix = matrixF( m_width, m_height );
+                _matrix = matrixF( m_width, m_height, 0.f );
+    }
+
+    void clear()
+    {
+        tensor_foreach() {
+            m_tensor_array[d1][d2].clear();
+        }
     }
 
     size_t w() const { return m_width; }
@@ -138,6 +145,7 @@ public:
 
     // operators overload
     tensor operator +=( const tensor& other );
+    tensor operator -=( const tensor& other );
     tensor operator /( const float val );
 
     void fill(  const size_t d1,
@@ -197,7 +205,19 @@ public:
         pad_full
     };
 
+    enum optimize_mode
+    {
+        optim_std = 0,
+        optim_redux
+    };
+
 public:
+
+    // returns aB (scalar product)
+    static tensor mul( const float& val, const tensor& input );
+
+    // returns A + B
+    static tensor add( const tensor& inputA, const tensor& inputB );
 
     // groups all submatrixes into a single one
     static tensor group( const tensor& input );
@@ -234,7 +254,18 @@ public:
 
     static tensor d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample );
 
-    static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas );
+    template<optimize_mode om>
+    static void optimize( const std::shared_ptr<optimizer>& optimizer, tensor& input, tensor& deltas );
+};
+
+inline tensor operator*( const float& val, const tensor& t )
+{
+    return std::move( tensor_operation::mul( val, t ) );
+};
+
+inline tensor operator+( const tensor& t1, const tensor& t2 )
+{
+    return std::move( tensor_operation::add( t1, t2 ) );
 };
 
 } //namespace neurocl

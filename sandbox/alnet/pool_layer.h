@@ -77,8 +77,6 @@ public:
 
     virtual void back_propagate() override
     {
-        // TODO-CNN : what if previous layer has no error maps!
-
         m_prev_layer->error_maps() = nto::d_subsample( m_error_maps, m_prev_layer->feature_maps(), m_subsample );
     }
 

@@ -113,6 +113,18 @@ tensor tensor::operator +=( const tensor& other )
 }
 
 // TODO-CNN : write rvalue ref equivalent
+tensor tensor::operator -=( const tensor& other )
+{
+    _assert_same_size( other );
+
+    tensor_foreach() {
+        m_tensor_array[d1][d2] -= other.c_m(d1,d2);
+    }
+
+    return std::move(*this);
+}
+
+// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator /( const float val )
 {
     tensor_foreach() {
@@ -120,6 +132,33 @@ tensor tensor::operator /( const float val )
     }
 
     return std::move(*this);
+}
+
+tensor tensor_operation::mul( const float& val, const tensor& input )
+{
+    tensor output;
+    output.resize( input );
+
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        output.m_tensor_array[d1][d2] *= val;
+    }
+
+    return std::move(output);
+}
+
+tensor tensor_operation::add( const tensor& inputA, const tensor& inputB )
+{
+    _assert_same_sizes( inputA, inputB );
+
+    tensor output;
+    output.resize( inputA );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m_tensor_array[d1][d2] = inputA.m_tensor_array[d1][d2]
+                + inputB.m_tensor_array[d1][d2];
+    }
+
+    return std::move(output);
 }
 
 tensor tensor_operation::group( const tensor& input )
@@ -461,9 +500,16 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
     return output;
 }
 
-void tensor_operation::optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
+template <>
+void tensor_operation::optimize<tensor_operation::optim_std>( const std::shared_ptr<optimizer>& optimizer, tensor& input, tensor& deltas )
 {
-    //optimizer->update( input, deltas );
+    optimizer->update( input, deltas );
+}
+
+template <>
+void tensor_operation::optimize<tensor_operation::optim_redux>( const std::shared_ptr<optimizer>& optimizer, tensor& input, tensor& deltas )
+{
+    optimizer->update_redux( input, deltas );
 }
 
 } //namespace neurocl

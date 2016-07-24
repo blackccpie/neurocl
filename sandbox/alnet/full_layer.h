@@ -29,6 +29,8 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+using nto = neurocl::tensor_operation;
+
 class full_layer : public layer
 {
 public:
@@ -78,7 +80,8 @@ public:
 
     virtual void prepare_training() override
     {
-        // TODO-CNN
+        m_deltas_weights.clear();
+        m_deltas_bias.clear();
     }
 
     virtual void feed_forward() override
@@ -155,8 +158,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize( optimizer, m_weights, m_deltas_weights );
-        // TODO-CNN : what about bias?
+        nto::optimize<nto::optim_std>( optimizer, m_weights, m_deltas_weights );
+        nto::optimize<nto::optim_redux>( optimizer, m_bias, m_deltas_bias );
     }
 
 protected:
@@ -170,6 +173,7 @@ private:
 
     tensor m_feature_maps;
     tensor m_error_maps;
+    
     tensor m_bias;
     tensor m_deltas_bias;
 

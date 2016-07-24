@@ -81,7 +81,7 @@ public:
 
     virtual void prepare_training() override
     {
-
+        m_filters_delta.clear();
     }
 
     virtual void feed_forward() override
@@ -126,7 +126,7 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize( optimizer, m_filters, m_filters_delta );
+        nto::optimize<nto::optim_std>( optimizer, m_filters, m_filters_delta );
     }
 
 protected:

@@ -36,7 +36,7 @@ public:
     output_layer() {}
     virtual ~output_layer() {}
 
-     virtual const std::string type() const override { return "output"; }
+    virtual const std::string type() const override { return "output"; }
 
     virtual size_t width() const override { return m_feature_maps.w(); }
     virtual size_t height() const override { return m_feature_maps.h(); }
@@ -53,6 +53,10 @@ public:
 
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
+        m_bias.resize( width, height, 1, depth );
+        m_deltas_bias.resize( width, height, 1, depth );
+        m_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
+        m_deltas_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
     }
 
     // fill with incoming buffer
@@ -77,34 +81,49 @@ public:
 
     virtual void prepare_training() override
     {
-        // TODO-CNN
+        m_deltas_weights.clear();
+        m_deltas_bias.clear();
     }
 
     virtual void feed_forward() override
     {
-        // TODO-CNN
+        // TODO-CNN : no grouping managed yet!
+
+        const auto& prev_feature_maps = m_prev_layer->feature_maps();
+
+        // apply weights and bias
+        m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
+
+        // apply sigmoid function
+        nto::sig( m_feature_maps );
     }
 
     virtual void back_propagate() override
     {
-        // TODO-CNN
+        // TODO-CNN : no grouping managed yet!
 
-        // Output layer error vector
-//        layer_bnu& output_layer = m_layers.back();
-//        output_layer.errors() = bnu::element_prod(
-//                bnu::element_prod(  output_layer.activations(),
-//                                    ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
-//                ( output_layer.activations() - m_training_output ) );
+        // Compute errors
+
+        const tensor& prev_feature_maps = m_prev_layer->feature_maps();
+
+        /*m_prev_layer->error_maps() = nto::elemul(
+            nto::d_sig( prev_feature_maps ),
+            ( m_feature_maps - m_training_output )
+        );*/
     }
 
     virtual void update_gradients() override
     {
-        // NOTHING TO DO FOR OUTPUT LAYER
+        m_deltas_weights += nto::multrans2( m_feature_maps, m_prev_layer->error_maps() );
+        m_deltas_bias += m_error_maps;
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
     {
-        // NOTHING TO DO FOR OUTPUT LAYER
+        // Optimize gradients
+
+        nto::optimize<nto::optim_std>( optimizer, m_weights, m_deltas_weights );
+        nto::optimize<nto::optim_redux>( optimizer, m_bias, m_deltas_bias );
     }
 
 protected:
@@ -118,6 +137,12 @@ private:
 
     tensor m_feature_maps;
     tensor m_error_maps;
+
+    tensor m_bias;
+    tensor m_deltas_bias;
+
+    tensor m_weights;
+    tensor m_deltas_weights;
 };
 
 } //namespace neurocl
