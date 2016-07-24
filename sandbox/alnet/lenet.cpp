@@ -88,7 +88,7 @@ void lenet::set_input(  const size_t& in_size, const float* in )
     // TODO-CNN : for now works only because input layer has no depth for now
 
     std::shared_ptr<layer> layer;
-    std::shared_ptr<input_layer> input_layer;// = std::dynamic_pointer_cast<output_layer>( m_layers.front() );
+    std::shared_ptr<input_layer> input_layer = std::dynamic_pointer_cast<neurocl::input_layer>( m_layers.front() );
 
     if ( in_size > input_layer->size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
@@ -96,14 +96,13 @@ void lenet::set_input(  const size_t& in_size, const float* in )
     std::cout << "lenet::set_input - input (" << in << ") size = " << in_size << std::endl;
 
     input_layer->fill( 0, 0, in_size, in );
-    //std::copy( in, in + in_size, input_feature_map.begin() );
 }
 
 void lenet::set_output( const size_t& out_size, const float* out )
 {
     // TODO-CNN : for now works only because output layer has no depth for now
 
-    std::shared_ptr<output_layer> output_layer;// = std::dynamic_pointer_cast<output_layer>( m_layers.back() );
+    std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::output_layer>( m_layers.back() );
 
     if ( out_size > output_layer->size() )
         throw network_exception( "output size exceeds allocated layer size!" );
@@ -111,7 +110,18 @@ void lenet::set_output( const size_t& out_size, const float* out )
     std::cout << "lenet::set_output - output (" << out << ") size = " << out_size << std::endl;
 
     output_layer->fill( 0, 0, out_size, out );
-    //std::copy( out, out + out_size, output_layer->feature_maps().m(0,0).begin() );
+}
+
+const output_ptr lenet::output()
+{
+    // TODO-CNN : for now works only because last layer has no depth for now
+
+    std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::output_layer>( m_layers.back() );
+    
+    output_ptr o( output_layer->width() * output_layer->height() );
+    output_layer->fill( 0, 0, o.outputs.get() );
+
+    return o;
 }
 
 void lenet::prepare_training()

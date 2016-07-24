@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef LENET_H
 #define LENET_H
 
+#include "network_interface.h"
+
 #include <memory>
 #include <vector>
 
@@ -35,7 +37,7 @@ namespace neurocl {
 class layer;
 class optimizer;
 
-class lenet
+class lenet // TODO-CNN : public network_interface
 {
 public:
 
@@ -46,6 +48,7 @@ public:
 
 	void set_input(  const size_t& in_size, const float* in );
     void set_output( const size_t& out_size, const float* out );
+    const output_ptr output();
 
     void prepare_training();
 

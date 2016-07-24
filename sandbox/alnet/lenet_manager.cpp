@@ -120,8 +120,8 @@ void lenet_manager::_train( const sample& s )
 #endif
 
     // set input/output
-    //TODO-CNN m_net->set_input( s.isample_size, s.isample );
-    //TODO-CNN m_net->set_output( s.osample_size, s.osample );
+    m_net->set_input( s.isample_size, s.isample );
+    m_net->set_output( s.osample_size, s.osample );
 
     // forward/backward propagation
     m_net->feed_forward();
@@ -135,10 +135,10 @@ void lenet_manager::_train( const sample& s )
 
 void lenet_manager::compute_output( sample& s )
 {
-    //TODO-CNN m_net->set_input( s.isample_size, s.isample );
+    m_net->set_input( s.isample_size, s.isample );
     m_net->feed_forward();
-    //TODO-CNN output_ptr output_layer = m_net->output();
-    //TODO-CNN std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
+    output_ptr output_layer = m_net->output();
+    std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
 }; //namespace neurocl
