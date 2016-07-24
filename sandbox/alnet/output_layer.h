@@ -55,6 +55,14 @@ public:
         m_error_maps.resize( width, height, 1, depth );
     }
 
+    void fill(  const size_t depth1,
+                const size_t depth2,
+                const size_t data_size,
+                const float* data )
+    {
+        m_feature_maps.fill( depth1, depth2, data_size, data );
+    }
+
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 

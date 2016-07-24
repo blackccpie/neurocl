@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_exception.h"
+#include "optimizer.h"
 #include "tensor.h"
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
@@ -99,6 +100,7 @@ void tensor::_assert_same_size( const tensor& t )
         throw network_exception( "inconsistent tensor size" );
 }
 
+// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator +=( const tensor& other )
 {
     _assert_same_size( other );
@@ -110,6 +112,7 @@ tensor tensor::operator +=( const tensor& other )
     return std::move(*this);
 }
 
+// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator /( const float val )
 {
     tensor_foreach() {
@@ -456,6 +459,11 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
     }
 
     return output;
+}
+
+void tensor_operation::optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
+{
+    //optimizer->update( input, deltas );
 }
 
 } //namespace neurocl

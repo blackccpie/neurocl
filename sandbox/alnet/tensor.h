@@ -140,12 +140,20 @@ public:
     tensor operator +=( const tensor& other );
     tensor operator /( const float val );
 
+    void fill(  const size_t d1,
+                const size_t d2,
+                const size_t data_size,
+                const float* data )
+    {
+        std::copy( data, data + data_size, m_tensor_array[d1][d2].data().begin() );
+    }
+
 protected:
 
     friend class tensor_operation;
 
-    matrixF& m( size_t d1, size_t d2 )  { return m_tensor_array[d1][d2]; }
-    const matrixF& c_m( size_t d1, size_t d2 ) const { return m_tensor_array[d1][d2]; }
+    matrixF& m( const size_t d1, const size_t d2 )  { return m_tensor_array[d1][d2]; }
+    const matrixF& c_m( const size_t d1, const size_t d2 ) const { return m_tensor_array[d1][d2]; }
 
 private:
 
@@ -215,11 +223,7 @@ public:
 
     static tensor d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample );
 
-    static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
-    {
-        // TODO-CNN
-        //optimizer->update( input, deltas );
-    }
+    static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas );
 };
 
 } //namespace neurocl

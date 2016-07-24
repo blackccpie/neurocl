@@ -44,6 +44,9 @@ public:
 
     void add_layers();
 
+	void set_input(  const size_t& in_size, const float* in );
+    void set_output( const size_t& out_size, const float* out );
+
     void prepare_training();
 
     // pure compute-critic virtuals to be implemented in inherited classes

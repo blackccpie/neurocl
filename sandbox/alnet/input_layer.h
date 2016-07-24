@@ -52,6 +52,14 @@ public:
     virtual size_t height() const override { return m_feature_maps.h(); };
     virtual size_t depth() const override { return m_feature_maps.d2(); }
 
+    void fill(  const size_t depth1,
+                const size_t depth2,
+                const size_t data_size,
+                const float* data )
+    {
+        m_feature_maps.fill( depth1, depth2, data_size, data );
+    }
+
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 
