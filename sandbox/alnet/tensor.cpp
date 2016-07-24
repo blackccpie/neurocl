@@ -65,12 +65,20 @@ inline void _assert_muladd_sizes( const tensor& t1, const tensor& t2, const tens
         throw network_exception( "inconsistent tensor multiply/add size" );
 }
 
-inline void _assert_multrans_sizes( const tensor& t1, const tensor& t2 )
+inline void _assert_multrans1_sizes( const tensor& t1, const tensor& t2 )
 {
     if ( ( t1.w() != t2.w() ) ||
         ( t1.d1() != t2.d1() ) ||
         ( t1.d2() != t2.d2() ) )
-        throw network_exception( "inconsistent tensor multiply/trans size" );
+        throw network_exception( "inconsistent tensor multiply/trans1 size" );
+}
+
+inline void _assert_multrans2_sizes( const tensor& t1, const tensor& t2 )
+{
+    if ( ( t1.h() != t2.h() ) ||
+        ( t1.d1() != t2.d1() ) ||
+        ( t1.d2() != t2.d2() ) )
+        throw network_exception( "inconsistent tensor multiply/trans2 size" );
 }
 
 void _assert_same_sizes( const tensor& t1, const tensor& t2 )
@@ -99,7 +107,7 @@ tensor tensor::operator +=( const tensor& other )
         m_tensor_array[d1][d2] += other.c_m(d1,d2);
     }
 
-    return *this;
+    return std::move(*this);
 }
 
 tensor tensor::operator /( const float val )
@@ -108,7 +116,7 @@ tensor tensor::operator /( const float val )
         m_tensor_array[d1][d2] /= val;
     }
 
-    return *this;
+    return std::move(*this);
 }
 
 tensor tensor_operation::group( const tensor& input )
@@ -208,17 +216,33 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
     return output;
 }
 
-tensor tensor_operation::multrans( const tensor& inputA, const tensor& inputB )
+tensor tensor_operation::multrans1( const tensor& inputA, const tensor& inputB )
 {
     using namespace boost::numeric::ublas;
 
-    _assert_multrans_sizes( inputA, inputB );
+    _assert_multrans1_sizes( inputA, inputB );
 
     tensor output;
-    output.resize( inputA.h(), inputB.h(), inputA.d1(), inputB.d2() );
+    output.resize( inputA.h(), inputB.h(), inputA.d1(), inputA.d2() );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
         output.m(d1,d2) = prod( trans( inputA.c_m(d1,d2) ), inputB.c_m(d1,d2) );
+    }
+
+    return output;
+}
+
+tensor tensor_operation::multrans2( const tensor& inputA, const tensor& inputB )
+{
+    using namespace boost::numeric::ublas;
+
+    _assert_multrans2_sizes( inputA, inputB );
+
+    tensor output;
+    output.resize( inputA.w(), inputB.w(), inputA.d1(), inputA.d2() );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m(d1,d2) = prod( inputA.c_m(d1,d2), trans( inputB.c_m(d1,d2) ) );
     }
 
     return output;
@@ -317,6 +341,25 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operat
     auto stepsY = input.h() + filter.h() - 1;
 
     output.resize( stepsX, stepsY, 1, filter.d1() );
+
+    // TODO-CNN
+
+    return output;
+}
+
+template <>
+tensor tensor_operation::convolve<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+    const tensor& input, const tensor& filter, const int stride )
+{
+    // TODO-CNN : size assert
+
+    tensor output;
+
+    // W2 = W1 - F + 1
+    auto stepsX = input.w() - filter.w() + 1;
+    auto stepsY = input.h() - filter.h() + 1;
+
+    output.resize( stepsX, stepsY, input.d2(), filter.d2() );
 
     // TODO-CNN
 

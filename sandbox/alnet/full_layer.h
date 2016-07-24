@@ -33,7 +33,7 @@ class full_layer : public layer
 {
 public:
 
-    full_layer( const std::string& name ) : m_name( name ), m_group_features( false ) {}
+    full_layer( const std::string& name ) : m_name( name ), m_prev_group_features( false ) {}
 	virtual ~full_layer() {}
 
     virtual const std::string type() const override { return "full " + m_name; }
@@ -56,10 +56,10 @@ public:
             if ( depth > 1 )
                 throw network_exception( "depth mismatch between full layer and previous layer" );
             else
-                m_group_features = true;
+                m_prev_group_features = true;
         }
 
-        size_t k_group = m_group_features ? m_prev_layer->depth() : 1;
+        size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
 
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
@@ -83,9 +83,9 @@ public:
 
     virtual void feed_forward() override
     {
-        const tensor& prev_feature_maps = m_prev_layer->feature_maps();
+        const auto& prev_feature_maps = m_prev_layer->feature_maps();
 
-        if ( m_group_features )
+        if ( m_prev_group_features )
         {
             const tensor grouped_feature_maps = nto::group( prev_feature_maps );
 
@@ -108,13 +108,13 @@ public:
 
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
 
-        if ( m_group_features )
+        if ( m_prev_group_features )
         {
-            const tensor grouped_feature_maps = nto::group( prev_feature_maps );
+            const auto&& grouped_feature_maps = nto::group( prev_feature_maps );
 
             const tensor grouped_error_maps = nto::elemul(
                 nto::d_sig( grouped_feature_maps ),
-                nto::multrans( m_weights, m_error_maps )
+                nto::multrans1( m_weights, m_error_maps )
             );
 
             nto::ungroup( grouped_error_maps, m_prev_layer->error_maps() );
@@ -123,7 +123,7 @@ public:
         {
         	m_prev_layer->error_maps() = nto::elemul(
             	nto::d_sig( prev_feature_maps ),
-            	nto::multrans( m_weights, m_error_maps )
+            	nto::multrans1( m_weights, m_error_maps )
         	);
         }
     }
@@ -134,8 +134,21 @@ public:
 
         // TODO-CNN : is this real equivalent to:
         // bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() )
-        m_deltas_weights += nto::multrans( m_prev_layer->error_maps(), m_feature_maps );
-        m_deltas_bias += m_prev_layer->error_maps();
+
+        if ( m_prev_group_features )
+        {
+            const auto&& grouped_error_maps = nto::group( m_prev_layer->error_maps() );
+
+            // TODO-CNN : is this real equivalent to:
+            // bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() )
+            m_deltas_weights += nto::multrans2( m_feature_maps, grouped_error_maps );
+        	m_deltas_bias += m_error_maps;
+        }
+        else
+        {
+            m_deltas_weights += nto::multrans2( m_feature_maps, m_prev_layer->error_maps() );
+            m_deltas_bias += m_error_maps;
+        }
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
@@ -163,7 +176,7 @@ private:
     tensor m_weights;
     tensor m_deltas_weights;
 
-    bool m_group_features;
+    bool m_prev_group_features;
     bool m_output;
 
     const std::string m_name;

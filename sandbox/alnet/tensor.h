@@ -52,6 +52,15 @@ public:
     // move constructor
     tensor( const tensor&& t )
     {
+		// TODO-CNN
+		// NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
+        m_width = t.m_width;
+        m_height = t.m_height;
+        m_depth1 = t.m_depth1;
+        m_depth2 = t.m_depth2;
+
+        m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+
         tensor_foreach() {
             m_tensor_array[d1][d2] = std::move( t.m_tensor_array[d1][d2] );
         }
@@ -60,6 +69,15 @@ public:
     // copy constructor
     tensor( const tensor& t )
     {
+		// TODO-CNN
+		// NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
+        m_width = t.m_width;
+        m_height = t.m_height;
+        m_depth1 = t.m_depth1;
+        m_depth2 = t.m_depth2;
+
+        m_tensor_array.resize( boost::extents[t.m_depth1][t.m_depth2] );
+
         tensor_foreach() {
             m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
         }
@@ -178,11 +196,17 @@ public:
     static tensor muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC );
 
     // returns trans(A).B
-    static tensor multrans( const tensor& inputA, const tensor& inputB );
+    static tensor multrans1( const tensor& inputA, const tensor& inputB );
+
+    // returns A.trans(B)
+    static tensor multrans2( const tensor& inputA, const tensor& inputB );
 
     static void sig( tensor& input );
 
     static tensor d_sig( const tensor& input );
+
+    template<kernel_mode km, pad_mode pm>
+    static tensor convolve( const tensor& input, const tensor& filter, const int stride );
 
     template<kernel_mode km, pad_mode pm>
     static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );
@@ -194,6 +218,7 @@ public:
     static void optimize( std::shared_ptr<optimizer> optimizer, tensor& input, tensor& deltas )
     {
         // TODO-CNN
+        //optimizer->update( input, deltas );
     }
 };
 

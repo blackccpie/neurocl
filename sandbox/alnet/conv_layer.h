@@ -114,9 +114,9 @@ public:
     {
         // Compute gradients
 
-        tensor grad = nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
+        auto&& grad = nto::convolve<nto::kernel_flip,nto::pad_valid>(
             m_prev_layer->error_maps(),
-            m_prev_layer->feature_maps(),
+            m_feature_maps,
             m_filter_stride);
 
         m_filters_delta += grad / static_cast<float>( m_filters_delta.d2() );
