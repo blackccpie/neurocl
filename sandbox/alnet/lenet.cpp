@@ -117,7 +117,7 @@ const output_ptr lenet::output()
     // TODO-CNN : for now works only because last layer has no depth for now
 
     std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::output_layer>( m_layers.back() );
-    
+
     output_ptr o( output_layer->width() * output_layer->height() );
     output_layer->fill( 0, 0, o.outputs.get() );
 

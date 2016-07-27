@@ -134,7 +134,7 @@ tensor tensor::operator /( const float val )
     return std::move(*this);
 }
 
-tensor tensor_operation::mul( const float& val, const tensor& input )
+tensor tensor_operation::scale( const float& val, const tensor& input )
 {
     tensor output;
     output.resize( input );
@@ -156,6 +156,21 @@ tensor tensor_operation::add( const tensor& inputA, const tensor& inputB )
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
         output.m_tensor_array[d1][d2] = inputA.m_tensor_array[d1][d2]
                 + inputB.m_tensor_array[d1][d2];
+    }
+
+    return std::move(output);
+}
+
+tensor tensor_operation::sub( const tensor& inputA, const tensor& inputB )
+{
+    _assert_same_sizes( inputA, inputB );
+
+    tensor output;
+    output.resize( inputA );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        output.m_tensor_array[d1][d2] = inputA.m_tensor_array[d1][d2]
+                - inputB.m_tensor_array[d1][d2];
     }
 
     return std::move(output);

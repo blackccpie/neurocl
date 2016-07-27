@@ -118,6 +118,7 @@ public:
         resize( other.w(), other.h(), other.d1(), other.d2() );
     }
 
+    // TODO-CNN : name of the function doesn't tell the matrix will be set to 0 
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
     {
         m_width = width;
@@ -214,10 +215,13 @@ public:
 public:
 
     // returns aB (scalar product)
-    static tensor mul( const float& val, const tensor& input );
+    static tensor scale( const float& val, const tensor& input );
 
     // returns A + B
     static tensor add( const tensor& inputA, const tensor& inputB );
+
+    // returns A - B
+    static tensor sub( const tensor& inputA, const tensor& inputB );
 
     // groups all submatrixes into a single one
     static tensor group( const tensor& input );
@@ -260,12 +264,17 @@ public:
 
 inline tensor operator*( const float& val, const tensor& t )
 {
-    return std::move( tensor_operation::mul( val, t ) );
+    return std::move( tensor_operation::scale( val, t ) );
 };
 
 inline tensor operator+( const tensor& t1, const tensor& t2 )
 {
     return std::move( tensor_operation::add( t1, t2 ) );
+};
+
+inline tensor operator-( const tensor& t1, const tensor& t2 )
+{
+    return std::move( tensor_operation::sub( t1, t2 ) );
 };
 
 } //namespace neurocl

@@ -51,8 +51,13 @@ public:
 
         m_prev_layer = prev_layer;
 
-        m_feature_maps.resize( width, height, 1, depth );
+        // TODO-CNN : no need to allocate in non-training mode!
+        m_training_output.resize( width, height, 1, depth );
+
+        // TODO-CNN : what to do with error_maps, unused here!
         m_error_maps.resize( width, height, 1, depth );
+
+        m_feature_maps.resize( width, height, 1, depth );
         m_bias.resize( width, height, 1, depth );
         m_deltas_bias.resize( width, height, 1, depth );
         m_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
@@ -65,7 +70,7 @@ public:
                 const size_t data_size,
                 const float* data )
     {
-        m_feature_maps.fill( depth1, depth2, data_size, data );
+        m_training_output.fill( depth1, depth2, data_size, data );
     }
 
     // fill outcoming buffer
@@ -106,10 +111,10 @@ public:
 
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
 
-        /*m_prev_layer->error_maps() = nto::elemul(
+        m_prev_layer->error_maps() = nto::elemul(
             nto::d_sig( prev_feature_maps ),
-            ( m_feature_maps - m_training_output )
-        );*/
+            nto::multrans1( m_weights, m_feature_maps - m_training_output )
+        );
     }
 
     virtual void update_gradients() override
@@ -135,6 +140,7 @@ private:
 
     std::shared_ptr<layer> m_prev_layer;
 
+    tensor m_training_output;
     tensor m_feature_maps;
     tensor m_error_maps;
 
