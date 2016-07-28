@@ -118,7 +118,7 @@ public:
         resize( other.w(), other.h(), other.d1(), other.d2() );
     }
 
-    // TODO-CNN : name of the function doesn't tell the matrix will be set to 0 
+    // TODO-CNN : name of the function doesn't tell the matrix will be set to 0
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
     {
         m_width = width;

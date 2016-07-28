@@ -51,7 +51,14 @@ inline void _assert_no_replication( const tensor& t )
 inline void _assert_cross_depths21( const tensor& t1, const tensor& t2 )
 {
     if ( t1.d2() != t2.d1() )
-        throw network_exception( "inconsistent tensor number of feature maps" );
+        throw network_exception( "inconsistent tensor number of feature maps (t1.depth2 != t2.depth1)" );
+}
+
+// check that t1.depth2 == t2.depth2
+inline void _assert_cross_depths22( const tensor& t1, const tensor& t2 )
+{
+    if ( t1.d2() != t2.d2() )
+        throw network_exception( "inconsistent tensor number of feature maps (t1.depth2 != t2.depth2)" );
 }
 
 inline void _assert_muladd_sizes( const tensor& t1, const tensor& t2, const tensor& t3 )
@@ -340,6 +347,7 @@ struct flipper
     matrixF m_flipped;
 };
 
+// TODO-CNN : name doesn't reflect the feature maps feed forwarding specifity of this method
 template <>
 tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
     const tensor& input, const tensor& filter, const int stride )
@@ -359,23 +367,25 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
 
     flipper f( filter.w(), filter.h() );
 
-    // NOTE : tricky thing is that filter tensor replication level (filter.d2)
-    // is equal to input tensor feature maps level (prev_layer.d1);
+    // NOTE : tricky thing is that filter tensor replication level (filter.d1)
+    // is equal to input tensor feature maps level (prev_layer.d2);
     // whereas filter feature maps level is equal to output tensor feature maps level
 
-    for ( auto d1 = 0; d1 < filter.d1(); d1++ )
+    for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
-        for ( auto d2 = 0; d2 < filter.d2(); d2++ )
+    	for ( auto d1 = 0; d1 < filter.d1(); d1++ )
         {
             for ( auto j=0; j<stepsY; j++ )
             {
                 for ( auto i=0; i<stepsX; i++ )
                 {
+                    // multiply
                     matrixF conv = element_prod( f.flipped( filter.c_m(d1,d2) ),
                         project( input.c_m(0,d1),
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
+                    // accumulate + add
                     output.m(0,d2)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
@@ -385,30 +395,68 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
     return output;
 }
 
+// TODO-CNN : name doesn't reflect the error back propagation specifity of this method
 template <>
-tensor tensor_operation::convolve_add<tensor_operation::kernel_std,tensor_operation::pad_full>(
+tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation::pad_full>(
     const tensor& input, const tensor& filter, const int stride )
 {
-    // TODO-CNN : size assert
+    using namespace boost::numeric::ublas;
 
-    tensor output;
+    _assert_cross_depths22( input, filter );
+
+    auto _FmX = filter.w() - 1;
+    auto _FmY = filter.h() - 1;
 
     // W1 = W2 + F - 1
-    auto stepsX = input.w() + filter.w() - 1;
-    auto stepsY = input.h() + filter.h() - 1;
+    auto stepsX = input.w() + _FmX;
+    auto stepsY = input.h() + _FmY;
 
+    tensor output;
     output.resize( stepsX, stepsY, 1, filter.d1() );
 
-    // TODO-CNN
+    // W3 = W2 + 2F - 2
+    auto padX = stepsX + _FmX;
+    auto padY = stepsY + _FmY;
+
+    tensor padded_input;
+    padded_input.resize( padX, padY, 1, filter.d2() );
+
+    for ( auto d2 = 0; d2 < filter.d2(); d2++ )
+    {
+        for ( auto d1 = 0; d1 < filter.d1(); d1++ )
+        {
+            for ( auto j=0; j<stepsY; j++ )
+            {
+                for ( auto i=0; i<stepsX; i++ )
+                {
+                    // update padded matrix
+                    project(    padded_input.m(0,d2),
+                                range( _FmX, _FmX + stepsX ),
+                                range( _FmY, _FmY + stepsY ) )
+                        = input.c_m(0,d2);
+
+					// multiply
+                    matrixF conv = element_prod( filter.c_m(d1,d2),
+                        project( padded_input.c_m(0,d2),
+                            range( i, i+filter.w() ),
+                            range( j, j+filter.h() ) ) );
+
+                    // accumulate + divide (proportionnaly to forward feed accumulation)
+                    output.m(0,d1)(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                }
+            }
+        }
+    }
 
     return output;
 }
 
+// TODO-CNN : name doesn't reflect the filters gradient update specifity of this method
 template <>
 tensor tensor_operation::convolve<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
     const tensor& input, const tensor& filter, const int stride )
 {
-    // TODO-CNN : size assert
+    using namespace boost::numeric::ublas;
 
     tensor output;
 
@@ -416,9 +464,31 @@ tensor tensor_operation::convolve<tensor_operation::kernel_flip,tensor_operation
     auto stepsX = input.w() - filter.w() + 1;
     auto stepsY = input.h() - filter.h() + 1;
 
+    // no replication in output features
     output.resize( stepsX, stepsY, input.d2(), filter.d2() );
 
-    // TODO-CNN
+    flipper f( filter.w(), filter.h() );
+
+    for ( auto d1 = 0; d1 < input.d2(); d1++ )
+    {
+        for ( auto d2 = 0; d2 < filter.d2(); d2++ )
+        {
+            for ( auto j=0; j<stepsY; j++ )
+            {
+                for ( auto i=0; i<stepsX; i++ )
+                {
+					// multiply
+                    matrixF conv = element_prod( f.flipped( filter.c_m(0,d2) ),
+                        project( input.c_m(0,d1),
+                            range( i, i+filter.w() ),
+                            range( j, j+filter.h() ) ) );
+
+                    // accumulate
+                    output.m(d1,d2)(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                }
+            }
+        }
+    }
 
     return output;
 }
