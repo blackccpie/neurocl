@@ -36,6 +36,8 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+//#define VERBOSE_LENET
+
 lenet::lenet() : m_training_samples( 0 )
 {
     float learning_rate = 3.0f/*0.01f*/;
@@ -93,7 +95,9 @@ void lenet::set_input(  const size_t& in_size, const float* in )
     if ( in_size > input_layer->size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
+#ifdef VERBOSE_LENET
     std::cout << "lenet::set_input - input (" << in << ") size = " << in_size << std::endl;
+#endif
 
     input_layer->fill( 0, 0, in_size, in );
 }
@@ -107,7 +111,9 @@ void lenet::set_output( const size_t& out_size, const float* out )
     if ( out_size > output_layer->size() )
         throw network_exception( "output size exceeds allocated layer size!" );
 
+#ifdef VERBOSE_LENET
     std::cout << "lenet::set_output - output (" << out << ") size = " << out_size << std::endl;
+#endif
 
     output_layer->fill( 0, 0, out_size, out );
 }
@@ -138,7 +144,9 @@ void lenet::feed_forward()
 {
     for ( auto _layer : m_layers )
     {
+#ifdef VERBOSE_LENET
         std::cout << "--> feed forwarding " << _layer->type() << " layer" << std::endl;
+#endif
         _layer->feed_forward();
     }
 }
@@ -147,13 +155,17 @@ void lenet::back_propagate()
 {
     for ( auto _layer : boost::adaptors::reverse( m_layers ) )
     {
+#ifdef VERBOSE_LENET
         std::cout << "--> back propagating " << _layer->type() << " layer" << std::endl;
+#endif
         _layer->back_propagate();
     }
 
     for ( auto _layer : m_layers )
     {
+#ifdef VERBOSE_LENET
         std::cout << "--> updating gradients " << _layer->type() << " layer" << std::endl;
+#endif
         _layer->update_gradients();
     }
 
