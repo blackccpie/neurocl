@@ -66,7 +66,7 @@ public:
 
         m_prev_layer = prev_layer;
 
-        m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, true/*rand*/ );
         m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );

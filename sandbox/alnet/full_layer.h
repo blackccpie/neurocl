@@ -65,9 +65,9 @@ public:
 
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
-        m_bias.resize( width, height, 1, depth );
+        m_bias.resize( width, height, 1, depth, true/*rand*/ );
         m_deltas_bias.resize( width, height, 1, depth );
-        m_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth );
+        m_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth, true/*rand*/ );
         m_deltas_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth );
     }
 

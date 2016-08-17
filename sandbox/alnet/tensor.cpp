@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_exception.h"
+#include "network_utils.h"
 #include "optimizer.h"
 #include "tensor.h"
 
@@ -33,6 +34,17 @@ namespace neurocl {
 inline float sigmoid( float x )
 {
     return 1.f / ( 1.f + std::exp(-x) );
+}
+
+template<class T>
+inline void random_normal_init( T& container, const float stddev = 1.f )
+{
+    utils::rand_gaussian_generator rgg( 0.f, stddev );
+
+    for( auto& element : container.data() )
+    {
+        element = rgg();
+    }
 }
 
 inline void _assert_multiple( const tensor& t, const size_t& divider )
@@ -105,6 +117,23 @@ void tensor::_assert_same_size( const tensor& t )
         ( m_depth1 != t.d1() ) ||
         ( m_depth2 != t.d2() ) )
         throw network_exception( "inconsistent tensor size" );
+}
+
+void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, bool rand )
+{
+    m_width = width;
+    m_height = height;
+    m_depth1 = depth1;
+    m_depth2 = depth2;
+
+    m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+    for( auto _matrices : m_tensor_array )
+        for( auto& _matrix : _matrices )
+        {
+            _matrix = matrixF( m_width, m_height, 0.f );
+            if ( rand )
+                random_normal_init( _matrix, 1.f / std::sqrt( m_width * m_height ) );
+        }
 }
 
 // TODO-CNN : write rvalue ref equivalent

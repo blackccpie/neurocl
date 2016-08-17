@@ -119,18 +119,7 @@ public:
     }
 
     // TODO-CNN : name of the function doesn't tell the matrix will be set to 0
-    void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
-    {
-        m_width = width;
-        m_height = height;
-        m_depth1 = depth1;
-        m_depth2 = depth2;
-
-        m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
-        for( auto _matrices : m_tensor_array )
-            for( auto& _matrix : _matrices )
-                _matrix = matrixF( m_width, m_height, 0.f );
-    }
+    void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, bool rand = false );
 
     void clear()
     {
