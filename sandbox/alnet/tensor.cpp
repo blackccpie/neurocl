@@ -431,8 +431,8 @@ tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation:
                 {
                     // update padded matrix
                     project(    padded_input.m(0,d2),
-                                range( _FmX, _FmX + stepsX ),
-                                range( _FmY, _FmY + stepsY ) )
+                                range( _FmX, _FmX + input.w() ),
+                                range( _FmY, _FmY + input.h() ) )
                         = input.c_m(0,d2);
 
 					// multiply
