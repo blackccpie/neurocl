@@ -157,6 +157,8 @@ public:
                     data );
     }
 
+    const std::string dump( const size_t d1, const size_t d2 );
+
 protected:
 
     friend class tensor_operation;

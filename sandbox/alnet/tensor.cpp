@@ -31,6 +31,24 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+const std::string dump_mat( const matrixF& mat /*, boost::optional<std::string> label = boost::none*/ )
+{
+    std::string separator;
+    std::stringstream ss;
+    //ss << ( label ? label.get() : "" ) << std::endl;
+    for( matrixF::const_iterator1 it1 = mat.begin1(); it1 != mat.end1(); ++it1 )
+    {
+        for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
+        {
+            ss << separator << *it2;
+            separator = " ";
+        }
+        separator = "";
+        ss << std::endl;
+    }
+    return ss.str();
+}
+
 inline float sigmoid( float x )
 {
     return 1.f / ( 1.f + std::exp(-x) );
@@ -117,6 +135,11 @@ void tensor::_assert_same_size( const tensor& t )
         ( m_depth1 != t.d1() ) ||
         ( m_depth2 != t.d2() ) )
         throw network_exception( "inconsistent tensor size" );
+}
+
+const std::string tensor::dump( const size_t d1, const size_t d2 )
+{
+    return dump_mat( m_tensor_array[d1][d2] );
 }
 
 void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, bool rand )
