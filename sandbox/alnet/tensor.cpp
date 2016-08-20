@@ -137,7 +137,7 @@ void tensor::_assert_same_size( const tensor& t )
         throw network_exception( "inconsistent tensor size" );
 }
 
-const std::string tensor::dump( const size_t d1, const size_t d2 )
+const std::string tensor::dump( const size_t d1, const size_t d2 ) const
 {
     return dump_mat( m_tensor_array[d1][d2] );
 }

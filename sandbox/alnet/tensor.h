@@ -157,7 +157,7 @@ public:
                     data );
     }
 
-    const std::string dump( const size_t d1, const size_t d2 );
+    const std::string dump( const size_t d1, const size_t d2 ) const;
 
 protected:
 

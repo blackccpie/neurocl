@@ -135,21 +135,16 @@ public:
     {
         // Compute gradients
 
-        // TODO-CNN : is this real equivalent to:
-        // bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() )
-
         if ( m_prev_group_features )
         {
-            const auto&& grouped_error_maps = nto::group( m_prev_layer->error_maps() );
+            const auto&& grouped_feature_maps = nto::group( m_prev_layer->feature_maps() );
 
-            // TODO-CNN : is this real equivalent to:
-            // bnu::outer_prod( m_layers[i+1].errors(), m_layers[i].activations() )
-            m_deltas_weights += nto::multrans2( m_feature_maps, grouped_error_maps );
+            m_deltas_weights += nto::multrans2( m_error_maps, grouped_feature_maps );
         	m_deltas_bias += m_error_maps;
         }
         else
         {
-            m_deltas_weights += nto::multrans2( m_feature_maps, m_prev_layer->error_maps() );
+            m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
             m_deltas_bias += m_error_maps;
         }
     }
@@ -173,7 +168,7 @@ private:
 
     tensor m_feature_maps;
     tensor m_error_maps;
-    
+
     tensor m_bias;
     tensor m_deltas_bias;
 
