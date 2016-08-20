@@ -199,7 +199,7 @@ tensor tensor_operation::scale( const float& val, const tensor& input )
     output.resize( input );
 
     tensor_foreach_p( input.d1(), input.d2() ) {
-        output.m_tensor_array[d1][d2] *= val;
+        output.m_tensor_array[d1][d2] = val * input.m_tensor_array[d1][d2];
     }
 
     return std::move(output);
@@ -423,6 +423,7 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
     // is equal to input tensor feature maps level (prev_layer.d2);
     // whereas filter feature maps level is equal to output tensor feature maps level
 
+    //#pragma omp parallel for
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
     	for ( auto d1 = 0; d1 < filter.d1(); d1++ )
@@ -473,6 +474,7 @@ tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation:
     tensor padded_input;
     padded_input.resize( padX, padY, 1, filter.d2() );
 
+    //#pragma omp parallel for
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
         for ( auto d1 = 0; d1 < filter.d1(); d1++ )
@@ -493,7 +495,7 @@ tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation:
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
-                    // accumulate + divide (proportionnaly to forward feed accumulation)
+                    // accumulate + divide (proportionnaly to forward feed accumulation) divide??
                     output.m(0,d1)(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
@@ -523,6 +525,7 @@ tensor tensor_operation::convolve<tensor_operation::kernel_flip,tensor_operation
 
     for ( auto d1 = 0; d1 < input.d2(); d1++ )
     {
+        //#pragma omp parallel for
         for ( auto d2 = 0; d2 < filter.d2(); d2++ )
         {
             for ( auto j=0; j<stepsY; j++ )
@@ -638,13 +641,13 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
 }
 
 template <>
-void tensor_operation::optimize<tensor_operation::optim_std>( const std::shared_ptr<optimizer>& optimizer, tensor& input, tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optim_std>( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas )
 {
     optimizer->update( input, deltas );
 }
 
 template <>
-void tensor_operation::optimize<tensor_operation::optim_redux>( const std::shared_ptr<optimizer>& optimizer, tensor& input, tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optim_redux>( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas )
 {
     optimizer->update_redux( input, deltas );
 }

@@ -250,7 +250,7 @@ public:
     static tensor d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample );
 
     template<optimize_mode om>
-    static void optimize( const std::shared_ptr<optimizer>& optimizer, tensor& input, tensor& deltas );
+    static void optimize( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas );
 };
 
 inline tensor operator*( const float& val, const tensor& t )
