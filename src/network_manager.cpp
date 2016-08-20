@@ -145,7 +145,7 @@ void network_manager::batch_train( 	const samples_manager& smp_manager,
 			if ( progress_fct )
 				progress_fct( progress );
 
-            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%%";// << std::endl;
+            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
         }
 
         smp_manager.rewind();
@@ -185,7 +185,6 @@ void network_manager::compute_output( sample& s )
     m_net->set_input( s.isample_size, s.isample );
     m_net->feed_forward();
     output_ptr output_layer = m_net->output();
-    // TODO-AM : not usefull, pass the sample to net?
     std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
