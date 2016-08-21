@@ -68,6 +68,8 @@ public:
 
         m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, true/*rand*/ );
         m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        m_bias.resize( width, height, 1, depth, true/*rand*/ );
+        m_deltas_bias.resize( width, height, 1, depth );
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
     }
@@ -82,6 +84,7 @@ public:
     virtual void prepare_training() override
     {
         m_filters_delta.clear();
+        m_deltas_bias.clear();
     }
 
     virtual void feed_forward() override
@@ -91,22 +94,31 @@ public:
             m_filters,
             m_filter_stride );
 
+        m_feature_maps += m_bias;
+
         nto::sig( m_feature_maps );
     }
 
     virtual void back_propagate() override
     {
+        const tensor& prev_feature_maps = m_prev_layer->feature_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps();
+
+        // Need to back prop?
+        if ( prev_error_maps.empty() )
+            return;
+
         // Compute errors
 
-        m_prev_layer->error_maps() = nto::convolve<nto::kernel_std,nto::pad_full>(
+        prev_error_maps = nto::convolve<nto::kernel_std,nto::pad_full>(
             m_error_maps,
             m_filters,
             m_filter_stride );
 
         // multiply by sigma derivative
-        m_prev_layer->error_maps() = nto::elemul(
-            nto::d_sig( m_prev_layer->feature_maps() ),
-            m_prev_layer->error_maps()
+        prev_error_maps = nto::elemul(
+            nto::d_sig( prev_feature_maps ),
+            prev_error_maps
         );
     }
 
@@ -127,6 +139,7 @@ public:
         // Optimize gradients
 
         nto::optimize<nto::optim_std>( optimizer, m_filters, m_filters_delta );
+        nto::optimize<nto::optim_redux>( optimizer, m_bias, m_deltas_bias );
     }
 
 protected:
@@ -143,6 +156,10 @@ private:
 
     tensor m_filters;
     tensor m_filters_delta;
+
+    tensor m_bias;
+    tensor m_deltas_bias;
+
     tensor m_feature_maps;
     tensor m_error_maps;
 
