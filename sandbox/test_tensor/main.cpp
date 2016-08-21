@@ -137,5 +137,49 @@ int main( int argc, char *argv[] )
 
     std::cout << "multrans2 test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
+    // SUBSAMPLE
+
+    A.resize(10,10,1,1);
+    matrixF matA(10,10);
+    for( auto i=0; i<10; i++ )
+        for( auto j=0; j<10; j++ )
+            if ( ( i%2 == 0 ) && ( j%2 == 0 ) )
+                matA(i,j) = 1.f;
+    A.fill(0,0,100,&matA.data()[0]);
+
+    Comp.resize(5,5,1,1);
+    Comp.fill( 1.f );
+
+    Res.resize(5,5,1,1);
+
+    Res = nto::subsample( A, 2 );
+
+    std::cout << "subsample test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    // D_SUBSAMPLE
+
+    A.resize(5,5,1,1);
+    A.fill( 1.f );
+
+    B.resize(10,10,1,1);
+    matrixF matB(10,10);
+    for( auto i=0; i<10; i++ )
+        for( auto j=0; j<10; j++ )
+            if ( ( i%2 == 0 ) && ( j%2 == 0 ) )
+                matB(i,j) = 1.f;
+    B.fill(0,0,100,&matB.data()[0]);
+
+    Comp.resize(10,10,1,1);
+    Comp = B;
+
+    Res.resize(10,10,1,1);
+
+    Res = nto::d_subsample( A, B, 2 );
+
+    //std::cout << B.dump(0,0) << std::endl << std::endl;
+    //std::cout << Res.dump(0,0) << std::endl;
+
+    std::cout << "d_subsample test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
     return 0;
 }
