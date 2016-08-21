@@ -82,6 +82,8 @@ int main( int argc, char *argv[] )
         	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
         }
 
+        mean_rmse /= static_cast<float>( training_samples.size() );
+
         std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
         std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size()
             << " (" << static_cast<int>( 100 * _rmse_score / training_samples.size() ) << "%%)" << std::endl;
