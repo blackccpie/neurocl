@@ -49,6 +49,8 @@ public:
     tensor() : m_width(0), m_height(0), m_depth1(0), m_depth2(0) {}
     virtual ~tensor() {}
 
+    bool empty() const { return ( m_depth1 == 0 ) && ( m_depth2 == 0 ); }
+
     // move constructor
     tensor( const tensor&& t )
     {
@@ -137,6 +139,23 @@ public:
     tensor operator +=( const tensor& other );
     tensor operator -=( const tensor& other );
     tensor operator /( const float val );
+    bool operator ==( const tensor& other ) const
+    {
+        tensor_foreach() {
+            if ( !boost::numeric::ublas::detail::equals(
+                m_tensor_array[d1][d2], other.m_tensor_array[d1][d2],
+                std::numeric_limits<matrixF::value_type>::epsilon(), std::numeric_limits<matrixF::value_type>::min() ) )
+                return false;
+        }
+        return true;
+    }
+
+    void fill( const float& val )
+    {
+        tensor_foreach() {
+            m_tensor_array[d1][d2] = boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
+        }
+    }
 
     void fill(  const size_t d1,
                 const size_t d2,
