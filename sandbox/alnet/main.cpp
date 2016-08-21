@@ -79,8 +79,14 @@ int main( int argc, char *argv[] )
             if ( tsample.classified() )
                 ++_classif_score;
 
-        	std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
+        	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
         }
+
+        std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
+        std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size()
+            << " (" << static_cast<int>( 100 * _rmse_score / training_samples.size() ) << "%%)" << std::endl;
+        std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size()
+            << " (" << static_cast<int>( 100 * _classif_score / training_samples.size() ) << "%%)" << std::endl;
     }
     catch( neurocl::network_exception& e )
     {
