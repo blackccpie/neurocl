@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+#include "network_exception.h"
+
 #include <cstddef>
 
 namespace neurocl {
@@ -38,6 +40,9 @@ public:
 
     void set_size( const size_t& size )
     {
+        if ( !size )
+            throw network_exception( "cannot set optimizer size to zero" );
+
         m_set_size = size;
     }
 
