@@ -107,9 +107,14 @@ public:
 
     virtual void back_propagate() override
     {
-        // Compute errors
-
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps();
+
+        // Need to back prop?
+        if ( prev_error_maps.empty() )
+            return;
+
+        // Compute errors
 
         if ( m_prev_group_features )
         {
@@ -120,11 +125,11 @@ public:
                 nto::multrans1( m_weights, m_error_maps )
             );
 
-            nto::ungroup( grouped_error_maps, m_prev_layer->error_maps() );
+            nto::ungroup( grouped_error_maps, prev_error_maps );
         }
         else
         {
-        	m_prev_layer->error_maps() = nto::elemul(
+        	prev_error_maps = nto::elemul(
             	nto::d_sig( prev_feature_maps ),
             	nto::multrans1( m_weights, m_error_maps )
         	);

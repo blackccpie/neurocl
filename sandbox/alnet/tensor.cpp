@@ -49,7 +49,7 @@ const std::string dump_mat( const matrixF& mat /*, boost::optional<std::string> 
     return ss.str();
 }
 
-inline float sigmoid( float& x )
+inline float sigmoid( const float& x )
 {
     return 1.f / ( 1.f + std::exp(-x) );
 }
@@ -369,7 +369,7 @@ void tensor_operation::sig( tensor& input )
     tensor_foreach_p( input.d1(), input.d2() ) {
         std::for_each(  input.m(d1,d2).data().begin(),
                         input.m(d1,d2).data().end(),
-                        std::ptr_fun( sigmoid ) );
+                        []( float& a) { a = sigmoid( a ); } );
     }
 }
 

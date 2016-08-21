@@ -45,7 +45,6 @@ public:
         std::cout << "populating input layer " << std::endl;
 
         m_feature_maps.resize( width, height, 1, depth );
-        m_error_maps.resize( width, height, 1, depth );
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); };
@@ -72,7 +71,7 @@ public:
 protected:
 
     virtual tensor& error_maps() override
-        { return m_error_maps; }
+        { return m_error_maps; } // returns empty tensor
 
 private:
 

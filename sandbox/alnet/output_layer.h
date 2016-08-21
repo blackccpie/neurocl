@@ -107,9 +107,14 @@ public:
     {
         // TODO-CNN : no grouping managed yet!
 
-        // Compute errors
-
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps();
+
+        // Need to back prop?
+        if ( prev_error_maps.empty() )
+            return;
+
+        // Compute errors
 
         // compute output layer error
         m_error_maps = nto::elemul(
@@ -117,11 +122,11 @@ public:
             ( m_feature_maps - m_training_output )
         );
 
-        // compute previous layer error
-        m_prev_layer->error_maps() = nto::elemul(
-            	nto::d_sig( prev_feature_maps ),
-            	nto::multrans1( m_weights, m_error_maps )
-        	);
+        // compute previous layer error if needed
+    	prev_error_maps = nto::elemul(
+        		nto::d_sig( prev_feature_maps ),
+        		nto::multrans1( m_weights, m_error_maps )
+    		);
     }
 
     virtual void update_gradients() override
