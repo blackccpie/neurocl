@@ -126,7 +126,7 @@ public:
 
     virtual void update_gradients() override
     {
-        m_deltas_weights += nto::multrans2( m_feature_maps, m_prev_layer->error_maps() );
+        m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
         m_deltas_bias += m_error_maps;
     }
 
