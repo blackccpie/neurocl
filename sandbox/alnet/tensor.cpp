@@ -566,15 +566,15 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
         for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); it1++, prev_it1 += subsample )
         {
             auto prev_it2 = prev_it1.begin();
-            for( auto it2 = it1.begin(); it2 !=it1.end(); it2++, prev_it2 += subsample )
+            for( auto it2 = it1.begin(); it2 != it1.end(); it2++, prev_it2 += subsample )
             {
                 float max_value = std::numeric_limits<float_t>::lowest();
 
                 // could use ublas::project + std::accumulate + std::max for more compact expression
 
                 // compute max in subsampling zone
-                for ( auto i =0; i<subsample; i++ )
-                    for ( auto j =0; j<subsample; j++ )
+                for ( auto j =0; j<subsample; j++ )
+                	for ( auto i =0; i<subsample; i++ )
                     {
                         const float& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )
@@ -615,7 +615,7 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
         {
             auto prev_err_it2 = prev_err_iter1.begin();
             auto err_it2 = err_it1.begin();
-            for( auto prev_it2 = prev_it1.begin(); prev_it2 !=prev_it1.end();
+            for( auto prev_it2 = prev_it1.begin(); prev_it2 != prev_it1.end();
                 prev_it2 += subsample, prev_err_it2 += subsample, ++err_it2 )
             {
                 float max_value = std::numeric_limits<float_t>::lowest();
@@ -623,12 +623,15 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
                 int max_offset = 0;
 
                 // compute max in subsampling zone
-                for ( auto i =0; i<subsample; i++ )
-                    for ( auto j =0; j<subsample; j++ )
+                for ( auto j =0; j<subsample; j++ )
+                	for ( auto i =0; i<subsample; i++ )
                     {
                         const float& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )
+                        {
+                            max_value = value;
                             max_offset = i + (j*prev_width);
+                        }
                     }
 
                 // update error on last layer max value pixel
