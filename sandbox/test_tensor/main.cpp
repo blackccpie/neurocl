@@ -78,9 +78,6 @@ int main( int argc, char *argv[] )
 
     nto::sig( Res );
 
-    //std::cout << Res.dump(0,0) << std::endl;
-    //std::cout << Comp.dump(0,0) << std::endl;
-
     std::cout << "sig test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
     // D_SIG
@@ -111,6 +108,24 @@ int main( int argc, char *argv[] )
 
     std::cout << "decrement test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
+    // SCALAR MULTIPLIER
+
+    A.fill( 2.f );
+
+    Comp.fill( 4.f );
+
+    Res = 2.f * A;
+
+    std::cout << "scalar multiplier test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    // SCALAR DIVIDER
+
+    Comp.fill( 1.f );
+
+    Res = A / 2.f;
+
+    std::cout << "scalar divider test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
     // MULTRANS1
 
     A.resize(1,4,1,1);
@@ -140,7 +155,7 @@ int main( int argc, char *argv[] )
     // SUBSAMPLE
 
     A.resize(10,10,1,1);
-    matrixF matA(10,10);
+    matrixF matA(10,10,0.f);
     for( auto i=0; i<10; i++ )
         for( auto j=0; j<10; j++ )
             if ( ( i%2 == 0 ) && ( j%2 == 0 ) )
