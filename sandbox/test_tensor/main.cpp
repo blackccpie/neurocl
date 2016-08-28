@@ -197,7 +197,7 @@ int main( int argc, char *argv[] )
 
     // CONVOLVE ADD FLIP/VALID
 
-    A.resize(6,6,1,1);
+    A.resize(6,6,1,2);
     matA.resize(6,6);
     for( auto i=0; i<6; i++ )
         for( auto j=0; j<6; j++ )
@@ -206,40 +206,39 @@ int main( int argc, char *argv[] )
             else
                 matA(i,j) = 1.f;
     A.fill(0,0,36,&matA.data()[0]);
+    A.fill(0,1,36,&matA.data()[0]);
 
-    B.resize(3,3,1,1);
+    B.resize(3,3,2,2);
     matB.resize(3,3);
     for( auto i=0; i<3; i++ )
         for( auto j=0; j<3; j++ )
                 matB(i,j) = 1.f;
     matB(2,2) = 2.f;
     B.fill(0,0,9,&matB.data()[0]);
+    B.fill(0,1,9,&matB.data()[0]);
+    B.fill(1,0,9,&matB.data()[0]);
+    B.fill(1,1,9,&matB.data()[0]);
 
-    Comp.resize(4,4,1,1);
+    Comp.resize(4,4,1,2);
     matrixF matComp(4,4);
     for( auto i=0; i<4; i++ )
         for( auto j=0; j<4; j++ )
             if ( ( i == 0 ) || ( i == 3 ) )
-                matComp(i,j) = 14.f;
+                matComp(i,j) = 28.f;
             else
-                matComp(i,j) = 13.f;
+                matComp(i,j) = 26.f;
     Comp.fill(0,0,16,&matComp.data()[0]);
+    Comp.fill(0,1,16,&matComp.data()[0]);
 
-    Res.resize(6,6,1,1);
+    Res.resize(6,6,1,2);
 
     Res = nto::convolve_add<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
 
     std::cout << "conv add flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
-    // CONVOLVE FLIP/VALID
-
-    Res = nto::convolve<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
-
-    std::cout << "conv flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
-
     // CONVOLVE STD/FULL
 
-    A.resize(4,4,1,1);
+    A.resize(4,4,1,2);
     matA.resize(4,4);
     for( auto i=0; i<4; i++ )
         for( auto j=0; j<4; j++ )
@@ -248,17 +247,19 @@ int main( int argc, char *argv[] )
             else
                 matA(i,j) = 1.f;
     A.fill(0,0,16,&matA.data()[0]);
+    A.fill(0,1,16,&matA.data()[0]);
 
-    Comp.resize(6,6,1,1);
-    std::vector<float> vComp({ 4,6,8,8,4,2,
-                        4,7,10,10,6,3,
-                        5,9,13,13,8,4,
-                        6,10,14,14,8,4,
-                        3,6,9,9,6,3,
-                        2,4,6,6,4,2});
+    Comp.resize(6,6,1,2);
+    std::vector<float> vComp({ 8,12,16,16,8,4,
+                        8,14,20,20,12,6,
+                        10,18,26,26,16,8,
+                        12,20,28,28,16,8,
+                        6,12,18,18,12,6,
+                        4,8,12,12,8,4});
     Comp.fill(0,0,36,&vComp[0]);
+    Comp.fill(0,1,36,&vComp[0]);
 
-    Res.resize(4,4,1,1);
+    Res.resize(6,6,1,2);
 
     Res = nto::convolve<nto::kernel_std,nto::pad_full>( A, B, 1 );
 
@@ -266,7 +267,42 @@ int main( int argc, char *argv[] )
 
     // CONVOLVE FLIP/VALID
 
-    //nto::convolve<nto::kernel_flip,nto::pad_valid>
+    A.resize(6,6,1,2);
+    matA.resize(6,6);
+    for( auto i=0; i<6; i++ )
+        for( auto j=0; j<6; j++ )
+            if ( i%4 == 0 )
+                matA(i,j) = 2.f;
+            else
+                matA(i,j) = 1.f;
+    A.fill(0,0,36,&matA.data()[0]);
+    A.fill(0,1,36,&matA.data()[0]);
+
+    B.resize(4,4,1,2);
+    matB.resize(4,4);
+    for( auto i=0; i<4; i++ )
+        for( auto j=0; j<4; j++ )
+                matB(i,j) = 1.f;
+    matB(3,3) = 2.f;
+    B.fill(0,0,16,&matB.data()[0]);
+    B.fill(0,1,16,&matB.data()[0]);
+
+    Comp.resize(3,3,2,2);
+    matComp.resize(3,3);
+    for( auto i=0; i<3; i++ )
+        for( auto j=0; j<3; j++ )
+            if ( i == 0 )
+                matComp(i,j) = 22.f;
+            else
+                matComp(i,j) = 21.f;
+    Comp.fill(0,0,9,&matComp.data()[0]);
+    Comp.fill(0,1,9,&matComp.data()[0]);
+    Comp.fill(1,0,9,&matComp.data()[0]);
+    Comp.fill(1,1,9,&matComp.data()[0]);
+
+    Res.resize(3,3,2,2);
+
+    Res = nto::convolve<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
 
     std::cout << "conv flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
