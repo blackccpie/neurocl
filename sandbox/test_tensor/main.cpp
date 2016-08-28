@@ -195,6 +195,34 @@ int main( int argc, char *argv[] )
 
     std::cout << "d_subsample test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
+    // GROUP
+
+    A.resize(5,5,1,2);
+    A.fill( 2.5f );
+
+    Comp.resize(10,5,1,1);
+    Comp.fill( 2.5f );
+
+    Res.resize(10,5,1,1);
+
+    Res = nto::group( A );
+
+    std::cout << "group test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    // UNGROUP
+
+    A.resize(10,5,1,1);
+    A.fill( 3.5f );
+
+    Comp.resize(5,5,1,2);
+    Comp.fill( 3.5f );
+
+    Res.resize(5,5,1,2);
+
+    nto::ungroup( A, Res );
+
+    std::cout << "ungroup test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
     // CONVOLVE ADD FLIP/VALID
 
     A.resize(6,6,1,2);
