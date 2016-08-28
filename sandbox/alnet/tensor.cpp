@@ -495,8 +495,9 @@ tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation:
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
-                    // accumulate + divide (proportionnaly to forward feed accumulation) divide??
-                    output.m(0,d1)(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    // accumulate + add
+                    // question was raised about the necessity to divide proportionnaly to forward feed accumulation filter replication
+                    output.m(0,d1)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
         }
