@@ -132,6 +132,7 @@ public:
             m_filter_stride);
 
         m_filters_delta += grad / static_cast<float>( m_filters_delta.d2() );
+        m_deltas_bias += m_error_maps;
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
