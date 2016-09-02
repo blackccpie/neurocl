@@ -32,12 +32,21 @@ namespace neurocl {
 
 namespace utils {
 
+//static int g_seed = 0;
+
 class rand_gaussian_generator
 {
 public:
-    rand_gaussian_generator( const float mean, const float stddev ) : m_nd( mean, stddev ), m_var_nor( m_rng, m_nd ) {}
+    rand_gaussian_generator( const float mean, const float stddev ) : m_nd( mean, stddev ), m_var_nor( m_rng, m_nd ) 
+    {
+        //m_var_nor.engine().seed( g_seed++ ); 
+        //m_var_nor.distribution().reset();
+    }
     float operator()() { return m_var_nor(); }
 private:
+
+    //static int m_seed;
+
     boost::mt19937 m_rng;
     boost::normal_distribution<> m_nd;
     boost::variate_generator< boost::mt19937&,boost::normal_distribution<> > m_var_nor;
