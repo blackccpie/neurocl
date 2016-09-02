@@ -40,7 +40,7 @@ namespace neurocl {
 
 lenet::lenet() : m_training_samples( 0 )
 {
-    float learning_rate = 3.0f/*0.01f*/;
+    float learning_rate = 0.1f;
     float weight_decay = 0.f;
 
     // build optimizer given learning rate and weight decay
@@ -63,7 +63,7 @@ void lenet::add_layers()
     m_layers.emplace_back( out );*/
 
     //**** SIMPLE CONVNET ****//
-    /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
+    std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
     in->populate( 28, 28, 1 );
     m_layers.emplace_back( in );
 
@@ -82,10 +82,10 @@ void lenet::add_layers()
 
     std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
     out->populate( m_layers.back(), 10, 1, 1 );
-    m_layers.emplace_back( out );*/
+    m_layers.emplace_back( out );
 
     //**** LENET ****//
-    std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
+    /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
     in->populate( 32, 32, 1 );
     m_layers.emplace_back( in );
 
@@ -118,7 +118,7 @@ void lenet::add_layers()
 
     std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
     out->populate( m_layers.back(), 10, 1, 1 );
-    m_layers.emplace_back( out );
+    m_layers.emplace_back( out );*/
 }
 
 void lenet::set_input(  const size_t& in_size, const float* in )
