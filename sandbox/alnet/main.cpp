@@ -26,9 +26,11 @@ THE SOFTWARE.
 #include "lenet_manager.h"
 #include "samples_manager.h"
 
+#include <boost/chrono.hpp>
+
 #include <iostream>
 
-#define NEUROCL_EPOCH_SIZE 10
+#define NEUROCL_EPOCH_SIZE 50
 #define NEUROCL_BATCH_SIZE 10
 #define MAX_MATCH_ERROR 0.1f
 
@@ -45,6 +47,10 @@ int main( int argc, char *argv[] )
 
     try
     {
+        namespace bc = boost::chrono;
+        bc::system_clock::time_point start = bc::system_clock::now();
+        bc::milliseconds duration;
+
         neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
         neurocl::samples_manager::instance().load_samples( argv[1] );
 
@@ -89,6 +95,9 @@ int main( int argc, char *argv[] )
             << " (" << static_cast<int>( 100 * _rmse_score / training_samples.size() ) << "%%)" << std::endl;
         std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size()
             << " (" << static_cast<int>( 100 * _classif_score / training_samples.size() ) << "%%)" << std::endl;
+
+        duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+        std::cout << "OVERALL TIMING - "  << duration.count() << "ms"<< std::endl;
     }
     catch( neurocl::network_exception& e )
     {
