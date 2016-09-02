@@ -240,7 +240,7 @@ tensor tensor_operation::group( const tensor& input )
     _assert_no_replication( input );
 
     tensor output;
-    output.resize( input.d2() * input.w(), input.h(), 1, 1 );
+    output.resize( input.d2() * input.w() * input.h(), 1, 1, 1 );
 
     auto output_mat_iter = output.m(0,0).data().begin();
 

@@ -200,10 +200,10 @@ int main( int argc, char *argv[] )
     A.resize(5,5,1,2);
     A.fill( 2.5f );
 
-    Comp.resize(10,5,1,1);
+    Comp.resize(50,1,1,1);
     Comp.fill( 2.5f );
 
-    Res.resize(10,5,1,1);
+    Res.resize(50,1,1,1);
 
     Res = nto::group( A );
 
@@ -211,7 +211,7 @@ int main( int argc, char *argv[] )
 
     // UNGROUP
 
-    A.resize(10,5,1,1);
+    A.resize(50,1,1,1);
     A.fill( 3.5f );
 
     Comp.resize(5,5,1,2);

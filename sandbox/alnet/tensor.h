@@ -123,6 +123,13 @@ public:
     // TODO-CNN : name of the function doesn't tell the matrix will be set to 0
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, bool rand = false );
 
+    void flip()
+    {
+        tensor_foreach() {
+            std::reverse( m_tensor_array[d1][d2].data().begin(), m_tensor_array[d1][d2].data().end() );
+        }
+    }
+
     void clear()
     {
         tensor_foreach() {
