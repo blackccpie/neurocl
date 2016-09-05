@@ -126,6 +126,14 @@ int main( int argc, char *argv[] )
 
     std::cout << "scalar divider test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
+    // UNIFORM SUM
+
+    Comp.uniform_fill( 16.f );
+
+    Res = nto::uniform_sum( A );
+
+    std::cout << "uniform sum test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
     // MULTRANS1
 
     A.resize(1,4,1,1);
