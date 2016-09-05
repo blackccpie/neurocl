@@ -157,12 +157,8 @@ public:
         return true;
     }
 
-    void fill( const float& val )
-    {
-        tensor_foreach() {
-            m_tensor_array[d1][d2] = boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
-        }
-    }
+    void uniform_fill( const float& val );
+    void uniform_fill_random( const float& stddev );
 
     void fill(  const size_t d1,
                 const size_t d2,
@@ -274,6 +270,8 @@ public:
     static tensor subsample( const tensor& input, const size_t subsample );
 
     static tensor d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample );
+
+    static tensor uniform_sum( const tensor& input );
 
     template<optimize_mode om>
     static void optimize( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas );

@@ -33,16 +33,16 @@ int main( int argc, char *argv[] )
     neurocl::tensor A,B,C,Res,Comp;
 
     A.resize(4,4,1,1);
-    A.fill( 1.f );
+    A.uniform_fill( 1.f );
 
     B.resize(4,4,1,1);
-    B.fill( 1.f );
+    B.uniform_fill( 1.f );
 
     C.resize(4,4,1,1);
-    C.fill( -4.f );
+    C.uniform_fill( -4.f );
 
     Comp.resize(4,4,1,1);
-    Comp.fill( 0.f );
+    Comp.uniform_fill( 0.f );
 
     Res.resize(4,4,1,1);
 
@@ -54,9 +54,9 @@ int main( int argc, char *argv[] )
 
     // ELEMUL
 
-    A.fill( 2.f );
-    B.fill( 2.f );
-    Comp.fill( 4.f );
+    A.uniform_fill( 2.f );
+    B.uniform_fill( 2.f );
+    Comp.uniform_fill( 4.f );
 
     Res = nto::elemul( A, B );
 
@@ -64,7 +64,7 @@ int main( int argc, char *argv[] )
 
     // SUBSTRACT
 
-    Comp.fill( 0.f );
+    Comp.uniform_fill( 0.f );
 
     Res = A - B;
 
@@ -72,9 +72,9 @@ int main( int argc, char *argv[] )
 
     // SIG
 
-    Res.fill( 2.f );
+    Res.uniform_fill( 2.f );
 
-    Comp.fill( 1.f / ( 1.f + std::exp(-2.f) ) );
+    Comp.uniform_fill( 1.f / ( 1.f + std::exp(-2.f) ) );
 
     nto::sig( Res );
 
@@ -82,8 +82,8 @@ int main( int argc, char *argv[] )
 
     // D_SIG
 
-    A.fill( 2.f );
-    Comp.fill( -2.f );
+    A.uniform_fill( 2.f );
+    Comp.uniform_fill( -2.f );
 
     Res = nto::d_sig( A );
 
@@ -91,9 +91,9 @@ int main( int argc, char *argv[] )
 
     // INCREMENT
 
-    A.fill( 1.f );
-    Res.fill( 1.f );
-    Comp.fill( 2.f );
+    A.uniform_fill( 1.f );
+    Res.uniform_fill( 1.f );
+    Comp.uniform_fill( 2.f );
 
     Res += A;
 
@@ -101,8 +101,8 @@ int main( int argc, char *argv[] )
 
     // DECREMENT
 
-    Res.fill( 1.f );
-    Comp.fill( 0.f );
+    Res.uniform_fill( 1.f );
+    Comp.uniform_fill( 0.f );
 
     Res -= A;
 
@@ -110,9 +110,9 @@ int main( int argc, char *argv[] )
 
     // SCALAR MULTIPLIER
 
-    A.fill( 2.f );
+    A.uniform_fill( 2.f );
 
-    Comp.fill( 4.f );
+    Comp.uniform_fill( 4.f );
 
     Res = 2.f * A;
 
@@ -120,7 +120,7 @@ int main( int argc, char *argv[] )
 
     // SCALAR DIVIDER
 
-    Comp.fill( 1.f );
+    Comp.uniform_fill( 1.f );
 
     Res = A / 2.f;
 
@@ -131,9 +131,9 @@ int main( int argc, char *argv[] )
     A.resize(1,4,1,1);
     B.resize(1,4,1,1);
 
-    A.fill( 2.f );
-    B.fill( 2.f );
-    Comp.fill( 4.f );
+    A.uniform_fill( 2.f );
+    B.uniform_fill( 2.f );
+    Comp.uniform_fill( 4.f );
 
     Res = nto::multrans1( A, B );
 
@@ -144,9 +144,9 @@ int main( int argc, char *argv[] )
     A.resize(4,1,1,1);
     B.resize(4,1,1,1);
 
-    A.fill( 2.f );
-    B.fill( 2.f );
-    Comp.fill( 4.f );
+    A.uniform_fill( 2.f );
+    B.uniform_fill( 2.f );
+    Comp.uniform_fill( 4.f );
 
     Res = nto::multrans2( A, B );
 
@@ -163,7 +163,7 @@ int main( int argc, char *argv[] )
     A.fill(0,0,100,&matA.data()[0]);
 
     Comp.resize(5,5,1,1);
-    Comp.fill( 1.f );
+    Comp.uniform_fill( 1.f );
 
     Res.resize(5,5,1,1);
 
@@ -174,7 +174,7 @@ int main( int argc, char *argv[] )
     // D_SUBSAMPLE
 
     A.resize(5,5,1,1);
-    A.fill( 1.f );
+    A.uniform_fill( 1.f );
 
     B.resize(10,10,1,1);
     matrixF matB(10,10);
@@ -198,10 +198,10 @@ int main( int argc, char *argv[] )
     // GROUP
 
     A.resize(5,5,1,2);
-    A.fill( 2.5f );
+    A.uniform_fill( 2.5f );
 
     Comp.resize(50,1,1,1);
-    Comp.fill( 2.5f );
+    Comp.uniform_fill( 2.5f );
 
     Res.resize(50,1,1,1);
 
@@ -212,10 +212,10 @@ int main( int argc, char *argv[] )
     // UNGROUP
 
     A.resize(50,1,1,1);
-    A.fill( 3.5f );
+    A.uniform_fill( 3.5f );
 
     Comp.resize(5,5,1,2);
-    Comp.fill( 3.5f );
+    Comp.uniform_fill( 3.5f );
 
     Res.resize(5,5,1,2);
 

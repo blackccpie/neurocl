@@ -68,7 +68,8 @@ public:
 
         m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, true/*rand*/ );
         m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
-        m_bias.resize( width, height, 1, depth, true/*rand*/ );
+        m_bias.resize( width, height, 1, depth );
+        m_bias.uniform_fill_random( 1.f /*stddev*/ );
         m_deltas_bias.resize( width, height, 1, depth );
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
@@ -132,7 +133,7 @@ public:
             m_filter_stride);
 
         m_filters_delta += grad / static_cast<float>( m_filters_delta.d2() );
-        m_deltas_bias += m_error_maps;
+        m_deltas_bias += nto::uniform_sum( m_error_maps );
     }
 
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override

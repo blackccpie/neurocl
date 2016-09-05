@@ -159,6 +159,22 @@ void tensor::resize( const size_t width, const size_t height, const size_t depth
         }
 }
 
+void tensor::uniform_fill( const float& val )
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] = boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
+    }
+}
+
+void tensor::uniform_fill_random( const float& stddev )
+{
+    utils::rand_gaussian_generator rgg( 0.f, stddev );
+
+    tensor_foreach() {
+        m_tensor_array[d1][d2] = boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, rgg() );
+    }
+}
+
 // TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator +=( const tensor& other )
 {
@@ -639,6 +655,19 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
                 *(prev_err_it2 + max_offset) = *err_it2;
             }
         }
+    }
+
+    return output;
+}
+
+tensor tensor_operation::uniform_sum( const tensor& input )
+{
+    tensor output;
+    output.resize( input.w(), input.h(), input.d1(), input.d2() );
+
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        float _acc = std::accumulate( input.c_m(d1,d2).data().begin(), input.c_m(d1,d2).data().end(), 0.f );
+        output.m(d1,d2) = boost::numeric::ublas::scalar_matrix<float>( input.w(), input.h(), _acc );
     }
 
     return output;
