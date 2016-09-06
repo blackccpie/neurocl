@@ -36,6 +36,7 @@ namespace neurocl {
 
 class lenet;
 class samples_manager;
+class lenet_file_handler;
 
 class lenet_manager
 {
@@ -49,7 +50,7 @@ public:
 	virtual ~lenet_manager() {}
 
     void load_network( const std::string& topology_path, const std::string& weights_path );
-    void save_network() {} // STUBBED FOR NOW
+    void save_network();
 
     void train( const sample& s );
     void train( const std::vector<sample>& training_set );
@@ -67,11 +68,15 @@ public:
 
 private:
 
+	void _assert_loaded();
     void _train( const sample& s );
 
 private:
 
+	bool m_network_loaded;
+
     std::shared_ptr<lenet> m_net;
+    boost::shared_ptr<lenet_file_handler> m_net_file_handler;
 };
 
 } //namespace neurocl

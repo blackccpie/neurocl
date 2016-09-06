@@ -47,7 +47,7 @@ lenet::lenet() : m_training_samples( 0 )
     m_optimizer = std::make_shared<optimizer>( learning_rate, weight_decay );
 }
 
-void lenet::add_layers()
+void lenet::add_layers( const std::vector<layer_descr>& layers )
 {
     //**** MLP ****//
     /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();

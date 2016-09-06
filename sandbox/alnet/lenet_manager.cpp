@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "lenet.h"
 #include "lenet_manager.h"
+#include "lenet_file_handler.h"
 #include "network_exception.h"
 #include "samples_manager.h"
 
@@ -37,7 +38,29 @@ namespace neurocl {
 lenet_manager::lenet_manager()
 {
     m_net = std::make_shared<lenet>();
-    m_net->add_layers();
+}
+
+void lenet_manager::_assert_loaded()
+{
+    if ( !m_network_loaded )
+        throw network_exception( "no network loaded!" );
+}
+
+void lenet_manager::load_network( const std::string& topology_path, const std::string& weights_path )
+{
+    m_net_file_handler->load_network_topology( topology_path );
+    m_net_file_handler->load_network_weights( weights_path );
+
+    m_network_loaded = true;
+
+    std::cout << "lenet_manager::load_network - network loaded" << std::endl;
+}
+
+void lenet_manager::save_network()
+{
+    _assert_loaded();
+
+    m_net_file_handler->save_network_weights();
 }
 
 void lenet_manager::batch_train( 	const samples_manager& smp_manager,

@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef LENET_H
 #define LENET_H
 
-#include "network_interface.h"
+#include "lenet_interface.h"
 
 #include <memory>
 #include <vector>
@@ -37,14 +37,14 @@ namespace neurocl {
 class layer;
 class optimizer;
 
-class lenet // TODO-CNN : public network_interface
+class lenet : public lenet_interface
 {
 public:
 
 	lenet();
 	virtual ~lenet() {}
 
-    void add_layers();
+    void add_layers( const std::vector<layer_descr>& layers );
 
 	void set_input(  const size_t& in_size, const float* in );
     void set_output( const size_t& out_size, const float* out );
@@ -57,10 +57,9 @@ public:
     void back_propagate();
     void gradient_descent();
 
-    const size_t count_layers()
-    {
-        return m_layers.size();
-    }
+    const size_t count_layers() { return m_layers.size(); }
+	const layer_ptr get_layer_ptr( const size_t layer_idx ) {}
+    void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) {}
 
 protected:
 
