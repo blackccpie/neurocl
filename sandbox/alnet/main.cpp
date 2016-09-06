@@ -57,6 +57,7 @@ int main( int argc, char *argv[] )
         const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
         neurocl::lenet_manager lenet;
+        lenet.load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//
 
