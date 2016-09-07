@@ -49,6 +49,51 @@ lenet::lenet() : m_training_samples( 0 )
 
 void lenet::add_layers( const std::vector<layer_descr>& layers )
 {
+    for ( auto& _layer : layers )
+    {
+        std::shared_ptr<layer> l;
+        switch( _layer.type )
+        {
+        case INPUT_LAYER:
+            {
+                std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
+                in->populate( _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = in;
+            }
+            break;
+        case CONV_LAYER:
+            {
+                std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" );
+                c->set_filter_size( 5 ); // 3x3 // TODO-CNN : hardcoded :-(
+                c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = c;
+            }
+            break;
+        case POOL_LAYER:
+            {
+                std::shared_ptr<pool_layer> s = std::make_shared<pool_layer>( "s" );
+                s->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = s;
+            }
+            break;
+        case FULL_LAYER:
+            {
+                std::shared_ptr<full_layer> f = std::make_shared<full_layer>( "f" );
+                f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = f;
+            }
+            break;
+        case OUTPUT_LAYER:
+            {
+                std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
+                out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = out;
+            }
+            break;  
+        }
+        m_layers.emplace_back( l );
+    }
+    
     //**** MLP ****//
     /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
     in->populate( 784, 1, 1 );
@@ -63,7 +108,7 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
     m_layers.emplace_back( out );*/
 
     //**** SIMPLE CONVNET ****//
-    std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
+    /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
     in->populate( 28, 28, 1 );
     m_layers.emplace_back( in );
 
@@ -82,7 +127,7 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
 
     std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
     out->populate( m_layers.back(), 10, 1, 1 );
-    m_layers.emplace_back( out );
+    m_layers.emplace_back( out );*/
 
     //**** LENET ****//
     /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
@@ -152,6 +197,14 @@ void lenet::set_output( const size_t& out_size, const float* out )
 #endif
 
     output_layer->fill( 0, 0, out_size, out );
+}
+
+const layer_ptr lenet::get_layer_ptr( const size_t layer_idx )
+{
+}
+
+void lenet::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
+{
 }
 
 const output_ptr lenet::output()
