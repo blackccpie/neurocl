@@ -60,7 +60,7 @@ std::istream& operator>> ( std::istream &input, layer_type& type )
     return input;
 }
 
-lenet_file_handler::lenet_file_handler( boost::shared_ptr<lenet_interface> net ) : m_net( net ), m_layers( 0 )
+lenet_file_handler::lenet_file_handler( const std::shared_ptr<lenet_interface>& net ) : m_net( net ), m_layers( 0 )
 {
 }
 

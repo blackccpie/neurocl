@@ -38,6 +38,7 @@ namespace neurocl {
 lenet_manager::lenet_manager()
 {
     m_net = std::make_shared<lenet>();
+    m_net_file_handler = std::make_shared<lenet_file_handler>( m_net );
 }
 
 void lenet_manager::_assert_loaded()

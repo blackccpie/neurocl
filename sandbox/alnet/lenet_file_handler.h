@@ -84,7 +84,7 @@ private:
 
 public:
 
-    lenet_file_handler( boost::shared_ptr<lenet_interface> net );
+    lenet_file_handler( const std::shared_ptr<lenet_interface>& net );
     virtual ~lenet_file_handler();
 
     void load_network_topology( const std::string& topology_path );
@@ -98,7 +98,7 @@ private:
 
     std::string m_weights_path;
 
-    boost::shared_ptr<lenet_interface> m_net;
+    std::shared_ptr<lenet_interface> m_net;
 };
 
 } //namespace neurocl
