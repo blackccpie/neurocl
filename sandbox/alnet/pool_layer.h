@@ -62,8 +62,8 @@ public:
     virtual size_t height() const override { return m_feature_maps.h(); }
     virtual size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const { return 0; }
-    virtual size_t nb_bias() const { return 0; }
+    virtual size_t nb_weights() const override { return 0; }
+    virtual size_t nb_bias() const override { return 0; }
 
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }

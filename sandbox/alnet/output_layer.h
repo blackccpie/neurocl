@@ -64,8 +64,8 @@ public:
     virtual size_t height() const override { return m_feature_maps.h(); }
     virtual size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const { return m_weights.w() * m_weights.h() * m_weights.d1() * m_weights.d2(); }
-    virtual size_t nb_bias() const { return m_bias.w() * m_bias.h() * m_bias.d1() * m_bias.d2(); }
+    virtual size_t nb_weights() const override { return m_weights.w() * m_weights.h() * m_weights.d1() * m_weights.d2(); }
+    virtual size_t nb_bias() const override { return m_bias.w() * m_bias.h() * m_bias.d1() * m_bias.d2(); }
 
     // fill with incoming buffer
     void fill(  const size_t depth1,
