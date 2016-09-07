@@ -51,6 +51,9 @@ public:
     virtual size_t height() const override { return m_feature_maps.h(); };
     virtual size_t depth() const override { return m_feature_maps.d2(); }
 
+    virtual size_t nb_weights() const { return 0; }
+    virtual size_t nb_bias() const { return 0; }
+
     void fill(  const size_t depth1,
                 const size_t depth2,
                 const size_t data_size,

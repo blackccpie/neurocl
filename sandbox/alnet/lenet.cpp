@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "input_layer.h"
 #include "output_layer.h"
 
+#include <boost/lexical_cast.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
 #include <iostream>
@@ -49,6 +50,10 @@ lenet::lenet() : m_training_samples( 0 )
 
 void lenet::add_layers( const std::vector<layer_descr>& layers )
 {
+    size_t conv_idx = 0;
+    size_t pool_idx = 0;
+    size_t full_idx = 0;
+    
     for ( auto& _layer : layers )
     {
         std::shared_ptr<layer> l;
@@ -63,29 +68,29 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
             break;
         case CONV_LAYER:
             {
-                std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" );
-                c->set_filter_size( 5 ); // 3x3 // TODO-CNN : hardcoded :-(
+                std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" + boost::lexical_cast<std::string>(++conv_idx) );
+                c->set_filter_size( 5 ); // 5x5 // TODO-CNN : hardcoded :-(
                 c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = c;
             }
             break;
         case POOL_LAYER:
             {
-                std::shared_ptr<pool_layer> s = std::make_shared<pool_layer>( "s" );
+                std::shared_ptr<pool_layer> s = std::make_shared<pool_layer>( "s" + boost::lexical_cast<std::string>(++pool_idx) );
                 s->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = s;
             }
             break;
         case FULL_LAYER:
             {
-                std::shared_ptr<full_layer> f = std::make_shared<full_layer>( "f" );
+                std::shared_ptr<full_layer> f = std::make_shared<full_layer>( "f" + boost::lexical_cast<std::string>(++full_idx) );
                 f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = f;
             }
             break;
         case OUTPUT_LAYER:
             {
-                std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
+                std::shared_ptr<output_layer> out = std::make_shared<output_layer>(); // TODO-CNN -> smart naming
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = out;
             }
@@ -113,7 +118,7 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
     m_layers.emplace_back( in );
 
     std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" );
-    c->set_filter_size( 5 ); // 3x3
+    c->set_filter_size( 5 ); // 5x5
     c->populate( m_layers.back(), 24, 24, 3 );
     m_layers.emplace_back( c );
 
@@ -168,7 +173,7 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
 
 void lenet::set_input(  const size_t& in_size, const float* in )
 {
-    // TODO-CNN : for now works only because input layer has no depth for now
+    // TODO-CNN : for now works only because input layer has no depth for now!
 
     std::shared_ptr<layer> layer;
     std::shared_ptr<input_layer> input_layer = std::dynamic_pointer_cast<neurocl::input_layer>( m_layers.front() );
@@ -185,7 +190,7 @@ void lenet::set_input(  const size_t& in_size, const float* in )
 
 void lenet::set_output( const size_t& out_size, const float* out )
 {
-    // TODO-CNN : for now works only because output layer has no depth for now
+    // TODO-CNN : for now works only because output layer has no depth for now!
 
     std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::output_layer>( m_layers.back() );
 
@@ -201,10 +206,44 @@ void lenet::set_output( const size_t& out_size, const float* out )
 
 const layer_ptr lenet::get_layer_ptr( const size_t layer_idx )
 {
+    if ( layer_idx >= m_layers.size() )
+	{
+        std::cerr << "lenet::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        throw network_exception( "invalid layer index" );
+    }
+
+    std::shared_ptr<layer> _layer = m_layers[layer_idx];
+
+    size_t nw = _layer->nb_weights();
+    size_t nb = _layer->nb_bias();
+
+    std::cout << "lenet::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
+
+    layer_ptr l( nw, nb );
+    //_layer->fill_w( l.weights.get() );
+    //_layer->fill_b( layer.bias.get() );
+    //std::copy( &weights.data()[0], &weights.data()[0] + ( weights.size1() * weights.size2() ), l.weights.get() );
+    //std::copy( &bias[0], &bias[0] + bias.size(), l.bias.get() );
+
+    return l;
 }
 
-void lenet::set_layer_ptr( const size_t layer_idx, const layer_ptr& layer )
+void lenet::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 {
+    if ( layer_idx >= m_layers.size() )
+    {
+        std::cerr << "lenet::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        throw network_exception( "invalid layer index" );
+    }
+
+    std::shared_ptr<layer> _layer = m_layers[layer_idx];
+
+    std::cout << "lenet::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
+
+    //_layer->fill_w( l.weights.get() );
+    //_layer->fill_b( layer.bias.get() );
+    //std::copy( layer.weights.get(), layer.weights.get() + layer.num_weights, &weights.data()[0] );
+    //std::copy( layer.bias.get(), layer.bias.get() + layer.num_bias, &bias.data()[0] );
 }
 
 const output_ptr lenet::output()

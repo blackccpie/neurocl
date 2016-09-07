@@ -36,13 +36,18 @@ class layer
 
 public:
 
-    size_t size() const { return width()*height()*depth(); }
+     virtual const std::string type() const = 0;
 
-    virtual const std::string type() const = 0;
+    // SIZING OF THE FEATURE MAPS
+    size_t size() const { return width()*height()*depth(); }
 
     virtual size_t width() const = 0;
     virtual size_t height() const = 0;
     virtual size_t depth() const = 0;
+
+    // SIZING OF THE MODEL PARAMETERS
+    virtual size_t nb_weights() const = 0;
+    virtual size_t nb_bias() const = 0;
 
     virtual const tensor& feature_maps() const = 0;
 

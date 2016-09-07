@@ -123,7 +123,7 @@ void lenet_file_handler::load_network_topology( const std::string& topology_path
 
                 // TODO-CNN : implement layer topology ordering constraints check??
 
-                std::cout << "lenet_file_handler::load_network_topology - adding layer" << _idx << " of size " << _x << "x" << _y << "x" << _z << std::endl;
+                std::cout << "lenet_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z << std::endl;
 
                 layers.push_back( neurocl::layer_descr( _t, _x, _y, _z ) );
 

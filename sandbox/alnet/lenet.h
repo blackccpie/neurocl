@@ -59,7 +59,7 @@ public:
 
     const size_t count_layers() { return m_layers.size(); }
 	const layer_ptr get_layer_ptr( const size_t layer_idx );
-    void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer );
+    void set_layer_ptr( const size_t layer_idx, const layer_ptr& l );
 
 protected:
 

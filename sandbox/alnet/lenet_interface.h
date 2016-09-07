@@ -125,7 +125,7 @@ public:
 
     virtual const size_t count_layers() = 0;
     virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) = 0;
-    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) = 0;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) = 0;
 
     virtual const output_ptr output() = 0;
 };

@@ -38,10 +38,6 @@ public:
 
     virtual const std::string type() const override { return "output"; }
 
-    virtual size_t width() const override { return m_feature_maps.w(); }
-    virtual size_t height() const override { return m_feature_maps.h(); }
-    virtual size_t depth() const override { return m_feature_maps.d2(); }
-
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
                     const size_t height,
@@ -63,6 +59,13 @@ public:
         m_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth, true/*rand*/ );
         m_deltas_weights.resize( width * height, prev_layer->width() * prev_layer->height(), 1, depth );
     }
+
+    virtual size_t width() const override { return m_feature_maps.w(); }
+    virtual size_t height() const override { return m_feature_maps.h(); }
+    virtual size_t depth() const override { return m_feature_maps.d2(); }
+
+    virtual size_t nb_weights() const { return m_weights.w() * m_weights.h() * m_weights.d1() * m_weights.d2(); }
+    virtual size_t nb_bias() const { return m_bias.w() * m_bias.h() * m_bias.d1() * m_bias.d2(); }
 
     // fill with incoming buffer
     void fill(  const size_t depth1,
