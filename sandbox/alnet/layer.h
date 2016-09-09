@@ -57,7 +57,15 @@ public:
     virtual void update_gradients() = 0;
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) = 0;
 
-protected:
+    // Fill weights
+    virtual void fill_w( const size_t data_size, const float* data ) = 0;
+    virtual void fill_w( float* data ) = 0;
+
+    // Fill bias
+    virtual void fill_b( const size_t data_size, const float* data ) = 0;
+    virtual void fill_b( float* data ) = 0;
+
+private:
 
     friend class pool_layer;
     friend class conv_layer;

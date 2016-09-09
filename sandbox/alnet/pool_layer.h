@@ -93,6 +93,14 @@ public:
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
+    // Fill weights
+    virtual void fill_w( const size_t data_size, const float* data ) { /* NOTHING TO DO */ }
+    virtual void fill_w( float* data ) { /* NOTHING TO DO */ }
+
+    // Fill bias
+    virtual void fill_b( const size_t data_size, const float* data ) { /* NOTHING TO DO */ }
+    virtual void fill_b( float* data )  { /* NOTHING TO DO */ }
+
 protected:
 
     virtual tensor& error_maps() override

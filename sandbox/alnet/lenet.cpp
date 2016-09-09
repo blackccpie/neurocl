@@ -214,16 +214,11 @@ const layer_ptr lenet::get_layer_ptr( const size_t layer_idx )
 
     std::shared_ptr<layer> _layer = m_layers[layer_idx];
 
-    size_t nw = _layer->nb_weights();
-    size_t nb = _layer->nb_bias();
-
     std::cout << "lenet::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
 
-    layer_ptr l( nw, nb );
-    //_layer->fill_w( l.weights.get() );
-    //_layer->fill_b( layer.bias.get() );
-    //std::copy( &weights.data()[0], &weights.data()[0] + ( weights.size1() * weights.size2() ), l.weights.get() );
-    //std::copy( &bias[0], &bias[0] + bias.size(), l.bias.get() );
+    layer_ptr l( _layer->nb_weights(), _layer->nb_bias() );
+    _layer->fill_w( l.weights.get() );
+    _layer->fill_b( l.bias.get() );
 
     return l;
 }
@@ -240,10 +235,8 @@ void lenet::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 
     std::cout << "lenet::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
 
-    //_layer->fill_w( l.weights.get() );
-    //_layer->fill_b( layer.bias.get() );
-    //std::copy( layer.weights.get(), layer.weights.get() + layer.num_weights, &weights.data()[0] );
-    //std::copy( layer.bias.get(), layer.bias.get() + layer.num_bias, &bias.data()[0] );
+    _layer->fill_w( _layer->nb_weights(), l.weights.get() );
+    _layer->fill_b( _layer->nb_bias(), l.bias.get() );
 }
 
 const output_ptr lenet::output()

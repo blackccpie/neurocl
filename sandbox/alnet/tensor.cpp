@@ -209,6 +209,36 @@ tensor tensor::operator /( const float val )
     return std::move(*this);
 }
 
+void tensor::grouped_fill( const size_t data_size, const float* data )
+{
+    size_t _offset = 0;
+
+    tensor_foreach() {
+
+        auto input_mat_iter = m_tensor_array[d1][d2].data().begin();
+        const size_t _size = m_width * m_height;
+
+        std::copy( data + _offset, data + _offset + _size, input_mat_iter );
+
+        _offset += _size;
+    }
+}
+
+void tensor::grouped_fill( float* data )
+{
+    size_t _offset = 0;
+
+    tensor_foreach() {
+
+        auto input_mat_iter = m_tensor_array[d1][d2].data().begin();
+        const size_t _size = m_width * m_height;
+
+        std::copy( input_mat_iter, input_mat_iter + _size, data + _offset );
+
+        _offset += _size;
+    }
+}
+
 tensor tensor_operation::scale( const float& val, const tensor& input )
 {
     tensor output;

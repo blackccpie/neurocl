@@ -146,6 +146,26 @@ public:
         nto::optimize<nto::optim_redux>( optimizer, m_bias, m_deltas_bias );
     }
 
+    // Fill weights
+    virtual void fill_w( const size_t data_size, const float* data ) 
+    {
+         m_weights.grouped_fill( data_size, data );
+    }
+    virtual void fill_w( float* data )
+    {
+         m_weights.grouped_fill( data );
+    }
+
+    // Fill bias
+    virtual void fill_b( const size_t data_size, const float* data )
+    {
+         m_bias.grouped_fill( data_size, data );
+    }
+    virtual void fill_b( float* data )
+    {
+         m_bias.grouped_fill( data );
+    }
+
 protected:
 
     virtual tensor& error_maps() override
