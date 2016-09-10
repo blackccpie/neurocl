@@ -26,12 +26,10 @@ project (test_tensor)
 include_directories( .. ../../src )
 
 set (headers_list
-../alnet/tensor.h
 )
 
 set (sources_list
 main.cpp
-../alnet/tensor.cpp
 )
 
 add_executable(test_tensor ${sources_list} ${headers_list})

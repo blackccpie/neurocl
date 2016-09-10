@@ -26,25 +26,10 @@ project (alnet)
 include_directories( ../../src )
 
 set (headers_list
-layer.h
-conv_layer.h
-input_layer.h
-output_layer.h
-pool_layer.h
-optimizer.h
-tensor.h
-lenet.h
-lenet_manager.h
-lenet_interface.h
-lenet_file_handler.h
 )
 
 set (sources_list
 main.cpp
-lenet.cpp
-lenet_manager.cpp
-lenet_file_handler.cpp
-tensor.cpp
 )
 
 add_executable(alnet ${sources_list} ${headers_list})

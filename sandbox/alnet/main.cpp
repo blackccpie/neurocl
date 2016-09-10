@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "lenet_manager.h"
-
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
+
+#include "convnet/lenet_manager.h"
 
 #include <boost/chrono.hpp>
 
