@@ -33,7 +33,7 @@ THE SOFTWARE.
 typedef typename boost::numeric::ublas::matrix<float> matrixF;
 typedef typename boost::multi_array<matrixF,2> matrix2F;
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class optimizer;
 
@@ -295,6 +295,6 @@ inline tensor operator-( const tensor& t1, const tensor& t2 )
     return std::move( tensor_operation::sub( t1, t2 ) );
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //TENSOR_H

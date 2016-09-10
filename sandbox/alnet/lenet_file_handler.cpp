@@ -38,7 +38,7 @@ namespace bfs = boost::filesystem;
 
 #include <fstream>
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 std::istream& operator>> ( std::istream &input, layer_type& type )
 {
@@ -126,7 +126,7 @@ void lenet_file_handler::load_network_topology( const std::string& topology_path
 
                 std::cout << "lenet_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z << std::endl;
 
-                layers.push_back( neurocl::layer_descr( _t, _x, _y, _z ) );
+                layers.push_back( layer_descr( _t, _x, _y, _z ) );
 
                 ++m_layers;
             }
@@ -216,4 +216,4 @@ void lenet_file_handler::save_network_weights()
       throw network_exception( "unable to open weights file for saving" );
 }
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/

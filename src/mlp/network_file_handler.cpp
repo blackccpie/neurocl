@@ -38,7 +38,7 @@ namespace bfs = boost::filesystem;
 
 #include <fstream>
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 network_file_handler::network_file_handler( boost::shared_ptr<network_interface> net ) : m_net( net ), m_layers( 0 )
 {
@@ -100,7 +100,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 
                 std::cout << "network_file_handler::load_network_topology - adding layer" << _idx << " of size " << _x << "x" << _y << std::endl;
 
-                layer_sizes.push_back( neurocl::layer_size( _x, _y ) );
+                layer_sizes.push_back( layer_size( _x, _y ) );
 
                 ++m_layers;
             }
@@ -190,4 +190,4 @@ void network_file_handler::save_network_weights()
       throw network_exception( "unable to open weights file for saving" );
 }
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/

@@ -39,7 +39,7 @@ typedef typename boost::numeric::ublas::vector< float,
 typedef typename boost::numeric::ublas::matrix< float, boost::numeric::ublas::row_major,
     boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > matrixF;
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 class layer_bnu
 {
@@ -116,6 +116,6 @@ protected:
     float m_weight_decay;   // [0.0..1.0]
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/
 
 #endif //NETWORK_BNU_BASE_H

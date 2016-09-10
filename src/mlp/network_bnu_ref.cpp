@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 namespace bnu = boost::numeric::ublas;
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 network_bnu_ref::network_bnu_ref()
 {
@@ -98,4 +98,4 @@ void network_bnu_ref::gradient_descent()
     }
 }
 
-}; //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/

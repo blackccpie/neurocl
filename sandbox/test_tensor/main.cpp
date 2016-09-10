@@ -28,9 +28,9 @@ THE SOFTWARE.
 
 int main( int argc, char *argv[] )
 {
-    using nto = neurocl::tensor_operation;
+    using nto = neurocl::convnet::tensor_operation;
 
-    neurocl::tensor A,B,C,Res,Comp;
+    neurocl::convnet::tensor A,B,C,Res,Comp;
 
     A.resize(4,4,1,1);
     A.uniform_fill( 1.f );

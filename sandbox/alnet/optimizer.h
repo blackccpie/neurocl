@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "common/network_exception.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class optimizer
 {
@@ -68,6 +68,6 @@ private:
     float m_weight_decay; // [0.0..1.0]
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //OPTIMIZER_H

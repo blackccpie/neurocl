@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "network_bnu_base.h"
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 class network_bnu_fast final : public network_bnu_base
 {
@@ -41,6 +41,6 @@ public:
     virtual void gradient_descent() final;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/
 
 #endif //NETWORK_BNU_FAST_H

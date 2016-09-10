@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "layer.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class output_layer : public layer
 {
@@ -186,6 +186,6 @@ private:
     tensor m_deltas_weights;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //OUTPUT_LAYER_H

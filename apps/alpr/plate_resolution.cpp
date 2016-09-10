@@ -62,7 +62,7 @@ const std::string plate_resolution::segment_status::identified_segment() const
     }
 }
 
-plate_resolution::plate_resolution( neurocl::network_manager& net_num, neurocl::network_manager& net_let )
+plate_resolution::plate_resolution( neurocl::mlp::network_manager& net_num, neurocl::mlp::network_manager& net_let )
     :   m_net_num( net_num ), m_net_let( net_let ),
         m_num_output( 10 ), m_let_output( 26 )
 {

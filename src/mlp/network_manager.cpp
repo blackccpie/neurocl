@@ -37,7 +37,7 @@ THE SOFTWARE.
 
 //#define TRAIN_CHRONO
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 void network_manager::_assert_loaded()
 {
@@ -210,4 +210,4 @@ void network_manager::dump_activations()
     std::cout << m_net->dump_activations();
 }
 
-}; //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/

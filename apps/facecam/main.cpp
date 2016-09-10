@@ -115,8 +115,8 @@ void face_preprocess_generic( float* image, const size_t sizeX, const size_t siz
 }
 
 void face_process(  CImg<float> image, const face_type& ftype,
-                    neurocl::network_manager& net_manager,
-                    neurocl::iterative_trainer& trainer,
+                    neurocl::mlp::network_manager& net_manager,
+                    neurocl::mlp::iterative_trainer& trainer,
                     face_filer& face_files )
 {
     image.resize( 50, 50 );
@@ -223,7 +223,7 @@ int main ( int argc,char **argv )
 
     try
     {
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
+        neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::NEURAL_IMPL_BNU_REF );
         net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
         // TODO : check command arguments with boost
@@ -285,7 +285,7 @@ int main ( int argc,char **argv )
 
             face_filer face_files;
 
-            neurocl::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
+            neurocl::mlp::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
 
             CImg<float> input_image;
             CImg<float> display_image;

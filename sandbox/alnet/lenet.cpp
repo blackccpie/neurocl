@@ -35,7 +35,7 @@ THE SOFTWARE.
 
 #include <iostream>
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 //#define VERBOSE_LENET
 
@@ -53,7 +53,7 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
     size_t conv_idx = 0;
     size_t pool_idx = 0;
     size_t full_idx = 0;
-    
+
     for ( auto& _layer : layers )
     {
         std::shared_ptr<layer> l;
@@ -94,11 +94,11 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = out;
             }
-            break;  
+            break;
         }
         m_layers.emplace_back( l );
     }
-    
+
     //**** MLP ****//
     /*std::shared_ptr<input_layer> in = std::make_shared<input_layer>();
     in->populate( 784, 1, 1 );
@@ -176,7 +176,7 @@ void lenet::set_input(  const size_t& in_size, const float* in )
     // TODO-CNN : for now works only because input layer has no depth for now!
 
     std::shared_ptr<layer> layer;
-    std::shared_ptr<input_layer> input_layer = std::dynamic_pointer_cast<neurocl::input_layer>( m_layers.front() );
+    std::shared_ptr<input_layer> input_layer = std::dynamic_pointer_cast<neurocl::convnet::input_layer>( m_layers.front() );
 
     if ( in_size > input_layer->size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
@@ -192,7 +192,7 @@ void lenet::set_output( const size_t& out_size, const float* out )
 {
     // TODO-CNN : for now works only because output layer has no depth for now!
 
-    std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::output_layer>( m_layers.back() );
+    std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::convnet::output_layer>( m_layers.back() );
 
     if ( out_size > output_layer->size() )
         throw network_exception( "output size exceeds allocated layer size!" );
@@ -243,7 +243,7 @@ const output_ptr lenet::output()
 {
     // TODO-CNN : for now works only because last layer has no depth for now
 
-    std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::output_layer>( m_layers.back() );
+    std::shared_ptr<output_layer> output_layer = std::dynamic_pointer_cast<neurocl::convnet::output_layer>( m_layers.back() );
 
     output_ptr o( output_layer->width() * output_layer->height() );
     output_layer->fill( 0, 0, o.outputs.get() );
@@ -303,4 +303,4 @@ void lenet::gradient_descent()
     }
 }
 
-}; //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/

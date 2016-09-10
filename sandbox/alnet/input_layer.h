@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "layer.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class input_layer : public layer
 {
@@ -90,6 +90,6 @@ private:
     tensor m_error_maps;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //INPUT_LAYER_BNU_H

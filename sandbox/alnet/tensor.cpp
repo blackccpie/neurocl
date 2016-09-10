@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 const std::string dump_mat( const matrixF& mat /*, boost::optional<std::string> label = boost::none*/ )
 {
@@ -716,4 +716,4 @@ void tensor_operation::optimize<tensor_operation::optim_redux>( const std::share
     optimizer->update_redux( input, deltas );
 }
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/

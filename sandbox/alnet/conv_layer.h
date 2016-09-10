@@ -29,9 +29,9 @@ THE SOFTWARE.
 
 #include "common/network_exception.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
-using nto = neurocl::tensor_operation;
+using nto = neurocl::convnet::tensor_operation;
 
 class conv_layer  : public layer
 {
@@ -192,6 +192,6 @@ private:
     const std::string m_name;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //CONV_LAYER_H

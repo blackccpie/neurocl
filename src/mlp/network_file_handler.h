@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/array.hpp>
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 class network_interface;
 
@@ -101,6 +101,6 @@ private:
     boost::shared_ptr<network_interface> m_net;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/
 
 #endif //NETWORK_FILE_HANDLER_H

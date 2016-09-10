@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "tensor.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class optimizer;
 
@@ -75,6 +75,6 @@ private:
     virtual tensor& error_maps() = 0;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //LAYER_H

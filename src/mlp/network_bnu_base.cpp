@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 namespace bnu = boost::numeric::ublas;
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 const std::string dump_mat( const matrixF& mat, boost::optional<std::string> label = boost::none )
 {
@@ -263,4 +263,4 @@ const std::string network_bnu_base::dump_activations()
     return ss.str();
 }
 
-}; //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/

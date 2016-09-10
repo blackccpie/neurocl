@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include <vexcl/vexcl.hpp>
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 class layer_vexcl
 {
@@ -109,6 +109,6 @@ private:
     std::vector<layer_vexcl> m_layers;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/
 
 #endif //NETWORK_H

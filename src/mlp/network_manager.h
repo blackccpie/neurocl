@@ -34,9 +34,12 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+class samples_manager;
+
+namespace mlp {
+
 class network_interface;
 class network_file_handler;
-class samples_manager;
 
 class network_manager
 {
@@ -123,9 +126,9 @@ private:
     size_t m_batch_pos;
     size_t m_batch_size;
 
-    neurocl::network_manager& m_net_manager;
+    network_manager& m_net_manager;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/
 
 #endif //NETWORK_MANAGER_H

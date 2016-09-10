@@ -53,7 +53,7 @@ public:
     } resolution_status;
 
 public:
-    plate_resolution( neurocl::network_manager& net_num, neurocl::network_manager& net_let );
+    plate_resolution( neurocl::mlp::network_manager& net_num, neurocl::mlp::network_manager& net_let );
 
     // Push a new candidate image and give the working segment index
     const resolution_status push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos );
@@ -113,8 +113,8 @@ private:
     vectorF m_let_output;
 
     boost::shared_ptr<neurocl::sample> m_sample;
-    neurocl::network_manager& m_net_num;
-    neurocl::network_manager& m_net_let;
+    neurocl::mlp::network_manager& m_net_num;
+    neurocl::mlp::network_manager& m_net_let;
 };
 
 }; //namespace alpr

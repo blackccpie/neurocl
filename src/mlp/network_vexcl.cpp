@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <boost/foreach.hpp>
 #include <boost/shared_array.hpp>
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 VEX_CONSTANT(_zero, 0.f);
 VEX_CONSTANT(_one, 1.f);
@@ -352,4 +352,4 @@ const std::string network_vexcl::dump_activations()
     return ss.str();
 }
 
-}; //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/

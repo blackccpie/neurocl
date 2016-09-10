@@ -30,9 +30,7 @@ THE SOFTWARE.
 #include <memory>
 #include <vector>
 
-// LeNet-5 : http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf
-
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class layer;
 class optimizer;
@@ -70,6 +68,6 @@ protected:
     std::vector<std::shared_ptr<layer>> m_layers;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //LENET_H

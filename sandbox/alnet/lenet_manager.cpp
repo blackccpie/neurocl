@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 //#define TRAIN_CHRONO
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 lenet_manager::lenet_manager()
 {
@@ -166,4 +166,4 @@ void lenet_manager::compute_output( sample& s )
     std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
-}; //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/

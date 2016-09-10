@@ -52,7 +52,7 @@ int main( int argc, char *argv[] )
         neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
         neurocl::samples_manager::instance().load_samples( argv[1] );
 
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
+        neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::NEURAL_IMPL_BNU_FAST );
         net_manager.load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//

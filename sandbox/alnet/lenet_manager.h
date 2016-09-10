@@ -34,8 +34,11 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-class lenet_interface;
 class samples_manager;
+
+namespace convnet {
+
+class lenet_interface;
 class lenet_file_handler;
 
 class lenet_manager
@@ -79,6 +82,6 @@ private:
     std::shared_ptr<lenet_file_handler> m_net_file_handler;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //LENET_MANAGER_H

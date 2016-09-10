@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/array.hpp>
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class lenet_interface;
 
@@ -101,6 +101,6 @@ private:
     std::shared_ptr<lenet_interface> m_net;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //LENET_FILE_HANDLER_H

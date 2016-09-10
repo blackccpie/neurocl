@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <vector>
 
-namespace neurocl {
+namespace neurocl { namespace mlp {
 
 struct layer_size
 {
@@ -120,6 +120,6 @@ public:
     virtual const std::string dump_activations() = 0;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace mlp*/
 
 #endif //NETWORK_INTERFACE_H

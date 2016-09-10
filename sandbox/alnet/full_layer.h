@@ -27,9 +27,9 @@ THE SOFTWARE.
 
 #include "layer.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
-using nto = neurocl::tensor_operation;
+using nto = neurocl::convnet::tensor_operation;
 
 class full_layer : public layer
 {
@@ -209,6 +209,6 @@ private:
     const std::string m_name;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //FULL_LAYER_BNU_H

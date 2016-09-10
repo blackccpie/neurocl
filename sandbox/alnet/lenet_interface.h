@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <vector>
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 enum layer_type
 {
@@ -130,6 +130,6 @@ public:
     virtual const output_ptr output() = 0;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //LENET_INTERFACE_H

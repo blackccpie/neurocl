@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include "common/network_exception.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
 class pool_layer  : public layer
 {
@@ -119,6 +119,6 @@ private:
     const std::string m_name;
 };
 
-} //namespace neurocl
+} /*namespace neurocl*/ } /*namespace convnet*/
 
 #endif //POOL_LAYER_BNU_H
