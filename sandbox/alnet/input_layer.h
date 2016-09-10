@@ -72,12 +72,12 @@ public:
     virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override { /*NOTHING TO DO YET*/ }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) { /* NOTHING TO DO */ }
-    virtual void fill_w( float* data ) { /* NOTHING TO DO */ }
+    virtual void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    virtual void fill_w( float* data ) override { /* NOTHING TO DO */ }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data ) { /* NOTHING TO DO */ }
-    virtual void fill_b( float* data )  { /* NOTHING TO DO */ }
+    virtual void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    virtual void fill_b( float* data ) override { /* NOTHING TO DO */ }
 
 protected:
 

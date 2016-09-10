@@ -25,6 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_EXCEPTION_H
 #define NETWORK_EXCEPTION_H
 
+#include <string>
 #include <stdexcept>
 
 namespace neurocl {

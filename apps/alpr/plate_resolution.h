@@ -26,7 +26,8 @@ THE SOFTWARE.
 #define PLATE_RESOLUTION_H
 
 #include "alphanum.h"
-#include "network_manager.h"
+
+#include "mlp/network_manager.h"
 
 #include "CImg.h"
 

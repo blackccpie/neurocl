@@ -24,9 +24,10 @@ THE SOFTWARE.
 
 #include "face_filer.h"
 
-#include "samples_manager.h"
-#include "network_manager.h"
-#include "network_exception.h"
+#include "common/samples_manager.h"
+#include "common/network_exception.h"
+
+#include "mlp/network_manager.h"
 
 #include "facetools/edge_detect.h"
 #include "facetools/face_detect.h"

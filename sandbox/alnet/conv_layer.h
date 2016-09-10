@@ -25,8 +25,9 @@ THE SOFTWARE.
 #ifndef CONV_LAYER_H
 #define CONV_LAYER_H
 
-#include "network_exception.h"
 #include "layer.h"
+
+#include "common/network_exception.h"
 
 namespace neurocl {
 
@@ -148,21 +149,21 @@ public:
     }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) 
+    virtual void fill_w( const size_t data_size, const float* data ) override
     {
          m_filters.grouped_fill( data_size, data );
     }
-    virtual void fill_w( float* data )
+    virtual void fill_w( float* data ) override
     {
          m_filters.grouped_fill( data );
     }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data )
+    virtual void fill_b( const size_t data_size, const float* data ) override
     {
          m_bias.grouped_fill( data_size, data );
     }
-    virtual void fill_b( float* data )
+    virtual void fill_b( float* data ) override
     {
          m_bias.grouped_fill( data );
     }

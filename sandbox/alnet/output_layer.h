@@ -147,21 +147,21 @@ public:
     }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) 
+    virtual void fill_w( const size_t data_size, const float* data ) override
     {
          m_weights.grouped_fill( data_size, data );
     }
-    virtual void fill_w( float* data )
+    virtual void fill_w( float* data ) override
     {
          m_weights.grouped_fill( data );
     }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data )
+    virtual void fill_b( const size_t data_size, const float* data ) override
     {
          m_bias.grouped_fill( data_size, data );
     }
-    virtual void fill_b( float* data )
+    virtual void fill_b( float* data ) override
     {
          m_bias.grouped_fill( data );
     }

@@ -25,9 +25,7 @@ THE SOFTWARE.
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
-#include "network_exception.h"
-
-#include <cstddef>
+#include "common/network_exception.h"
 
 namespace neurocl {
 

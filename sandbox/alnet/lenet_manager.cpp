@@ -25,8 +25,9 @@ THE SOFTWARE.
 #include "lenet.h"
 #include "lenet_manager.h"
 #include "lenet_file_handler.h"
-#include "network_exception.h"
-#include "samples_manager.h"
+
+#include "common/network_exception.h"
+#include "common/samples_manager.h"
 
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>

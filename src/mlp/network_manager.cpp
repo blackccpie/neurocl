@@ -26,9 +26,10 @@ THE SOFTWARE.
 #include "network_bnu_ref.h"
 #include "network_bnu_fast.h"
 #include "network_manager.h"
-#include "network_exception.h"
 #include "network_file_handler.h"
-#include "samples_manager.h"
+
+#include "common/network_exception.h"
+#include "common/samples_manager.h"
 
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>

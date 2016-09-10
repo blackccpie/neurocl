@@ -22,10 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network_exception.h"
-#include "network_utils.h"
 #include "optimizer.h"
 #include "tensor.h"
+
+#include "common/network_exception.h"
+#include "common/network_utils.h"
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 

@@ -24,7 +24,8 @@ THE SOFTWARE.
 
 #include "network_file_handler.h"
 #include "network_interface.h"
-#include "network_exception.h"
+
+#include "common/network_exception.h"
 
 //#include <boost/archive/text_oarchive.hpp>
 //#include <boost/archive/text_iarchive.hpp>

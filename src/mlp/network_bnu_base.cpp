@@ -23,9 +23,10 @@ THE SOFTWARE.
 */
 
 #include "network_bnu_base.h"
-#include "network_config.h"
-#include "network_exception.h"
-#include "network_utils.h"
+
+#include "common/network_config.h"
+#include "common/network_exception.h"
+#include "common/network_utils.h"
 
 #include <boost/foreach.hpp>
 #include <boost/optional.hpp>

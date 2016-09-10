@@ -25,8 +25,9 @@ THE SOFTWARE.
 #ifndef ALPR_H
 #define ALPR_H
 
-#include "network_manager.h"
 #include "plate_resolution.h"
+
+#include "mlp/network_manager.h"
 
 #include "CImg.h"
 

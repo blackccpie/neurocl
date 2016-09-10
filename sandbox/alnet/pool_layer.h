@@ -25,8 +25,9 @@ THE SOFTWARE.
 #ifndef POOL_LAYER_H
 #define POOL_LAYER_H
 
-#include "network_exception.h"
 #include "layer.h"
+
+#include "common/network_exception.h"
 
 namespace neurocl {
 
@@ -94,12 +95,12 @@ public:
     }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) { /* NOTHING TO DO */ }
-    virtual void fill_w( float* data ) { /* NOTHING TO DO */ }
+    virtual void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    virtual void fill_w( float* data ) override { /* NOTHING TO DO */ }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data ) { /* NOTHING TO DO */ }
-    virtual void fill_b( float* data )  { /* NOTHING TO DO */ }
+    virtual void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    virtual void fill_b( float* data ) override { /* NOTHING TO DO */ }
 
 protected:
 
