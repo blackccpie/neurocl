@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-#include "network_sample.h"
+#include "common/network_sample.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_array.hpp>

@@ -32,27 +32,30 @@ include_directories(
 include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
-samples_manager.cpp
-network_file_handler.cpp
-network_manager.cpp
-network_vexcl.cpp
-network_bnu_base.cpp
-network_bnu_ref.cpp
-network_bnu_fast.cpp
+common/samples_manager.cpp
+
+mlp/network_file_handler.cpp
+mlp/network_manager.cpp
+mlp/network_vexcl.cpp
+mlp/network_bnu_base.cpp
+mlp/network_bnu_ref.cpp
+mlp/network_bnu_fast.cpp
 )
 
 set (headers_list
-samples_manager.h
-network_config.h
-network_sample.h
-network_exception.h
-network_file_handler.h
-network_manager.h
-network_interface.h
-network_vexcl.h
-network_bnu_base.h
-network_bnu_ref.h
-network_bnu_fast.h
+common/samples_manager.h
+common/network_sample.h
+common/network_exception.h
+common/network_utils.h
+common/network_config.h
+
+mlp/network_file_handler.h
+mlp/network_manager.h
+mlp/network_interface.h
+mlp/network_vexcl.h
+mlp/network_bnu_base.h
+mlp/network_bnu_ref.h
+mlp/network_bnu_fast.h
 )
 
 if (NOT APPLE)
@@ -63,6 +66,7 @@ add_library(neurocl SHARED ${sources_list} ${headers_list})
 
 target_link_libraries(neurocl
 boost_thread${boost_suffix}
+boost_random${boost_suffix}
 boost_system${boost_suffix}
 boost_chrono${boost_suffix}
 boost_filesystem${boost_suffix}
