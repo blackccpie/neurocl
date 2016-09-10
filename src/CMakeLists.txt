@@ -41,9 +41,9 @@ mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 mlp/network_bnu_fast.cpp
 
-convnet/lenet.cpp
-convnet/lenet_manager.cpp
-convnet/lenet_file_handler.cpp
+convnet/network.cpp
+convnet/network_manager.cpp
+convnet/network_file_handler.cpp
 convnet/tensor.cpp
 )
 
@@ -69,10 +69,10 @@ convnet/output_layer.h
 convnet/pool_layer.h
 convnet/optimizer.h
 convnet/tensor.h
-convnet/lenet.h
-convnet/lenet_manager.h
-convnet/lenet_interface.h
-convnet/lenet_file_handler.h
+convnet/network.h
+convnet/network_manager.h
+convnet/network_interface.h
+convnet/network_file_handler.h
 )
 
 if (NOT APPLE)

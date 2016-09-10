@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LENET_H
-#define LENET_H
+#ifndef NETWORK_H
+#define NETWORK_H
 
-#include "lenet_interface.h"
+#include "network_interface.h"
 
 #include <memory>
 #include <vector>
@@ -35,12 +35,12 @@ namespace neurocl { namespace convnet {
 class layer;
 class optimizer;
 
-class lenet : public lenet_interface
+class network : public network_interface
 {
 public:
 
-	lenet();
-	virtual ~lenet() {}
+	network();
+	virtual ~network() {}
 
     void add_layers( const std::vector<layer_descr>& layers );
 
@@ -70,4 +70,4 @@ protected:
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //LENET_H
+#endif //NETWORK_H

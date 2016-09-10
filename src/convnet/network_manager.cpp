@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "lenet.h"
-#include "lenet_manager.h"
-#include "lenet_file_handler.h"
+#include "network.h"
+#include "network_manager.h"
+#include "network_file_handler.h"
 
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
@@ -36,36 +36,36 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-lenet_manager::lenet_manager()
+network_manager::network_manager()
 {
-    m_net = std::make_shared<lenet>();
-    m_net_file_handler = std::make_shared<lenet_file_handler>( m_net );
+    m_net = std::make_shared<network>();
+    m_net_file_handler = std::make_shared<network_file_handler>( m_net );
 }
 
-void lenet_manager::_assert_loaded()
+void network_manager::_assert_loaded()
 {
     if ( !m_network_loaded )
         throw network_exception( "no network loaded!" );
 }
 
-void lenet_manager::load_network( const std::string& topology_path, const std::string& weights_path )
+void network_manager::load_network( const std::string& topology_path, const std::string& weights_path )
 {
     m_net_file_handler->load_network_topology( topology_path );
     m_net_file_handler->load_network_weights( weights_path );
 
     m_network_loaded = true;
 
-    std::cout << "lenet_manager::load_network - network loaded" << std::endl;
+    std::cout << "network_manager::load_network - network loaded" << std::endl;
 }
 
-void lenet_manager::save_network()
+void network_manager::save_network()
 {
     _assert_loaded();
 
     m_net_file_handler->save_network_weights();
 }
 
-void lenet_manager::batch_train( 	const samples_manager& smp_manager,
+void network_manager::batch_train( 	const samples_manager& smp_manager,
 									const size_t& epoch_size,
 									const size_t& batch_size,
 									t_progress_fct progress_fct )
@@ -75,7 +75,7 @@ void lenet_manager::batch_train( 	const samples_manager& smp_manager,
 
     for ( size_t i=0; i<epoch_size; i++ )
     {
-        std::cout << std::endl << "lenet_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
+        std::cout << std::endl << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
 
         while ( true )
         {
@@ -96,7 +96,7 @@ void lenet_manager::batch_train( 	const samples_manager& smp_manager,
 			if ( progress_fct )
 				progress_fct( progress );
 
-            std::cout << "\rlenet_manager::batch_train - progress " << progress << "%";// << std::endl;
+            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
         }
 
         smp_manager.rewind();
@@ -107,28 +107,28 @@ void lenet_manager::batch_train( 	const samples_manager& smp_manager,
     save_network();
 }
 
-void lenet_manager::prepare_training_iteration()
+void network_manager::prepare_training_iteration()
 {
     m_net->prepare_training();
 }
 
-void lenet_manager::finalize_training_iteration()
+void network_manager::finalize_training_iteration()
 {
     m_net->gradient_descent();
 }
 
-void lenet_manager::train( const sample& s )
+void network_manager::train( const sample& s )
 {
     _train( s );
 }
 
-void lenet_manager::train( const std::vector<sample>& training_set )
+void network_manager::train( const std::vector<sample>& training_set )
 {
     size_t index = 0;
 
     BOOST_FOREACH( const neurocl::sample& s, training_set )
     {
-        //std::cout << "lenet_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
+        //std::cout << "network_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 
         _train( s );
 
@@ -136,7 +136,7 @@ void lenet_manager::train( const std::vector<sample>& training_set )
     }
 }
 
-void lenet_manager::_train( const sample& s )
+void network_manager::_train( const sample& s )
 {
 #ifdef TRAIN_CHRONO
     namespace bc = boost::chrono;
@@ -154,11 +154,11 @@ void lenet_manager::_train( const sample& s )
 
 #ifdef TRAIN_CHRONO
     duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
-    std::cout << "lenet_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
+    std::cout << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
 #endif
 }
 
-void lenet_manager::compute_output( sample& s )
+void network_manager::compute_output( sample& s )
 {
     m_net->set_input( s.isample_size, s.isample );
     m_net->feed_forward();

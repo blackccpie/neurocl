@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LENET_INTERFACE_H
-#define LENET_INTERFACE_H
+#ifndef NETWORK_INTERFACE_H
+#define NETWORK_INTERFACE_H
 
 #include <boost/shared_array.hpp>
 
@@ -107,7 +107,7 @@ inline std::ostream& operator<< ( std::ostream& stream, const layer_descr& layer
     return stream;
 }
 
-class lenet_interface
+class network_interface
 {
 public:
 
@@ -132,4 +132,4 @@ public:
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //LENET_INTERFACE_H
+#endif //NETWORK_INTERFACE_H

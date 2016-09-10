@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LENET_MANAGER_H
-#define LENET_MANAGER_H
+#ifndef NETWORK_MANAGER_H
+#define NETWORK_MANAGER_H
 
 #include "common/network_sample.h"
 
@@ -38,10 +38,10 @@ class samples_manager;
 
 namespace convnet {
 
-class lenet_interface;
-class lenet_file_handler;
+class network_interface;
+class network_file_handler;
 
-class lenet_manager
+class network_manager
 {
 public:
 
@@ -49,8 +49,8 @@ public:
 
 public:
 
-    lenet_manager();
-	virtual ~lenet_manager() {}
+    network_manager();
+	virtual ~network_manager() {}
 
     void load_network( const std::string& topology_path, const std::string& weights_path );
     void save_network();
@@ -78,10 +78,10 @@ private:
 
 	bool m_network_loaded;
 
-    std::shared_ptr<lenet_interface> m_net;
-    std::shared_ptr<lenet_file_handler> m_net_file_handler;
+    std::shared_ptr<network_interface> m_net;
+    std::shared_ptr<network_file_handler> m_net_file_handler;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //LENET_MANAGER_H
+#endif //NETWORK_MANAGER_H

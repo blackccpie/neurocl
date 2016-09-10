@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "lenet.h"
+#include "network.h"
 #include "optimizer.h"
 #include "conv_layer.h"
 #include "full_layer.h"
@@ -37,9 +37,9 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-//#define VERBOSE_LENET
+//#define VERBOSE_NETWORK
 
-lenet::lenet() : m_training_samples( 0 )
+network::network() : m_training_samples( 0 )
 {
     float learning_rate = 0.1f;
     float weight_decay = 0.f;
@@ -48,7 +48,7 @@ lenet::lenet() : m_training_samples( 0 )
     m_optimizer = std::make_shared<optimizer>( learning_rate, weight_decay );
 }
 
-void lenet::add_layers( const std::vector<layer_descr>& layers )
+void network::add_layers( const std::vector<layer_descr>& layers )
 {
     size_t conv_idx = 0;
     size_t pool_idx = 0;
@@ -171,7 +171,7 @@ void lenet::add_layers( const std::vector<layer_descr>& layers )
     m_layers.emplace_back( out );*/
 }
 
-void lenet::set_input(  const size_t& in_size, const float* in )
+void network::set_input(  const size_t& in_size, const float* in )
 {
     // TODO-CNN : for now works only because input layer has no depth for now!
 
@@ -181,14 +181,14 @@ void lenet::set_input(  const size_t& in_size, const float* in )
     if ( in_size > input_layer->size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
-#ifdef VERBOSE_LENET
-    std::cout << "lenet::set_input - input (" << in << ") size = " << in_size << std::endl;
+#ifdef VERBOSE_network
+    std::cout << "network::set_input - input (" << in << ") size = " << in_size << std::endl;
 #endif
 
     input_layer->fill( 0, 0, in_size, in );
 }
 
-void lenet::set_output( const size_t& out_size, const float* out )
+void network::set_output( const size_t& out_size, const float* out )
 {
     // TODO-CNN : for now works only because output layer has no depth for now!
 
@@ -197,24 +197,24 @@ void lenet::set_output( const size_t& out_size, const float* out )
     if ( out_size > output_layer->size() )
         throw network_exception( "output size exceeds allocated layer size!" );
 
-#ifdef VERBOSE_LENET
-    std::cout << "lenet::set_output - output (" << out << ") size = " << out_size << std::endl;
+#ifdef VERBOSE_network
+    std::cout << "network::set_output - output (" << out << ") size = " << out_size << std::endl;
 #endif
 
     output_layer->fill( 0, 0, out_size, out );
 }
 
-const layer_ptr lenet::get_layer_ptr( const size_t layer_idx )
+const layer_ptr network::get_layer_ptr( const size_t layer_idx )
 {
     if ( layer_idx >= m_layers.size() )
 	{
-        std::cerr << "lenet::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        std::cerr << "network::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
     std::shared_ptr<layer> _layer = m_layers[layer_idx];
 
-    std::cout << "lenet::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
+    std::cout << "network::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
 
     layer_ptr l( _layer->nb_weights(), _layer->nb_bias() );
     _layer->fill_w( l.weights.get() );
@@ -223,23 +223,23 @@ const layer_ptr lenet::get_layer_ptr( const size_t layer_idx )
     return l;
 }
 
-void lenet::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
+void network::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 {
     if ( layer_idx >= m_layers.size() )
     {
-        std::cerr << "lenet::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        std::cerr << "network::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
     std::shared_ptr<layer> _layer = m_layers[layer_idx];
 
-    std::cout << "lenet::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
+    std::cout << "network::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
 
     _layer->fill_w( _layer->nb_weights(), l.weights.get() );
     _layer->fill_b( _layer->nb_bias(), l.bias.get() );
 }
 
-const output_ptr lenet::output()
+const output_ptr network::output()
 {
     // TODO-CNN : for now works only because last layer has no depth for now
 
@@ -251,7 +251,7 @@ const output_ptr lenet::output()
     return o;
 }
 
-void lenet::prepare_training()
+void network::prepare_training()
 {
     for ( auto _layer : m_layers )
     {
@@ -261,22 +261,22 @@ void lenet::prepare_training()
     m_training_samples = 0;
 }
 
-void lenet::feed_forward()
+void network::feed_forward()
 {
     for ( auto _layer : m_layers )
     {
-#ifdef VERBOSE_LENET
+#ifdef VERBOSE_NETWORK
         std::cout << "--> feed forwarding " << _layer->type() << " layer" << std::endl;
 #endif
         _layer->feed_forward();
     }
 }
 
-void lenet::back_propagate()
+void network::back_propagate()
 {
     for ( auto _layer : boost::adaptors::reverse( m_layers ) )
     {
-#ifdef VERBOSE_LENET
+#ifdef VERBOSE_network
         std::cout << "--> back propagating " << _layer->type() << " layer" << std::endl;
 #endif
         _layer->back_propagate();
@@ -284,7 +284,7 @@ void lenet::back_propagate()
 
     for ( auto _layer : m_layers )
     {
-#ifdef VERBOSE_LENET
+#ifdef VERBOSE_network
         std::cout << "--> updating gradients " << _layer->type() << " layer" << std::endl;
 #endif
         _layer->update_gradients();
@@ -293,7 +293,7 @@ void lenet::back_propagate()
     ++m_training_samples;
 }
 
-void lenet::gradient_descent()
+void network::gradient_descent()
 {
     m_optimizer->set_size( m_training_samples );
 

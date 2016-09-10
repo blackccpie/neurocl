@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "lenet_file_handler.h"
-#include "lenet_interface.h"
+#include "network_file_handler.h"
+#include "network_interface.h"
 
 #include "common/network_exception.h"
 
@@ -61,26 +61,26 @@ std::istream& operator>> ( std::istream &input, layer_type& type )
     return input;
 }
 
-lenet_file_handler::lenet_file_handler( const std::shared_ptr<lenet_interface>& net ) : m_net( net ), m_layers( 0 )
+network_file_handler::network_file_handler( const std::shared_ptr<network_interface>& net ) : m_net( net ), m_layers( 0 )
 {
 }
 
-lenet_file_handler::~lenet_file_handler()
+network_file_handler::~network_file_handler()
 {
 }
 
-void lenet_file_handler::load_network_topology( const std::string& topology_path )
+void network_file_handler::load_network_topology( const std::string& topology_path )
 {
     if ( !bfs::exists( topology_path ) )
     {
-        std::cerr << "lenet_file_handler::load_network_topology - topology file \'" << topology_path << "\' doesn't exist" << std::endl;
+        std::cerr << "network_file_handler::load_network_topology - topology file \'" << topology_path << "\' doesn't exist" << std::endl;
         throw network_exception( "error reading topology config file" );
     }
 
     std::ifstream topology( topology_path );
     if ( !topology || !topology.is_open() )
     {
-        std::cerr << "lenet_file_handler::load_network_topology - error opening topology file \'" << topology_path << "\'" << std::endl;
+        std::cerr << "network_file_handler::load_network_topology - error opening topology file \'" << topology_path << "\'" << std::endl;
         throw "error opening topology config file";
     }
 
@@ -103,7 +103,7 @@ void lenet_file_handler::load_network_topology( const std::string& topology_path
 
             if ( split_vec.size() != 6 )
             {
-                std::cerr << "lenet_file_handler::load_network_topology - line " << cur_line << " is malformed (missing elements)" << std::endl;
+                std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (missing elements)" << std::endl;
                 throw network_exception( "malformed line in topology file" );
             }
 
@@ -118,13 +118,13 @@ void lenet_file_handler::load_network_topology( const std::string& topology_path
                 // for now index are supposed to be declared in increasing order...
                 if ( _idx != idx_layer )
                 {
-                    std::cerr << "lenet_file_handler::load_network_topology - line " << cur_line << " is malformed (wrong layer index)" << std::endl;
+                    std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (wrong layer index)" << std::endl;
                     throw network_exception( "malformed line in topology file" );
                 }
 
                 // TODO-CNN : implement layer topology ordering constraints check??
 
-                std::cout << "lenet_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z << std::endl;
+                std::cout << "network_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z << std::endl;
 
                 layers.push_back( layer_descr( _t, _x, _y, _z ) );
 
@@ -137,7 +137,7 @@ void lenet_file_handler::load_network_topology( const std::string& topology_path
             }
             catch(...)
             {
-                std::cerr << "lenet_file_handler::load_network_topology - line " << cur_line << " is malformed (an element is not a number)" << std::endl;
+                std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (an element is not a number)" << std::endl;
                 throw network_exception( "malformed line in topology file" );
             }
 
@@ -151,7 +151,7 @@ void lenet_file_handler::load_network_topology( const std::string& topology_path
         throw network_exception( "empty topology file" );
 }
 
-void lenet_file_handler::load_network_weights( const std::string& weights_path )
+void network_file_handler::load_network_weights( const std::string& weights_path )
 {
     if ( !m_layers )
         throw network_exception( "no network topology loaded" );
@@ -177,7 +177,7 @@ void lenet_file_handler::load_network_weights( const std::string& weights_path )
             for ( size_t i=0; i<m_layers-1; i++ ) // output layer has no output weights
             {
                 layer_storage l;
-                std::cout << "lenet_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
+                std::cout << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
                 ia >> l;
 
                 layer_ptr lp( l.m_num_weights, l.m_weights, l.m_num_bias, l.m_bias );
@@ -186,17 +186,17 @@ void lenet_file_handler::load_network_weights( const std::string& weights_path )
         }
         catch(...)
         {
-            std::cerr << "lenet_file_handler::load_network_weights - error decoding weights file" << std::endl;
+            std::cerr << "network_file_handler::load_network_weights - error decoding weights file" << std::endl;
             throw network_exception( "error decoding weights file" );
         }
     }
     else
         throw network_exception( "unable to open weights file for loading" );
 
-        std::cout << "lenet_file_handler::load_network_weights - successfully loaded network weights" << std::endl;
+        std::cout << "network_file_handler::load_network_weights - successfully loaded network weights" << std::endl;
 }
 
-void lenet_file_handler::save_network_weights()
+void network_file_handler::save_network_weights()
 {
     std::ofstream output_weights( m_weights_path, std::ios::out | std::ios::binary | std::ios::trunc );
 
@@ -206,7 +206,7 @@ void lenet_file_handler::save_network_weights()
 
         for ( size_t i=0; i<m_net->count_layers()-1; i++ ) // output layer has no output weights
         {
-            std::cout << "lenet_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
+            std::cout << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
             layer_ptr ptr = m_net->get_layer_ptr( i );
             layer_storage l( ptr.num_weights, ptr.weights, ptr.num_bias, ptr.bias );
             oar << l;

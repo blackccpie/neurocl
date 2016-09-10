@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LENET_FILE_HANDLER_H
-#define LENET_FILE_HANDLER_H
+#ifndef NETWORK_FILE_HANDLER_H
+#define NETWORK_FILE_HANDLER_H
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_array.hpp>
@@ -32,9 +32,9 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-class lenet_interface;
+class network_interface;
 
-class lenet_file_handler
+class network_file_handler
 {
 private:
 
@@ -52,7 +52,7 @@ private:
 
     protected:
 
-        friend class lenet_file_handler;
+        friend class network_file_handler;
 
         boost::uint32_t m_num_weights;
         boost::shared_array<float> m_weights;
@@ -84,8 +84,8 @@ private:
 
 public:
 
-    lenet_file_handler( const std::shared_ptr<lenet_interface>& net );
-    virtual ~lenet_file_handler();
+    network_file_handler( const std::shared_ptr<network_interface>& net );
+    virtual ~network_file_handler();
 
     void load_network_topology( const std::string& topology_path );
 
@@ -98,9 +98,9 @@ private:
 
     std::string m_weights_path;
 
-    std::shared_ptr<lenet_interface> m_net;
+    std::shared_ptr<network_interface> m_net;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //LENET_FILE_HANDLER_H
+#endif //NETWORK_FILE_HANDLER_H

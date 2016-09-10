@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
 
-#include "convnet/lenet_manager.h"
+#include "convnet/network_manager.h"
 
 #include <boost/chrono.hpp>
 
@@ -57,12 +57,12 @@ int main( int argc, char *argv[] )
 
         const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
 
-        neurocl::convnet::lenet_manager lenet;
-        lenet.load_network( argv[2], argv[3] );
+        neurocl::convnet::network_manager net;
+        net.load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//
 
-        lenet.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+        net.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
         //************************* TESTING *************************//
 
@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
         for ( size_t i = 0; i<training_samples.size(); i++ )
         {
             neurocl::test_sample tsample( smp_manager.get_samples()[i] );
-            lenet.compute_output( tsample );
+            net.compute_output( tsample );
 
             std::cout << tsample.output() << std::endl;
             std::cout << tsample.ref_output() << std::endl;
