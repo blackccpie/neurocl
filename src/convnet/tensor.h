@@ -35,8 +35,6 @@ typedef typename boost::multi_array<matrixF,2> matrix2F;
 
 namespace neurocl { namespace convnet {
 
-class optimizer;
-
 #define tensor_foreach() for ( auto d1 = 0; d1 < m_depth1; d1++ ) \
                             for ( auto d2 = 0; d2 < m_depth2; d2++ )
 
@@ -203,96 +201,6 @@ private:
     size_t m_depth2; // --> number of feature maps
 
     matrix2F m_tensor_array;
-};
-
-class tensor_operation
-{
-public:
-
-    enum kernel_mode
-    {
-        kernel_std = 0,
-        kernel_flip
-    };
-
-    enum pad_mode
-    {
-        pad_valid = 0,
-        pad_same,
-        pad_full
-    };
-
-    enum optimize_mode
-    {
-        optim_std = 0,
-        optim_redux
-    };
-
-public:
-
-    // returns aB (scalar product)
-    static tensor scale( const float& val, const tensor& input );
-
-    // returns A + B
-    static tensor add( const tensor& inputA, const tensor& inputB );
-
-    // returns A - B
-    static tensor sub( const tensor& inputA, const tensor& inputB );
-
-    // groups all submatrixes into a single one
-    static tensor group( const tensor& input );
-
-    // ungroups input matrix into multiple ones
-    static void ungroup( const tensor& input, tensor& output );
-
-    // returns A.B (standard product)
-    static tensor elemul( const tensor& inputA, const tensor& inputB );
-
-    // returns A.B (element product)
-    static tensor mul( const tensor& inputA, const tensor& inputB );
-
-    // returns A.B + C
-    static tensor muladd( const tensor& inputA, const tensor& inputB, const tensor& inputC );
-
-    // returns trans(A).B
-    static tensor multrans1( const tensor& inputA, const tensor& inputB );
-
-    // returns A.trans(B)
-    static tensor multrans2( const tensor& inputA, const tensor& inputB );
-
-    static void sig( tensor& input );
-
-    static tensor d_sig( const tensor& input );
-
-    template<kernel_mode km, pad_mode pm>
-    static tensor convolve( const tensor& input, const tensor& filter, const int stride );
-
-    template<kernel_mode km, pad_mode pm>
-    static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );
-
-    static tensor subsample( const tensor& input, const size_t subsample );
-
-    static tensor d_subsample( const tensor& input, const tensor& input_ref, const size_t subsample );
-
-    static tensor uniform_sum( const tensor& input );
-
-    template<optimize_mode om>
-    static void optimize( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas );
-};
-
-inline tensor operator*( const float& val, const tensor& t )
-{
-    return std::move( tensor_operation::scale( val, t ) );
-};
-
-inline tensor operator+( const tensor& t1, const tensor& t2 )
-{
-    return std::move( tensor_operation::add( t1, t2 ) );
-};
-
-inline tensor operator-( const tensor& t1, const tensor& t2 )
-{
-    return std::move( tensor_operation::sub( t1, t2 ) );
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

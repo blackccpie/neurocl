@@ -45,6 +45,7 @@ convnet/network.cpp
 convnet/network_manager.cpp
 convnet/network_file_handler.cpp
 convnet/tensor.cpp
+convnet/tensor_operations.cpp
 )
 
 set (headers_list
@@ -69,6 +70,7 @@ convnet/output_layer.h
 convnet/pool_layer.h
 convnet/optimizer.h
 convnet/tensor.h
+convnet/tensor_operations.h
 convnet/network.h
 convnet/network_manager.h
 convnet/network_interface.h

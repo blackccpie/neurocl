@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "tensor.h"
+#include "tensor_operations.h"
 
 namespace neurocl { namespace convnet {
 
