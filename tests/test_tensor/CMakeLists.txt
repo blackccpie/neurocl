@@ -23,16 +23,11 @@
 cmake_minimum_required (VERSION 3.0)
 project (test_tensor)
 
-include_directories( .. ../../src )
-
-set (headers_list
-)
-
 set (sources_list
 main.cpp
 )
 
-add_executable(test_tensor ${sources_list} ${headers_list})
+add_executable(test_tensor ${sources_list})
 
 target_link_libraries(test_tensor
 neurocl
