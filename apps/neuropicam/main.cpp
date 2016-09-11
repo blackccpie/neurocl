@@ -25,9 +25,11 @@ THE SOFTWARE.
 #include "thebrain.h"
 #include "face_filer.h"
 #include "chrono_manager.h"
-#include "samples_manager.h"
-#include "network_manager.h"
-#include "network_exception.h"
+
+#include "mlp/network_manager.h"
+
+#include "common/samples_manager.h"
+#include "common/network_exception.h"
 
 #include "raspicam/raspicam.h"
 
@@ -169,7 +171,7 @@ void face_preprocess_generic( float* image, const size_t sizeX, const size_t siz
     face_preprocess( _image );
 }
 
-const face_result face_process(  CImg<unsigned char> image, neurocl::network_manager& net_manager )
+const face_result face_process(  CImg<unsigned char> image, neurocl::mlp::network_manager& net_manager )
 {
 	CImg<float> work_image( image );
 
@@ -351,7 +353,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		remove( g_weights_facecam_auto );
 	}
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
+    neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::NEURAL_IMPL_BNU_FAST );
     net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
 	// remove existing training file + image files
@@ -456,7 +458,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
+    neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::NEURAL_IMPL_BNU_FAST );
     if ( !auto_trained )
 		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 	else
