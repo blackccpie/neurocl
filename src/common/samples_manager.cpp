@@ -40,7 +40,7 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
 {
     cimg_library::CImg<float> img( file.c_str() );
 
-    //img.resize(32,32);
+    img.resize(32,32);
 
     img.equalize( 256, 0, 255 );
     img.normalize( 0.f, 1.f );

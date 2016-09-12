@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 #include <iostream>
 
-#define NEUROCL_EPOCH_SIZE 50
+#define NEUROCL_EPOCH_SIZE 20
 #define NEUROCL_BATCH_SIZE 10
 #define MAX_MATCH_ERROR 0.1f
 

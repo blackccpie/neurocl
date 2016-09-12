@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_MANAGER_H
-#define NETWORK_MANAGER_H
+#ifndef NETWORK_MANAGER_CONVNET_H
+#define NETWORK_MANAGER_CONVNET_H
 
+#include "common/network_factory.h"
 #include "common/network_sample.h"
 
 #include <boost/function.hpp>
@@ -41,7 +42,7 @@ namespace convnet {
 class network_interface;
 class network_file_handler;
 
-class network_manager
+class network_manager : public network_manager_interface
 {
 public:
 
@@ -84,4 +85,4 @@ private:
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //NETWORK_MANAGER_H
+#endif //NETWORK_MANAGER_CONVNET_H

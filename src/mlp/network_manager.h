@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_MANAGER_H
-#define NETWORK_MANAGER_H
+#ifndef NETWORK_MANAGER_MLP_H
+#define NETWORK_MANAGER_MLP_H
 
+#include "common/network_factory.h"
 #include "common/network_sample.h"
 
 #include <boost/function.hpp>
@@ -41,7 +42,7 @@ namespace mlp {
 class network_interface;
 class network_file_handler;
 
-class network_manager
+class network_manager : public network_manager_interface
 {
 public:
 
@@ -49,14 +50,14 @@ public:
 
     typedef enum
     {
-        NEURAL_IMPL_BNU_REF = 0,
-		NEURAL_IMPL_BNU_FAST,
-        NEURAL_IMPL_VEXCL
-    } t_neural_impl;
+        MLP_IMPL_BNU_REF = 0,
+		MLP_IMPL_BNU_FAST,
+        MLP_IMPL_VEXCL
+    } t_mlp_impl;
 
 public:
 
-    network_manager( const t_neural_impl& impl );
+    network_manager( const t_mlp_impl& impl );
 	virtual ~network_manager() {}
 
     void load_network( const std::string& topology_path, const std::string& weights_path );
@@ -131,4 +132,4 @@ private:
 
 } /*namespace neurocl*/ } /*namespace mlp*/
 
-#endif //NETWORK_MANAGER_H
+#endif //NETWORK_MANAGER_MLP_H

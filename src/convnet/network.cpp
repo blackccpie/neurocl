@@ -41,7 +41,7 @@ namespace neurocl { namespace convnet {
 
 network::network() : m_training_samples( 0 )
 {
-    float learning_rate = 0.1f;
+    float learning_rate = 0.2f;
     float weight_decay = 0.f;
 
     // build optimizer given learning rate and weight decay

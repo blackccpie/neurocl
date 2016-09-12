@@ -45,19 +45,21 @@ void network_manager::_assert_loaded()
         throw network_exception( "no network loaded!" );
 }
 
-network_manager::network_manager( const t_neural_impl& impl ) : m_network_loaded( false )
+network_manager::network_manager( const t_mlp_impl& impl ) : m_network_loaded( false )
 {
     switch( impl )
     {
-    case NEURAL_IMPL_BNU_REF:
+    case MLP_IMPL_BNU_REF:
         m_net = boost::make_shared<network_bnu_ref>();
         break;
-    case NEURAL_IMPL_BNU_FAST:
+    case MLP_IMPL_BNU_FAST:
         m_net = boost::make_shared<network_bnu_fast>();
         break;
-    case NEURAL_IMPL_VEXCL:
+    case MLP_IMPL_VEXCL:
         m_net = boost::make_shared<network_vexcl>();
         break;
+    default:
+        throw network_exception( "unmanaged mlp implementation!" );
     }
 
     m_net_file_handler = boost::make_shared<network_file_handler>( m_net );

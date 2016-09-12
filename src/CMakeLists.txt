@@ -33,6 +33,7 @@ include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
 common/samples_manager.cpp
+common/network_factory.cpp
 
 mlp/network_file_handler.cpp
 mlp/network_manager.cpp
@@ -50,6 +51,7 @@ convnet/tensor_operations.cpp
 
 set (headers_list
 common/samples_manager.h
+common/network_factory.h
 common/network_sample.h
 common/network_exception.h
 common/network_utils.h
