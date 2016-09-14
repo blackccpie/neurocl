@@ -71,22 +71,22 @@ public:
 
 	virtual ~network_manager() {}
 
-    void load_network( const std::string& topology_path, const std::string& weights_path );
-    void save_network();
+    virtual void load_network( const std::string& topology_path, const std::string& weights_path ) override;
+    virtual void save_network() override;
 
-    void train( const sample& s );
-    void train( const std::vector<sample>& training_set );
-    void batch_train(	const samples_manager& smp_manager,
-						const size_t& epoch_size,
-						const size_t& batch_size,
-						t_progress_fct progress_fct = t_progress_fct() );
+    virtual void train( const sample& s ) override;
+    virtual void train( const std::vector<sample>& training_set ) override;
+    virtual void batch_train(   const samples_manager& smp_manager,
+                                const size_t& epoch_size,
+						        const size_t& batch_size,
+						        t_progress_fct progress_fct = t_progress_fct() ) override;
 
     // prepare gradient descent
-    void prepare_training_iteration();
+    virtual void prepare_training_iteration() override;
     // finalize gradient descent
-    void finalize_training_iteration();
+    virtual void finalize_training_iteration() override;
 
-    void compute_output( sample& s );
+    virtual void compute_output( sample& s ) override;
 
     void dump_weights();
     void dump_bias();
