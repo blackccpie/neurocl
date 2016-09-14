@@ -26,10 +26,10 @@ THE SOFTWARE.
 #include "face_filer.h"
 #include "chrono_manager.h"
 
-#include "mlp/network_manager.h"
-
-#include "common/samples_manager.h"
+#include "common/network_factory.h"
+#include "common/network_manager_interface.h"
 #include "common/network_exception.h"
+#include "common/samples_manager.h"
 
 #include "raspicam/raspicam.h"
 
@@ -46,6 +46,7 @@ using boost::assign::list_of;
 
 #include <fstream>
 
+using namespace neurocl;
 using namespace cimg_library;
 
 #define IMAGE_SIZEX 480
@@ -171,7 +172,7 @@ void face_preprocess_generic( float* image, const size_t sizeX, const size_t siz
     face_preprocess( _image );
 }
 
-const face_result face_process(  CImg<unsigned char> image, neurocl::mlp::network_manager& net_manager )
+const face_result face_process(  CImg<unsigned char> image, std::shared_ptr<network_manager_interface> net_manager )
 {
 	CImg<float> work_image( image );
 
@@ -190,9 +191,9 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::mlp::networ
 
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
+    sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
 
-	net_manager.compute_output( sample );
+	net_manager->compute_output( sample );
 
     g_chrono.step( "classification" );
 
@@ -303,7 +304,7 @@ int main ( int argc,char **argv )
         else
             _main_live( camera, my_display, auto_trained );
 	}
-    catch( neurocl::network_exception& e )
+    catch( network_exception& e )
     {
         std::cerr << "network exception : " << e.what() << std::endl;
     }
@@ -353,8 +354,8 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		remove( g_weights_facecam_auto );
 	}
 
-    neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::NEURAL_IMPL_BNU_FAST );
-    net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
+    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+    net_manager->load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
 	// remove existing training file + image files
 	if ( exists( g_training_file_auto ) )
@@ -445,7 +446,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 														true /*shuffle*/,
 														&face_preprocess_generic /* extra_preproc*/ );
 
-	net_manager.batch_train( 	smp_manager,
+	net_manager->batch_train( 	smp_manager,
 								100 /*epoch*/,
 								20 /*batch*/,
 								boost::bind( &progress, _1, my_display, display_image ) );
@@ -458,11 +459,11 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
-    neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::NEURAL_IMPL_BNU_FAST );
+    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
     if ( !auto_trained )
-		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+		net_manager->load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 	else
-		net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
+		net_manager->load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 
