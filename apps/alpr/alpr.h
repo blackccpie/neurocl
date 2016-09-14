@@ -27,21 +27,21 @@ THE SOFTWARE.
 
 #include "plate_resolution.h"
 
-#include "mlp/network_manager.h"
-
 #include "CImg.h"
 
 #include <string>
 
 namespace alpr {
 
-class network_manager;
+class network_manager_interface;
 
 // Class to manage license plate recognition
 class license_plate
 {
 public:
-    license_plate( const std::string& file_plate, neurocl::mlp::network_manager& net_num, neurocl::mlp::network_manager& net_let );
+    license_plate(  const std::string& file_plate,
+                    std::shared_ptr<neurocl::network_manager_interface> net_num,
+                    std::shared_ptr<neurocl::network_manager_interface> net_let );
     virtual ~license_plate();
 
     void analyze();

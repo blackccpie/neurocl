@@ -22,43 +22,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef FACE_DETECT_H
-#define FACE_DETECT_H
+#ifndef NETWORK_MANAGER_INTERFACE_H
+#define NETWORK_MANAGER_INTERFACE_H
 
-#include "CImg.h"
-
-#include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include <vector>
 
-class face_detect_impl;
+namespace neurocl {
 
-// Class to manage face detection
-class face_detect
+class sample;
+class samples_manager;
+
+class network_manager_interface
 {
 public:
 
-    struct face_rect
-    {
-        face_rect( int _x0, int _y0, int _x1, int _y1 )
-            : x0( _x0 ), y0( _y0 ), x1( _x1 ), y1( _y1 ) {}
-
-        int x0;
-        int y0;
-        int x1;
-        int y1;
-    };
+    typedef boost::function<void(int)> t_progress_fct;
 
 public:
-    face_detect();
-    virtual ~face_detect();
 
-	template<typename T>
-    const std::vector<face_rect>& detect( cimg_library::CImg<T>& image );
+    virtual void load_network( const std::string& topology_path, const std::string& weights_path ) = 0;
+    virtual void save_network() = 0;
 
-private:
+    virtual void train( const sample& s ) = 0;
+    virtual void train( const std::vector<sample>& training_set ) = 0;
+    virtual void batch_train(	const samples_manager& smp_manager,
+						const size_t& epoch_size,
+						const size_t& batch_size,
+						t_progress_fct progress_fct = t_progress_fct() ) = 0;
 
-    std::shared_ptr<face_detect_impl> m_face_detect_impl;
+    // prepare gradient descent
+    virtual void prepare_training_iteration() = 0;
+    // finalize gradient descent
+    virtual void finalize_training_iteration() = 0;
+
+    virtual void compute_output( sample& s ) = 0;
 };
 
-#endif //FACE_DETECT_H
+} //namespace neurocl
+
+#endif //NETWORK_FACTORY_H

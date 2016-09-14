@@ -49,7 +49,7 @@ private:
     int m_current_face_type;
 
     speech_manager m_speech_manager;
-    boost::shared_ptr<boost::thread> m_thread;
+    std::shared_ptr<boost::thread> m_thread;
 
     boost::lockfree::spsc_queue<int, boost::lockfree::capacity<BRAIN_QUEUE_SIZE> > m_queue;
 };

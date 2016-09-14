@@ -40,7 +40,7 @@ namespace bfs = boost::filesystem;
 
 namespace neurocl { namespace mlp {
 
-network_file_handler::network_file_handler( boost::shared_ptr<network_interface> net ) : m_net( net ), m_layers( 0 )
+network_file_handler::network_file_handler( std::shared_ptr<network_interface> net ) : m_net( net ), m_layers( 0 )
 {
 }
 

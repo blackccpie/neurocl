@@ -30,14 +30,14 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-std::shared_ptr<network_manager_interface> network_factory::build( const t_neural_impl& impl ) const
+std::shared_ptr<network_manager_interface> network_factory::build( const t_neural_impl& impl )
 {
     switch( impl )
     {
     case NEURAL_IMPL_MLP:
-        return std::make_shared<mlp::network_manager>( mlp::network_manager::MLP_IMPL_BNU_FAST );
+        return mlp::network_manager::create( mlp::network_manager::MLP_IMPL_BNU_FAST );
     case NEURAL_IMPL_CONVNET:
-        return std::make_shared<convnet::network_manager>();
+        return convnet::network_manager::create();
     default:
         throw network_exception( "unmanaged neural implementation!" );
     }

@@ -22,43 +22,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef FACE_DETECT_H
-#define FACE_DETECT_H
+#ifndef ITERATIVE_TRAINER_H
+#define ITERATIVE_TRAINER_H
 
-#include "CImg.h"
+#include "common/network_manager_interface.h"
 
-#include <boost/shared_ptr.hpp>
+namespace neurocl {
 
-#include <vector>
-
-class face_detect_impl;
-
-// Class to manage face detection
-class face_detect
+// used for custom external training
+class iterative_trainer
 {
 public:
-
-    struct face_rect
+    iterative_trainer( std::shared_ptr<network_manager_interface> net_manager, const size_t batch_size )
+        : m_net_manager( net_manager ), m_batch_pos( 0 ), m_batch_size( batch_size )
     {
-        face_rect( int _x0, int _y0, int _x1, int _y1 )
-            : x0( _x0 ), y0( _y0 ), x1( _x1 ), y1( _y1 ) {}
+        m_net_manager->prepare_training_iteration();
+    }
+    virtual ~iterative_trainer()
+    {
+        m_net_manager->finalize_training_iteration();
+        m_net_manager->save_network();
+    }
 
-        int x0;
-        int y0;
-        int x1;
-        int y1;
-    };
+    void train_new( const sample& sample )
+    {
+        m_net_manager->train( sample );
 
-public:
-    face_detect();
-    virtual ~face_detect();
+        ++m_batch_pos;
 
-	template<typename T>
-    const std::vector<face_rect>& detect( cimg_library::CImg<T>& image );
+        if ( m_batch_pos >= m_batch_size )
+        {
+            m_net_manager->finalize_training_iteration();
+            m_net_manager->prepare_training_iteration();
+            m_batch_pos = 0;
+        }
+    }
 
 private:
 
-    std::shared_ptr<face_detect_impl> m_face_detect_impl;
+    size_t m_batch_pos;
+    size_t m_batch_size;
+
+    std::shared_ptr<network_manager_interface> m_net_manager;
 };
 
-#endif //FACE_DETECT_H
+} /*namespace neurocl*/
+
+#endif //ITERATIVE_TRAINER_H

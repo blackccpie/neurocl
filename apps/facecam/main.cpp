@@ -24,10 +24,11 @@ THE SOFTWARE.
 
 #include "face_filer.h"
 
-#include "common/samples_manager.h"
+#include "common/network_factory.h"
+#include "common/network_manager_interface.h"
 #include "common/network_exception.h"
-
-#include "mlp/network_manager.h"
+#include "common/samples_manager.h"
+#include "common/iterative_trainer.h"
 
 #include "facetools/edge_detect.h"
 #include "facetools/face_detect.h"
@@ -36,6 +37,7 @@ THE SOFTWARE.
 
 #include <iostream>
 
+using namespace neurocl;
 using namespace cimg_library;
 
 #define NEUROCL_EPOCH_SIZE 100
@@ -115,8 +117,8 @@ void face_preprocess_generic( float* image, const size_t sizeX, const size_t siz
 }
 
 void face_process(  CImg<float> image, const face_type& ftype,
-                    neurocl::mlp::network_manager& net_manager,
-                    neurocl::mlp::iterative_trainer& trainer,
+                    std::shared_ptr<network_manager_interface> net_manager,
+                    iterative_trainer& trainer,
                     face_filer& face_files )
 {
     image.resize( 50, 50 );
@@ -130,7 +132,7 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
+    sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
 
     bool compute = false;
 
@@ -161,7 +163,7 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     if ( compute )
     {
-        net_manager.compute_output( sample );
+        net_manager->compute_output( sample );
 
         std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
@@ -223,8 +225,8 @@ int main ( int argc,char **argv )
 
     try
     {
-        neurocl::mlp::network_manager net_manager( neurocl::mlp::network_manager::MLP_IMPL_BNU_REF );
-        net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+        std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+        net_manager->load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
         // TODO : check command arguments with boost
         // 0 normal use
@@ -237,16 +239,16 @@ int main ( int argc,char **argv )
         {
             /******** TRAIN ********/
 
-            neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+            samples_manager& smp_manager = samples_manager::instance();
             smp_manager.load_samples(  "../nets/facecam/facecam-train.txt",
                                                                 true /*shuffle*/,
                                                                 &face_preprocess_generic /* extra_preproc*/ );
 
-            net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+            net_manager->batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
             /******** VALIDATE ********/
 
-            const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+            const std::vector<sample>& training_samples = smp_manager.get_samples();
 
             float mean_rmse = 0.f;
             size_t _rmse_score = 0;
@@ -254,8 +256,8 @@ int main ( int argc,char **argv )
 
             for ( size_t i = 0; i<training_samples.size(); i++ )
             {
-                neurocl::test_sample tsample( smp_manager.get_samples()[i] );
-                net_manager.compute_output( tsample );
+                test_sample tsample( smp_manager.get_samples()[i] );
+                net_manager->compute_output( tsample );
 
                 std::cout << tsample.output() << std::endl;
                 std::cout << tsample.ref_output() << std::endl;
@@ -285,7 +287,7 @@ int main ( int argc,char **argv )
 
             face_filer face_files;
 
-            neurocl::mlp::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
+            iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
 
             CImg<float> input_image;
             CImg<float> display_image;
@@ -377,10 +379,10 @@ int main ( int argc,char **argv )
 
             } while( !my_display.is_closed() );
 
-            net_manager.finalize_training_iteration();
+            net_manager->finalize_training_iteration();
         }
     }
-    catch( neurocl::network_exception& e )
+    catch( network_exception& e )
     {
         std::cerr << "network exception : " << e.what() << std::endl;
     }

@@ -25,16 +25,16 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_CONVNET_H
 #define NETWORK_MANAGER_CONVNET_H
 
-#include "common/network_factory.h"
+#include "common/network_manager_interface.h"
 #include "common/network_sample.h"
 
-#include <boost/function.hpp>
 #include <boost/shared_array.hpp>
 
 #include <vector>
 
 namespace neurocl {
 
+class network_factory;
 class samples_manager;
 
 namespace convnet {
@@ -44,13 +44,20 @@ class network_file_handler;
 
 class network_manager : public network_manager_interface
 {
-public:
+private:
 
-	typedef boost::function<void(int)> t_progress_fct;
+	friend network_factory;
 
-public:
+	static std::shared_ptr<network_manager_interface> create()
+	{
+		struct make_shared_enabler : public network_manager {};
+		return std::make_shared<make_shared_enabler>();
+	}
 
     network_manager();
+
+public:
+
 	virtual ~network_manager() {}
 
     void load_network( const std::string& topology_path, const std::string& weights_path );

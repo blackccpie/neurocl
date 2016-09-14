@@ -69,10 +69,10 @@ public:
         for ( int i = 0; i < faces->rnum; i++ )
         {
             ccv_comp_t* face = (ccv_comp_t*)ccv_array_get( faces, i );
-            
+
             face_detect::face_rect face_rec( m_speedup_factor*face->rect.x, m_speedup_factor*face->rect.y,
                 m_speedup_factor*(face->rect.x + face->rect.width), m_speedup_factor*(face->rect.y + face->rect.height) );
-            
+
             m_face_rects.push_back( face_rec );
 
             std::cout << face_rec.x0 << " " << face_rec.y0 << " " << face_rec.x1 << " " << face_rec.y1
@@ -98,7 +98,7 @@ private:
 
 face_detect::face_detect()
 {
-    m_face_detect_impl = boost::make_shared<face_detect_impl>( 2 ); // speedup x2
+    m_face_detect_impl = std::make_shared<face_detect_impl>( 2 ); // speedup x2
 }
 
 face_detect::~face_detect()

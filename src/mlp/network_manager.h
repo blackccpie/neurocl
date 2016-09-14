@@ -25,16 +25,16 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_MLP_H
 #define NETWORK_MANAGER_MLP_H
 
-#include "common/network_factory.h"
+#include "common/network_manager_interface.h"
 #include "common/network_sample.h"
 
-#include <boost/function.hpp>
 #include <boost/shared_array.hpp>
 
 #include <vector>
 
 namespace neurocl {
 
+class network_factory;
 class samples_manager;
 
 namespace mlp {
@@ -46,8 +46,6 @@ class network_manager : public network_manager_interface
 {
 public:
 
-	typedef boost::function<void(int)> t_progress_fct;
-
     typedef enum
     {
         MLP_IMPL_BNU_REF = 0,
@@ -55,9 +53,22 @@ public:
         MLP_IMPL_VEXCL
     } t_mlp_impl;
 
-public:
+private:
+
+	friend network_factory;
+
+	static std::shared_ptr<network_manager_interface> create( const t_mlp_impl& impl )
+	{
+		struct make_shared_enabler : public network_manager {
+			make_shared_enabler( const t_mlp_impl& impl ) : network_manager( impl ) {}
+		};
+		return std::make_shared<make_shared_enabler>( impl );
+	}
 
     network_manager( const t_mlp_impl& impl );
+
+public:
+
 	virtual ~network_manager() {}
 
     void load_network( const std::string& topology_path, const std::string& weights_path );
@@ -90,44 +101,8 @@ private:
 
     bool m_network_loaded;
 
-    boost::shared_ptr<network_interface> m_net;
-    boost::shared_ptr<network_file_handler> m_net_file_handler;
-};
-
-// used for custom external training
-class iterative_trainer
-{
-public:
-    iterative_trainer( network_manager& net_manager, const size_t batch_size )
-        : m_net_manager( net_manager ), m_batch_pos( 0 ), m_batch_size( batch_size )
-    {
-        m_net_manager.prepare_training_iteration();
-    }
-    virtual ~iterative_trainer()
-    {
-        m_net_manager.finalize_training_iteration();
-        m_net_manager.save_network();
-    }
-
-    void train_new( const neurocl::sample& sample )
-    {
-        m_net_manager.train( sample );
-
-        ++m_batch_pos;
-
-        if ( m_batch_pos >= m_batch_size )
-        {
-            m_net_manager.finalize_training_iteration();
-            m_net_manager.prepare_training_iteration();
-            m_batch_pos = 0;
-        }
-    }
-
-private:
-    size_t m_batch_pos;
-    size_t m_batch_size;
-
-    network_manager& m_net_manager;
+    std::shared_ptr<network_interface> m_net;
+    std::shared_ptr<network_file_handler> m_net_file_handler;
 };
 
 } /*namespace neurocl*/ } /*namespace mlp*/

@@ -62,7 +62,8 @@ const std::string plate_resolution::segment_status::identified_segment() const
     }
 }
 
-plate_resolution::plate_resolution( neurocl::mlp::network_manager& net_num, neurocl::mlp::network_manager& net_let )
+plate_resolution::plate_resolution( std::shared_ptr<neurocl::network_manager_interface> net_num,
+                                    std::shared_ptr<neurocl::network_manager_interface> net_let )
     :   m_net_num( net_num ), m_net_let( net_let ),
         m_num_output( 10 ), m_let_output( 26 )
 {
@@ -148,15 +149,15 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
     switch( type )
     {
     case alphanum::LETTER:
-        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 26, &m_let_output.data()[0] );
-        m_net_let.compute_output( *m_sample );
+        m_sample = std::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 26, &m_let_output.data()[0] );
+        m_net_let->compute_output( *m_sample );
         candidate_max_comp_idx = m_sample->max_comp_idx();
         candidate_max_comp_val = m_sample->max_comp_val();
         m_segment_status[segment_pos-1].accumulated_scores += m_let_output;
         break;
     case alphanum::NUMBER:
-        m_sample = boost::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 10, &m_num_output.data()[0] );
-        m_net_num.compute_output( *m_sample );
+        m_sample = std::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 10, &m_num_output.data()[0] );
+        m_net_num->compute_output( *m_sample );
         candidate_max_comp_idx = m_sample->max_comp_idx();
         candidate_max_comp_val = m_sample->max_comp_val();
         m_segment_status[segment_pos-1].accumulated_scores += m_num_output;

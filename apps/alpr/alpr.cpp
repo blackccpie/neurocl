@@ -46,7 +46,9 @@ const size_t g_sizeY = 100;
 // Letters allowed range : TODO : ratio of total width?
 const size_t g_insideX = 10;
 
-license_plate::license_plate( const std::string& file_plate, neurocl::mlp::network_manager& net_num, neurocl::mlp::network_manager& net_let )
+license_plate::license_plate(   const std::string& file_plate,
+                                std::shared_ptr<neurocl::network_manager_interface> net_num,
+                                std::shared_ptr<neurocl::network_manager_interface> net_let  )
     : m_plate_resol( net_num, net_let )
 {
     // Initialize & prepare input plate image
@@ -198,7 +200,7 @@ void license_plate::_compute_distance_map()
             break;
         }
 
-        const boost::shared_ptr<neurocl::sample>& sample = m_plate_resol.last_sample();
+        const std::shared_ptr<neurocl::sample>& sample = m_plate_resol.last_sample();
 
         if ( sample->max_comp_val() > 0.5f )
         {

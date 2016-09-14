@@ -29,10 +29,7 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-class network_manager_interface
-{
-
-};
+class network_manager_interface;
 
 // network_manager_interface factory class
 class network_factory
@@ -46,13 +43,8 @@ public:
     } t_neural_impl;
 
 public:
-    const network_factory& instance() { static network_factory factory; return factory; }
 
-    std::shared_ptr<network_manager_interface> build( const t_neural_impl& impl ) const;
-
-protected:
-    network_factory() {}
-    virtual ~network_factory() {}
+    static std::shared_ptr<network_manager_interface> build( const t_neural_impl& impl );
 };
 
 } //namespace neurocl

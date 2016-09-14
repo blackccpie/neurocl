@@ -51,11 +51,13 @@ convnet/tensor_operations.cpp
 
 set (headers_list
 common/samples_manager.h
+common/network_manager_interface.h
 common/network_factory.h
 common/network_sample.h
 common/network_exception.h
 common/network_utils.h
 common/network_config.h
+common/iterative_trainer.h
 
 mlp/network_file_handler.h
 mlp/network_manager.h

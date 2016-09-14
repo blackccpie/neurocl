@@ -50,19 +50,19 @@ network_manager::network_manager( const t_mlp_impl& impl ) : m_network_loaded( f
     switch( impl )
     {
     case MLP_IMPL_BNU_REF:
-        m_net = boost::make_shared<network_bnu_ref>();
+        m_net = std::make_shared<network_bnu_ref>();
         break;
     case MLP_IMPL_BNU_FAST:
-        m_net = boost::make_shared<network_bnu_fast>();
+        m_net = std::make_shared<network_bnu_fast>();
         break;
     case MLP_IMPL_VEXCL:
-        m_net = boost::make_shared<network_vexcl>();
+        m_net = std::make_shared<network_vexcl>();
         break;
     default:
         throw network_exception( "unmanaged mlp implementation!" );
     }
 
-    m_net_file_handler = boost::make_shared<network_file_handler>( m_net );
+    m_net_file_handler = std::make_shared<network_file_handler>( m_net );
 }
 
 void network_manager::load_network( const std::string& topology_path, const std::string& weights_path )

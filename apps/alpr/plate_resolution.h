@@ -27,7 +27,8 @@ THE SOFTWARE.
 
 #include "alphanum.h"
 
-#include "mlp/network_manager.h"
+#include "common/network_manager_interface.h"
+#include "common/network_sample.h"
 
 #include "CImg.h"
 
@@ -53,7 +54,8 @@ public:
     } resolution_status;
 
 public:
-    plate_resolution( neurocl::mlp::network_manager& net_num, neurocl::mlp::network_manager& net_let );
+    plate_resolution(   std::shared_ptr<neurocl::network_manager_interface> net_num,
+                        std::shared_ptr<neurocl::network_manager_interface> net_let );
 
     // Push a new candidate image and give the working segment index
     const resolution_status push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos );
@@ -66,7 +68,7 @@ public:
     const float confidence( const size_t idx );
 
     // Get last sample
-    const boost::shared_ptr<neurocl::sample>& last_sample() { return m_sample; }
+    const std::shared_ptr<neurocl::sample>& last_sample() { return m_sample; }
 
 private:
 
@@ -112,9 +114,9 @@ private:
     vectorF m_num_output;
     vectorF m_let_output;
 
-    boost::shared_ptr<neurocl::sample> m_sample;
-    neurocl::mlp::network_manager& m_net_num;
-    neurocl::mlp::network_manager& m_net_let;
+    std::shared_ptr<neurocl::sample> m_sample;
+    std::shared_ptr<neurocl::network_manager_interface> m_net_num;
+    std::shared_ptr<neurocl::network_manager_interface> m_net_let;
 };
 
 }; //namespace alpr
