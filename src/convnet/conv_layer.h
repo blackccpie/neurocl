@@ -60,8 +60,8 @@ public:
         if ( ( width != ( prev_layer->width() - m_filter_size + 1 ) ) ||
             ( height != ( prev_layer->height() - m_filter_size + 1 ) ) )
         {
-            std::cerr << "conv_layer::populate - zero padding not managed for now, \
-                so layer size should be consistent with filter size and previous layer size" << std::endl;
+            std::cerr << "conv_layer::populate - zero padding not managed for now, "
+                "so layer size should be consistent with filter size and previous layer size" << std::endl;
             throw network_exception( "inconsistent convolutional layer size" );
         }
 
