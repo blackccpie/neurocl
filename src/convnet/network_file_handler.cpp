@@ -101,19 +101,24 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
             split_vector_type split_vec;
             boost::split( split_vec, line, boost::is_any_of(":x") );
 
-            if ( split_vec.size() != 6 )
-            {
-                std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (missing elements)" << std::endl;
-                throw network_exception( "malformed line in topology file" );
-            }
-
             try
             {
                 layer_type _t = boost::lexical_cast<layer_type>( split_vec[1] );
+
+            	bool is_other_layer = ( _t != CONV_LAYER ) && ( split_vec.size() == 6 );
+                bool is_conv_layer = ( _t == CONV_LAYER ) && ( split_vec.size() == 7 ); // conv layer specifies filter size
+
+                if ( !is_other_layer && !is_conv_layer )
+            	{
+                	std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (missing elements)" << std::endl;
+                	throw network_exception( "malformed line in topology file" );
+            	}
+
                 int _idx = boost::lexical_cast<int>( split_vec[2] );
                 int _x = boost::lexical_cast<int>( split_vec[3] );
                 int _y = boost::lexical_cast<int>( split_vec[4] );
                 int _z = boost::lexical_cast<int>( split_vec[5] );
+                int _f = is_conv_layer ? boost::lexical_cast<int>( split_vec[6] ) : 0;
 
                 // for now index are supposed to be declared in increasing order...
                 if ( _idx != idx_layer )
@@ -126,7 +131,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 
                 std::cout << "network_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z << std::endl;
 
-                layers.push_back( layer_descr( _t, _x, _y, _z ) );
+                layers.push_back( layer_descr( _t, _x, _y, _z, _f ) );
 
                 ++m_layers;
             }
@@ -137,7 +142,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
             }
             catch(...)
             {
-                std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (an element is not a number)" << std::endl;
+                std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (an element is malformed)" << std::endl;
                 throw network_exception( "malformed line in topology file" );
             }
 

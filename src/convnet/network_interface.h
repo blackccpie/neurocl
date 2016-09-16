@@ -43,14 +43,15 @@ enum layer_type
 
 struct layer_descr
 {
-    layer_descr( const layer_type& t, const size_t& sX, const size_t& sY, const size_t& sZ )
-        : type( t ), sizeX( sX ), sizeY( sY ), sizeZ( sZ ) {}
+    layer_descr( const layer_type& t, const size_t& sX, const size_t& sY, const size_t& sZ, const size_t& sF )
+        : type( t ), sizeX( sX ), sizeY( sY ), sizeZ( sZ ), sizeF( sF ) {}
 
     const layer_type type;
 
     const size_t sizeX;
     const size_t sizeY;
     const size_t sizeZ;
+    const size_t sizeF; // optional filter size
 
     const size_t size() const { return sizeX * sizeY * sizeZ; }
 };

@@ -69,7 +69,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case CONV_LAYER:
             {
                 std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" + boost::lexical_cast<std::string>(++conv_idx) );
-                c->set_filter_size( 5 ); // 5x5 // TODO-CNN : hardcoded :-(
+                c->set_filter_size( _layer.sizeF );
                 c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = c;
             }
