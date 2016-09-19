@@ -50,6 +50,9 @@ convnet/tensor_operations.cpp
 )
 
 set (headers_list
+
+neurocl.h
+
 common/samples_manager.h
 common/network_manager_interface.h
 common/network_factory.h

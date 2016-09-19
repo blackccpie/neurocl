@@ -24,11 +24,7 @@ THE SOFTWARE.
 
 #include "face_filer.h"
 
-#include "common/network_factory.h"
-#include "common/network_manager_interface.h"
-#include "common/network_exception.h"
-#include "common/samples_manager.h"
-#include "common/iterative_trainer.h"
+#include "neurocl.h"
 
 #include "facetools/edge_detect.h"
 #include "facetools/face_detect.h"

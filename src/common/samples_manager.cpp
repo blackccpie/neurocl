@@ -36,6 +36,15 @@ namespace bfs = boost::filesystem;
 
 namespace neurocl {
 
+// Pad input image with zeros
+void _pad( const cimg_library::CImg<float>& source, cimg_library::CImg<float>& padded, const size_t& pad_size )
+{
+    padded.resize( source.width() + 2*pad_size, source.height() + 2*pad_size );
+
+    cimg_for_borderXY( padded, x, y, pad_size ) { padded( x, y ) = 0; }
+    cimg_for_insideXY( padded, x, y, pad_size ) { padded( x, y ) = source( x - pad_size, y - pad_size ); }
+}
+
 cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
 {
     cimg_library::CImg<float> img( file.c_str() );

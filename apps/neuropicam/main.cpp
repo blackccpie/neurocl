@@ -26,10 +26,7 @@ THE SOFTWARE.
 #include "face_filer.h"
 #include "chrono_manager.h"
 
-#include "common/network_factory.h"
-#include "common/network_manager_interface.h"
-#include "common/network_exception.h"
-#include "common/samples_manager.h"
+#include "neurocl.h"
 
 #include "raspicam/raspicam.h"
 

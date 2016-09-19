@@ -22,10 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "common/network_factory.h"
-#include "common/network_manager_interface.h"
-#include "common/network_exception.h"
-#include "common/samples_manager.h"
+#include "neurocl.h"
 
 #include <boost/chrono.hpp>
 #include <boost/lexical_cast.hpp>
@@ -45,7 +42,7 @@ int main( int argc, char *argv[] )
     if ( argc == 1 )
     {
         std::cout << "Invalid arguments!" << std::endl;
-        std::cout << "example: ./test_mnist mnist-train.txt topology-mnist.txt weights-mnist.bin" << std::endl;
+        std::cout << "example: ./test_mnist mnist-train.txt topology-mnist.txt weights-mnist.bin 10" << std::endl;
         return -1;
     }
 

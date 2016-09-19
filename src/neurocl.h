@@ -22,45 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_UTILS_H
-#define NETWORK_UTILS_H
+#ifndef NEUROCL_H
+#define NEUROCL_H
 
-#include <boost/random.hpp>
-#include <boost/random/random_device.hpp>
-#include <boost/random/normal_distribution.hpp>
+#include "common/network_factory.h"
+#include "common/network_manager_interface.h"
+#include "common/network_exception.h"
+#include "common/samples_manager.h"
+#include "common/iterative_trainer.h"
 
-namespace neurocl {
-
-namespace utils {
-
-class rand_gaussian_generator
-{
-public:
-    rand_gaussian_generator( const float mean, const float stddev )
-        : m_rng( m_rd ), m_nd( mean, stddev ), m_var_nor( m_rng, m_nd )
-    {
-        //m_var_nor.engine().seed( _seed() );
-    }
-
-    float operator()() { return m_var_nor(); }
-
-private:
-
-    // changing seed allows to have different random sets at each class instanciation,
-    // but at each runtime the random sets will be the same
-    //static int _seed() { static int i = 0; return i++; };
-
-private:
-
-    // using random_device allows to have different random sets at each runtime
-    boost::random_device m_rd;
-    boost::mt19937 m_rng;
-    boost::normal_distribution<> m_nd;
-    boost::variate_generator< boost::mt19937&,boost::normal_distribution<> > m_var_nor;
-};
-
-} //namespace utils
-
-} //namespace neurocl
-
-#endif //NETWORK_UTILS_H
+#endif //NEUROCL_H

@@ -30,6 +30,8 @@ THE SOFTWARE.
 #include "input_layer.h"
 #include "output_layer.h"
 
+#include "common/network_config.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -41,8 +43,11 @@ namespace neurocl { namespace convnet {
 
 network::network() : m_training_samples( 0 )
 {
-    float learning_rate = 0.2f;
+    float learning_rate = 1.0f;
     float weight_decay = 0.f;
+
+    const network_config& nc = network_config::instance();
+    nc.update_optional( "learning_rate", learning_rate );
 
     // build optimizer given learning rate and weight decay
     m_optimizer = std::make_shared<optimizer>( learning_rate, weight_decay );
