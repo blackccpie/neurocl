@@ -42,7 +42,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating input layer " << std::endl;
+        std::cout << "populating input layer" << std::endl;
 
         m_feature_maps.resize( width, height, 1, depth );
     }

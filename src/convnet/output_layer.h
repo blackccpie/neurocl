@@ -43,7 +43,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating output layer " << std::endl;
+        std::cout << "populating output layer" << std::endl;
 
         m_prev_layer = prev_layer;
 

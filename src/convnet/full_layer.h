@@ -45,9 +45,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating full layer " << std::endl;
-
-        std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
+        std::cout << "populating full layer " << m_name << std::endl;
 
         m_prev_layer = prev_layer;
 

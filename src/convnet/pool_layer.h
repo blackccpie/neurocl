@@ -45,7 +45,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating pooling layer" << std::endl;
+        std::cout << "populating pooling layer " << m_name << std::endl;
 
         // compute subsampling rate, throw error if not integer
         if ( ( prev_layer->width() % width) == 0 )

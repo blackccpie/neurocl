@@ -53,9 +53,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating convolutional layer " << m_filter_size << " " << m_filter_stride << std::endl;
-
-        std::cout << width << " " << height << " " << prev_layer->width() << " " << prev_layer->height() << std::endl;
+        std::cout << "populating convolutional layer " << m_name << std::endl;
 
         if ( ( width != ( prev_layer->width() - m_filter_size + 1 ) ) ||
             ( height != ( prev_layer->height() - m_filter_size + 1 ) ) )
