@@ -38,7 +38,7 @@ class face_detect_impl
 {
 public:
 
-    face_detect_impl( int speedup_factor = 1 ) : m_image( 0 ), m_cascade( 0 ), m_speedup_factor( speedup_factor )
+    face_detect_impl( int speedup_factor = 1 ) : m_image( nullptr ), m_cascade( nullptr ), m_speedup_factor( speedup_factor )
     {
         m_cascade = ccv_scd_classifier_cascade_read( "../../ccv/samples/face.sqlite3" );
     }

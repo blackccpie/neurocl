@@ -30,8 +30,14 @@ THE SOFTWARE.
 
 #include <memory>
 
-typedef typename boost::numeric::ublas::matrix<float> matrixF;
-typedef typename boost::multi_array<matrixF,2> matrix2F;
+template<typename Type>
+using matrixT = typename boost::numeric::ublas::matrix<Type>;
+
+template <typename Type>
+using matrix2T = typename boost::multi_array<matrixT<Type>,2>;
+
+using matrixF = matrixT<float>;
+using matrix2F = matrix2T<float>;
 
 namespace neurocl { namespace convnet {
 

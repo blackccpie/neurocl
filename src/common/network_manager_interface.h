@@ -38,7 +38,7 @@ class network_manager_interface
 {
 public:
 
-    typedef boost::function<void(int)> t_progress_fct;
+    using t_progress_fct = boost::function<void(int)>;
 
 public:
 

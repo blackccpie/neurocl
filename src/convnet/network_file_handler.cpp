@@ -96,7 +96,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 
         if ( boost::starts_with( line, "layer" ) )
         {
-            typedef std::vector<std::string> split_vector_type;
+            using split_vector_type = std::vector<std::string>;
 
             split_vector_type split_vec;
             boost::split( split_vec, line, boost::is_any_of(":x") );

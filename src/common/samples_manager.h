@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-typedef boost::function<void (float*,const size_t,const size_t)> t_preproc;
+using t_preproc = boost::function<void (float*,const size_t,const size_t)>;
 
 class samples_manager
 {

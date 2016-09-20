@@ -34,10 +34,10 @@ THE SOFTWARE.
 
 #define NEUROCL_MEM_ALIGN 16
 
-typedef typename boost::numeric::ublas::vector< float,
-    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > vectorF;
-typedef typename boost::numeric::ublas::matrix< float, boost::numeric::ublas::row_major,
-    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > > matrixF;
+using vectorF = typename boost::numeric::ublas::vector< float,
+    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > >;
+using matrixF = typename boost::numeric::ublas::matrix< float, boost::numeric::ublas::row_major,
+    boost::numeric::ublas::unbounded_array< float, boost::alignment::aligned_allocator<float,NEUROCL_MEM_ALIGN> > >;
 
 namespace neurocl { namespace mlp {
 

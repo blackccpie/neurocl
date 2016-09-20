@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 #include <boost/numeric/ublas/vector.hpp>
 
-typedef boost::numeric::ublas::vector<float> vectorF;
+using vectorF = boost::numeric::ublas::vector<float>;
 
 namespace alpr {
 
