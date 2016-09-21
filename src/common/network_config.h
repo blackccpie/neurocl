@@ -25,10 +25,14 @@ THE SOFTWARE.
 #ifndef NETWORK_CONFIG_H
 #define NETWORK_CONFIG_H
 
+#include "network_exception.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;
+
+#include <iostream>
 
 namespace neurocl {
 
@@ -47,6 +51,17 @@ public:
     boost::optional<T> get_param( const std::string& key ) const
     {
         return m_ptree.get_optional<T>( "neurocl." + key );
+    }
+    template<typename T>
+    void update_mandatory( const std::string& key, T& param ) const
+    {
+        boost::optional<T> opt_param = get_param<T>( key );
+        
+        if ( !opt_param )
+            throw network_exception( "missing mandatory param key " + key );
+        
+        param = opt_param.get();
+        std::cout << "network_config::update_mandatory - key " << key << " configured to value " << param << std::endl;
     }
     template<typename T>
     void update_optional( const std::string& key, T& param ) const

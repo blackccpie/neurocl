@@ -44,6 +44,7 @@ public:
 
 public:
 
+    static std::shared_ptr<network_manager_interface> build();
     static std::shared_ptr<network_manager_interface> build( const t_neural_impl& impl );
 };
 
