@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
         samples_manager& smp_manager = neurocl::samples_manager::instance();
         samples_manager::instance().load_samples( argv[1] );
 
-        std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+        std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
         net_manager->load_network( argv[2], argv[3] );
 
         //************************* TRAINING *************************//

@@ -46,30 +46,30 @@ std::istream& operator>> ( std::istream &input, network_factory::t_neural_impl& 
 
     return input;
 }
-    
+
 std::shared_ptr<network_manager_interface> network_factory::build()
 {
+    std::string str_impl = "undefined";
+
     try
     {
-        std::string str_impl;
-
         const network_config& nc = network_config::instance();
         nc.update_mandatory( "implementation", str_impl );
-        
+
         return build( boost::lexical_cast<t_neural_impl>( str_impl ) );
     }
     catch(...)
     {
-        throw network_exception( "unmanaged network implementation" );
+        throw network_exception( "unmanaged neural implementation in configuration file : " + str_impl );
     }
 }
-    
+
 std::shared_ptr<network_manager_interface> network_factory::build( const t_neural_impl& impl )
 {
     switch( impl )
     {
     case NEURAL_IMPL_MLP:
-        return mlp::network_manager::create( mlp::network_manager::MLP_IMPL_BNU_FAST );
+        return mlp::network_manager::create( mlp::network_manager::MLP_IMPL_BNU_REF );
     case NEURAL_IMPL_CONVNET:
         return convnet::network_manager::create();
     default:

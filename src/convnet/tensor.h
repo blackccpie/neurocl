@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/optional.hpp>
 
 #include <memory>
 
@@ -125,7 +126,7 @@ public:
     }
 
     // TODO-CNN : name of the function doesn't tell the matrix will be set to 0
-    void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, bool rand = false );
+    void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, boost::optional<size_t> opt_rand_nin = boost::none );
 
     void flip()
     {

@@ -327,7 +327,6 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
     // is equal to input tensor feature maps level (prev_layer.d2);
     // whereas filter feature maps level is equal to output tensor feature maps level
 
-    //#pragma omp parallel for
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
     	for ( auto d1 = 0; d1 < filter.d1(); d1++ )
@@ -378,7 +377,6 @@ tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation:
     tensor padded_input;
     padded_input.resize( padX, padY, 1, filter.d2() );
 
-    //#pragma omp parallel for
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
         for ( auto d1 = 0; d1 < filter.d1(); d1++ )
@@ -430,7 +428,6 @@ tensor tensor_operation::convolve<tensor_operation::kernel_flip,tensor_operation
 
     for ( auto d1 = 0; d1 < input.d2(); d1++ )
     {
-        //#pragma omp parallel for
         for ( auto d2 = 0; d2 < filter.d2(); d2++ )
         {
             for ( auto j=0; j<stepsY; j++ )

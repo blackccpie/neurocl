@@ -60,13 +60,14 @@ public:
         }
 
         size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
+        size_t prev_layer_size = k_group * prev_layer->width() * prev_layer->height();
 
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
-        m_bias.resize( width, height, 1, depth, true/*rand*/ );
+        m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
         m_deltas_bias.resize( width, height, 1, depth );
-        m_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth, true/*rand*/ );
-        m_deltas_weights.resize( width * height, k_group * prev_layer->width() * prev_layer->height(), 1, depth );
+        m_weights.resize( width * height, prev_layer_size, 1, depth, prev_layer_size/*nin*/ );
+        m_deltas_weights.resize( width * height, prev_layer_size, 1, depth );
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); }

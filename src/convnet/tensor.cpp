@@ -72,7 +72,7 @@ const std::string tensor::dump( const size_t d1, const size_t d2 ) const
     return dump_mat( m_tensor_array[d1][d2] );
 }
 
-void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, bool rand )
+void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, boost::optional<size_t> opt_rand_nin )
 {
     m_width = width;
     m_height = height;
@@ -84,8 +84,11 @@ void tensor::resize( const size_t width, const size_t height, const size_t depth
         for( auto& _matrix : _matrices )
         {
             _matrix = matrixF( m_width, m_height, 0.f );
-            if ( rand )
-                random_normal_init( _matrix, 1.f / std::sqrt( m_width * m_height ) );
+            if ( opt_rand_nin )
+            {
+                //cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
+                random_normal_init( _matrix, 1.f / std::sqrt( static_cast<float>( opt_rand_nin.get() ) ) );
+            }
         }
 }
 

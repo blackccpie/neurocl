@@ -43,8 +43,8 @@ int main( int argc, char *argv[] )
     if ( argc == 1 )
     {
         std::cout << "Invalid arguments!" << std::endl;
-        std::cout << "example training numbers: ./alpr 1 alpr-train-num.txt topology-alpr-num.txt weights-alpr-num.bin" << std::endl;
-        std::cout << "example training letters: ./alpr 1 alpr-train-let.txt topology-alpr-let.txt weights-alpr-let.bin" << std::endl;
+        std::cout << "example training numbers: ./alpr 1 alpr-train-num.txt topology-alpr-num.txt weights-alpr-num.bin 10" << std::endl;
+        std::cout << "example training letters: ./alpr 1 alpr-train-let.txt topology-alpr-let.txt weights-alpr-let.bin 10" << std::endl;
         std::cout << "example testing: ./alpr 0 plaque.png topology-alpr-num.txt weights-alpr-num.bin topology-alpr-let.txt weights-alpr-let.bin" << std::endl;
         return -1;
     }
@@ -62,7 +62,7 @@ int main( int argc, char *argv[] )
         {
             /******** TRAIN ********/
 
-            std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+            std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
             net_manager->load_network( argv[3], argv[4] );
 
             samples_manager& smp_manager = samples_manager::instance();
@@ -86,9 +86,9 @@ int main( int argc, char *argv[] )
                 test_sample tsample( smp_manager.get_samples()[i] );
                 net_manager->compute_output( tsample );
 
-                std::cout << tsample.output() << std::endl;
-                std::cout << tsample.ref_output() << std::endl;
-                std::cout << tsample.RMSE() << std::endl;
+                //std::cout << tsample.output() << std::endl;
+                //std::cout << tsample.ref_output() << std::endl;
+                //std::cout << tsample.RMSE() << std::endl;
 
                 mean_rmse += tsample.RMSE();
 
@@ -112,10 +112,10 @@ int main( int argc, char *argv[] )
 
         else
         {
-            std::shared_ptr<network_manager_interface> net_num = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+            std::shared_ptr<network_manager_interface> net_num = network_factory::build();
             net_num->load_network( argv[3], argv[4] );
 
-            std::shared_ptr<network_manager_interface> net_let = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+            std::shared_ptr<network_manager_interface> net_let = network_factory::build();
             net_let->load_network( argv[5], argv[6] );
 
             alpr::license_plate lic( argv[2], net_num, net_let );
