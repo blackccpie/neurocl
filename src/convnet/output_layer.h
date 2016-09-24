@@ -57,7 +57,7 @@ public:
 
         m_feature_maps.resize( width, height, 1, depth );
         m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
-        m_deltas_bias.resize( width, height, 1, depth, 1 );
+        m_deltas_bias.resize( width, height, 1, depth );
         m_weights.resize( width * height, prev_layer_size, 1, depth, prev_layer_size/*nin*/ );
         m_deltas_weights.resize( width * height, prev_layer_size, 1, depth );
     }
