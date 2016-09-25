@@ -180,7 +180,7 @@ void network_file_handler::load_network_weights( const std::string& weights_path
 
         try
         {
-            for ( size_t i=0; i<m_layers-1; i++ ) // output layer has no output weights
+            for ( size_t i=0; i<m_layers; i++ )
             {
                 layer_storage l;
                 std::cout << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
@@ -210,7 +210,7 @@ void network_file_handler::save_network_weights()
     {
         boost::archive::binary_oarchive oar( output_weights );
 
-        for ( size_t i=0; i<m_net->count_layers()-1; i++ ) // output layer has no output weights
+        for ( size_t i=0; i<m_net->count_layers(); i++ )
         {
             std::cout << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
             layer_ptr ptr = m_net->get_layer_ptr( i );
