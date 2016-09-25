@@ -231,7 +231,7 @@ int main( int argc, char *argv[] )
 
     std::cout << "ungroup test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
-    // CONVOLVE ADD FLIP/VALID
+    // CONVOLVE ADD FORWARD FLIP/VALID
 
     A.resize(6,6,1,2);
     matA.resize(6,6);
@@ -268,11 +268,11 @@ int main( int argc, char *argv[] )
 
     Res.resize(6,6,1,2);
 
-    Res = nto::convolve_add<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
+    Res = nto::convolve_add_forward<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
 
-    std::cout << "conv add flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+    std::cout << "convolve_add_forward flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
-    // CONVOLVE STD/FULL
+    // CONVOLVE ADD BACKWARD STD/FULL
 
     A.resize(4,4,1,2);
     matA.resize(4,4);
@@ -297,11 +297,11 @@ int main( int argc, char *argv[] )
 
     Res.resize(6,6,1,2);
 
-    Res = nto::convolve<nto::kernel_std,nto::pad_full>( A, B, 1 );
+    Res = nto::convolve_add_backward<nto::kernel_std,nto::pad_full>( A, B, 1 );
 
-    std::cout << "conv std/full test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+    std::cout << "convolve_add_backward std/full test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
-    // CONVOLVE FLIP/VALID
+    // CONVOLVE UPDATE FLIP/VALID
 
     A.resize(6,6,1,2);
     matA.resize(6,6);
@@ -338,9 +338,9 @@ int main( int argc, char *argv[] )
 
     Res.resize(3,3,2,2);
 
-    Res = nto::convolve<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
+    Res = nto::convolve_update<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
 
-    std::cout << "conv flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+    std::cout << "convolve_update flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
     /*std::cout << A.dump(0,0) << std::endl << std::endl;
     std::cout << B.dump(0,0) << std::endl << std::endl;

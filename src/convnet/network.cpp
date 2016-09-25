@@ -95,7 +95,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             break;
         case OUTPUT_LAYER:
             {
-                std::shared_ptr<output_layer> out = std::make_shared<output_layer>(); // TODO-CNN -> smart naming
+                std::shared_ptr<output_layer> out = std::make_shared<output_layer>();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = out;
             }

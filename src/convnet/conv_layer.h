@@ -94,7 +94,7 @@ public:
 
     virtual void feed_forward() override
     {
-        m_feature_maps = nto::convolve_add<nto::kernel_flip,nto::pad_valid>(
+        m_feature_maps = nto::convolve_add_forward<nto::kernel_flip,nto::pad_valid>(
             m_prev_layer->feature_maps(),
             m_filters,
             m_filter_stride );
@@ -115,7 +115,7 @@ public:
 
         // Compute errors
 
-        prev_error_maps = nto::convolve<nto::kernel_std,nto::pad_full>(
+        prev_error_maps = nto::convolve_add_backward<nto::kernel_std,nto::pad_full>(
             m_error_maps,
             m_filters,
             m_filter_stride );
@@ -131,7 +131,7 @@ public:
     {
         // Compute gradients
 
-        auto&& grad = nto::convolve<nto::kernel_flip,nto::pad_valid>(
+        auto&& grad = nto::convolve_update<nto::kernel_flip,nto::pad_valid>(
             m_prev_layer->feature_maps(),
             m_error_maps,
             m_filter_stride);

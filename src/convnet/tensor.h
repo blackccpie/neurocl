@@ -168,21 +168,11 @@ public:
     void fill(  const size_t d1,
                 const size_t d2,
                 const size_t data_size,
-                const float* data )
-    {
-        // TODO-CNN : size assert!
-
-        std::copy( data, data + data_size, m_tensor_array[d1][d2].data().begin() );
-    }
+                const float* data );
 
     void fill(  const size_t d1,
                 const size_t d2,
-                float* data )
-    {
-        std::copy(  m_tensor_array[d1][d2].data().begin(),
-                    m_tensor_array[d1][d2].data().begin() + ( m_width * m_height ),
-                    data );
-    }
+                float* data );
 
     void grouped_fill( const size_t data_size, const float* data );
     void grouped_fill( float* data );

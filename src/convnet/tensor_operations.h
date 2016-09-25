@@ -91,10 +91,13 @@ public:
     static tensor d_sig( const tensor& input );
 
     template<kernel_mode km, pad_mode pm>
-    static tensor convolve( const tensor& input, const tensor& filter, const int stride );
+    static tensor convolve_add_forward( const tensor& input, const tensor& filter, const int stride );
 
     template<kernel_mode km, pad_mode pm>
-    static tensor convolve_add( const tensor& input, const tensor& filter, const int stride );
+    static tensor convolve_add_backward( const tensor& input, const tensor& filter, const int stride );
+
+    template<kernel_mode km, pad_mode pm>
+    static tensor convolve_update( const tensor& input, const tensor& filter, const int stride );
 
     static tensor subsample( const tensor& input, const size_t subsample );
 

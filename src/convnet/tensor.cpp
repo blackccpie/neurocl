@@ -142,6 +142,26 @@ tensor tensor::operator /( const float val )
     return std::move(*this);
 }
 
+void tensor::fill(  const size_t d1,
+                    const size_t d2,
+                    const size_t data_size,
+                    const float* data )
+{
+    if ( data_size != ( m_width * m_height ) )
+        throw network_exception( "invalid fill size!" );
+
+    std::copy( data, data + data_size, m_tensor_array[d1][d2].data().begin() );
+}
+
+void tensor::fill(  const size_t d1,
+                    const size_t d2,
+                    float* data )
+{
+    std::copy(  m_tensor_array[d1][d2].data().begin(),
+                m_tensor_array[d1][d2].data().begin() + ( m_width * m_height ),
+                data );
+}
+
 void tensor::grouped_fill( const size_t data_size, const float* data )
 {
     size_t _offset = 0;

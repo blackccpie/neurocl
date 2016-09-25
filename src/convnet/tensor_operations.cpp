@@ -303,9 +303,9 @@ struct flipper
     matrixF m_flipped;
 };
 
-// TODO-CNN : name doesn't reflect the feature maps feed forwarding specifity of this method
+// name reflects the feature maps feed forwarding specifity of this method
 template <>
-tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
@@ -351,9 +351,9 @@ tensor tensor_operation::convolve_add<tensor_operation::kernel_flip,tensor_opera
     return output;
 }
 
-// TODO-CNN : name doesn't reflect the error back propagation specifity of this method
+// name reflects the error back propagation specifity of this method
 template <>
-tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation::pad_full>(
+tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_std,tensor_operation::pad_full>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
@@ -408,9 +408,9 @@ tensor tensor_operation::convolve<tensor_operation::kernel_std,tensor_operation:
     return output;
 }
 
-// TODO-CNN : name doesn't reflect the filters gradient update specifity of this method
+// name reflects the filters gradient update specifity of this method
 template <>
-tensor tensor_operation::convolve<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+tensor tensor_operation::convolve_update<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
