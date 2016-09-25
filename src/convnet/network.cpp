@@ -238,6 +238,12 @@ void network::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 
     std::shared_ptr<layer> _layer = m_layers[layer_idx];
 
+    if ( ( _layer->nb_weights() != l.num_weights ) || ( _layer->nb_bias() != l.num_bias ) )
+    {
+        std::cerr << "network::set_layer_ptr - inconsistent layer " << layer_idx << " size" << std::endl;
+        throw network_exception( "inconsistent layer size" );
+    }
+
     std::cout << "network::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
 
     _layer->fill_w( _layer->nb_weights(), l.weights.get() );
