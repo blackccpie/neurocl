@@ -22,17 +22,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-//#include "neurocl.h"
+#include "neurocl.h"
 
 #include <boost/python.hpp>
 
-char const* yay()
+using namespace neurocl;
+
+void translateException( const network_exception& e )
 {
-  return "Yay!";
+    PyErr_SetString( PyExc_UserWarning, e.what() );
 }
+
+class py_neurocl_helper
+{
+public:
+    py_neurocl_helper() : m_smp_manager( neurocl::samples_manager::instance() ) {}
+    virtual ~py_neurocl_helper() { uninit(); }
+
+    void init( const std::string& topology, const std::string& weights )
+    {
+        m_net_manager = network_factory::build();
+        m_net_manager->load_network( topology, weights );
+    }
+
+    void train( const std::string& samples, const int epochs, const int batch )
+    {
+        m_smp_manager.load_samples( samples );
+        m_net_manager->batch_train( m_smp_manager, epochs, batch );
+    }
+
+    void uninit()
+    {
+        m_net_manager->save_network();
+        m_net_manager.reset();
+    }
+private:
+    samples_manager& m_smp_manager;
+    std::shared_ptr<network_manager_interface> m_net_manager;
+};
 
 BOOST_PYTHON_MODULE(pyneurocl)
 {
   using namespace boost::python;
-  def("yay", yay);
+
+  register_exception_translator<network_exception>( translateException );
+
+  class_<py_neurocl_helper>("helper")
+    .def("init",&py_neurocl_helper::init)
+    .def("uninit",&py_neurocl_helper::uninit)
+    .def("train",&py_neurocl_helper::train)
+  ;
 }

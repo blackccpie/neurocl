@@ -40,6 +40,7 @@ add_library(pyneurocl SHARED ${sources_list} ${headers_list})
 target_link_libraries(pyneurocl
 boost_python${boost_suffix}
 python2.7
+neurocl
 )
 
 # don't prepend wrapper library name with lib
