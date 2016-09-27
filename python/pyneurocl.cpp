@@ -37,7 +37,7 @@ class py_neurocl_helper
 {
 public:
     py_neurocl_helper() : m_smp_manager( neurocl::samples_manager::instance() ) {}
-    virtual ~py_neurocl_helper() { uninit(); }
+    virtual ~py_neurocl_helper() { if ( m_net_manager ) uninit(); }
 
     void init( const std::string& topology, const std::string& weights )
     {
@@ -49,6 +49,13 @@ public:
     {
         m_smp_manager.load_samples( samples );
         m_net_manager->batch_train( m_smp_manager, epochs, batch );
+    }
+
+    void compute( const int wi, const int hi, const float* in, const int wo, const int ho, float* out )
+    {
+        sample _sample( wi * hi, in , wo * ho, out );
+
+        m_net_manager->compute_output( _sample );
     }
 
     void uninit()
@@ -71,5 +78,6 @@ BOOST_PYTHON_MODULE(pyneurocl)
     .def("init",&py_neurocl_helper::init)
     .def("uninit",&py_neurocl_helper::uninit)
     .def("train",&py_neurocl_helper::train)
+    .def("compute",&py_neurocl_helper::compute)
   ;
 }
