@@ -20,7 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.2)
 project (pyneurocl)
 
 include_directories(
@@ -36,6 +36,8 @@ pyneurocl.cpp
 )
 
 add_library(pyneurocl SHARED ${sources_list} ${headers_list})
+
+set_target_properties(pyneurocl PROPERTIES SUFFIX .so)
 
 target_link_libraries(pyneurocl
 boost_python${boost_suffix}

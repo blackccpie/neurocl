@@ -20,7 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.2)
 project (raspicam)
 
 include_directories(
@@ -54,7 +54,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wl,--no-as-needed")
 
 add_library(raspicam SHARED ${sources_list} ${headers_list})
 
-if (${CMAKE_SYSTEM_PROCESSOR} MATCHES arm*) 
+if (${CMAKE_SYSTEM_PROCESSOR} MATCHES arm*)
 find_library(mmalcore_LIBS NAMES mmal_core PATHS /opt/vc/lib)
 find_library(mmalutil_LIBS NAMES mmal_util PATHS /opt/vc/lib)
 find_library(mmal_LIBS NAMES mmal PATHS /opt/vc/lib)
@@ -67,4 +67,3 @@ endif ()
 target_link_libraries(raspicam
 ${required_libraries}
 )
-
