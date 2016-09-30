@@ -31,6 +31,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include("${CMAKE_SOURCE_DIR}/cmake/platform_extras.cmake")
 
 add_subdirectory(src)
+add_subdirectory(python)
 add_subdirectory(utils)
 add_subdirectory(apps)
 add_subdirectory(tests)
