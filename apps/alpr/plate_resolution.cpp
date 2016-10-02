@@ -28,15 +28,14 @@ THE SOFTWARE.
 #include <boost/make_shared.hpp>
 
 #include <iostream>
-#include <vector>
 
 namespace alpr {
 
 //#define DISPLAY_CANDIDATES
 
-const std::vector<size_t> french_plate_numbers_pos = list_of (4)(5)(6);
-const std::vector<size_t> french_plate_letters_pos = list_of (1)(2)(8)(9);
-const std::vector<size_t> french_plate_separators_pos = list_of (3)(7);
+constexpr std::array<size_t,3> french_plate_numbers_pos {4,5,6};
+constexpr std::array<size_t,4> french_plate_letters_pos {1,2,8,9};
+constexpr std::array<size_t,2> french_plate_separators_pos {3,7};
 
 bool is_number_pos( const size_t pos )
 { return ( std::find( french_plate_numbers_pos.begin(), french_plate_numbers_pos.end(), pos ) != french_plate_numbers_pos.end() ); }
@@ -51,11 +50,11 @@ const std::string plate_resolution::segment_status::identified_segment() const
 {
     switch( type )
     {
-        case alphanum::LETTER:
+        case alphanum::data_type::LETTER:
             return v_letters_order[ max_comp_idx() ];
-        case alphanum::NUMBER:
+        case alphanum::data_type::NUMBER:
             return v_numbers_order[ max_comp_idx() ];
-        case alphanum::SEPARATOR:
+        case alphanum::data_type::SEPARATOR:
             return v_separators_order[ max_comp_idx() ];
         default:
             return "unidentified";
@@ -72,15 +71,15 @@ plate_resolution::plate_resolution( std::shared_ptr<neurocl::network_manager_int
 
 void plate_resolution::_build_segments()
 {
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
-    m_segment_status.push_back( segment_status( alphanum::SEPARATOR, 1 ) );
-    m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
-    m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
-    m_segment_status.push_back( segment_status( alphanum::NUMBER, 10 ) );
-    m_segment_status.push_back( segment_status( alphanum::SEPARATOR, 1 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
-    m_segment_status.push_back( segment_status( alphanum::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::SEPARATOR, 1 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::NUMBER, 10 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::NUMBER, 10 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::NUMBER, 10 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::SEPARATOR, 1 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::LETTER, 26 ) );
+    m_segment_status.push_back( segment_status( alphanum::data_type::LETTER, 26 ) );
 }
 
 void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candidate, bool separator )
@@ -113,30 +112,30 @@ void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candida
 const plate_resolution::resolution_status plate_resolution::push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos )
 {
     bool separator = false;
-    alphanum::data_type type = alphanum::UNKNOWN;
+    alphanum::data_type type = alphanum::data_type::UNKNOWN;
 
     if ( is_letter_pos( segment_pos ) )
     {
-        type = alphanum::LETTER;
+        type = alphanum::data_type::LETTER;
     }
     else if ( is_number_pos( segment_pos ) )
     {
-        type = alphanum::NUMBER;
+        type = alphanum::data_type::NUMBER;
     }
     else if ( is_separator_pos( segment_pos ) )
     {
-        type = alphanum::SEPARATOR;
+        type = alphanum::data_type::SEPARATOR;
     }
     else
     {
         std::cout << "WARNING -> abnormal item position " << segment_pos << std::endl;
-        return ANALYZE_ENDED;
+        return resolution_status::ANALYZE_ENDED;
     }
 
     // if max retries reached, switch to next segment
     size_t& cur_retries = m_segment_status[segment_pos-1].retries;
     if ( cur_retries > g_max_try_per_segment )
-        return ANALYZE_NEXT;
+        return resolution_status::ANALYZE_NEXT;
 
     std::cout << "SEGMENT " << segment_pos << "/" << cur_retries << std::endl;
 
@@ -148,27 +147,27 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
 
     switch( type )
     {
-    case alphanum::LETTER:
+    case alphanum::data_type::LETTER:
         m_sample = std::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 26, &m_let_output.data()[0] );
         m_net_let->compute_output( *m_sample );
         candidate_max_comp_idx = m_sample->max_comp_idx();
         candidate_max_comp_val = m_sample->max_comp_val();
         m_segment_status[segment_pos-1].accumulated_scores += m_let_output;
         break;
-    case alphanum::NUMBER:
+    case alphanum::data_type::NUMBER:
         m_sample = std::make_shared<neurocl::sample>( candidate.width() * candidate.height(), candidate.data(), 10, &m_num_output.data()[0] );
         m_net_num->compute_output( *m_sample );
         candidate_max_comp_idx = m_sample->max_comp_idx();
         candidate_max_comp_val = m_sample->max_comp_val();
         m_segment_status[segment_pos-1].accumulated_scores += m_num_output;
         break;
-    case alphanum::SEPARATOR:
+    case alphanum::data_type::SEPARATOR:
         // TEMP-TODO -> compute a score given norm difference with separator image
         m_segment_status[segment_pos-1].accumulated_scores += boost::numeric::ublas::scalar_vector<float>( 1, 1.f );
         candidate_max_comp_idx = 0;
         candidate_max_comp_val = 1.f;
         break;
-    case alphanum::UNKNOWN:
+    case alphanum::data_type::UNKNOWN:
     default:
         // should never be reached
         break;
@@ -188,7 +187,7 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
 
     ++cur_retries;
 
-    return ANALYZING;
+    return resolution_status::ANALYZING;
 }
 
 const std::string plate_resolution::compute_results()

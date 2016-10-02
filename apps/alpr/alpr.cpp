@@ -36,15 +36,15 @@ namespace alpr {
 
 using namespace cimg_library;
 
-//#define DISPLAY_ROW_SUMS
-//#define DISPLAY_DISTANCE_MAP
+#define DISPLAY_ROW_SUMS
+#define DISPLAY_DISTANCE_MAP
 
 // Network cell size
-const size_t g_sizeX = 50;
-const size_t g_sizeY = 100;
+constexpr size_t g_sizeX = 50;
+constexpr size_t g_sizeY = 100;
 
 // Letters allowed range : TODO : ratio of total width?
-const size_t g_insideX = 10;
+constexpr size_t g_insideX = 10;
 
 license_plate::license_plate(   const std::string& file_plate,
                                 std::shared_ptr<neurocl::network_manager_interface> net_num,
@@ -186,15 +186,15 @@ void license_plate::_compute_distance_map()
 
         switch( status )
         {
-        case plate_resolution::ANALYZING:
+        case plate_resolution::resolution_status::ANALYZING:
             break;
-        case plate_resolution::ANALYZE_NEXT:
+        case plate_resolution::resolution_status::ANALYZE_NEXT:
             item_count++; // go to next item
             range_iter++; // go to next range
             break;
-        case plate_resolution::ANALYZE_ENDED:
+        case plate_resolution::resolution_status::ANALYZE_ENDED:
             break;
-        case plate_resolution::UNKNOWN:
+        case plate_resolution::resolution_status::UNKNOWN:
         default:
             // should never happen!
             break;

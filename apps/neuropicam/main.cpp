@@ -38,8 +38,6 @@ THE SOFTWARE.
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/assign/list_of.hpp>
-using boost::assign::list_of;
 
 #include <fstream>
 
@@ -338,8 +336,8 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	using namespace boost::filesystem;
 
 	// TODO : define in face_commons?
-	std::vector<std::string> users = list_of("autoA")("autoB");
-	std::vector<std::string> scores = list_of("1 0")("0 1");
+	constexpr std::array<std::string,2> uses {"autoA","autoB"};
+	constexpr std::array<std::string,2> scores {"1 0","0 1"};
 
 	std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
