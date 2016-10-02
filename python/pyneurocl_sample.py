@@ -1,4 +1,13 @@
-import sys, time, threading
+import os, sys, time, threading
+
+microdot = False
+
+if ( os.uname()[1] == 'rapsberry' ):
+    try:
+        from microdotphat import write_string
+        microdot = True
+    except ImportError:
+        print "---> microdotphat module is not installed on your raspberry"
 
 sys.path.append("../lib")
 
@@ -14,7 +23,12 @@ def progression_worker(h):
     while (t_progress < 100) :
         time.sleep(1)
         t_progress = h.train_progress()
-        print "--->" + str( t_progress ) + "%"
+        if microdot:
+            clear()
+            write_string( str( t_progress ) + "%" )
+            show()
+        else:
+        	print "--->" + str( t_progress ) + "%"
     return
 
 try:

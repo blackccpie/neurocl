@@ -16,6 +16,10 @@ CCV_DIR="ccv"
 
 pushd ..
 
+# bootstrap libjpeg
+echo "--> boostraping libjpeg"
+sudo apt-get install -y libjpeg-dev
+
 # bootstrap Boost
 echo "--> boostraping Boost"
 sudo apt-get install -y libboost-all-dev
