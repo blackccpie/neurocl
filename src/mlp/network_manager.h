@@ -46,12 +46,12 @@ class network_manager : public network_manager_interface
 {
 public:
 
-    typedef enum
+    enum class t_mlp_impl
     {
         MLP_IMPL_BNU_REF = 0,
 		MLP_IMPL_BNU_FAST,
         MLP_IMPL_VEXCL
-    } t_mlp_impl;
+    };
 
 private:
 

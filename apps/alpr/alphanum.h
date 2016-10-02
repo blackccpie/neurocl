@@ -51,14 +51,14 @@ const std::vector<std::string> v_separators_order =
 class alphanum
 {
 public:
-    typedef enum
+    enum class data_type
     {
         NUMBER = 0,
         LETTER,
         BOTH,
         SEPARATOR,
         UNKNOWN
-    } data_type;
+    };
 public:
 	alphanum( const size_t index, const data_type type ) : m_index( index )
     {
@@ -89,17 +89,17 @@ private:
     {
         switch(type)
         {
-        case NUMBER:
+        case data_type::NUMBER:
             m_order = &v_numbers_order;
             break;
-        case LETTER:
+        case data_type::LETTER:
             m_order = &v_letters_order;
             break;
-        case SEPARATOR:
+        case data_type::SEPARATOR:
             m_order = &v_separators_order;
             break;
-        case BOTH:
-        case UNKNOWN:
+        case data_type::BOTH:
+        case data_type::UNKNOWN:
         default:
             m_order = &v_alphanum_order;
             break;

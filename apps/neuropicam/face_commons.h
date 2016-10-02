@@ -24,25 +24,25 @@ THE SOFTWARE.
 
 #include <string>
 
-typedef enum
+enum class face_type
 {
 	FT_UNKNOWN = 0,
     FT_USERA,
     FT_USERB,
-} face_type;
-	
+};
+
 class facecam_users
-{	
+{
 public:
 	static facecam_users& instance() { static facecam_users s; return s; }
-	
+
 	const std::string& nicknameA() { return m_nicknameA; }
 	const std::string& nicknameB() { return m_nicknameB; }
-	
+
 private:
-	
+
 	facecam_users() : m_nicknameA( "John" ), m_nicknameB( "Jane" ) {}
-	
+
 private:
 
 	std::string m_nicknameA;

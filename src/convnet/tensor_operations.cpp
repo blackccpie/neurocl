@@ -305,7 +305,7 @@ struct flipper
 
 // name reflects the feature maps feed forwarding specifity of this method
 template <>
-tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_mode::flip,tensor_operation::pad_mode::valid>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
@@ -353,7 +353,7 @@ tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_flip,tens
 
 // name reflects the error back propagation specifity of this method
 template <>
-tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_std,tensor_operation::pad_full>(
+tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::std,tensor_operation::pad_mode::full>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
@@ -410,7 +410,7 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_std,tens
 
 // name reflects the filters gradient update specifity of this method
 template <>
-tensor tensor_operation::convolve_update<tensor_operation::kernel_flip,tensor_operation::pad_valid>(
+tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::flip,tensor_operation::pad_mode::valid>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
@@ -559,13 +559,13 @@ tensor tensor_operation::uniform_sum( const tensor& input )
 }
 
 template <>
-void tensor_operation::optimize<tensor_operation::optim_std>( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optimize_mode::std>( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas )
 {
     optimizer->update( input, deltas );
 }
 
 template <>
-void tensor_operation::optimize<tensor_operation::optim_redux>( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<optimizer>& optimizer, tensor& input, const tensor& deltas )
 {
     optimizer->update_redux( input, deltas );
 }

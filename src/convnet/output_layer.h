@@ -144,8 +144,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize<nto::optim_std>( optimizer, m_weights, m_deltas_weights );
-        nto::optimize<nto::optim_redux>( optimizer, m_bias, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( optimizer, m_weights, m_deltas_weights );
+        nto::optimize<nto::optimize_mode::redux>( optimizer, m_bias, m_deltas_bias );
     }
 
     // Fill weights

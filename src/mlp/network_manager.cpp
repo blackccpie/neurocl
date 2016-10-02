@@ -49,13 +49,13 @@ network_manager::network_manager( const t_mlp_impl& impl ) : m_network_loaded( f
 {
     switch( impl )
     {
-    case MLP_IMPL_BNU_REF:
+    case t_mlp_impl::MLP_IMPL_BNU_REF:
         m_net = std::make_shared<network_bnu_ref>();
         break;
-    case MLP_IMPL_BNU_FAST:
+    case t_mlp_impl::MLP_IMPL_BNU_FAST:
         m_net = std::make_shared<network_bnu_fast>();
         break;
-    case MLP_IMPL_VEXCL:
+    case t_mlp_impl::MLP_IMPL_VEXCL:
         m_net = std::make_shared<network_vexcl>();
         break;
     default:

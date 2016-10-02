@@ -36,11 +36,11 @@ class network_factory
 {
 public:
 
-    typedef enum
+    enum class t_neural_impl
     {
         NEURAL_IMPL_MLP = 0,
         NEURAL_IMPL_CONVNET,
-    } t_neural_impl;
+    };
 
 public:
 

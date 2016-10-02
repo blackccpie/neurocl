@@ -94,7 +94,7 @@ public:
 
     virtual void feed_forward() override
     {
-        m_feature_maps = nto::convolve_add_forward<nto::kernel_flip,nto::pad_valid>(
+        m_feature_maps = nto::convolve_add_forward<nto::kernel_mode::flip,nto::pad_mode::valid>(
             m_prev_layer->feature_maps(),
             m_filters,
             m_filter_stride );
@@ -115,7 +115,7 @@ public:
 
         // Compute errors
 
-        prev_error_maps = nto::convolve_add_backward<nto::kernel_std,nto::pad_full>(
+        prev_error_maps = nto::convolve_add_backward<nto::kernel_mode::std,nto::pad_mode::full>(
             m_error_maps,
             m_filters,
             m_filter_stride );
@@ -131,7 +131,7 @@ public:
     {
         // Compute gradients
 
-        auto&& grad = nto::convolve_update<nto::kernel_flip,nto::pad_valid>(
+        auto&& grad = nto::convolve_update<nto::kernel_mode::flip,nto::pad_mode::valid>(
             m_prev_layer->feature_maps(),
             m_error_maps,
             m_filter_stride);
@@ -144,8 +144,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize<nto::optim_std>( optimizer, m_filters, m_filters_delta );
-        nto::optimize<nto::optim_redux>( optimizer, m_bias, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( optimizer, m_filters, m_filters_delta );
+        nto::optimize<nto::optimize_mode::redux>( optimizer, m_bias, m_deltas_bias );
     }
 
     // Fill weights

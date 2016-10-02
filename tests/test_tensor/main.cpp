@@ -268,7 +268,7 @@ int main( int argc, char *argv[] )
 
     Res.resize(6,6,1,2);
 
-    Res = nto::convolve_add_forward<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
+    Res = nto::convolve_add_forward<nto::kernel_mode::flip,nto::pad_mode::valid>( A, B, 1 );
 
     std::cout << "convolve_add_forward flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
@@ -297,7 +297,7 @@ int main( int argc, char *argv[] )
 
     Res.resize(6,6,1,2);
 
-    Res = nto::convolve_add_backward<nto::kernel_std,nto::pad_full>( A, B, 1 );
+    Res = nto::convolve_add_backward<nto::kernel_mode::std,nto::pad_mode::full>( A, B, 1 );
 
     std::cout << "convolve_add_backward std/full test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
@@ -338,7 +338,7 @@ int main( int argc, char *argv[] )
 
     Res.resize(3,3,2,2);
 
-    Res = nto::convolve_update<nto::kernel_flip,nto::pad_valid>( A, B, 1 );
+    Res = nto::convolve_update<nto::kernel_mode::flip,nto::pad_mode::valid>( A, B, 1 );
 
     std::cout << "convolve_update flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 

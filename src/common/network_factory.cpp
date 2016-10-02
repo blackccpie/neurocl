@@ -38,9 +38,9 @@ std::istream& operator>> ( std::istream &input, network_factory::t_neural_impl& 
     input >> impl_string;
 
     if ( impl_string == "MLP" )
-        impl = network_factory::NEURAL_IMPL_MLP;
+        impl = network_factory::t_neural_impl::NEURAL_IMPL_MLP;
     else if ( impl_string == "CONVNET" )
-        impl = network_factory::NEURAL_IMPL_CONVNET;
+        impl = network_factory::t_neural_impl::NEURAL_IMPL_CONVNET;
     else
         input.setstate( std::ios_base::failbit );
 
@@ -68,9 +68,9 @@ std::shared_ptr<network_manager_interface> network_factory::build( const t_neura
 {
     switch( impl )
     {
-    case NEURAL_IMPL_MLP:
-        return mlp::network_manager::create( mlp::network_manager::MLP_IMPL_BNU_REF );
-    case NEURAL_IMPL_CONVNET:
+    case t_neural_impl::NEURAL_IMPL_MLP:
+        return mlp::network_manager::create( mlp::network_manager::t_mlp_impl::MLP_IMPL_BNU_REF );
+    case t_neural_impl::NEURAL_IMPL_CONVNET:
         return convnet::network_manager::create();
     default:
         throw network_exception( "unmanaged neural implementation!" );

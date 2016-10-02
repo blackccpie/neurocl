@@ -45,13 +45,13 @@ class plate_resolution
 {
 public:
 
-    typedef enum
+    enum class resolution_status
     {
         ANALYZING = 0,
         ANALYZE_NEXT,
         ANALYZE_ENDED,
         UNKNOWN
-    } resolution_status;
+    };
 
 public:
     plate_resolution(   std::shared_ptr<neurocl::network_manager_interface> net_num,

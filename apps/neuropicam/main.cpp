@@ -114,13 +114,13 @@ struct face_result
         std::string str_type;
         switch( type )
         {
-        case FT_USERA:
+        case face_type::FT_USERA:
             str_type = "YOU ARE " + boost::to_upper_copy( facecam_users::instance().nicknameA() ) + "! ";
             break;
-        case FT_USERB:
+        case face_type::FT_USERB:
             str_type = "YOU ARE " + boost::to_upper_copy( facecam_users::instance().nicknameB() ) + "! ";
             break;
-        case FT_UNKNOWN:
+        case face_type::FT_UNKNOWN:
         default:
             str_type = "YOU ARE UNKNOWN... ";
             break;
@@ -137,11 +137,11 @@ struct face_result
 	{
 		switch( type )
         {
-        case FT_USERA:
+        case face_type::FT_USERA:
             return green;
-        case FT_USERB:
+        case face_type::FT_USERB:
             return blue;
-        case FT_UNKNOWN:
+        case face_type::FT_UNKNOWN:
         default:
             return red;
         }
@@ -197,15 +197,15 @@ const face_result face_process(  CImg<unsigned char> image, std::shared_ptr<netw
 	//std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
 	if (sample.max_comp_val() < MIN_FACE_RECO_SCORE )
-		return face_result( FT_UNKNOWN, output[0], output[1] );
+		return face_result( face_type::FT_UNKNOWN, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 0 )
-		return face_result( FT_USERA, output[0], output[1] );
+		return face_result( face_type::FT_USERA, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 1 )
-		return face_result( FT_USERB, output[0], output[1] );
+		return face_result( face_type::FT_USERB, output[0], output[1] );
     else
     {
         std::cout << "Warning : unmanaged use case" << std::endl;
-        return face_result( FT_UNKNOWN, output[0], output[1] );
+        return face_result( face_type::FT_UNKNOWN, output[0], output[1] );
     }
 }
 

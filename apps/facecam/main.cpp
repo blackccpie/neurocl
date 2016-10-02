@@ -49,7 +49,7 @@ using namespace cimg_library;
 static const unsigned char green[] = { 0,255,0 };
 static const unsigned char red[] = { 255,0,0 };
 
-typedef enum
+enum class face_type
 {
     FT_GUESS = 0,
     FT_USERA,
@@ -57,7 +57,7 @@ typedef enum
     FT_UNKNOWN,
     //FT_NOT_A_FACE,
     FT_MAX
-} face_type;
+};
 
 struct face_result
 {
@@ -69,13 +69,13 @@ struct face_result
         std::string str_type;
         switch( type )
         {
-        case FT_USERA:
+        case face_type::FT_USERA:
             str_type = "YOU ARE JOHN! ";
             break;
-        case FT_USERB:
+        case face_type::FT_USERB:
             str_type = "YOU ARE JANE! ";
             break;
-        case FT_UNKNOWN:
+        case face_type::FT_UNKNOWN:
         default:
             str_type = "YOU ARE UNKNOWN... ";
             break;
@@ -134,24 +134,24 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     switch( ftype )
     {
-    case FT_USERA:
+    case face_type::FT_USERA:
         label = "A";
         output[0] = 1.f;
         break;
-    case FT_USERB:
+    case face_type::FT_USERB:
         label = "B";
         output[1] = 1.f;
         break;
-    case FT_UNKNOWN:
+    case face_type::FT_UNKNOWN:
         label = "U";
         //output[2] = 1.f;
         break;
     //case FT_NOT_A_FACE:
     //    break;
-    case FT_GUESS:
+    case face_type::FT_GUESS:
         compute = true;
         break;
-    case FT_MAX:
+    case face_type::FT_MAX:
     default:
         // should never be reached
     break;
@@ -164,9 +164,9 @@ void face_process(  CImg<float> image, const face_type& ftype,
         std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
         if ( sample.max_comp_idx() == 0 )
-            opt_computed_face = face_result( FT_USERA, output[0], output[1] );
+            opt_computed_face = face_result( face_type::FT_USERA, output[0], output[1] );
         else if ( sample.max_comp_idx() == 1 )
-            opt_computed_face = face_result( FT_USERB, output[0], output[1] );
+            opt_computed_face = face_result( face_type::FT_USERB, output[0], output[1] );
     }
     else
     {
@@ -221,7 +221,7 @@ int main ( int argc,char **argv )
 
     try
     {
-        std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+        std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_MLP );
         net_manager->load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
         // TODO : check command arguments with boost
@@ -297,36 +297,36 @@ int main ( int argc,char **argv )
             welcome.draw_text( 50, 50, "Welcome to FaceCam\nPlease wait during capture initialization...", green );
             my_display.display( welcome );
 
-            face_type ftype = FT_MAX;
+            face_type ftype = face_type::FT_MAX;
 
             do
             {
-                ftype = FT_MAX;
+                ftype = face_type::FT_MAX;
 
             	if ( my_display.is_key( cimg::keyG ) )
             	{
                     std::cout << "Guess that face!" << std::endl;
-                    ftype = FT_GUESS;
+                    ftype = face_type::FT_GUESS;
                 }
                 else if ( my_display.is_key( cimg::keyA ) )
                 {
                     std::cout << "This is John!" << std::endl;
-                    ftype = FT_USERA;
+                    ftype = face_type::FT_USERA;
                 }
                 else if ( my_display.is_key( cimg::keyE ) )
                 {
                     std::cout << "This is Jane!" << std::endl;
-                    ftype = FT_USERB;
+                    ftype = face_type::FT_USERB;
                 }
                 else if ( my_display.is_key( cimg::keyU ) )
                 {
                     std::cout << "This person is unknown!" << std::endl;
-                    ftype = FT_UNKNOWN;
+                    ftype = face_type::FT_UNKNOWN;
                 }
                 /*else if ( my_display.is_key( cimg::key0 ) )
                 {
                     std::cout << "There is no one!" << std::endl;
-                    ftype = FT_NOT_A_FACE;
+                    ftype = face_type::FT_NOT_A_FACE;
                 }*/
                 else if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
                 {
@@ -341,7 +341,7 @@ int main ( int argc,char **argv )
 
                 std::cout << "key " << my_display.key() << std::endl;
 
-                if ( ( ftype != FT_MAX ) && !faces.empty() )
+                if ( ( ftype != face_type::FT_MAX ) && !faces.empty() )
                 {
                     face_process(	input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype,
                                     net_manager, trainer,

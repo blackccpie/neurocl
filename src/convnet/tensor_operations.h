@@ -35,23 +35,23 @@ class tensor_operation
 {
 public:
 
-    enum kernel_mode
+    enum class kernel_mode
     {
-        kernel_std = 0,
-        kernel_flip
+        std = 0,
+        flip
     };
 
-    enum pad_mode
+    enum class pad_mode
     {
-        pad_valid = 0,
-        pad_same,
-        pad_full
+        valid = 0,
+        same,
+        full
     };
 
-    enum optimize_mode
+    enum class optimize_mode
     {
-        optim_std = 0,
-        optim_redux
+        std = 0,
+        redux
     };
 
 public:
