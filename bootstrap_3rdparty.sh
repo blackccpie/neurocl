@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$(uname -n)" == "raspberry" ]; then
+if [ "$(uname -n)" == "raspberrypi" ]; then
     echo "Running bootstrap script on a Raspberry Pi!"
 elif [ "$(uname -s)" == "Darwin" ]; then
     echo "Sorry but this script does not support OSX yet!"
