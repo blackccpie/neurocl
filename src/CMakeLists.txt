@@ -23,6 +23,20 @@
 cmake_minimum_required (VERSION 3.2)
 project (neurocl)
 
+# detect SIMD features
+if ( "${CMAKE_CXX_FLAGS}" MATCHES "^.*(sse|neon).*$" )
+
+    message("SIMD is enabled for this build")
+
+    set( sources_list_simd
+        mlp/network_bnu_fast.cpp
+    )
+
+    set (headers_list_simd
+        mlp/network_bnu_fast.h
+    )
+endif ()
+
 include_directories(
     .
     "${CMAKE_SOURCE_DIR}/../vexcl"
@@ -40,7 +54,6 @@ mlp/network_manager.cpp
 mlp/network_vexcl.cpp
 mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
-mlp/network_bnu_fast.cpp
 
 convnet/network.cpp
 convnet/network_manager.cpp
@@ -68,7 +81,6 @@ mlp/network_interface.h
 mlp/network_vexcl.h
 mlp/network_bnu_base.h
 mlp/network_bnu_ref.h
-mlp/network_bnu_fast.h
 
 convnet/layer.h
 convnet/conv_layer.h
@@ -88,7 +100,7 @@ if (NOT APPLE)
 	add_definitions( -Dcimg_use_png )
 endif ()
 
-add_library(neurocl SHARED ${sources_list} ${headers_list})
+add_library(neurocl SHARED ${sources_list} ${headers_list} ${sources_list_simd} ${headers_list_simd})
 
 target_link_libraries(neurocl
 boost_thread${boost_suffix}
