@@ -58,7 +58,7 @@ network_manager::network_manager( const t_mlp_impl& impl ) : m_network_loaded( f
     case t_mlp_impl::MLP_IMPL_BNU_FAST:
 #ifdef SIMD_ENABLED
         m_net = std::make_shared<network_bnu_fast>();
-#elif
+#else
         throw network_exception( "unmanaged mlp implementation (simd disabled)!" );
 #endif
         break;
