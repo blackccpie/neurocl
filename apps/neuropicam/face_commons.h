@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#ifndef FACE_COMMONS_H
+#define FACE_COMMONS_H
+
 #include <string>
 
 enum class face_type
@@ -48,3 +51,5 @@ private:
 	std::string m_nicknameA;
 	std::string m_nicknameB;
 };
+
+#endif //FACE_COMMONS_H

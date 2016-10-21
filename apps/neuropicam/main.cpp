@@ -336,8 +336,10 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	using namespace boost::filesystem;
 
 	// TODO : define in face_commons?
-	constexpr std::array<std::string,2> uses {"autoA","autoB"};
-	constexpr std::array<std::string,2> scores {"1 0","0 1"};
+    // constexpr compile error due to non-litteral types
+    const/*expr*/ std::array<std::string,2> users {"autoA","autoB"};
+    const/*expr*/ std::array<std::string,2> scores {"1 0","0 1"};
+
 
 	std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
@@ -349,13 +351,13 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		remove( g_weights_facecam_auto );
 	}
 
-    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_MLP );
     net_manager->load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
 	// remove existing training file + image files
 	if ( exists( g_training_file_auto ) )
 		remove( g_training_file_auto );
-	BOOST_FOREACH( const std::string& user, users )
+	for ( const std::string& user : users )
 	{
 		if ( exists( "/home/pi/Pictures/facecam_faces/" + user ) )
 			remove_all( "/home/pi/Pictures/facecam_faces/" + user );
@@ -454,7 +456,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
-    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::NEURAL_IMPL_MLP );
+    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_MLP );
     if ( !auto_trained )
 		net_manager->load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 	else

@@ -36,14 +36,14 @@ thebrain::~thebrain()
 	m_thread->join();
 }
 
-void thebrain::push_face_type( int type )
+void thebrain::push_face_type( const face_type& type )
 {
     m_queue.push( type );
 }
 
 void thebrain::_run()
 {
-	auto avg_func = [this] ( int type ) { m_current_face_type += type; };
+	auto avg_func = [this] ( const face_type& type ) { m_current_face_type += static_cast<int>( type ); };
 
 	while( !m_bStop )
 	{
@@ -52,7 +52,7 @@ void thebrain::_run()
 
 		if ( m_current_compute_range >= BRAIN_QUEUE_SIZE )
 		{
-			m_current_face_type = static_cast<int>( 0.5f + 
+			m_current_face_type = static_cast<int>( 0.5f +
 				( static_cast<float>( m_current_face_type ) / m_current_compute_range ) );
 			m_speech_manager.set_listener( static_cast<face_type>( m_current_face_type ) );
 			m_current_face_type = 0;

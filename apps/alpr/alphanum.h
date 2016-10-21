@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include <boost/foreach.hpp>
 
+#include <algorithm>
 #include <sstream>
 #include <vector>
 
