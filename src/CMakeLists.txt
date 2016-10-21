@@ -28,6 +28,8 @@ if ( "${CMAKE_CXX_FLAGS}" MATCHES "^.*(sse|neon).*$" )
 
     message("SIMD is enabled for this build")
 
+    add_definitions(-DSIMD_ENABLED)
+
     set( sources_list_simd
         mlp/network_bnu_fast.cpp
     )
