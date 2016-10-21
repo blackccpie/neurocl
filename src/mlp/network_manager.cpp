@@ -24,9 +24,12 @@ THE SOFTWARE.
 
 #include "network_vexcl.h"
 #include "network_bnu_ref.h"
-#include "network_bnu_fast.h"
 #include "network_manager.h"
 #include "network_file_handler.h"
+
+#ifdef SIMD_ENABLED
+    #include "network_bnu_fast.h"
+#endif
 
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
@@ -53,7 +56,11 @@ network_manager::network_manager( const t_mlp_impl& impl ) : m_network_loaded( f
         m_net = std::make_shared<network_bnu_ref>();
         break;
     case t_mlp_impl::MLP_IMPL_BNU_FAST:
+#ifdef SIMD_ENABLED
         m_net = std::make_shared<network_bnu_fast>();
+#elif
+        throw network_exception( "unmanaged mlp implementation (simd disabled)!" );
+#endif
         break;
     case t_mlp_impl::MLP_IMPL_VEXCL:
         m_net = std::make_shared<network_vexcl>();
