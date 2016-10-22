@@ -21,13 +21,20 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.2)
+project (alpr_train)
 
 include_directories(
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/utils"
+    "${CMAKE_SOURCE_DIR}/../CImg"
 )
 
-add_subdirectory(test_mnist)
-add_subdirectory(test_vexcl)
-add_subdirectory(test_edge)
-add_subdirectory(test_tensor)
+set (sources_list
+main.cpp
+)
+
+add_executable(alpr_train ${sources_list} ${headers_list})
+
+target_link_libraries(alpr_train
+boost_system-mt
+boost_filesystem-mt
+${extra_link_libs}
+)
