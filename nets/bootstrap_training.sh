@@ -5,15 +5,15 @@ command_exists() {
 }
 
 if command_exists curl ; then
-    curl http://blackccpie.free.fr/nets/alpr.zip > alpr.zip
-    unzip -o alpr.zip; rm alpr.zip
+    curl http://blackccpie.free.fr/nets/alpr.tgz > alpr.tgz
+    tar -zxf alpr.tgz; rm alpr.tgz
 
-    curl http://blackccpie.free.fr/nets/mnist.zip > mnist.zip
-    unzip -o mnist.zip; rm mnist.zip
+    curl http://blackccpie.free.fr/nets/mnist.tgz > mnist.tgz
+    tar -zxf mnist.tgz; rm mnist.tgz
 else
-    wget http://blackccpie.free.fr/nets/alpr.zip
-    unzip -o alpr.zip; rm alpr.zip
+    wget http://blackccpie.free.fr/nets/alpr.tgz
+    tar -zxf alpr.tgz; rm alpr.tgz
 
-    wget http://blackccpie.free.fr/nets/mnist.zip
-    unzip -o mnist.zip; rm mnist.zip
+    wget http://blackccpie.free.fr/nets/mnist.tgz
+    tar -zxf mnist.tgz; rm mnist.tgz
 fi
