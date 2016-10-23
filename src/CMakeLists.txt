@@ -23,6 +23,14 @@
 cmake_minimum_required (VERSION 3.2)
 project (neurocl)
 
+# check boost version
+find_package(Boost 1.58.0 REQUIRED)
+
+if (NOT ${BOOST_VERSION} STREQUAL "1.58.0")
+    # Boost version > 1.58
+    add_definitions(-DPORTABLE_BINARY_ARCHIVE_PFTO)
+endif()
+
 # detect SIMD features
 if ( "${CMAKE_CXX_FLAGS}" MATCHES "^.*(sse|neon).*$" )
 

@@ -13,8 +13,11 @@
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/serialization/pfto.hpp>
 #include <boost/static_assert.hpp>
+
+#ifdef PORTABLE_BINARY_ARCHIVE_PFTO
+	#include <boost/serialization/pfto.hpp>
+#endif
 
 #include <climits>
 #if CHAR_BIT != 8
