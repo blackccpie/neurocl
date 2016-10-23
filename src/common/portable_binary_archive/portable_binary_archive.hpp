@@ -1,7 +1,7 @@
 #ifndef PORTABLE_BINARY_ARCHIVE_HPP
 #define PORTABLE_BINARY_ARCHIVE_HPP
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,12 +11,9 @@
 # pragma once
 #endif
 
-// this has been added to keep the code Boost1.59 compatible (pfto.hpp has been removed)
-// #include <boost/serialization/pfto.hpp>
-#include "pfto.hpp"
-
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/serialization/pfto.hpp>
 #include <boost/static_assert.hpp>
 
 #include <climits>
