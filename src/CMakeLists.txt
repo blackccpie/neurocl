@@ -51,6 +51,9 @@ set (sources_list
 common/samples_manager.cpp
 common/network_factory.cpp
 
+common/portable_binary_archive/portable_binary_iarchive.cpp
+common/portable_binary_archive/portable_binary_oarchive.cpp
+
 mlp/network_file_handler.cpp
 mlp/network_manager.cpp
 mlp/network_vexcl.cpp
@@ -76,6 +79,10 @@ common/network_exception.h
 common/network_utils.h
 common/network_config.h
 common/iterative_trainer.h
+
+common/portable_binary_archive/portable_binary_archive.hpp
+common/portable_binary_archive/portable_binary_iarchive.hpp
+common/portable_binary_archive/portable_binary_oarchive.hpp
 
 mlp/network_file_handler.h
 mlp/network_manager.h

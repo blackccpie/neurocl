@@ -27,10 +27,9 @@ THE SOFTWARE.
 
 #include "common/network_exception.h"
 
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include "common/portable_binary_archive/portable_binary_iarchive.hpp"
+#include "common/portable_binary_archive/portable_binary_oarchive.hpp"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
@@ -176,7 +175,7 @@ void network_file_handler::load_network_weights( const std::string& weights_path
 
     if ( input_weights.is_open() )
     {
-        boost::archive::binary_iarchive ia( input_weights );
+        portable_binary_iarchive ia( input_weights, endian_big );
 
         try
         {
@@ -208,7 +207,7 @@ void network_file_handler::save_network_weights()
 
     if ( output_weights.is_open() )
     {
-        boost::archive::binary_oarchive oar( output_weights );
+        portable_binary_oarchive oar( output_weights, endian_big );
 
         for ( size_t i=0; i<m_net->count_layers(); i++ )
         {
