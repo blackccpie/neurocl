@@ -26,8 +26,8 @@ project (neurocl)
 # check boost version
 find_package(Boost 1.58.0 REQUIRED)
 
-if (NOT ${BOOST_VERSION} STREQUAL "1.58.0")
-    # Boost version > 1.58
+if (${Boost_MINOR_VERSION} STREQUAL "58")
+    # Boost version == 1.58
     add_definitions(-DPORTABLE_BINARY_ARCHIVE_PFTO)
 endif()
 
