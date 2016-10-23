@@ -28,7 +28,7 @@ find_package(Boost 1.58.0 REQUIRED)
 
 if (${Boost_MINOR_VERSION} STREQUAL "58")
     # Boost version == 1.58
-    add_definitions(-DPORTABLE_BINARY_ARCHIVE_PFTO)
+    add_definitions(-DPORTABLE_BINARY_ARCHIVE_LEGACY)
 endif()
 
 # detect SIMD features

@@ -47,12 +47,13 @@ portable_binary_iarchive::load_impl(boost::intmax_t & l, char maxsize){
     #else
         if(m_flags & endian_big)
     #endif
-            reverse_bytes(size, cptr);
-    
+    reverse_bytes(size, cptr);
+
     if(negative)
         l = -l;
 }
 
+#ifdef PORTABLE_BINARY_ARCHIVE_LEGACY
 void
 portable_binary_iarchive::load_override(
     boost::archive::class_name_type & t, int
@@ -60,6 +61,15 @@ portable_binary_iarchive::load_override(
     std::string cn;
     cn.reserve(BOOST_SERIALIZATION_MAX_KEY_SIZE);
     load_override(cn, 0);
+#else
+void
+portable_binary_iarchive::load_override(
+    boost::archive::class_name_type & t
+){
+    std::string cn;
+    cn.reserve(BOOST_SERIALIZATION_MAX_KEY_SIZE);
+    load_override(cn);
+#endif
     if(cn.size() > (BOOST_SERIALIZATION_MAX_KEY_SIZE - 1))
         boost::serialization::throw_exception(
             boost::archive::archive_exception(
@@ -94,7 +104,7 @@ portable_binary_iarchive::init(unsigned int flags){
                     boost::archive::archive_exception::unsupported_version
                 )
             );
-        
+
         #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
         this->set_library_version(input_library_version);
         //#else
