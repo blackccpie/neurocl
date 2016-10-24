@@ -143,7 +143,7 @@ void network_file_handler::load_network_weights( const std::string& weights_path
 
     if ( input_weights.is_open() )
     {
-        portable_binary_iarchive ia( input_weights, endian_big );
+        portable_binary_iarchive ia( input_weights, endian_little );
 
         try
         {
@@ -175,7 +175,7 @@ void network_file_handler::save_network_weights()
 
     if ( output_weights.is_open() )
     {
-        portable_binary_oarchive oar( output_weights, endian_big );
+        portable_binary_oarchive oar( output_weights, endian_little );
 
         for ( size_t i=0; i<m_net->count_layers()-1; i++ ) // output layer has no output weights
         {
