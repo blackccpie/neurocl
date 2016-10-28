@@ -1,8 +1,8 @@
-layer:in:0:32x32x1
-layer:conv:1:28x28x6:5
-layer:pool:2:14x14x6
-layer:conv:3:10x10x16:5
-layer:pool:4:5x5x16
-layer:conv:5:1x1x120:5
+layer:in:0:28x28x1
+layer:conv:1:24x24x6:5
+layer:pool:2:12x12x6
+layer:conv:3:8x8x16:5
+layer:pool:4:4x4x16
+layer:conv:5:1x1x120:4
 layer:full:6:84x1x1
 layer:out:7:10x1x1
