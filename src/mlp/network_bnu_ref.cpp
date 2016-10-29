@@ -39,7 +39,7 @@ float sigmoid( float x )
 
 void network_bnu_ref::feed_forward()
 {
-    //std::cout << "network_bnu_ref::feed_forward - " << m_layers.size() << " layers propagation" << std::endl;
+    //LOGGER(info) << "network_bnu_ref::feed_forward - " << m_layers.size() << " layers propagation" << std::endl;
 
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
@@ -87,7 +87,7 @@ void network_bnu_ref::back_propagate()
 
 void network_bnu_ref::gradient_descent()
 {
-    //std::cout << "network_bnu_ref::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
+    //LOGGER(info) << "network_bnu_ref::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
 
     auto invm = 1.f / static_cast<float>( m_training_samples );
 

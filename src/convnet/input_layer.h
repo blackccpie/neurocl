@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include "layer.h"
 
+#include "common/logger.h"
+
 namespace neurocl { namespace convnet {
 
 class input_layer : public layer
@@ -42,7 +44,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating input layer" << std::endl;
+        LOGGER(info) << "input_layer::populate - populating input layer" << std::endl;
 
         m_feature_maps.resize( width, height, 1, depth );
     }

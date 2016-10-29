@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "samples_manager.h"
 #include "network_exception.h"
+#include "logger.h"
 
 #include "CImg.h"
 
@@ -31,7 +32,6 @@ THE SOFTWARE.
 namespace bfs = boost::filesystem;
 
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 namespace neurocl {
@@ -50,6 +50,7 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
     cimg_library::CImg<float> img( file.c_str() );
 
     //img.resize(32,32);
+    //img.resize( 32, 32, -100, -100, 0, 0, 1, 1, 0, 0 );
 
     img.equalize( 256, 0, 255 );
     img.normalize( 0.f, 1.f );
@@ -62,14 +63,14 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
 {
     if ( !bfs::exists( input_filename ) )
     {
-        std::cerr << "samples_manager::load_samples - error reading input samples config file \'" << input_filename << "\'" << std::endl;
+        LOGGER(error) << "samples_manager::load_samples - error reading input samples config file \'" << input_filename << "\'" << std::endl;
         throw network_exception( "error reading input samples config file" );
     }
 
     std::ifstream data_in( input_filename );
     if ( !data_in || !data_in.is_open() )
     {
-        std::cerr << "samples_manager::load_samples - error opening input samples config file \'" << input_filename << "\'" << std::endl;
+        LOGGER(error) << "samples_manager::load_samples - error opening input samples config file \'" << input_filename << "\'" << std::endl;
         throw network_exception( "error reading input samples config file" );
     }
 
@@ -82,7 +83,7 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
 
     while ( std::getline( data_in, line ) )
     {
-        std::stringstream ss( line );
+        std::stringstream ss{ line };
 
         // parse image filename
         std::string image_filename;
@@ -118,7 +119,7 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
 
         // save output image
         size_t output_size = _vals.size();
-        boost::shared_array<float> output_sample( new float[output_size] );
+        boost::shared_array<float> output_sample{ new float[output_size] };
         std::copy( _vals.begin(), _vals.end(), output_sample.get() );
         m_output_samples.push_back( output_sample );
 

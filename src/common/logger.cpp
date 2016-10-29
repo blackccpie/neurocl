@@ -24,6 +24,9 @@ THE SOFTWARE.
 
 #include "logger.h"
 
+#include <iostream>
+#include <fstream>
+
 // Implementation which allows to write into cout
 class cout_log_policy : public log_policy_interface
 {

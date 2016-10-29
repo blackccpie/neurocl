@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include "layer.h"
 
+#include "common/logger.h"
+
 namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
@@ -45,7 +47,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating full layer " << m_name << std::endl;
+        LOGGER(info) << "full_layer::populate - populating full layer " << m_name << std::endl;
 
         m_prev_layer = prev_layer;
 

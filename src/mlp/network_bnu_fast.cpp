@@ -99,7 +99,7 @@ inline float _reduce_sum( float32x4_t value )
 
 void network_bnu_fast::feed_forward()
 {
-    //std::cout << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
+    //LOGGER(info) << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
     for ( size_t c=0; c<m_layers.size()-1; c++ )
     {
@@ -347,7 +347,7 @@ void network_bnu_fast::back_propagate()
 
 void network_bnu_fast::gradient_descent()
 {
-    //std::cout << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
+    //LOGGER(info) << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
 
     auto invm = 1.f / static_cast<float>( m_training_samples );
 

@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "layer.h"
 
-#include "common/network_exception.h"
+#include "common/logger.h"
 
 namespace neurocl { namespace convnet {
 
@@ -45,7 +45,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating pooling layer " << m_name << std::endl;
+        LOGGER(info) << "pool_layer::populate - populating pooling layer " << m_name << std::endl;
 
         // compute subsampling rate, throw error if not integer
         if ( ( prev_layer->width() % width) == 0 )

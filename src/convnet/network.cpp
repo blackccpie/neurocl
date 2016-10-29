@@ -35,8 +35,6 @@ THE SOFTWARE.
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
-#include <iostream>
-
 namespace neurocl { namespace convnet {
 
 //#define VERBOSE_NETWORK
@@ -190,7 +188,7 @@ void network::set_input(  const size_t& in_size, const float* in )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
 #ifdef VERBOSE_NETWORK
-    std::cout << "network::set_input - input (" << in << ") size = " << in_size << std::endl;
+    LOGGER(info) << "network::set_input - input (" << in << ") size = " << in_size << std::endl;
 #endif
 
     input_layer->fill( 0, 0, in_size, in );
@@ -206,7 +204,7 @@ void network::set_output( const size_t& out_size, const float* out )
         throw network_exception( "output size exceeds allocated layer size!" );
 
 #ifdef VERBOSE_NETWORK
-    std::cout << "network::set_output - output (" << out << ") size = " << out_size << std::endl;
+    LOGGER(info) << "network::set_output - output (" << out << ") size = " << out_size << std::endl;
 #endif
 
     output_layer->fill( 0, 0, out_size, out );
@@ -216,13 +214,13 @@ const layer_ptr network::get_layer_ptr( const size_t layer_idx )
 {
     if ( layer_idx >= m_layers.size() )
 	{
-        std::cerr << "network::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        LOGGER(error) << "network::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
     std::shared_ptr<layer> _layer = m_layers[layer_idx];
 
-    std::cout << "network::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
+    LOGGER(info) << "network::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
 
     layer_ptr l( _layer->nb_weights(), _layer->nb_bias() );
     _layer->fill_w( l.weights.get() );
@@ -235,7 +233,7 @@ void network::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 {
     if ( layer_idx >= m_layers.size() )
     {
-        std::cerr << "network::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        LOGGER(error) << "network::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
@@ -243,11 +241,11 @@ void network::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 
     if ( ( _layer->nb_weights() != l.num_weights ) || ( _layer->nb_bias() != l.num_bias ) )
     {
-        std::cerr << "network::set_layer_ptr - inconsistent layer " << layer_idx << " size" << std::endl;
+        LOGGER(error) << "network::set_layer_ptr - inconsistent layer " << layer_idx << " size" << std::endl;
         throw network_exception( "inconsistent layer size" );
     }
 
-    std::cout << "network::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
+    LOGGER(info) << "network::set_layer_ptr - setting layer  " << _layer->type() << std::endl;
 
     _layer->fill_w( _layer->nb_weights(), l.weights.get() );
     _layer->fill_b( _layer->nb_bias(), l.bias.get() );

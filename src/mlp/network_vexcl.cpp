@@ -82,7 +82,7 @@ layer_vexcl::layer_vexcl()
 // WARNING : size is the square side size
 void layer_vexcl::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
-    //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
+    //LOGGER(info) << "layer_vexcl::populate - populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
     vex::Context& _ctx = my_vex_ctx::instance().get();
 
@@ -132,7 +132,8 @@ network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_deca
     if ( !_ctx ) throw std::runtime_error( "No devices available." );
 
     // Print out list of selected devices:
-    std::cout << _ctx << std::endl;
+    LOGGER(info) << "network_vexcl::network_vexcl - vexcl devices:" << std::endl;
+    LOGGER(info) << _ctx << std::endl;
 }
 
 void network_vexcl::set_input(  const size_t& in_size, const float* in )
@@ -140,7 +141,7 @@ void network_vexcl::set_input(  const size_t& in_size, const float* in )
     if ( in_size > m_layers[0].activations().size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
-    //std::cout << "network_vexcl::set_input - input (" << in << ") size = " << in_size << std::endl;
+    //LOGGER(info) << "network_vexcl::set_input - input (" << in << ") size = " << in_size << std::endl;
 
     vex::copy( in, in + in_size, m_layers[0].activations().begin() );
 }
@@ -150,7 +151,7 @@ void network_vexcl::set_output( const size_t& out_size, const float* out )
     if ( out_size > m_training_output.size() )
         throw network_exception( "output size exceeds allocated layer size!" );
 
-    //std::cout << "network_vexcl::set_output - output (" << out << ") size = " << out_size << std::endl;
+    //LOGGER(info) << "network_vexcl::set_output - output (" << out << ") size = " << out_size << std::endl;
 
     vex::copy( out, out + out_size, m_training_output.begin() );
 }
@@ -207,7 +208,7 @@ const layer_ptr network_vexcl::get_layer_ptr( const size_t layer_idx )
 {
     if ( layer_idx >= m_layers.size() )
     {
-        std::cerr << "network_vexcl::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        LOGGER(error) << "network_vexcl::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
@@ -225,7 +226,7 @@ void network_vexcl::set_layer_ptr( const size_t layer_idx, const layer_ptr& laye
 {
     if ( layer_idx >= m_layers.size() )
     {
-        std::cerr << "network_vexcl::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        LOGGER(error) << "network_vexcl::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
@@ -310,7 +311,7 @@ void network_vexcl::back_propagate()
 
 void network_vexcl::gradient_descent()
 {
-    //std::cout << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
+    //LOGGER(info) << "network_bnu::gradient_descent - updating after " << m_training_samples << " backpropagations" << std::endl;
 
     float invm = 1.f / static_cast<float>( m_training_samples );
 

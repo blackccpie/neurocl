@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "layer.h"
 
-#include "common/network_exception.h"
+#include "common/logger.h"
 
 namespace neurocl { namespace convnet {
 
@@ -53,12 +53,12 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating convolutional layer " << m_name << std::endl;
+        LOGGER(info) << "conv_layer::populate - populating convolutional layer " << m_name << std::endl;
 
         if ( ( width != ( prev_layer->width() - m_filter_size + 1 ) ) ||
             ( height != ( prev_layer->height() - m_filter_size + 1 ) ) )
         {
-            std::cerr << "conv_layer::populate - zero padding not managed for now, "
+            LOGGER(error) << "conv_layer::populate - zero padding not managed for now, "
                 "so layer size should be consistent with filter size and previous layer size" << std::endl;
             throw network_exception( "inconsistent convolutional layer size" );
         }

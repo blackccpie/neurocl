@@ -86,7 +86,7 @@ layer_bnu::layer_bnu()
 // WARNING : size is the square side size
 void layer_bnu::populate( const layer_size& cur_layer_size, const layer_size& next_layer_size )
 {
-    //std::cout << "populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
+    //LOGGER(info) << "layer_bnu::populate - populating layer of size " << cur_layer_size << " (next size is " << next_layer_size << ")" << std::endl;
 
     if ( next_layer_size.size() ) // non-output layer
     {
@@ -134,7 +134,7 @@ void network_bnu_base::set_input(  const size_t& in_size, const float* in )
     if ( in_size > m_layers[0].activations().size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
-    //std::cout << "network_bnu::set_input - input (" << in << ") size = " << in_size << std::endl;
+    //LOGGER(info) << "network_bnu::set_input - input (" << in << ") size = " << in_size << std::endl;
 
     vectorF& input_activations = m_layers[0].activations();
     std::copy( in, in + in_size, input_activations.begin() );
@@ -145,7 +145,7 @@ void network_bnu_base::set_output( const size_t& out_size, const float* out )
     if ( out_size > m_training_output.size() )
         throw network_exception( "output size exceeds allocated layer size!" );
 
-    //std::cout << "network_bnu::set_output - output (" << out << ") size = " << out_size << std::endl;
+    //LOGGER(info) << "network_bnu::set_output - output (" << out << ") size = " << out_size << std::endl;
 
     std::copy( out, out + out_size, m_training_output.begin() );
 }
@@ -174,7 +174,7 @@ const layer_ptr network_bnu_base::get_layer_ptr( const size_t layer_idx )
 {
     if ( layer_idx >= m_layers.size() )
     {
-        std::cerr << "network_bnu_base::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        LOGGER(error) << "network_bnu_base::get_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
@@ -191,11 +191,11 @@ void network_bnu_base::set_layer_ptr( const size_t layer_idx, const layer_ptr& l
 {
     if ( layer_idx >= m_layers.size() )
     {
-        std::cerr << "network_bnu_base::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
+        LOGGER(error) << "network_bnu_base::set_layer_ptr - cannot access layer " << layer_idx << std::endl;
         throw network_exception( "invalid layer index" );
     }
 
-    std::cout << "network_bnu_base::set_layer_ptr - setting layer  " << layer_idx << std::endl;
+    LOGGER(info) << "network_bnu_base::set_layer_ptr - setting layer  " << layer_idx << std::endl;
 
     matrixF& weights = m_layers[layer_idx].weights();
     std::copy( layer.weights.get(), layer.weights.get() + layer.num_weights, &weights.data()[0] );

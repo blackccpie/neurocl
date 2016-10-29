@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
+#include "common/logger.h"
 
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
@@ -55,7 +56,7 @@ void network_manager::load_network( const std::string& topology_path, const std:
 
     m_network_loaded = true;
 
-    std::cout << "network_manager::load_network - network loaded" << std::endl;
+    LOGGER(info) << "network_manager::load_network - network loaded" << std::endl;
 }
 
 void network_manager::save_network()

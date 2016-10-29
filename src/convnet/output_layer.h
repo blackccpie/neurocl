@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include "layer.h"
 
+#include "common/logger.h"
+
 namespace neurocl { namespace convnet {
 
 class output_layer : public layer
@@ -43,7 +45,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        std::cout << "populating output layer" << std::endl;
+        LOGGER(info) << "output_layer::populate - populating output layer" << std::endl;
 
         m_prev_layer = prev_layer;
 

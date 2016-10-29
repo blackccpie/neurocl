@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "network_interface.h"
 
 #include "common/network_exception.h"
+#include "common/logger.h"
 
 #include "common/portable_binary_archive/portable_binary_iarchive.hpp"
 #include "common/portable_binary_archive/portable_binary_oarchive.hpp"
@@ -72,14 +73,14 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 {
     if ( !bfs::exists( topology_path ) )
     {
-        std::cerr << "network_file_handler::load_network_topology - topology file \'" << topology_path << "\' doesn't exist" << std::endl;
+        LOGGER(error) << "network_file_handler::load_network_topology - topology file \'" << topology_path << "\' doesn't exist" << std::endl;
         throw network_exception( "error reading topology config file" );
     }
 
     std::ifstream topology( topology_path );
     if ( !topology || !topology.is_open() )
     {
-        std::cerr << "network_file_handler::load_network_topology - error opening topology file \'" << topology_path << "\'" << std::endl;
+        LOGGER(error) << "network_file_handler::load_network_topology - error opening topology file \'" << topology_path << "\'" << std::endl;
         throw "error opening topology config file";
     }
 
@@ -109,7 +110,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 
                 if ( !is_other_layer && !is_conv_layer )
             	{
-                	std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (missing elements)" << std::endl;
+                	LOGGER(error) << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (missing elements)" << std::endl;
                 	throw network_exception( "malformed line in topology file" );
             	}
 
@@ -122,13 +123,13 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
                 // for now index are supposed to be declared in increasing order...
                 if ( _idx != idx_layer )
                 {
-                    std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (wrong layer index)" << std::endl;
+                    LOGGER(error) << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (wrong layer index)" << std::endl;
                     throw network_exception( "malformed line in topology file" );
                 }
 
                 // TODO-CNN : implement layer topology ordering constraints check??
 
-                std::cout << "network_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z
+                LOGGER(info) << "network_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z
                     << ( ( _f != 0 ) ? ( ":" + boost::lexical_cast<std::string>( _f ) ) : "" ) << std::endl;
 
                 layers.push_back( layer_descr( _t, _x, _y, _z, _f ) );
@@ -142,7 +143,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
             }
             catch(...)
             {
-                std::cerr << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (an element is malformed)" << std::endl;
+                LOGGER(error) << "network_file_handler::load_network_topology - line " << cur_line << " is malformed (an element is malformed)" << std::endl;
                 throw network_exception( "malformed line in topology file" );
             }
 
@@ -182,7 +183,7 @@ void network_file_handler::load_network_weights( const std::string& weights_path
             for ( size_t i=0; i<m_layers; i++ )
             {
                 layer_storage l;
-                std::cout << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
+                LOGGER(info) << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
                 ia >> l;
 
                 layer_ptr lp( l.m_num_weights, l.m_weights, l.m_num_bias, l.m_bias );
@@ -191,14 +192,14 @@ void network_file_handler::load_network_weights( const std::string& weights_path
         }
         catch(...)
         {
-            std::cerr << "network_file_handler::load_network_weights - error decoding weights file" << std::endl;
+            LOGGER(error) << "network_file_handler::load_network_weights - error decoding weights file" << std::endl;
             throw network_exception( "error decoding weights file" );
         }
     }
     else
         throw network_exception( "unable to open weights file for loading" );
 
-        std::cout << "network_file_handler::load_network_weights - successfully loaded network weights" << std::endl;
+    LOGGER(info) << "network_file_handler::load_network_weights - successfully loaded network weights" << std::endl;
 }
 
 void network_file_handler::save_network_weights()
@@ -211,7 +212,7 @@ void network_file_handler::save_network_weights()
 
         for ( size_t i=0; i<m_net->count_layers(); i++ )
         {
-            std::cout << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
+            LOGGER(info) << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
             layer_ptr ptr = m_net->get_layer_ptr( i );
             layer_storage l( ptr.num_weights, ptr.weights, ptr.num_bias, ptr.bias );
             oar << l;
