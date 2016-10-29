@@ -24,33 +24,52 @@ THE SOFTWARE.
 
 #include "logger.h"
 
-file_log_policy::file_log_policy() : m_out_stream( new std::ofstream{} )
+// Implementation which allows to write into cout
+class cout_log_policy : public log_policy_interface
 {
-}
+public:
+	cout_log_policy() {}
+    virtual ~cout_log_policy() {}
+	void open_ostream( const std::string& name ) override {}
+	void close_ostream() override {}
+	void write( const std::string& msg ) override
+		{ std::cout << msg; }
 
-file_log_policy::~file_log_policy()
-{
-	if( m_out_stream )
-		close_ostream();
-}
+private:
+    std::unique_ptr<std::ofstream> m_out_stream;
+};
 
-void file_log_policy::open_ostream( const std::string& name )
+// Implementation which allows to write into a file
+class file_log_policy : public log_policy_interface
 {
-    m_out_stream->open( name.c_str(), std::ios_base::binary|std::ios_base::out );
-	if( !m_out_stream->is_open() )
-		throw( std::runtime_error( "LOGGER: Unable to open an output stream" ) );
-}
+public:
+	file_log_policy() : m_out_stream( new std::ofstream{} )
+	{
+	}
+    virtual ~file_log_policy()
+	{
+		if( m_out_stream )
+			close_ostream();
+	}
+	void open_ostream( const std::string& name ) override
+	{
+		m_out_stream->open( name.c_str(), std::ios_base::binary|std::ios_base::out );
+		if( !m_out_stream->is_open() )
+			throw( std::runtime_error( "LOGGER: Unable to open an output stream" ) );
+	}
+	void close_ostream() override
+	{
+		if( m_out_stream )
+			m_out_stream->close();
+	}
+	void write( const std::string& msg ) override
+	{
+		(*m_out_stream) << msg << std::endl;
+	}
 
-void file_log_policy::close_ostream()
-{
-	if( m_out_stream )
-		m_out_stream->close();
-}
-
-void file_log_policy::write( const std::string& msg )
-{
-	(*m_out_stream) << msg << std::endl;
-}
+private:
+    std::unique_ptr<std::ofstream> m_out_stream;
+};
 
 logger::logger( const policy_type& type, const std::string& name )
 {
@@ -72,7 +91,6 @@ logger::logger( const policy_type& type, const std::string& name )
 			break;
 	}
 
-	m_log_line_number = 0;
 	if( !m_policy )
 		throw std::runtime_error("LOGGER: Unable to create the logger instance");
 	m_policy->open_ostream( name );
@@ -80,7 +98,6 @@ logger::logger( const policy_type& type, const std::string& name )
 
 logger::logger( logger&& l )
 {
-	m_log_line_number = std::move( l.m_log_line_number );
     m_log_stream = std::move( l.m_log_stream );
 	m_policy = std::move( l.m_policy );
 }
@@ -89,6 +106,13 @@ logger::~logger()
 {
 	if( m_policy )
 		m_policy->close_ostream();
+}
+
+void logger::_print_impl( const std::string& msg )
+{
+	m_log_stream << msg;
+	m_policy->write( _get_logline_header() + m_log_stream.str() );
+	m_log_stream.str( "" );
 }
 
 std::string logger::_get_time()
@@ -106,15 +130,6 @@ std::string logger::_get_time()
 std::string logger::_get_logline_header()
 {
 	std::stringstream header;
-
-	header.str("");
-	header.fill('0');
-	header.width(7);
-	header << m_log_line_number++ << " < " << _get_time() << " - ";
-
-	header.fill('0');
-	header.width(7);
-	header << clock() <<" > ~ ";
-
+	header << " < " << _get_time() << " > ";
 	return header.str();
 }

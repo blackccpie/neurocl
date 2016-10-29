@@ -33,52 +33,9 @@ THE SOFTWARE.
 #include <sstream>
 #include <vector>
 
-//static logging::logger<logging::file_log_policy> log_inst( "execution.log" );
-
-#define LOG log_inst.print< logging::severity_type::debug >
-#define LOG_ERR log_inst.print< logging::severity_type::error >
-#define LOG_WARN log_inst.print< logging::severity_type::warning >
-
-class log_policy_interface
-{
-public:
-	virtual void open_ostream( const std::string& name ) = 0;
-	virtual void close_ostream() = 0;
-	virtual void write( const std::string& msg ) = 0;
-};
-
-// Implementation which allows to write into cout
-class cout_log_policy : public log_policy_interface
-{
-public:
-	cout_log_policy() {}
-    virtual ~cout_log_policy() {}
-	void open_ostream( const std::string& name ) override {}
-	void close_ostream() override {}
-	void write( const std::string& msg ) override
-		{ std::cout << msg; }
-
-private:
-    std::unique_ptr<std::ofstream> m_out_stream;
-};
-
-// Implementation which allows to write into a file
-class file_log_policy : public log_policy_interface
-{
-public:
-	file_log_policy();
-    virtual ~file_log_policy();
-	void open_ostream( const std::string& name ) override;
-	void close_ostream() override;
-	void write( const std::string& msg ) override;
-
-private:
-    std::unique_ptr<std::ofstream> m_out_stream;
-};
-
 enum class severity_type
 {
-	debug = 1,
+	info = 1,
 	error,
 	warning
 };
@@ -89,6 +46,14 @@ enum class policy_type
 	file
 };
 
+class log_policy_interface
+{
+public:
+	virtual void open_ostream( const std::string& name ) = 0;
+	virtual void close_ostream() = 0;
+	virtual void write( const std::string& msg ) = 0;
+};
+
 class logger
 {
 public:
@@ -96,20 +61,20 @@ public:
 	logger( logger&& l );
     virtual ~logger();
 
-	template<severity_type severity,typename...Args>
+	template<severity_type severity>
 	void print( const std::string& msg )
 	{
 		m_write_mutex.lock();
 		switch( severity )
 		{
-			case severity_type::debug:
-				m_log_stream << "| D |";
+			case severity_type::info:
+				m_log_stream << "| D | ";
 				break;
 			case severity_type::warning:
-				m_log_stream << "| W |";
+				m_log_stream << "| W | ";
 				break;
 			case severity_type::error:
-				m_log_stream << "| E |";
+				m_log_stream << "| E | ";
 				break;
 		};
 		_print_impl( msg );
@@ -119,22 +84,15 @@ public:
 private:
     std::string _get_time();
 	std::string _get_logline_header();
-
-	//Core printing functionality
-	void _print_impl( const std::string& msg )
-	{
-		m_log_stream << msg;
-		m_policy->write( _get_logline_header() + m_log_stream.str() );
-		m_log_stream.str( "" );
-	}
+	void _print_impl( const std::string& msg );
 
 private:
-	unsigned int m_log_line_number;
     std::stringstream m_log_stream;
 	std::unique_ptr<log_policy_interface> m_policy;
 	std::mutex m_write_mutex;
 };
 
+//! logger manager singleton
 class logger_manager
 {
 public:
