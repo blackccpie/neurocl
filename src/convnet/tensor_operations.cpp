@@ -379,18 +379,18 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
 
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
+        // update padded matrix
+        project(    padded_input.m(0,d2),
+                    range( _FmX, _FmX + input.w() ),
+                    range( _FmY, _FmY + input.h() ) )
+            = input.c_m(0,d2);
+
         for ( auto d1 = 0; d1 < filter.d1(); d1++ )
         {
             for ( auto j=0; j<stepsY; j++ )
             {
                 for ( auto i=0; i<stepsX; i++ )
                 {
-                    // update padded matrix
-                    project(    padded_input.m(0,d2),
-                                range( _FmX, _FmX + input.w() ),
-                                range( _FmY, _FmY + input.h() ) )
-                        = input.c_m(0,d2);
-
 					// multiply
                     matrixF conv = element_prod( filter.c_m(d1,d2),
                         project( padded_input.c_m(0,d2),
