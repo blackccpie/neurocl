@@ -68,6 +68,7 @@ public:
         size_t filter_total_size = m_filter_size * m_filter_size;
 
         m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, filter_total_size/*nin*/ );
+        m_filters_momentum.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
         m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
         m_bias.resize( width, height, 1, depth );
         m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
@@ -144,8 +145,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize<nto::optimize_mode::std>( solver, m_filters, m_filters_delta );
-        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_deltas_bias );
+        nto::optimize( solver, m_filters, m_filters_momentum, m_filters_delta );
+        nto::optimize_redux( solver, m_bias, m_deltas_bias );
     }
 
     // Fill weights
@@ -181,6 +182,7 @@ private:
     size_t m_filter_stride;
 
     tensor m_filters;
+    tensor m_filters_momentum;
     tensor m_filters_delta;
 
     tensor m_bias;

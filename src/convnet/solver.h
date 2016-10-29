@@ -46,20 +46,12 @@ public:
     }
 
     template<typename T>
-    void update_with_momentum( T& input, T& input_momentum, const T& gradient )
+    void update( T& input, T& input_momentum, const T& gradient )
     {
         auto invm = 1.f / static_cast<float>( m_set_size );
 
         input_momentum = ( m_momentum * input_momentum ) - m_learning_rate * ( invm * gradient + m_weight_decay * input );
         input += input_momentum;
-    }
-
-    template<typename T>
-    void update( T& input, const T& gradient )
-    {
-        auto invm = 1.f / static_cast<float>( m_set_size );
-
-        input -= m_learning_rate * ( invm * gradient + m_weight_decay * input );
     }
 
     template<typename T>
