@@ -26,6 +26,8 @@ THE SOFTWARE.
 #define LOGGER_H
 
 #include <string>
+#include <memory>
+#include <mutex>
 #include <iostream>
 #include <fstream>
 #include <sstream>
