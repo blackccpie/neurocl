@@ -89,7 +89,7 @@ public:
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
-    virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
+    virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override
     {
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }

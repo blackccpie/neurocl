@@ -33,7 +33,7 @@ THE SOFTWARE.
 namespace neurocl { namespace convnet {
 
 class layer;
-class optimizer;
+class solver;
 
 class network : public network_interface
 {
@@ -63,7 +63,7 @@ protected:
 
     size_t m_training_samples;
 
-	std::shared_ptr<optimizer> m_optimizer;
+	std::shared_ptr<solver> m_solver;
 
     std::vector<std::shared_ptr<layer>> m_layers;
 };

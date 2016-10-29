@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network.h"
-#include "optimizer.h"
+#include "solver.h"
 #include "conv_layer.h"
 #include "full_layer.h"
 #include "pool_layer.h"
@@ -45,12 +45,15 @@ network::network() : m_training_samples( 0 )
 {
     float learning_rate = 1.0f;
     float weight_decay = 0.f;
+    float momentum = 0.f;
 
     const network_config& nc = network_config::instance();
     nc.update_optional( "learning_rate", learning_rate );
+    nc.update_optional( "weight_decay", weight_decay );
+    nc.update_optional( "momentum", momentum );
 
-    // build optimizer given learning rate and weight decay
-    m_optimizer = std::make_shared<optimizer>( learning_rate, weight_decay );
+    // build solver given learning rate and weight decay
+    m_solver = std::make_shared<solver>( learning_rate, weight_decay, momentum );
 }
 
 void network::add_layers( const std::vector<layer_descr>& layers )
@@ -306,11 +309,11 @@ void network::back_propagate()
 
 void network::gradient_descent()
 {
-    m_optimizer->set_size( m_training_samples );
+    m_solver->set_size( m_training_samples );
 
     for ( auto _layer : m_layers )
     {
-        _layer->gradient_descent( m_optimizer );
+        _layer->gradient_descent( m_solver );
     }
 }
 

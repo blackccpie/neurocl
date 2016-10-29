@@ -22,26 +22,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef OPTIMIZER_H
-#define OPTIMIZER_H
+#ifndef SOLVER_H
+#define SOLVER_H
 
 #include "common/network_exception.h"
 
 namespace neurocl { namespace convnet {
 
-class optimizer
+/* Stochastic Gradient Descent solver implementation */
+class solver
 {
 public:
-    optimizer( const float learning_rate, const float weight_decay )
-        : m_learning_rate( learning_rate ), m_weight_decay( weight_decay ), m_set_size( 1 ) {}
-    virtual ~optimizer() {}
+    solver( const float learning_rate, const float weight_decay, const float momentum )
+        : m_set_size( 1 ), m_learning_rate( learning_rate ), m_weight_decay( weight_decay ), m_momentum( momentum ) {}
+    virtual ~solver() {}
 
     void set_size( const size_t& size )
     {
         if ( !size )
-            throw network_exception( "cannot set optimizer size to zero" );
+            throw network_exception( "cannot set solver size to zero" );
 
         m_set_size = size;
+    }
+
+    template<typename T>
+    void update_with_momentum( T& input, T& input_momentum, const T& gradient )
+    {
+        auto invm = 1.f / static_cast<float>( m_set_size );
+
+        input_momentum = ( m_momentum * input_momentum ) - m_learning_rate * ( invm * gradient + m_weight_decay * input );
+        input += input_momentum;
     }
 
     template<typename T>
@@ -64,10 +74,11 @@ private:
 
     size_t m_set_size;
 
-    float m_learning_rate; // [0.0..1.0]
-    float m_weight_decay; // [0.0..1.0]
+    float m_learning_rate;  // [0.0..1.0]
+    float m_weight_decay;   // [0.0..1.0]
+    float m_momentum;       // [0.0..1.0]
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //OPTIMIZER_H
+#endif //SOLVER_H

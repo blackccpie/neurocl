@@ -156,12 +156,12 @@ public:
         }
     }
 
-    virtual void gradient_descent( const std::shared_ptr<optimizer>& optimizer ) override
+    virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override
     {
         // Optimize gradients
 
-        nto::optimize<nto::optimize_mode::std>( optimizer, m_weights, m_deltas_weights );
-        nto::optimize<nto::optimize_mode::redux>( optimizer, m_bias, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, m_weights, m_deltas_weights );
+        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_deltas_bias );
     }
 
     // Fill weights

@@ -26,6 +26,8 @@ project (neurocl)
 # check boost version
 find_package(Boost 1.58.0 REQUIRED)
 
+# manage 1.58-legacy portable binary archive implementation
+# 1.58+ non-legacy implementation should work up to boost 1.62
 if (${Boost_MINOR_VERSION} STREQUAL "58")
     # Boost version == 1.58
     add_definitions(-DPORTABLE_BINARY_ARCHIVE_LEGACY)
@@ -58,6 +60,7 @@ include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 set (sources_list
 common/samples_manager.cpp
 common/network_factory.cpp
+common/logger.cpp
 
 common/portable_binary_archive/portable_binary_iarchive.cpp
 common/portable_binary_archive/portable_binary_oarchive.cpp
@@ -87,6 +90,7 @@ common/network_exception.h
 common/network_utils.h
 common/network_config.h
 common/iterative_trainer.h
+common/logger.h
 
 common/portable_binary_archive/portable_binary_archive.hpp
 common/portable_binary_archive/portable_binary_iarchive.hpp
@@ -104,7 +108,7 @@ convnet/conv_layer.h
 convnet/input_layer.h
 convnet/output_layer.h
 convnet/pool_layer.h
-convnet/optimizer.h
+convnet/solver.h
 convnet/tensor.h
 convnet/tensor_operations.h
 convnet/network.h
