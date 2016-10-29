@@ -189,7 +189,7 @@ void network::set_input(  const size_t& in_size, const float* in )
     if ( in_size > input_layer->size() )
         throw network_exception( "sample size exceeds allocated layer size!" );
 
-#ifdef VERBOSE_network
+#ifdef VERBOSE_NETWORK
     std::cout << "network::set_input - input (" << in << ") size = " << in_size << std::endl;
 #endif
 
@@ -205,7 +205,7 @@ void network::set_output( const size_t& out_size, const float* out )
     if ( out_size > output_layer->size() )
         throw network_exception( "output size exceeds allocated layer size!" );
 
-#ifdef VERBOSE_network
+#ifdef VERBOSE_NETWORK
     std::cout << "network::set_output - output (" << out << ") size = " << out_size << std::endl;
 #endif
 
@@ -290,7 +290,7 @@ void network::back_propagate()
 {
     for ( auto _layer : boost::adaptors::reverse( m_layers ) )
     {
-#ifdef VERBOSE_network
+#ifdef VERBOSE_NETWORK
         std::cout << "--> back propagating " << _layer->type() << " layer" << std::endl;
 #endif
         _layer->back_propagate();
@@ -298,7 +298,7 @@ void network::back_propagate()
 
     for ( auto _layer : m_layers )
     {
-#ifdef VERBOSE_network
+#ifdef VERBOSE_NETWORK
         std::cout << "--> updating gradients " << _layer->type() << " layer" << std::endl;
 #endif
         _layer->update_gradients();

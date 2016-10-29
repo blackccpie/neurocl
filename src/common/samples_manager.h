@@ -53,14 +53,14 @@ public:
         return m_samples_set.size();
     }
 
-    const std::vector<neurocl::sample>& get_samples() const
+    const std::vector<neurocl::sample>& get_samples() const noexcept
     {
         return m_samples_set;
     }
 
-    const std::vector<neurocl::sample> get_next_batch( const size_t size ) const;
+    const std::vector<neurocl::sample> get_next_batch( const size_t size ) const noexcept;
 
-    void rewind() const;
+    void rewind() const noexcept;
 
 private:
 

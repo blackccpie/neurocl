@@ -130,7 +130,7 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
         std::random_shuffle( m_samples_set.begin(), m_samples_set.end() );
 }
 
-const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size ) const
+const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size ) const noexcept
 {
     if ( m_end )
         return std::vector<neurocl::sample>();
@@ -149,7 +149,7 @@ const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t
     return std::vector<neurocl::sample>( begin, end );
 }
 
-void samples_manager::rewind() const
+void samples_manager::rewind() const noexcept
 {
     m_end = false;
     m_batch_index = 0;
