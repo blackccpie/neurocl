@@ -156,4 +156,9 @@ void samples_manager::rewind() const noexcept
     m_batch_index = 0;
 }
 
+void samples_manager::shuffle() const noexcept
+{
+    std::random_shuffle( m_samples_set.begin(), m_samples_set.end() );
+}
+
 }; //namespace neurocl

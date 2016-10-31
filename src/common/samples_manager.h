@@ -61,6 +61,7 @@ public:
     const std::vector<neurocl::sample> get_next_batch( const size_t size ) const noexcept;
 
     void rewind() const noexcept;
+    void shuffle() const noexcept;
 
 private:
 
@@ -74,7 +75,7 @@ private:
 
     std::vector< boost::shared_array<float> > m_input_samples;
     std::vector< boost::shared_array<float> > m_output_samples;
-    std::vector<neurocl::sample> m_samples_set;
+    mutable std::vector<neurocl::sample> m_samples_set;
 };
 
 } //namespace neurocl
