@@ -30,5 +30,6 @@ THE SOFTWARE.
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
 #include "common/iterative_trainer.h"
+#include "common/logger.h"
 
 #endif //NEUROCL_H

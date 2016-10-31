@@ -70,10 +70,14 @@ public:
         m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, filter_total_size/*nin*/ );
         m_filters_momentum.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
         m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+
         m_bias.resize( width, height, 1, depth );
         m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
+        m_bias_momentum.resize( width, height, 1, depth );
         m_deltas_bias.resize( width, height, 1, depth );
+
         m_feature_maps.resize( width, height, 1, depth );
+
         m_error_maps.resize( width, height, 1, depth );
     }
 
@@ -145,8 +149,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize( solver, m_filters, m_filters_momentum, m_filters_delta );
-        nto::optimize_redux( solver, m_bias, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, m_filters, m_filters_momentum, m_filters_delta );
+        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_momentum, m_deltas_bias );
     }
 
     // Fill weights
@@ -186,6 +190,7 @@ private:
     tensor m_filters_delta;
 
     tensor m_bias;
+    tensor m_bias_momentum;
     tensor m_deltas_bias;
 
     tensor m_feature_maps;

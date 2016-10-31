@@ -65,9 +65,13 @@ public:
         size_t prev_layer_size = k_group * prev_layer->width() * prev_layer->height();
 
         m_feature_maps.resize( width, height, 1, depth );
+
         m_error_maps.resize( width, height, 1, depth );
+
         m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
+        m_bias_momentum.resize( width, height, 1, depth );
         m_deltas_bias.resize( width, height, 1, depth );
+
         m_weights.resize( width * height, prev_layer_size, 1, depth, prev_layer_size/*nin*/ );
         m_weights_momentum.resize( width * height, prev_layer_size, 1, depth );
         m_deltas_weights.resize( width * height, prev_layer_size, 1, depth );
@@ -163,8 +167,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize( solver, m_weights, m_weights_momentum, m_deltas_weights );
-        nto::optimize_redux( solver, m_bias, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, m_weights, m_weights_momentum, m_deltas_weights );
+        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_momentum, m_deltas_bias );
     }
 
     // Fill weights
@@ -200,6 +204,7 @@ private:
     tensor m_error_maps;
 
     tensor m_bias;
+    tensor m_bias_momentum;
     tensor m_deltas_bias;
 
     tensor m_weights;

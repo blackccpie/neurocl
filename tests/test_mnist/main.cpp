@@ -39,6 +39,9 @@ int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to test_mnist!" << std::endl;
 
+    logger_manager& lm = logger_manager::instance();
+    lm.add_logger( policy_type::cout, "cout" );
+
     if ( argc == 1 )
     {
         std::cout << "Invalid arguments!" << std::endl;

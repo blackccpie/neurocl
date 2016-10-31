@@ -48,6 +48,12 @@ public:
         full
     };
 
+    enum class optimize_mode
+    {
+        std = 0,
+        redux
+    };
+
 public:
 
     // returns aB (scalar product)
@@ -99,7 +105,7 @@ public:
 
     static tensor uniform_sum( const tensor& input );
 
-    static void optimize_redux( const std::shared_ptr<solver>& solver, tensor& input, const tensor& deltas );
+    template<optimize_mode om>
     static void optimize( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas );
 };
 

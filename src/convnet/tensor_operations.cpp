@@ -558,12 +558,14 @@ tensor tensor_operation::uniform_sum( const tensor& input )
     return output;
 }
 
-void tensor_operation::optimize_redux( const std::shared_ptr<solver>& solver, tensor& input, const tensor& deltas )
+template<>
+void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
 {
-    solver->update_redux( input, deltas );
+    solver->update_redux( input, input_momentum, deltas );
 }
 
-void tensor_operation::optimize( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
+template<>
+void tensor_operation::optimize<tensor_operation::optimize_mode::std>( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
 {
     solver->update( input, input_momentum, deltas );
 }

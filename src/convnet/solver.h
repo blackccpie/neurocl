@@ -55,11 +55,12 @@ public:
     }
 
     template<typename T>
-    void update_redux( T& input, const T& gradient )
+    void update_redux( T& input, T& input_momentum, const T& gradient )
     {
         auto invm = 1.f / static_cast<float>( m_set_size );
 
-        input -= m_learning_rate * ( invm * gradient );
+        input_momentum = ( m_momentum * input_momentum ) - m_learning_rate * ( invm * gradient );
+        input += input_momentum;
     }
 
 private:
