@@ -144,10 +144,10 @@ void network_file_handler::load_network_weights( const std::string& weights_path
 
     if ( input_weights.is_open() )
     {
-        portable_binary_iarchive ia( input_weights, endian_little );
-
         try
         {
+        	portable_binary_iarchive ia( input_weights, endian_little );
+
             for ( size_t i=0; i<m_layers-1; i++ ) // output layer has no output weights
             {
                 layer_storage l;
@@ -158,9 +158,14 @@ void network_file_handler::load_network_weights( const std::string& weights_path
                 m_net->set_layer_ptr( i, lp );
             }
         }
+        catch( boost::archive::archive_exception& e )
+        {
+            LOGGER(error) << "network_file_handler::load_network_weights - error decoding weights file : " << e.what() << std::endl;
+            throw network_exception( "error decoding weights file" );
+        }
         catch(...)
         {
-            LOGGER(error) << "network_file_handler::load_network_weights - error decoding weights file" << std::endl;
+            LOGGER(error) << "network_file_handler::load_network_weights - unknown error decoding weights file" << std::endl;
             throw network_exception( "error decoding weights file" );
         }
     }
