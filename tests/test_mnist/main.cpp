@@ -24,9 +24,9 @@ THE SOFTWARE.
 
 #include "neurocl.h"
 
-#include <boost/chrono.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <chrono>
 #include <iostream>
 
 #define NEUROCL_EPOCH_SIZE 30
@@ -59,7 +59,7 @@ int main( int argc, char *argv[] )
 
         //************************* TRAINING *************************//
 
-        boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
+        std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
         //net_manager.dump_weights();
         //net_manager.dump_bias();
@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
         else
             net_manager->batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
-        boost::chrono::milliseconds duration_training = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - start );
+        std::chrono::milliseconds duration_training = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - start );
 
         // Dump weights for debugging purposes
         //net_manager.dump_weights();
@@ -78,7 +78,7 @@ int main( int argc, char *argv[] )
 
         //************************* TESTING *************************//
 
-        start = boost::chrono::system_clock::now();
+        start = std::chrono::system_clock::now();
 
         const std::vector<sample>& training_samples = smp_manager.get_samples();
 
@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
         	//std::cout << "TEST OUTPUT IS : " << tsample.output() << std::endl;
         }
 
-        boost::chrono::milliseconds duration_testing = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - start );
+        std::chrono::milliseconds duration_testing = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - start );
 
         mean_rmse /= static_cast<float>( training_samples.size() );
 

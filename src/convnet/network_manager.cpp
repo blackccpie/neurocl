@@ -30,8 +30,7 @@ THE SOFTWARE.
 #include "common/samples_manager.h"
 #include "common/logger.h"
 
-#include <boost/chrono.hpp>
-#include <boost/foreach.hpp>
+#include <chrono>
 
 //#define TRAIN_CHRONO
 
@@ -128,7 +127,7 @@ void network_manager::train( const std::vector<sample>& training_set )
 {
     size_t index = 0;
 
-    BOOST_FOREACH( const neurocl::sample& s, training_set )
+    for( auto& s : training_set )
     {
         //std::cout << "network_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 
@@ -141,9 +140,9 @@ void network_manager::train( const std::vector<sample>& training_set )
 void network_manager::_train( const sample& s )
 {
 #ifdef TRAIN_CHRONO
-    namespace bc = boost::chrono;
-    bc::system_clock::time_point start = bc::system_clock::now();
-    bc::milliseconds duration;
+    namespace sc = std::chrono;
+    sc::system_clock::time_point start = sc::system_clock::now();
+    sc::milliseconds duration;
 #endif
 
     // set input/output
@@ -155,7 +154,7 @@ void network_manager::_train( const sample& s )
     m_net->back_propagate();
 
 #ifdef TRAIN_CHRONO
-    duration = boost::chrono::duration_cast<bc::milliseconds>( bc::system_clock::now() - start );
+    duration = sc::duration_cast<sc::milliseconds>( sc::system_clock::now() - start );
     std::cout << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
 #endif
 }

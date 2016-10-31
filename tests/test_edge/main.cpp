@@ -24,7 +24,8 @@ THE SOFTWARE.
 
 #include "facetools/edge_detect.h"
 
-#include <boost/chrono.hpp>
+#include <chrono>
+#include <iostream>
 
 //#define USE_CCV_IMP
 
@@ -42,7 +43,7 @@ void run_test( const char* in )
     CImg<T> image_out1( image_in.width(), image_in.height(), 1, 1 );
     CImg<T> image_out2( image_in.width(), image_in.height(), 1, 1 );
 
-    boost::chrono::system_clock::time_point start = boost::chrono::system_clock::now();
+    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
 #ifdef USE_CCV_IMP
     sobel_ccv::process<T>( image_in, image_out1 );
@@ -50,11 +51,11 @@ void run_test( const char* in )
     sobel::process<T>( image_in, image_out1 );
 #endif
 
-    boost::chrono::microseconds duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
+    std::chrono::microseconds duration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::system_clock::now() - start );
 
     std::cout << "SOBEL EDGE DETECTION IN : " << duration.count() << "us" << std::endl;
 
-    start = boost::chrono::system_clock::now();
+    start = std::chrono::system_clock::now();
 
 #ifdef USE_CCV_IMP
     canny_ccv::process<T>( image_in, image_out2 );
@@ -63,7 +64,7 @@ void run_test( const char* in )
     can.process( image_in, image_out2 );
 #endif
 
-    duration = boost::chrono::duration_cast<boost::chrono::microseconds>( boost::chrono::system_clock::now() - start );
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::system_clock::now() - start );
 
     std::cout << "CANNY EDGE DETECTION IN : " << duration.count() << "us" << std::endl;
 
