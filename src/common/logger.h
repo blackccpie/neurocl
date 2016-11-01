@@ -85,6 +85,7 @@ private:
 	void _print_impl( const std::string& msg );
 
 private:
+	std::string m_name;
     std::stringstream m_log_stream;
 	std::unique_ptr<log_policy_interface> m_policy;
 	std::mutex m_write_mutex;
@@ -102,7 +103,7 @@ public:
 
 	void add_logger( const policy_type& type, const std::string& name )
 	{
-		m_loggers.emplace_back( logger( type, name ) );
+		m_loggers.emplace_back( logger{ type, name } );
 	}
 
 	bool empty_logger()

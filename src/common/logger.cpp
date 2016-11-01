@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "logger.h"
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 // Implementation which allows to write into cout
@@ -74,7 +75,7 @@ private:
     std::unique_ptr<std::ofstream> m_out_stream;
 };
 
-logger::logger( const policy_type& type, const std::string& name )
+logger::logger( const policy_type& type, const std::string& name ) : m_name( name )
 {
 	switch( type )
 	{
@@ -101,6 +102,7 @@ logger::logger( const policy_type& type, const std::string& name )
 
 logger::logger( logger&& l )
 {
+	m_name = std::move( l.m_name );
     m_log_stream = std::move( l.m_log_stream );
 	m_policy = std::move( l.m_policy );
 }
@@ -120,19 +122,17 @@ void logger::_print_impl( const std::string& msg )
 
 std::string logger::_get_time()
 {
-	std::string time_str;
-	time_t raw_time;
+	auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t( now );
 
-	time( & raw_time );
-	time_str = ctime( &raw_time );
-
-	//without the newline character
-	return time_str.substr( 0 , time_str.size() - 1 );
+    std::stringstream ss;
+    ss << std::put_time( std::localtime( &in_time_t ), "%X" );
+    return ss.str();
 }
 
 std::string logger::_get_logline_header()
 {
 	std::stringstream header;
-	header << " < " << _get_time() << " > ";
+	header << " | " << _get_time() << " | " << m_name << " ";
 	return header.str();
 }
