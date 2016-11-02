@@ -66,6 +66,110 @@ CImg<> get_line_sums( const CImg<>& input )
     return line_sums;
 }
 
+CImg<float> get_cropped_numbers( const CImg<float>& input )
+{
+    CImg<unsigned char> work( input );
+    CImg<unsigned char> work_edge( work );
+
+    sobel_ccv::process<unsigned char>( work, work_edge );
+
+    work_edge.normalize( 0, 255 );
+    work_edge.dilate( 2 );
+    work_edge.threshold( 40 );
+    //input_edge.display();
+
+    // Compute row sums image
+    CImg<unsigned char> row_sums = get_row_sums( work_edge );
+    row_sums.threshold( 5 );
+    //row_sums.display();
+
+    // Compute line sums image
+    CImg<unsigned char> line_sums = get_line_sums( work_edge );
+    line_sums.threshold( 5 );
+    //line_sums.display();
+
+    // Compute extraction coords
+    int startX = 0;
+    int stopX = 0;
+    cimg_forX( row_sums, x )
+    {
+        if ( row_sums(x) )
+        {
+            startX = x;
+            break;
+        }
+    }
+    cimg_forX( row_sums, x )
+    {
+        if ( row_sums( row_sums.width() - x - 1 ) )
+        {
+            stopX = row_sums.width() - x - 1;
+            break;
+        }
+    }
+
+    int startY = 0;
+    int stopY = 0;
+    cimg_forY( line_sums, y )
+    {
+        if ( line_sums(y) )
+        {
+            startY = y;
+            break;
+        }
+    }
+    cimg_forY( line_sums, y )
+    {
+        if ( line_sums( line_sums.height() - y - 1 ) )
+        {
+            stopY = line_sums.height() - y - 1;
+            break;
+        }
+    }
+
+    int margin = ( stopY - startY ) / 7; // empirical ratio...
+    startX -= 2 * margin;
+    startY -= margin;
+    stopX += 2 * margin;
+    stopY += margin;
+
+    //std::cout << margin << " / " << startX << " " << startY << " " << stopX << " " << stopY << std::endl;
+
+    CImg<float> cropped( input.get_crop( startX, startY, stopX, stopY ) );
+    cropped = 1.f - cropped;
+
+    return cropped;
+}
+
+int get_numbers_height( const CImg<float>& input )
+{
+    // Compute line sums image
+    CImg<unsigned char> line_sums = get_line_sums( input );
+    line_sums.threshold( 5 );
+    //line_sums.display();
+
+    int startY = 0;
+    int stopY = 0;
+    cimg_forY( line_sums, y )
+    {
+        if ( line_sums(y) )
+        {
+            startY = y;
+            break;
+        }
+    }
+    cimg_forY( line_sums, y )
+    {
+        if ( line_sums( line_sums.height() - y - 1 ) )
+        {
+            stopY = line_sums.height() - y - 1;
+            break;
+        }
+    }
+
+    return stopY - startY;
+}
+
 int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to test_ocr!" << std::endl;
@@ -79,81 +183,37 @@ int main( int argc, char *argv[] )
 
     try
     {
-        //std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
-        //net_manager->load_network( "../nets/mnist/topology-mnist2.txt", "../nets/mnist/weights-mnist2.bin" );
+        std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
+        net_manager->load_network( "../nets/mnist/topology-mnist2.txt", "../nets/mnist/weights-mnist2.bin" );
 
     	CImg<unsigned char> input( argv[1] );
-
         input.channel(0);
 
-        CImg<unsigned char> input_edge( input.width(), input.height(), 1, 1 );
+        CImg<float> cropped_numbers = get_cropped_numbers( input );
 
-        sobel_ccv::process<unsigned char>( input, input_edge );
+        float resize_ratio = get_numbers_height( cropped_numbers ) / 20.f; // approx 20px height in mnist images
 
-        input_edge.normalize( 0, 255 );
-        input_edge.dilate( 2 );
-        input_edge.threshold( 40 );
-        input_edge.display();
+        std::cout << resize_ratio << std::endl;
 
-        // Compute row sums image
-        CImg<unsigned char> row_sums = get_row_sums( input_edge );
-        row_sums.threshold( 5 );
-        row_sums.display();
+        cropped_numbers.resize( cropped_numbers.width() / resize_ratio,
+            cropped_numbers.height() / resize_ratio, -100, -100, 6 );
 
-        // Compute line sums image
-        CImg<unsigned char> line_sums = get_line_sums( input_edge );
-        line_sums.threshold( 5 );
-        line_sums.display();
+        cropped_numbers.normalize( 0, 255 );
+        auto_threshold( cropped_numbers );
 
-        // Compute extraction coords
-        int startX = 0;
-        int stopX = 0;
-        cimg_forX( row_sums, x )
-        {
-            if ( row_sums(x) )
+        cropped_numbers.display();
+
+        int nb_posX = cropped_numbers.width() - 28;
+        int nb_posY = cropped_numbers.height() - 28;
+
+        for ( int y=0; y<nb_posY; y++ )
+            for ( int x=0; x<nb_posX; x++ )
             {
-                startX = x;
-                break;
+                //float output[10] = { 0.f, 0.f };
+                //sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
+                //net_manager->compute_output( sample );
+                //std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
             }
-        }
-        cimg_forX( row_sums, x )
-        {
-            if ( row_sums( row_sums.width() - x - 1 ) )
-            {
-                stopX = row_sums.width() - x - 1;
-                break;
-            }
-        }
-
-        int startY = 0;
-        int stopY = 0;
-        cimg_forY( line_sums, y )
-        {
-            if ( line_sums(y) )
-            {
-                startY = y;
-                break;
-            }
-        }
-        cimg_forY( line_sums, y )
-        {
-            if ( line_sums( line_sums.height() - y - 1 ) )
-            {
-                stopY = line_sums.height() - y - 1;
-                break;
-            }
-        }
-
-        int margin = ( stopY - startY ) / 7; // empirical ratio...
-        startX -= margin;
-        startY -= margin;
-        stopX += margin;
-        stopY += margin;
-
-        std::cout << margin << " / " << startX << " " << startY << " " << stopX << " " << stopY << std::endl;
-
-        CImg<unsigned char> cropped = input.get_crop( startX, startY, stopX, stopY );
-        cropped.display();
     }
     catch( neurocl::network_exception& e )
     {
