@@ -66,7 +66,7 @@ public:
 		switch( severity )
 		{
 			case severity_type::info:
-				m_log_stream << "| D | ";
+				m_log_stream << "| I | ";
 				break;
 			case severity_type::warning:
 				m_log_stream << "| W | ";
