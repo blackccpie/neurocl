@@ -37,5 +37,6 @@ add_executable(test_ocr ${sources_list} ${headers_list})
 target_link_libraries(test_ocr
 neurocl
 facetools
+pthread
 ${extra_link_libs}
 )
