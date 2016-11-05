@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include <boost/python.hpp>
 
 #include <iostream>
+#include <functional>
 
 using namespace neurocl;
 
@@ -74,7 +75,7 @@ public:
         m_progress = 0;
 
         m_smp_manager.load_samples( samples );
-        m_net_manager->batch_train( m_smp_manager, epochs, batch, boost::bind( &py_neurocl_helper::_progress, this, _1 ) );
+        m_net_manager->batch_train( m_smp_manager, epochs, batch, std::bind( &py_neurocl_helper::_progress, this, std::placeholders::_1 ) );
     }
 
     int train_progress()

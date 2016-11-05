@@ -25,8 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_INTERFACE_H
 #define NETWORK_MANAGER_INTERFACE_H
 
-#include <boost/function.hpp>
-
+#include <functional>
 #include <vector>
 
 namespace neurocl {
@@ -38,7 +37,7 @@ class network_manager_interface
 {
 public:
 
-    using t_progress_fct = boost::function<void(int)>;
+    using t_progress_fct = std::function<void(int)>;
 
 public:
 
@@ -47,10 +46,10 @@ public:
 
     virtual void train( const sample& s ) = 0;
     virtual void train( const std::vector<sample>& training_set ) = 0;
-    virtual void batch_train(	const samples_manager& smp_manager,
-						const size_t& epoch_size,
-						const size_t& batch_size,
-						t_progress_fct progress_fct = t_progress_fct() ) = 0;
+    virtual void batch_train(   const samples_manager& smp_manager,
+                                const size_t& epoch_size,
+                                const size_t& batch_size,
+                                t_progress_fct progress_fct = t_progress_fct() ) = 0;
 
     // prepare gradient descent
     virtual void prepare_training_iteration() = 0;

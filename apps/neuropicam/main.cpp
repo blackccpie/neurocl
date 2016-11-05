@@ -446,7 +446,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	net_manager->batch_train( 	smp_manager,
 								100 /*epoch*/,
 								20 /*batch*/,
-								boost::bind( &progress, _1, my_display, display_image ) );
+								std::bind( &progress, std::placeholders::_1, my_display, display_image ) );
 }
 
 void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display, bool auto_trained )
