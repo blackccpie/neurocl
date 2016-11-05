@@ -28,8 +28,6 @@ THE SOFTWARE.
 #include "alpr.h"
 #include "plate_resolution.h"
 
-#include <boost/lexical_cast.hpp>
-
 #include <iostream>
 
 namespace alpr {
@@ -225,16 +223,16 @@ void license_plate::_compute_distance_map()
     const std::string plate = m_plate_resol.compute_results();
 
     m_input_plate.draw_rectangle( 0, 0, m_input_plate.width(), m_input_plate.height(), black, 0.5f );
-    std::string global_confidence = boost::lexical_cast<std::string>( (int)( 100 * m_plate_resol.global_confidence() ) ) + "%%";
+    std::string global_confidence = std::to_string( (int)( 100 * m_plate_resol.global_confidence() ) ) + "%%";
     m_input_plate.draw_text( 10, 10, global_confidence.c_str(), blue, 0, 1.f, 30 );
     int idx = 0;
-    BOOST_FOREACH( const t_letter_interval& interval, m_letter_intervals )
+    for( auto& interval : m_letter_intervals )
     {
         if ( idx >= plate.size() )
             continue;
 
         std::string item( 1, plate.at(idx) );
-        std::string item_confidence = boost::lexical_cast<std::string>( (int)( 100 * m_plate_resol.confidence( idx ) ) ) + "%%";
+        std::string item_confidence = std::to_string( (int)( 100 * m_plate_resol.confidence( idx ) ) ) + "%%";
         m_input_plate.draw_text( interval.second, 10, item.c_str(), green, 0, 1.f, 50 );
         m_input_plate.draw_text( interval.second, 70, item_confidence.c_str(), red, 0, 1.f, 15 );
         idx++;

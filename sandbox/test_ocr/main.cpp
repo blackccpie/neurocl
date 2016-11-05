@@ -148,7 +148,7 @@ void compute_ranges( const CImg<float>& input, std::vector<t_number_interval>& n
     CImg<float> row_sums = get_row_sums( input );
     row_sums.threshold( 2.f );
 
-    row_sums.display();
+    //row_sums.display();
 
     // Detect letter ranges
     size_t first = 0;
@@ -177,6 +177,66 @@ void compute_ranges( const CImg<float>& input, std::vector<t_number_interval>& n
     }
 }
 
+void center_number( CImg<float>& input )
+{
+    // Compute row sums image
+    CImg<float> row_sums = get_row_sums( input );
+    row_sums.threshold( 2.f );
+    //row_sums.display();
+
+    int startX, stopX;
+    bool last_val = false;
+    cimg_forX( row_sums, x )
+    {
+        bool cur_val = row_sums[x] > 0.f;
+
+        if ( cur_val != last_val )
+        {
+            if ( !last_val ) // ascending front
+                startX = x;
+            else //descending front
+            {
+                stopX = x;
+                break;
+            }
+        }
+        last_val = cur_val;
+    }
+
+    // Compute line sums image
+    CImg<float> line_sums = get_line_sums( input );
+    line_sums.threshold( 2.f );
+    //line_sums.display();
+
+    int startY, stopY;
+    last_val = false;
+    cimg_forY( line_sums, y )
+    {
+        bool cur_val = line_sums[y] > 0.f;
+
+        if ( cur_val != last_val )
+        {
+            if ( !last_val ) // ascending front
+                startY = y;
+            else //descending front
+            {
+                stopY = y;
+                break;
+            }
+        }
+        last_val = cur_val;
+    }
+
+    int max_dim = std::max( input.width(), input.height() );
+
+    input.crop( startX, startY, stopX, stopY);
+    input.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
+
+    //input.display();
+}
+
+unsigned char green[] = { 0,255,0 };
+unsigned char red[] = { 255,0,0 };
 
 int main( int argc, char *argv[] )
 {
@@ -192,7 +252,7 @@ int main( int argc, char *argv[] )
     try
     {
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
-        net_manager->load_network( "../nets/mnist/topology-mnist2.txt", "../nets/mnist/weights-mnist2.bin" );
+        net_manager->load_network( "../nets/mnist/topology-mnist-lenet.txt", "../nets/mnist/weights-mnist-lenet.bin" );
 
     	CImg<unsigned char> input( argv[1] );
         input.channel(0);
@@ -202,18 +262,26 @@ int main( int argc, char *argv[] )
         cropped_numbers.normalize( 0, 255 );
         auto_threshold( cropped_numbers );
 
-        cropped_numbers.display();
+        //cropped_numbers.display();
 
         std::vector<t_number_interval> number_intervals;
         compute_ranges( cropped_numbers, number_intervals );
 
         float output[10] = { 0.f };
 
+        CImg<float> cropped_numbers_res( cropped_numbers.width(), cropped_numbers.height(), 1, 3, 0 );
+        cimg_forXY( cropped_numbers, x, y )
+        {
+            cropped_numbers_res( x, y, 0 ) = cropped_numbers_res( x, y, 1 ) = cropped_numbers_res( x, y, 2 ) = cropped_numbers( x, y );
+        }
+        cropped_numbers_res.normalize( 0, 255 );
+
         for ( auto& ni : number_intervals )
         {
             CImg<float> cropped_number( cropped_numbers.get_columns( ni.first, ni.second ) );
-            int max_dim = std::max( cropped_number.width(), cropped_number.height() );
-            cropped_number.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
+
+            center_number( cropped_number );
+
             cropped_number.resize( 28, 28, -100, -100, 6 );
 
             sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
@@ -221,8 +289,15 @@ int main( int argc, char *argv[] )
 
             std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
-            cropped_number.display();
+            //cropped_number.display();
+
+            std::string item = std::to_string( sample.max_comp_idx() );
+            std::string item_confidence = std::to_string( (int)( 100 * sample.max_comp_val() ) ) + "%%";
+            cropped_numbers_res.draw_text( ni.first, 10, item.c_str(), green, 0, 1.f, 50 );
+            cropped_numbers_res.draw_text( ni.first, 70, item_confidence.c_str(), red, 0, 1.f, 15 );
         }
+
+        cropped_numbers_res.display();
     }
     catch( neurocl::network_exception& e )
     {
