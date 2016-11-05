@@ -141,34 +141,42 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     return cropped;
 }
 
-int get_numbers_height( const CImg<float>& input )
+using t_number_interval = std::pair<size_t,size_t>;
+void compute_ranges( const CImg<float>& input, std::vector<t_number_interval>& number_intervals )
 {
-    // Compute line sums image
-    CImg<unsigned char> line_sums = get_line_sums( input );
-    line_sums.threshold( 5 );
-    //line_sums.display();
+    // Compute row sums image
+    CImg<float> row_sums = get_row_sums( input );
+    row_sums.threshold( 2.f );
 
-    int startY = 0;
-    int stopY = 0;
-    cimg_forY( line_sums, y )
-    {
-        if ( line_sums(y) )
-        {
-            startY = y;
-            break;
-        }
-    }
-    cimg_forY( line_sums, y )
-    {
-        if ( line_sums( line_sums.height() - y - 1 ) )
-        {
-            stopY = line_sums.height() - y - 1;
-            break;
-        }
-    }
+    row_sums.display();
 
-    return stopY - startY;
+    // Detect letter ranges
+    size_t first = 0;
+    bool last_val = false;
+    cimg_forX( row_sums, x )
+    {
+        bool cur_val = row_sums[x] > 0.f;
+
+        if ( cur_val != last_val )
+        {
+            if ( !last_val ) // ascending front
+            {
+                first = x;
+            }
+            else //descending front
+            {
+                if ( first != 0 )
+                {
+                    std::cout << "detected interval " << first << " " << x << std::endl;
+                    number_intervals.push_back( std::make_pair( first, x ) );
+                    first = 0;
+                }
+            }
+        }
+        last_val = cur_val;
+    }
 }
+
 
 int main( int argc, char *argv[] )
 {
@@ -191,29 +199,30 @@ int main( int argc, char *argv[] )
 
         CImg<float> cropped_numbers = get_cropped_numbers( input );
 
-        float resize_ratio = get_numbers_height( cropped_numbers ) / 20.f; // approx 20px height in mnist images
-
-        std::cout << resize_ratio << std::endl;
-
-        cropped_numbers.resize( cropped_numbers.width() / resize_ratio,
-            cropped_numbers.height() / resize_ratio, -100, -100, 6 );
-
         cropped_numbers.normalize( 0, 255 );
         auto_threshold( cropped_numbers );
 
         cropped_numbers.display();
 
-        int nb_posX = cropped_numbers.width() - 28;
-        int nb_posY = cropped_numbers.height() - 28;
+        std::vector<t_number_interval> number_intervals;
+        compute_ranges( cropped_numbers, number_intervals );
 
-        for ( int y=0; y<nb_posY; y++ )
-            for ( int x=0; x<nb_posX; x++ )
-            {
-                //float output[10] = { 0.f, 0.f };
-                //sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
-                //net_manager->compute_output( sample );
-                //std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
-            }
+        float output[10] = { 0.f };
+
+        for ( auto& ni : number_intervals )
+        {
+            CImg<float> cropped_number( cropped_numbers.get_columns( ni.first, ni.second ) );
+            int max_dim = std::max( cropped_number.width(), cropped_number.height() );
+            cropped_number.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
+            cropped_number.resize( 28, 28, -100, -100, 6 );
+
+            sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
+            net_manager->compute_output( sample );
+
+            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
+
+            cropped_number.display();
+        }
     }
     catch( neurocl::network_exception& e )
     {
