@@ -32,7 +32,6 @@ THE SOFTWARE.
 
 #include "common/network_config.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace neurocl { namespace convnet {
@@ -74,7 +73,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             break;
         case CONV_LAYER:
             {
-                std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" + boost::lexical_cast<std::string>(++conv_idx) );
+                std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" + std::to_string(++conv_idx) );
                 c->set_filter_size( _layer.sizeF );
                 c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = c;
@@ -82,14 +81,14 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             break;
         case POOL_LAYER:
             {
-                std::shared_ptr<pool_layer> s = std::make_shared<pool_layer>( "s" + boost::lexical_cast<std::string>(++pool_idx) );
+                std::shared_ptr<pool_layer> s = std::make_shared<pool_layer>( "s" + std::to_string(++pool_idx) );
                 s->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = s;
             }
             break;
         case FULL_LAYER:
             {
-                std::shared_ptr<full_layer> f = std::make_shared<full_layer>( "f" + boost::lexical_cast<std::string>(++full_idx) );
+                std::shared_ptr<full_layer> f = std::make_shared<full_layer>( "f" + std::to_string(++full_idx) );
                 f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = f;
             }

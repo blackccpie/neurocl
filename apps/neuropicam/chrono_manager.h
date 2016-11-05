@@ -23,8 +23,6 @@ THE SOFTWARE.
 */
 
 #include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <chrono>
 #include <string>
@@ -54,12 +52,12 @@ public:
 	{
 		std::string summary = "";
 		using labelled_ms_t = std::pair<std::string,int>;
-		BOOST_FOREACH( const labelled_ms_t& lms, m_labelled_durations )
+		for( const auto& lms : m_labelled_durations )
 		{
 			summary += "|";
 			summary += lms.first;
 			summary += "=";
-			summary += boost::lexical_cast<std::string>( lms.second );
+			summary += std::to_string( lms.second );
 			summary += "ms|";
 		}
 		return summary;
@@ -75,7 +73,7 @@ public:
 	float framerate()
 	{
 		float mean_fps = 0.f;
-		BOOST_FOREACH( const int& period, m_frame_periods )
+		for( const auto& period : m_frame_periods )
 		{
 			mean_fps += 1000.f / static_cast<float>( period );
 		}

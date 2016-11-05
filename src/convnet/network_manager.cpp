@@ -127,7 +127,7 @@ void network_manager::train( const std::vector<sample>& training_set )
 {
     size_t index = 0;
 
-    for( auto& s : training_set )
+    for( const auto& s : training_set )
     {
         //std::cout << "network_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 

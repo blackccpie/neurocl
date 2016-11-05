@@ -130,7 +130,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
                 // TODO-CNN : implement layer topology ordering constraints check??
 
                 LOGGER(info) << "network_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z
-                    << ( ( _f != 0 ) ? ( ":" + boost::lexical_cast<std::string>( _f ) ) : "" ) << std::endl;
+                    << ( ( _f != 0 ) ? ( ":" + std::to_string( _f ) ) : "" ) << std::endl;
 
                 layers.push_back( layer_descr( _t, _x, _y, _z, _f ) );
 

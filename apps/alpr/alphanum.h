@@ -25,8 +25,6 @@ THE SOFTWARE.
 #ifndef ALPHANUM_H
 #define ALPHANUM_H
 
-#include <boost/foreach.hpp>
-
 #include <algorithm>
 #include <sstream>
 #include <vector>
@@ -78,7 +76,7 @@ public:
     const std::string bitset_string()
     {
         std::stringstream ss;
-        BOOST_FOREACH( const std::string& _c, *m_order )
+        for( const auto& _c : *m_order )
         {
             ss << ( ( _c == (*m_order)[m_index] ) ? "1" : "0" ) << " ";
         }

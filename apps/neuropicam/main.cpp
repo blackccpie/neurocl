@@ -125,8 +125,8 @@ struct face_result
         }
         if ( scores )
 			return str_type
-            + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
-            + boost::lexical_cast<std::string>( score2 ) + ")";
+            + "(" + std::to_string( score1 ) + ";"
+            + std::to_string( score2 ) + ")";
 		else
            return str_type;
     }
@@ -327,7 +327,7 @@ const std::string g_training_file_auto = "../nets/facecam/auto-train.txt";
 void progress( int percent, cimg_library::CImgDisplay& my_display, cimg_library::CImg<unsigned char>& display_image )
 {
 	display_image = (unsigned char)0;
-	draw_message( display_image, "NEURAL NETWORK TRAINING PROGRESS : " + boost::lexical_cast<std::string>( percent ) + "%", 20 );
+	draw_message( display_image, "NEURAL NETWORK TRAINING PROGRESS : " + std::to_string( percent ) + "%", 20 );
 	my_display.display( display_image );
 }
 
@@ -420,7 +420,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 				auto_train_file << face_files.last_path() << " " << scores[u] << std::endl;
 
-				draw_metadata( display_image, faces, users[u] + " - " + boost::lexical_cast<std::string>( user_faces+1 ) );
+				draw_metadata( display_image, faces, users[u] + " - " + std::to_string( user_faces+1 ) );
 
 				my_display.display( display_image );
 

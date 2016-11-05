@@ -226,7 +226,7 @@ void license_plate::_compute_distance_map()
     std::string global_confidence = std::to_string( (int)( 100 * m_plate_resol.global_confidence() ) ) + "%%";
     m_input_plate.draw_text( 10, 10, global_confidence.c_str(), blue, 0, 1.f, 30 );
     int idx = 0;
-    for( auto& interval : m_letter_intervals )
+    for( const auto& interval : m_letter_intervals )
     {
         if ( idx >= plate.size() )
             continue;

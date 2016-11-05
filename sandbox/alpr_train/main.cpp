@@ -26,8 +26,6 @@ THE SOFTWARE.
 
 #include <boost/assign/list_of.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/range/iterator_range.hpp>
 
 using namespace std;
@@ -64,7 +62,7 @@ public:
         size_t _index = std::distance( m_order.begin(), iter );
 
         std::stringstream ss;
-        BOOST_FOREACH( const std::string& _c, m_order )
+        for( const auto& _c : m_order )
         {
             ss << ( ( _c == m_order[_index] ) ? "1" : "0" ) << " ";
         }
@@ -92,7 +90,7 @@ int _main1( int argc, char *argv[] )
         typedef std::pair<std::string,std::string> string_pairs;
         std::vector<string_pairs> files;
 
-        for( auto& entry : boost::make_iterator_range( recursive_directory_iterator( p ), {} ) )
+        for( const auto& entry : boost::make_iterator_range( recursive_directory_iterator( p ), {} ) )
         {
             if ( extension( entry ) == ".png" )
                 files.push_back( std::make_pair( entry.path().string(), entry.path().stem().string() ) );
@@ -102,7 +100,7 @@ int _main1( int argc, char *argv[] )
 
         alphanum_output ao( v_alphanum_order );
 
-        BOOST_FOREACH( const string_pairs& _pair, files )
+        for( const auto& _pair, files )
         {
             out << _pair.first << " " << ao.output( _pair.second ) << std::endl;
         }
@@ -132,14 +130,14 @@ int _main2( int argc, char *argv[] )
 
     int idx = 0;
 
-    for( auto& entry : boost::make_iterator_range( recursive_directory_iterator( p_in ), {} ) )
+    for( const auto& entry : boost::make_iterator_range( recursive_directory_iterator( p_in ), {} ) )
     {
         if ( extension( entry ) == ".png" )
         {
             cimg_library::CImg<float> _img( entry.path().string().c_str() );
             _img.dilate( 2 );
 
-            std::string _out_stem = entry.path().stem().string() + boost::lexical_cast<std::string>( idx++ ) + ".png";
+            std::string _out_stem = entry.path().stem().string() + std::to_string( idx++ ) + ".png";
             std::string _out = p_out.string() + "/" + _out_stem;
 
             _img.save( _out.c_str() );
@@ -152,7 +150,7 @@ int _main2( int argc, char *argv[] )
 
     alphanum_output ao( v_alphanum_order );
 
-    BOOST_FOREACH( const string_pairs& _pair, files )
+    for( const auto& _pair : files )
     {
         out << _pair.first << " " << ao.output( _pair.second ) << std::endl;
     }
@@ -185,7 +183,7 @@ int _main3( int argc, char *argv[] )
         typedef std::pair<std::string,std::string> string_pairs;
         std::vector<string_pairs> files;
 
-        for( auto& entry : boost::make_iterator_range( recursive_directory_iterator( p ), {} ) )
+        for( const auto& entry : boost::make_iterator_range( recursive_directory_iterator( p ), {} ) )
         {
             if ( extension( entry ) == ".png" )
                 files.push_back( std::make_pair( entry.path().string(), entry.path().stem().string() ) );
@@ -196,7 +194,7 @@ int _main3( int argc, char *argv[] )
         alphanum_output ao_num( v_numbers_order );
         alphanum_output ao_let( v_letters_order );
 
-        BOOST_FOREACH( const string_pairs& _pair, files )
+        for( const auto& _pair : files )
         {
             std::string letter = _pair.second.substr( 0, 1 );
 

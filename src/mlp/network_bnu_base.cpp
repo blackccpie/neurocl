@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "common/network_exception.h"
 #include "common/network_utils.h"
 
-#include <boost/foreach.hpp>
 #include <boost/optional.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
@@ -73,7 +72,7 @@ void random_normal_init( T& container, const float stddev = 1.f )
 {
     utils::rand_gaussian_generator rgg( 0.f, stddev );
 
-    BOOST_FOREACH( float& element, container.data() )
+    for( auto& element : container.data() )
     {
         element = rgg();
     }
@@ -228,7 +227,7 @@ const std::string network_bnu_base::dump_weights()
 {
     std::stringstream ss;
     ss << "*************************************************" << std::endl;
-    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    for( const auto& layer : m_layers )
     {
         ss << layer.dump_weights();
         ss << "-------------------------------------------------" << std::endl;
@@ -241,7 +240,7 @@ const std::string network_bnu_base::dump_bias()
 {
     std::stringstream ss;
     ss << "*************************************************" << std::endl;
-    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    for( const auto& layer : m_layers )
     {
         ss << layer.dump_bias();
         ss << "-------------------------------------------------" << std::endl;
@@ -254,7 +253,7 @@ const std::string network_bnu_base::dump_activations()
 {
     std::stringstream ss;
     ss << "*************************************************" << std::endl;
-    BOOST_FOREACH( const layer_bnu& layer, m_layers )
+    for( const auto& layer : m_layers )
     {
         ss << layer.dump_activations();
         ss << "-------------------------------------------------" << std::endl;

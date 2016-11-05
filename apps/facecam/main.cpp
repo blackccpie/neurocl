@@ -81,8 +81,8 @@ struct face_result
             break;
         }
         return str_type
-            + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
-            + boost::lexical_cast<std::string>( score2 ) + ")";
+            + "(" + std::to_string( score1 ) + ";"
+            + std::to_string( score2 ) + ")";
     }
 
     face_type type;

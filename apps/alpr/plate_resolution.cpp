@@ -24,7 +24,6 @@ THE SOFTWARE.
 
 #include "plate_resolution.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 
 #include <iostream>
@@ -180,7 +179,7 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
 
     unsigned char green[] = { 0,255,0 };
     std::string label = alphanum( candidate_max_comp_idx, type ).string() + " "
-        + boost::lexical_cast<std::string>( candidate_max_comp_val );
+        + std::to_string( candidate_max_comp_val );
     disp_image.draw_text( 5, 5, label.c_str(), green );
     disp_image.display();
 #endif
@@ -201,7 +200,7 @@ const std::string plate_resolution::_dump_plate()
 {
     std::string plate_string = "";
 
-    BOOST_FOREACH( const segment_status& status, m_segment_status )
+    for( const auto& status : m_segment_status )
     {
         plate_string += status.identified_segment();
     }
@@ -212,7 +211,7 @@ const std::string plate_resolution::_dump_plate()
 const float plate_resolution::global_confidence()
 {
     float global_confidence = 0.f;
-    BOOST_FOREACH( const segment_status& status, m_segment_status )
+    for( const auto& status : m_segment_status )
     {
         global_confidence += status.confidence();
     }

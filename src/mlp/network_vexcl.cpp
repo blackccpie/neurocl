@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "common/network_exception.h"
 #include "common/network_utils.h"
 
-#include <boost/foreach.hpp>
 #include <boost/shared_array.hpp>
 
 namespace neurocl { namespace mlp {
@@ -331,7 +330,7 @@ const std::string network_vexcl::dump_bias()
 {
     std::stringstream ss;
     ss << "*************************************************" << std::endl;
-    BOOST_FOREACH( const layer_vexcl& layer, m_layers )
+    for( const auto& layer : m_layers )
     {
         ss << layer.dump_bias();
         ss << "-------------------------------------------------" << std::endl;
@@ -344,7 +343,7 @@ const std::string network_vexcl::dump_activations()
 {
     std::stringstream ss;
     ss << "*************************************************" << std::endl;
-    BOOST_FOREACH( const layer_vexcl& layer, m_layers )
+    for( const auto& layer : m_layers )
     {
         ss << layer.dump_activations();
         ss << "-------------------------------------------------" << std::endl;
