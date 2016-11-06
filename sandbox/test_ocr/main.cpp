@@ -227,12 +227,14 @@ void center_number( CImg<float>& input )
         last_val = cur_val;
     }
 
-    int max_dim = std::max( input.width(), input.height() );
+    //int max_dim = std::max( input.width(), input.height() );
+    int max_dim = ( 5 * std::max( stopX - startX, stopY - startY ) ) / 4;
 
     input.crop( startX, startY, stopX, stopY);
     input.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
+    input.normalize( 0.f, 1.f );
 
-    //input.display();
+    input.display();
 }
 
 unsigned char green[] = { 0,255,0 };
