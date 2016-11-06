@@ -245,7 +245,7 @@ const output_ptr network_vexcl::output()
     return l;
 }
 
-void network_vexcl::prepare_training()
+void network_vexcl::clear_gradients()
 {
     // Clear gradients
     for ( size_t i=0; i<m_layers.size()-1; i++ )

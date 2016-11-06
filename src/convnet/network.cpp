@@ -262,11 +262,11 @@ const output_ptr network::output()
     return o;
 }
 
-void network::prepare_training()
+void network::clear_gradients()
 {
     for ( auto _layer : m_layers )
     {
-        _layer->prepare_training();
+        _layer->clear_gradients();
     }
 
     m_training_samples = 0;

@@ -87,7 +87,7 @@ public:
     void set_input(  const size_t& in_size, const float* in );
     void set_output( const size_t& out_size, const float* out );
 
-    void prepare_training();
+    void clear_gradients();
 
     // pure compute-critic virtuals to be implemented in inherited classes
     virtual void feed_forward() = 0;

@@ -91,12 +91,6 @@ public:
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void prepare_training() override
-    {
-        m_filters_delta.clear();
-        m_deltas_bias.clear();
-    }
-
     virtual void feed_forward() override
     {
         m_feature_maps = nto::convolve_add_forward<nto::kernel_mode::flip,nto::pad_mode::valid>(
@@ -143,6 +137,12 @@ public:
 
         m_filters_delta += grad / static_cast<float>( m_filters_delta.d2() );
         m_deltas_bias += nto::uniform_sum( m_error_maps );
+    }
+
+	virtual void clear_gradients() override
+    {
+        m_filters_delta.clear();
+        m_deltas_bias.clear();
     }
 
     virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override

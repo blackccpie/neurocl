@@ -67,10 +67,10 @@ public:
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void prepare_training() override { /*NOTHING TO DO YET*/ }
     virtual void feed_forward() override { /*NOTHING TO DO YET*/ }
     virtual void back_propagate() override { /*NOTHING TO DO YET*/ }
     virtual void update_gradients() override { /*NOTHING TO DO YET*/ }
+    virtual void clear_gradients() override { /*NOTHING TO DO YET*/ }
     virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override { /*NOTHING TO DO YET*/ }
 
     // Fill weights

@@ -90,7 +90,7 @@ void network_manager::save_network()
 
 void network_manager::prepare_training_iteration()
 {
-    m_net->prepare_training();
+    m_net->clear_gradients();
 }
 
 void network_manager::finalize_training_iteration()

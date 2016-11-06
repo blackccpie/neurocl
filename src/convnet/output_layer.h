@@ -95,12 +95,6 @@ public:
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void prepare_training() override
-    {
-        m_deltas_weights.clear();
-        m_deltas_bias.clear();
-    }
-
     virtual void feed_forward() override
     {
         // TODO-CNN : no grouping managed yet!
@@ -144,6 +138,12 @@ public:
     {
         m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
         m_deltas_bias += m_error_maps;
+    }
+
+	virtual void clear_gradients() override
+    {
+        m_deltas_weights.clear();
+        m_deltas_bias.clear();
     }
 
     virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override

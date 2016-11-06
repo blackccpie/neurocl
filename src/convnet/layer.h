@@ -51,10 +51,10 @@ public:
 
     virtual const tensor& feature_maps() const = 0;
 
-    virtual void prepare_training() = 0;
     virtual void feed_forward() = 0;
     virtual void back_propagate() = 0;
     virtual void update_gradients() = 0;
+    virtual void clear_gradients() = 0;
     virtual void gradient_descent( const std::shared_ptr<solver>& solver ) = 0;
 
     // Fill weights

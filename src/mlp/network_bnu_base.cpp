@@ -211,7 +211,7 @@ const output_ptr network_bnu_base::output()
     return o;
 }
 
-void network_bnu_base::prepare_training()
+void network_bnu_base::clear_gradients()
 {
     // Clear gradients
     for ( size_t i=0; i<m_layers.size()-1; i++ )

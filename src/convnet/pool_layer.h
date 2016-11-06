@@ -69,11 +69,6 @@ public:
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void prepare_training() override
-    {
-
-    }
-
     virtual void feed_forward() override
     {
         m_feature_maps = nto::subsample( m_prev_layer->feature_maps(), m_subsample );
@@ -87,6 +82,11 @@ public:
     virtual void update_gradients() override
     {
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
+    }
+
+	virtual void clear_gradients() override
+    {
+		// NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
     virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override

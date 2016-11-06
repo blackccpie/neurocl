@@ -81,9 +81,9 @@ public:
     void set_input(  const size_t& in_size, const float* in );
     void set_output( const size_t& out_size, const float* out );
 
-    void feed_forward();
+	void clear_gradients();
 
-    void prepare_training();
+    void feed_forward();
     void back_propagate();
     void gradient_descent();
 
