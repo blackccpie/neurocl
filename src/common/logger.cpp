@@ -28,6 +28,21 @@ THE SOFTWARE.
 #include <iomanip>
 #include <fstream>
 
+namespace std
+{
+#ifndef put_time
+// put_time not available until gcc 5 :-(
+// http://stackoverflow.com/questions/37421747/is-there-a-builtin-alternative-to-stdput-time-for-gcc-5
+std::string put_time( const std::tm* tmb, const char* fmt )
+{
+	char _time[24];
+	if ( strftime( _time, sizeof(_time), fmt, tmb ) > 0 )
+		return _time;
+	else return "undefined";
+}
+#endif
+}
+
 // Implementation which allows to write into cout
 class cout_log_policy : public log_policy_interface
 {
@@ -102,9 +117,23 @@ logger::logger( const policy_type& type, const std::string& name ) : m_name( nam
 
 logger::logger( logger&& l )
 {
-	m_name = std::move( l.m_name );
-    m_log_stream = std::move( l.m_log_stream );
+#if defined __GNUC__ && !defined __clang__
+	#include <features.h>
+	#if __GNUC_PREREQ(5,0)
+		m_log_stream = std::move( l.m_log_stream );
+	#else
+		// ugly code section :-(
+		// related to GCC bug:
+		// http://stackoverflow.com/questions/27152263/move-or-swap-a-stringstream
+		m_log_stream.clear();
+		m_log_stream.str( l.m_log_stream.str() );
+		l.m_log_stream.clear();
+	#endif
+#else // clang or gcc 5.0+
+	m_log_stream = std::move( l.m_log_stream );
+#endif
 	m_policy = std::move( l.m_policy );
+	m_name = std::move( l.m_name );
 }
 
 logger::~logger()
