@@ -89,6 +89,38 @@ int main( int argc, char *argv[] )
 
     std::cout << "d_sig test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
+    // RELU
+
+    Res.uniform_fill( 1.f );
+    Comp.uniform_fill( 1.f );
+
+    nto::relu( Res );
+
+    std::cout << "relu test1 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    Res.uniform_fill( -1.f );
+    Comp.uniform_fill( 0.f );
+
+    nto::relu( Res );
+
+    std::cout << "relu test2 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    // D_RELU
+
+    A.uniform_fill( 2.f );
+    Comp.uniform_fill( 1.f );
+
+    Res = nto::d_relu( A );
+
+    std::cout << "d_relu test1 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    A.uniform_fill( -1.f );
+    Comp.uniform_fill( 0.f );
+
+    Res = nto::d_relu( A );
+
+    std::cout << "d_relu test2 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
     // INCREMENT
 
     A.uniform_fill( 1.f );
