@@ -27,14 +27,16 @@ THE SOFTWARE.
 
 #include "common/network_exception.h"
 
+#include <cmath>
+
 namespace neurocl { namespace convnet {
 
 /* Stochastic Gradient Descent solver implementation */
 class solver
 {
 public:
-    solver( const float learning_rate, const float weight_decay, const float momentum )
-        : m_set_size( 1 ), m_learning_rate( learning_rate ), m_weight_decay( weight_decay ), m_momentum( momentum ) {}
+    solver( const float alpha, const float lambda, const float mu )
+        : m_set_size( 1 ), m_alpha( alpha ), m_lambda( lambda ), m_mu( mu ) {}
     virtual ~solver() {}
 
     void set_size( const size_t& size )
@@ -50,7 +52,7 @@ public:
     {
         auto invm = 1.f / static_cast<float>( m_set_size );
 
-        input_momentum = ( m_momentum * input_momentum ) - m_learning_rate * ( invm * gradient + m_weight_decay * input );
+        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( invm * gradient + m_lambda * input );
         input += input_momentum;
     }
 
@@ -59,7 +61,7 @@ public:
     {
         auto invm = 1.f / static_cast<float>( m_set_size );
 
-        input_momentum = ( m_momentum * input_momentum ) - m_learning_rate * ( invm * gradient );
+        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( invm * gradient );
         input += input_momentum;
     }
 
@@ -67,9 +69,30 @@ private:
 
     size_t m_set_size;
 
-    float m_learning_rate;  // [0.0..1.0]
-    float m_weight_decay;   // [0.0..1.0]
-    float m_momentum;       // [0.0..1.0]
+    float m_alpha;  // learning rate
+    float m_lambda; // weight decay
+    float m_mu;     //momentum
+};
+
+/* RMSprop solver implementation */
+class solver_rms_prop
+{
+public:
+    solver_rms_prop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f ) {}
+    virtual ~solver_rms_prop() {}
+
+    template<typename T>
+    void update( T& input, T& input_momentum, const T& gradient )
+    {
+        input_momentum = m_mu * input_momentum + ( 1 - m_mu ) * gradient * gradient;
+        input -= m_alpha * gradient / std::sqrt( input_momentum + m_eps );
+    }
+
+private:
+
+    float m_mu;         // decay term
+    float m_alpha;      // learning rate
+    const float m_eps;  // constant value to avoid zero-division
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
