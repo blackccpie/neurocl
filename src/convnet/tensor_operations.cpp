@@ -295,6 +295,32 @@ tensor tensor_operation::d_sig( const tensor& input )
     return output;
 }
 
+void tensor_operation::relu( tensor& input )
+{
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        std::for_each(  input.m(d1,d2).data().begin(),
+                        input.m(d1,d2).data().end(),
+                        []( float& a) { a = std::max( 0.f, a ); } );
+    }
+}
+
+tensor tensor_operation::d_relu( const tensor& input )
+{
+    using namespace boost::numeric::ublas;
+
+    tensor output;
+    output.resize( input );
+
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        output.m(d1,d2) = input.c_m(d1,d2);
+        std::for_each(  output.m(d1,d2).data().begin(),
+                        output.m(d1,d2).data().end(),
+                        []( float& a) { a = ( a > 0.f ) * 1.f; } );
+    }
+
+    return output;
+}
+
 struct flipper
 {
     flipper( int sx, int sy ) { m_flipped = matrixF(sx,sy); }

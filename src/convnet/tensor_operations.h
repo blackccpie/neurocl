@@ -87,8 +87,10 @@ public:
     static tensor multrans2( const tensor& inputA, const tensor& inputB );
 
     static void sig( tensor& input );
-
     static tensor d_sig( const tensor& input );
+
+    static void relu( tensor& input );
+    static tensor d_relu( const tensor& input );
 
     template<kernel_mode km, pad_mode pm>
     static tensor convolve_add_forward( const tensor& input, const tensor& filter, const int stride );
