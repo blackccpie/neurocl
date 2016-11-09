@@ -96,10 +96,9 @@ public:
         m_feature_maps = nto::convolve_add_forward<nto::kernel_mode::flip,nto::pad_mode::valid>(
             m_prev_layer->feature_maps(),
             m_filters,
-            m_filter_stride );
+        	m_filter_stride ) + m_bias;
 
-        m_feature_maps += m_bias;
-
+		// could be computed in next pooling layer if present for reduced computation
         nto::sig( m_feature_maps );
     }
 

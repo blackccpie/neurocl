@@ -150,17 +150,10 @@ public:
     // operators overload
     tensor operator +=( const tensor& other );
     tensor operator -=( const tensor& other );
+    tensor operator *( const float val );
     tensor operator /( const float val );
-    bool operator ==( const tensor& other ) const
-    {
-        tensor_foreach() {
-            if ( !boost::numeric::ublas::detail::equals(
-                m_tensor_array[d1][d2], other.m_tensor_array[d1][d2],
-                std::numeric_limits<matrixF::value_type>::epsilon(), std::numeric_limits<matrixF::value_type>::min() ) )
-                return false;
-        }
-        return true;
-    }
+    tensor operator +( const float val );
+    bool operator ==( const tensor& other ) const;
 
     void uniform_fill( const float& val );
     void uniform_fill_random( const float& stddev );

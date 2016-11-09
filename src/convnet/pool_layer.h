@@ -76,7 +76,15 @@ public:
 
     virtual void back_propagate() override
     {
-        m_prev_layer->error_maps() = nto::d_subsample( m_error_maps, m_prev_layer->feature_maps(), m_subsample );
+        const tensor& prev_feature_maps = m_prev_layer->feature_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps();
+
+        // Compute errors
+
+        prev_error_maps = nto::d_subsample(
+            m_error_maps,
+            prev_feature_maps,
+            m_subsample );
     }
 
     virtual void update_gradients() override

@@ -133,6 +133,16 @@ tensor tensor::operator -=( const tensor& other )
 }
 
 // TODO-CNN : write rvalue ref equivalent
+tensor tensor::operator *( const float val )
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] *= val;
+    }
+
+    return std::move(*this);
+}
+
+// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator /( const float val )
 {
     tensor_foreach() {
@@ -140,6 +150,27 @@ tensor tensor::operator /( const float val )
     }
 
     return std::move(*this);
+}
+
+// TODO-CNN : write rvalue ref equivalent
+tensor tensor::operator +( const float val )
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] += boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
+    }
+
+    return std::move(*this);
+}
+
+bool tensor::operator ==( const tensor& other ) const
+{
+    tensor_foreach() {
+        if ( !boost::numeric::ublas::detail::equals(
+            m_tensor_array[d1][d2], other.m_tensor_array[d1][d2],
+            std::numeric_limits<matrixF::value_type>::epsilon(), std::numeric_limits<matrixF::value_type>::min() ) )
+            return false;
+    }
+    return true;
 }
 
 void tensor::fill(  const size_t d1,

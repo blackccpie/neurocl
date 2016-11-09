@@ -71,10 +71,13 @@ public:
     // ungroups input matrix into multiple ones
     static void ungroup( const tensor& input, tensor& output );
 
-    // returns A.B (standard product)
-    static tensor elemul( const tensor& inputA, const tensor& inputB );
+    // returns A/B (element division)
+    static tensor elediv( const tensor& inputA, const tensor& inputB );
 
     // returns A.B (element product)
+    static tensor elemul( const tensor& inputA, const tensor& inputB );
+
+    // returns A.B (standard product)
     static tensor mul( const tensor& inputA, const tensor& inputB );
 
     // returns A.B + C
@@ -85,6 +88,9 @@ public:
 
     // returns A.trans(B)
     static tensor multrans2( const tensor& inputA, const tensor& inputB );
+
+    // returns element wise square root
+    static tensor sqrt( const tensor& input );
 
     static void sig( tensor& input );
     static tensor d_sig( const tensor& input );
@@ -124,6 +130,16 @@ inline tensor operator+( const tensor& t1, const tensor& t2 )
 inline tensor operator-( const tensor& t1, const tensor& t2 )
 {
     return std::move( tensor_operation::sub( t1, t2 ) );
+};
+
+inline tensor operator*( const tensor& t1, const tensor& t2 )
+{
+    return std::move( tensor_operation::elemul( t1, t2 ) );
+};
+
+inline tensor operator/( const tensor& t1, const tensor& t2 )
+{
+    return std::move( tensor_operation::elediv( t1, t2 ) );
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
