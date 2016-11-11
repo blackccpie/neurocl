@@ -50,7 +50,9 @@ network::network() : m_training_samples( 0 )
     nc.update_optional( "momentum", momentum );
 
     // build solver given learning rate and weight decay
-    m_solver = std::make_shared< tensor_solver<solver_sgd> >( learning_rate, weight_decay, momentum );
+    m_solver = std::make_shared< tensor_solver<solver_sgd> >(
+        std::initializer_list<float>{ learning_rate, weight_decay, momentum } 
+    );
 }
 
 void network::add_layers( const std::vector<layer_descr>& layers )

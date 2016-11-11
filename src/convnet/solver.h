@@ -41,6 +41,12 @@ class solver_sgd
 public:
     solver_sgd( const float alpha, const float lambda, const float mu )
         : m_set_size( 1 ), m_alpha( alpha ), m_lambda( lambda ), m_mu( mu ) {}
+    solver_sgd( std::initializer_list<float> params_list )
+    {
+        m_alpha     = params_list.begin()[0];
+        m_lambda    = params_list.begin()[1];
+        m_mu        = params_list.begin()[2];
+    }
     virtual ~solver_sgd() {}
 
     void set_size( const size_t& size )
@@ -82,8 +88,13 @@ private:
 class solver_rms_prop
 {
 public:
-    solver_rms_prop( const float alpha, const float lambda, const float mu ) // TODO-AM : temporary dumb constructor!!
-    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f ) {}
+    solver_rms_prop( const float alpha = 0.0001f, const float mu = 0.99f ) // TODO-AM : temporary dumb constructor!!
+    	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
+    solver_rms_prop( std::initializer_list<float> params_list ) : m_eps( 1e-8f )
+    {
+        m_alpha     = params_list.begin()[0];
+        m_mu        = params_list.begin()[1];
+    }
     virtual ~solver_rms_prop() {}
 
     void set_size( const size_t& size )

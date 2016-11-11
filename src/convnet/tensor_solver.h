@@ -42,7 +42,7 @@ template<class solverT>
 class tensor_solver : public tensor_solver_iface
 {
 public:
-    tensor_solver( const float alpha, const float lambda, const float mu = 0 ) : m_solver( alpha, lambda, mu ) {}
+    tensor_solver( std::initializer_list<float> params_list ) : m_solver{ params_list } {}
     virtual ~tensor_solver() {}
 
     void set_size( const size_t& size ) override
