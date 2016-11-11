@@ -33,7 +33,7 @@ THE SOFTWARE.
 namespace neurocl { namespace convnet {
 
 class layer;
-class solver;
+class tensor_solver_iface;
 
 class network : public network_interface
 {
@@ -61,7 +61,7 @@ protected:
 
     size_t m_training_samples;
 
-	std::shared_ptr<solver> m_solver;
+	std::shared_ptr<tensor_solver_iface> m_solver;
 
     std::vector<std::shared_ptr<layer>> m_layers;
 };

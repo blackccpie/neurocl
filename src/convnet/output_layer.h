@@ -146,7 +146,7 @@ public:
         m_deltas_bias.clear();
     }
 
-    virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override
+    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // Optimize gradients
 

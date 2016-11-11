@@ -97,7 +97,7 @@ public:
 		// NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
-    virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override
+    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }

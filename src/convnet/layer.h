@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-class solver;
+class tensor_solver_iface;
 
 class layer
 {
@@ -55,7 +55,7 @@ public:
     virtual void back_propagate() = 0;
     virtual void update_gradients() = 0;
     virtual void clear_gradients() = 0;
-    virtual void gradient_descent( const std::shared_ptr<solver>& solver ) = 0;
+    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) = 0;
 
     // Fill weights
     virtual void fill_w( const size_t data_size, const float* data ) = 0;

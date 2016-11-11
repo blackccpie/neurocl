@@ -25,19 +25,23 @@ THE SOFTWARE.
 #ifndef SOLVER_H
 #define SOLVER_H
 
+#include "tensor_operations.h"
+
 #include "common/network_exception.h"
 
 #include <cmath>
 
 namespace neurocl { namespace convnet {
 
+using nto = neurocl::convnet::tensor_operation;
+
 /* Stochastic Gradient Descent solver implementation */
-class solver
+class solver_sgd
 {
 public:
-    solver( const float alpha, const float lambda, const float mu )
+    solver_sgd( const float alpha, const float lambda, const float mu )
         : m_set_size( 1 ), m_alpha( alpha ), m_lambda( lambda ), m_mu( mu ) {}
-    virtual ~solver() {}
+    virtual ~solver_sgd() {}
 
     void set_size( const size_t& size )
     {

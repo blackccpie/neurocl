@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "solver.h"
+#include "tensor_solver.h"
 #include "tensor_operations.h"
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
@@ -615,13 +615,13 @@ tensor tensor_operation::uniform_sum( const tensor& input )
 }
 
 template<>
-void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
 {
     solver->update_redux( input, input_momentum, deltas );
 }
 
 template<>
-void tensor_operation::optimize<tensor_operation::optimize_mode::std>( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optimize_mode::std>( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
 {
     solver->update( input, input_momentum, deltas );
 }

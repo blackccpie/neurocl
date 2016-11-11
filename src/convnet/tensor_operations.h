@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-class solver;
+class tensor_solver_iface;
 
 class tensor_operation
 {
@@ -114,7 +114,7 @@ public:
     static tensor uniform_sum( const tensor& input );
 
     template<optimize_mode om>
-    static void optimize( const std::shared_ptr<solver>& solver, tensor& input, tensor& input_momentum, const tensor& deltas );
+    static void optimize( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas );
 };
 
 inline tensor operator*( const float& val, const tensor& t )

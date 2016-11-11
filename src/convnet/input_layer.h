@@ -71,7 +71,7 @@ public:
     virtual void back_propagate() override { /*NOTHING TO DO YET*/ }
     virtual void update_gradients() override { /*NOTHING TO DO YET*/ }
     virtual void clear_gradients() override { /*NOTHING TO DO YET*/ }
-    virtual void gradient_descent( const std::shared_ptr<solver>& solver ) override { /*NOTHING TO DO YET*/ }
+    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override { /*NOTHING TO DO YET*/ }
 
     // Fill weights
     virtual void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
