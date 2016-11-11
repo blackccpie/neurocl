@@ -82,14 +82,26 @@ private:
 class solver_rms_prop
 {
 public:
-    solver_rms_prop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f ) {}
+    solver_rms_prop( const float alpha, const float lambda, const float mu ) // TODO-AM : temporary dumb constructor!!
+    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f ) {}
     virtual ~solver_rms_prop() {}
+
+    void set_size( const size_t& size )
+    {
+        // TODO-AM : use a size???
+    }
 
     template<typename T>
     void update( T& input, T& input_momentum, const T& gradient )
     {
         input_momentum = m_mu * input_momentum + ( 1 - m_mu ) * gradient * gradient;
-        input -= m_alpha * gradient / std::sqrt( input_momentum + m_eps );
+        input -= m_alpha * gradient / nto::sqrt( input_momentum + m_eps );
+    }
+
+    template<typename T>
+    void update_redux( T& input, T& input_momentum, const T& gradient )
+    {
+        update( input, input_momentum, gradient );
     }
 
 private:
