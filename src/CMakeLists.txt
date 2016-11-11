@@ -110,6 +110,7 @@ convnet/output_layer.h
 convnet/pool_layer.h
 convnet/solver.h
 convnet/tensor.h
+convnet/tensor_solver.h
 convnet/tensor_operations.h
 convnet/network.h
 convnet/network_manager.h
