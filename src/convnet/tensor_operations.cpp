@@ -29,11 +29,6 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-inline float sigmoid( const float& x )
-{
-    return 1.f / ( 1.f + std::exp(-x) );
-}
-
 inline void _assert_multiple( const tensor& t, const size_t& divider )
 {
     if ( ( ( t.w() % divider ) != 0 ) || ( ( t.h() % divider ) != 0 ) )
@@ -293,59 +288,6 @@ tensor tensor_operation::sqrt( const tensor& input )
         matrixF& _output = output.m(d1,d2);
         _output = input.c_m(d1,d2);
         std::transform( _output.data().begin(), _output.data().end(), _output.data().begin(), std::ptr_fun<float,float>( std::sqrt ) );
-    }
-
-    return output;
-}
-
-void tensor_operation::sig( tensor& input )
-{
-    tensor_foreach_p( input.d1(), input.d2() ) {
-        std::for_each(  input.m(d1,d2).data().begin(),
-                        input.m(d1,d2).data().end(),
-                        []( float& a) { a = sigmoid( a ); } );
-    }
-}
-
-tensor tensor_operation::d_sig( const tensor& input )
-{
-    using namespace boost::numeric::ublas;
-
-    tensor output;
-    output.resize( input );
-
-    tensor_foreach_p( input.d1(), input.d2() ) {
-        const matrixF& mat = input.c_m(d1,d2);
-        output.m(d1,d2) = element_prod(
-            mat,
-            ( scalar_matrix<float>( mat.size1(), mat.size2(), 1.f ) - mat )
-        );
-    }
-
-    return output;
-}
-
-void tensor_operation::relu( tensor& input )
-{
-    tensor_foreach_p( input.d1(), input.d2() ) {
-        std::for_each(  input.m(d1,d2).data().begin(),
-                        input.m(d1,d2).data().end(),
-                        []( float& a) { a = std::max( 0.f, a ); } );
-    }
-}
-
-tensor tensor_operation::d_relu( const tensor& input )
-{
-    using namespace boost::numeric::ublas;
-
-    tensor output;
-    output.resize( input );
-
-    tensor_foreach_p( input.d1(), input.d2() ) {
-        output.m(d1,d2) = input.c_m(d1,d2);
-        std::for_each(  output.m(d1,d2).data().begin(),
-                        output.m(d1,d2).data().end(),
-                        []( float& a) { a = ( a > 0.f ) * 1.f; } );
     }
 
     return output;

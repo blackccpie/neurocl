@@ -32,6 +32,7 @@ THE SOFTWARE.
 namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
+using nta = neurocl::convnet::tensor_activation;
 
 class conv_layer  : public layer
 {
@@ -99,7 +100,7 @@ public:
         	m_filter_stride ) + m_bias;
 
 		// could be computed in next pooling layer if present for reduced computation
-        nto::sig( m_feature_maps );
+        nta::sig( m_feature_maps );
     }
 
     virtual void back_propagate() override
@@ -120,7 +121,7 @@ public:
 
         // multiply by sigma derivative
         prev_error_maps = nto::elemul(
-            nto::d_sig( prev_feature_maps ),
+            nta::d_sig( prev_feature_maps ),
             prev_error_maps
         );
     }

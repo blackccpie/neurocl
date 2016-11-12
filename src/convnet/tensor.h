@@ -175,6 +175,7 @@ public:
 protected:
 
     friend class tensor_operation;
+    friend class tensor_activation;
 
     matrixF& m( const size_t d1, const size_t d2 )  { return m_tensor_array[d1][d2]; }
     const matrixF& c_m( const size_t d1, const size_t d2 ) const { return m_tensor_array[d1][d2]; }

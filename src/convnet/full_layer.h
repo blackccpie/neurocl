@@ -32,6 +32,7 @@ THE SOFTWARE.
 namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
+using nta = neurocl::convnet::tensor_activation;
 
 class full_layer : public layer
 {
@@ -105,7 +106,7 @@ public:
         }
 
         // apply sigmoid function
-        nto::sig( m_feature_maps );
+        nta::sig( m_feature_maps );
     }
 
     virtual void back_propagate() override
@@ -124,7 +125,7 @@ public:
             const auto&& grouped_feature_maps = nto::group( prev_feature_maps );
 
             const tensor grouped_error_maps = nto::elemul(
-                nto::d_sig( grouped_feature_maps ),
+                nta::d_sig( grouped_feature_maps ),
                 nto::multrans1( m_weights, m_error_maps )
             );
 
@@ -133,7 +134,7 @@ public:
         else
         {
         	prev_error_maps = nto::elemul(
-            	nto::d_sig( prev_feature_maps ),
+            	nta::d_sig( prev_feature_maps ),
             	nto::multrans1( m_weights, m_error_maps )
         	);
         }

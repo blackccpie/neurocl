@@ -23,12 +23,14 @@ THE SOFTWARE.
 */
 
 #include "convnet/tensor_operations.h"
+#include "convnet/tensor_activations.h"
 
 #include <iostream>
 
 int main( int argc, char *argv[] )
 {
     using nto = neurocl::convnet::tensor_operation;
+    using nta = neurocl::convnet::tensor_activation;
 
     neurocl::convnet::tensor A,B,C,Res,Comp;
 
@@ -76,7 +78,7 @@ int main( int argc, char *argv[] )
 
     Comp.uniform_fill( 1.f / ( 1.f + std::exp(-2.f) ) );
 
-    nto::sig( Res );
+    nta::sig( Res );
 
     std::cout << "sig test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
@@ -85,7 +87,7 @@ int main( int argc, char *argv[] )
     A.uniform_fill( 2.f );
     Comp.uniform_fill( -2.f );
 
-    Res = nto::d_sig( A );
+    Res = nta::d_sig( A );
 
     std::cout << "d_sig test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
@@ -94,14 +96,14 @@ int main( int argc, char *argv[] )
     Res.uniform_fill( 1.f );
     Comp.uniform_fill( 1.f );
 
-    nto::relu( Res );
+    nta::relu( Res );
 
     std::cout << "relu test1 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
     Res.uniform_fill( -1.f );
     Comp.uniform_fill( 0.f );
 
-    nto::relu( Res );
+    nta::relu( Res );
 
     std::cout << "relu test2 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
@@ -110,14 +112,14 @@ int main( int argc, char *argv[] )
     A.uniform_fill( 2.f );
     Comp.uniform_fill( 1.f );
 
-    Res = nto::d_relu( A );
+    Res = nta::d_relu( A );
 
     std::cout << "d_relu test1 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
     A.uniform_fill( -1.f );
     Comp.uniform_fill( 0.f );
 
-    Res = nto::d_relu( A );
+    Res = nta::d_relu( A );
 
     std::cout << "d_relu test2 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
