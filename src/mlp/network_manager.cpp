@@ -133,7 +133,7 @@ void network_manager::batch_train( 	const samples_manager& smp_manager,
 
     for ( size_t i=0; i<epoch_size; i++ )
     {
-        std::cout << std::endl << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
+        LOGGER(info) << std::endl << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
 
         while ( true )
         {
@@ -158,6 +158,7 @@ void network_manager::batch_train( 	const samples_manager& smp_manager,
         }
 
         smp_manager.rewind();
+        smp_manager.shuffle();
     }
 
     std::cout << std::endl;
