@@ -62,6 +62,9 @@ int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to mnist_autotrain!" << std::endl;
 
+    logger_manager& lm = logger_manager::instance();
+    lm.add_logger( policy_type::cout, "mnist_autotrain" );
+
     /*if ( argc == 1 )
     {
         std::cout << "Invalid arguments!" << std::endl;
@@ -96,7 +99,7 @@ int main( int argc, char *argv[] )
             if ( score > NEUROCL_STOPPING_SCORE )
             {
                 std::cout << "TRAINING SUCCEEDED IN " << (i+1) << " EPOCHS :-)" << std::endl;
-                break;
+                return 1;
             }
         }
 
