@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "tensor_operations.h"
 
+#include "common/logger.h"
 #include "common/network_exception.h"
 
 #include <cmath>
@@ -35,49 +36,57 @@ namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
 
-/* Stochastic Gradient Descent solver implementation */
-class solver_sgd
+class solver_base
 {
 public:
-    solver_sgd( const float alpha, const float lambda, const float mu )
-        : m_set_size( 1 ), m_alpha( alpha ), m_lambda( lambda ), m_mu( mu ) {}
-    solver_sgd( std::initializer_list<float> params_list )
-    {
-        m_alpha     = params_list.begin()[0];
-        m_lambda    = params_list.begin()[1];
-        m_mu        = params_list.begin()[2];
-    }
-    virtual ~solver_sgd() {}
+    solver_base() : m_normalize_grad( 1.f ) {}
 
     void set_size( const size_t& size )
     {
         if ( !size )
             throw network_exception( "cannot set solver size to zero" );
 
-        m_set_size = size;
+        m_normalize_grad = 1.f / static_cast<float>( size );
     }
+protected:
+    float m_normalize_grad;
+};
+
+/* Stochastic Gradient Descent solver implementation */
+class solver_sgd : public solver_base
+{
+public:
+    solver_sgd( const float alpha, const float lambda, const float mu )
+        : m_alpha( alpha ), m_lambda( lambda ), m_mu( mu ) {}
+    solver_sgd( std::initializer_list<float> params_list )
+        : m_alpha( 0.01f ), m_lambda( 0.00005f ), m_mu( 0.9f )
+    {
+        if ( params_list.size() == 3 )
+    	{
+        	m_alpha     = params_list.begin()[0];
+        	m_lambda    = params_list.begin()[1];
+        	m_mu        = params_list.begin()[2];
+        }
+        else
+            LOGGER(warning) << "solver_sgd::solver_sgd - invalid parameters number, keeping defaults" << std::endl;
+    }
+    virtual ~solver_sgd() {}
 
     template<typename T>
     void update( T& input, T& input_momentum, const T& gradient )
     {
-        auto invm = 1.f / static_cast<float>( m_set_size );
-
-        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( invm * gradient + m_lambda * input );
+        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient + m_lambda * input );
         input += input_momentum;
     }
 
     template<typename T>
     void update_redux( T& input, T& input_momentum, const T& gradient )
     {
-        auto invm = 1.f / static_cast<float>( m_set_size );
-
-        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( invm * gradient );
+        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient );
         input += input_momentum;
     }
 
 private:
-
-    size_t m_set_size;
 
     float m_alpha;  // learning rate
     float m_lambda; // weight decay
@@ -85,32 +94,34 @@ private:
 };
 
 /* RMSprop solver implementation */
-class solver_rms_prop
+class solver_rms_prop : public solver_base
 {
 public:
     solver_rms_prop( const float alpha = 0.0001f, const float mu = 0.99f ) // TODO-AM : temporary dumb constructor!!
     	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
-    solver_rms_prop( std::initializer_list<float> params_list ) : m_eps( 1e-8f )
+    solver_rms_prop( std::initializer_list<float> params_list )
+    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
     {
-        m_alpha     = params_list.begin()[0];
-        m_mu        = params_list.begin()[1];
+        if ( params_list.size() == 2 )
+    	{
+        	m_alpha     = params_list.begin()[0];
+        	m_mu        = params_list.begin()[1];
+        }
+        else
+            LOGGER(warning) << "solver_rms_prop::solver_rms_prop - invalid parameters number, keeping defaults" << std::endl;
     }
     virtual ~solver_rms_prop() {}
-
-    void set_size( const size_t& size )
-    {
-        // TODO-AM : use a size???
-    }
 
     template<typename T>
     void update( T& input, T& input_momentum, const T& gradient )
     {
-        input_momentum = m_mu * input_momentum + ( 1 - m_mu ) * gradient * gradient;
-        input -= m_alpha * gradient / nto::sqrt( input_momentum + m_eps );
+        input_momentum = m_mu * input_momentum
+            + ( 1 - m_mu ) * m_normalize_grad * m_normalize_grad * gradient * gradient;
+        input -= m_alpha * m_normalize_grad * gradient / nto::sqrt( input_momentum + m_eps );
     }
 
     template<typename T>
-    void update_redux( T& input, T& input_momentum, const T& gradient )
+    void update_redux( T& input, T& input_momentum, const T& gradient ) // TODO-AM : usefull???
     {
         update( input, input_momentum, gradient );
     }
