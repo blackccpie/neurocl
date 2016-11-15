@@ -84,7 +84,7 @@ private:
 
 public:
 
-    network_file_handler( std::shared_ptr<network_interface> net );
+    network_file_handler( const std::shared_ptr<network_interface>& net );
     virtual ~network_file_handler();
 
     void load_network_topology( const std::string& topology_path );
