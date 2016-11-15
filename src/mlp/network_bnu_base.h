@@ -74,7 +74,7 @@ private:
     matrixF m_deltas_weight;
 };
 
-class network_bnu_base : public network_interface
+class network_bnu_base : public network_interface_mlp
 {
 public:
 
@@ -82,27 +82,27 @@ public:
 	virtual ~network_bnu_base() {}
 
     // Convention : input layer is index 0
-    void add_layers_2d( const std::vector<layer_size>& layer_sizes );
+    virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) final;
 
-    void set_input(  const size_t& in_size, const float* in );
-    void set_output( const size_t& out_size, const float* out );
+    virtual void set_input(  const size_t& in_size, const float* in ) final;
+    virtual void set_output( const size_t& out_size, const float* out ) final;
 
-    void clear_gradients();
+    virtual void clear_gradients() final;
 
     // pure compute-critic virtuals to be implemented in inherited classes
-    virtual void feed_forward() = 0;
-    virtual void back_propagate() = 0;
-    virtual void gradient_descent() = 0;
+    virtual void feed_forward() final = 0;
+    virtual void back_propagate() final = 0;
+    virtual void gradient_descent() final = 0;
 
-    const size_t count_layers() { return m_layers.size(); }
-    const layer_ptr get_layer_ptr( const size_t layer_idx );
-    void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer );
+    virtual const size_t count_layers() final { return m_layers.size(); }
+    virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) final;
 
-    const output_ptr output();
+    virtual const output_ptr output() final;
 
-    const std::string dump_weights();
-    const std::string dump_bias();
-    const std::string dump_activations();
+    virtual const std::string dump_weights() final;
+    virtual const std::string dump_bias() final;
+    virtual const std::string dump_activations() final;
 
 protected:
 

@@ -42,24 +42,24 @@ public:
 	network();
 	virtual ~network() {}
 
-    virtual void add_layers( const std::vector<layer_descr>& layers ) override;
+    virtual void add_layers( const std::vector<layer_descr>& layers ) final;
 
-	virtual void set_input(  const size_t& in_size, const float* in ) override;
-    virtual void set_output( const size_t& out_size, const float* out ) override;
-    virtual const output_ptr output() override;
+	virtual void set_input(  const size_t& in_size, const float* in ) final;
+    virtual void set_output( const size_t& out_size, const float* out ) final;
+    virtual const output_ptr output() final;
 
-    virtual void feed_forward() override;
-    virtual void back_propagate() override;
-    virtual void gradient_descent() override;
-	virtual void clear_gradients() override;
+    virtual void feed_forward() final;
+    virtual void back_propagate() final;
+    virtual void gradient_descent() final;
+	virtual void clear_gradients() final;
 
-	virtual const std::string  dump_weights() override { return "NOT IMPLEMENTED YET"; }
-    virtual const std::string  dump_bias() override { return "NOT IMPLEMENTED YET"; }
-    virtual const std::string  dump_activations() override { return "NOT IMPLEMENTED YET"; }
+	virtual const std::string  dump_weights() final { return "NOT IMPLEMENTED YET"; }
+    virtual const std::string  dump_bias() final { return "NOT IMPLEMENTED YET"; }
+    virtual const std::string  dump_activations() final { return "NOT IMPLEMENTED YET"; }
 
-    virtual const size_t count_layers() override { return m_layers.size(); }
-	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) override;
-    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) override;
+    virtual const size_t count_layers() final { return m_layers.size(); }
+	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) final;
 
 protected:
 

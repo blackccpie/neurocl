@@ -89,9 +89,9 @@ public:
     network_file_handler( const std::shared_ptr<network_interface_convnet>& net );
     virtual ~network_file_handler();
 
-    virtual void load_network_topology( const std::string& topology_path ) override;
-    virtual void load_network_weights( const std::string& weights_path ) override;
-    virtual void save_network_weights() override;
+    virtual void load_network_topology( const std::string& topology_path ) final;
+    virtual void load_network_weights( const std::string& weights_path ) final;
+    virtual void save_network_weights() final;
 
 private:
 
