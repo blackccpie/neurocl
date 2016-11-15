@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_INTERFACE_H
-#define NETWORK_INTERFACE_H
+#ifndef NETWORK_INTERFACE_MLP_H
+#define NETWORK_INTERFACE_MLP_H
 
 #include "common/network_base_interface.h"
 
@@ -86,4 +86,4 @@ public:
 
 } /*namespace neurocl*/ } /*namespace mlp*/
 
-#endif //NETWORK_INTERFACE_H
+#endif //NETWORK_INTERFACE_MLP_H

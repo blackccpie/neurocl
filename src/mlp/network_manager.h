@@ -25,24 +25,21 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_MLP_H
 #define NETWORK_MANAGER_MLP_H
 
+#include "network_vexcl.h"
+#include "network_bnu_ref.h"
+#include "network_manager.h"
+#include "network_file_handler.h"
+
+#ifdef SIMD_ENABLED
+    #include "network_bnu_fast.h"
+#endif
+
+#include "common/network_exception.h"
 #include "common/network_manager_base.h"
-#include "common/network_sample.h"
 
-#include <boost/shared_array.hpp>
+namespace neurocl { namespace mlp {
 
-#include <vector>
-
-namespace neurocl {
-
-class network_factory;
-class samples_manager;
-
-namespace mlp {
-
-class network_interface;
-class network_file_handler;
-
-class network_manager : public network_manager_base
+class network_manager_mlp : public network_manager_base
 {
 public:
 
@@ -59,17 +56,40 @@ private:
 
 	static std::shared_ptr<network_manager_interface> create( const t_mlp_impl& impl )
 	{
-		struct make_shared_enabler : public network_manager {
-			make_shared_enabler( const t_mlp_impl& impl ) : network_manager( impl ) {}
+		struct make_shared_enabler : public network_manager_mlp {
+			make_shared_enabler( const t_mlp_impl& impl ) : network_manager_mlp( impl ) {}
 		};
 		return std::make_shared<make_shared_enabler>( impl );
 	}
 
-    network_manager( const t_mlp_impl& impl );
+    network_manager_mlp( const t_mlp_impl& impl )
+    {
+        switch( impl )
+        {
+        case t_mlp_impl::MLP_IMPL_BNU_REF:
+            m_net = std::make_shared<network_bnu_ref>();
+            break;
+        case t_mlp_impl::MLP_IMPL_BNU_FAST:
+    #ifdef SIMD_ENABLED
+            m_net = std::make_shared<network_bnu_fast>();
+    #else
+            throw network_exception( "unmanaged mlp implementation (simd disabled)!" );
+    #endif
+            break;
+        case t_mlp_impl::MLP_IMPL_VEXCL:
+            m_net = std::make_shared<network_vexcl>();
+            break;
+        default:
+            throw network_exception( "unmanaged mlp implementation!" );
+        }
+
+        m_net_file_handler = std::make_shared<network_file_handler>(
+            std::static_pointer_cast<network_interface>( m_net ) );
+    }
 
 public:
 
-	virtual ~network_manager() {}
+	virtual ~network_manager_mlp() {}
 };
 
 } /*namespace neurocl*/ } /*namespace mlp*/

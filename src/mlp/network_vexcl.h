@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef NETWORK_VEXCL_H
+#define NETWORK_VEXCL_H
 
 #include "network_interface.h"
 
@@ -111,4 +111,4 @@ private:
 
 } /*namespace neurocl*/ } /*namespace mlp*/
 
-#endif //NETWORK_H
+#endif //NETWORK_VEXCL_H

@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef NETWORK_CONVNET_H
+#define NETWORK_CONVNET_H
 
 #include "network_interface.h"
 
@@ -72,4 +72,4 @@ protected:
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //NETWORK_H
+#endif //NETWORK_CONVNET_H

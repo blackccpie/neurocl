@@ -67,13 +67,11 @@ common/portable_binary_archive/portable_binary_iarchive.cpp
 common/portable_binary_archive/portable_binary_oarchive.cpp
 
 mlp/network_file_handler.cpp
-mlp/network_manager.cpp
 mlp/network_vexcl.cpp
 mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 
 convnet/network.cpp
-convnet/network_manager.cpp
 convnet/network_file_handler.cpp
 convnet/tensor.cpp
 convnet/tensor_operations.cpp

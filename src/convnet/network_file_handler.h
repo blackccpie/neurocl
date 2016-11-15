@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_FILE_HANDLER_H
-#define NETWORK_FILE_HANDLER_H
+#ifndef NETWORK_FILE_HANDLER_CONVNET_H
+#define NETWORK_FILE_HANDLER_CONVNET_H
 
 #include "common/network_file_handler_interface.h"
 
@@ -104,4 +104,4 @@ private:
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //NETWORK_FILE_HANDLER_H
+#endif //NETWORK_FILE_HANDLER_CONVNET_H

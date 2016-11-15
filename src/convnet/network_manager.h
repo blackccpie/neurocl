@@ -25,13 +25,15 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_CONVNET_H
 #define NETWORK_MANAGER_CONVNET_H
 
+#include "network.h"
+#include "network_manager.h"
+#include "network_file_handler.h"
+
 #include "common/network_manager_base.h"
 
-namespace neurocl {
+namespace neurocl { namespace convnet {
 
-namespace convnet {
-
-class network_manager : public network_manager_base
+class network_manager_convnet : public network_manager_base
 {
 private:
 
@@ -39,15 +41,20 @@ private:
 
 	static std::shared_ptr<network_manager_interface> create()
 	{
-		struct make_shared_enabler : public network_manager {};
+		struct make_shared_enabler : public network_manager_convnet {};
 		return std::make_shared<make_shared_enabler>();
 	}
 
-    network_manager();
+    network_manager_convnet()
+	{
+		m_net = std::make_shared<network>();
+    	m_net_file_handler = std::make_shared<network_file_handler>(
+			std::static_pointer_cast<network_interface>( m_net ) );
+	}
 
 public:
 
-	virtual ~network_manager() {}
+	virtual ~network_manager_convnet() {}
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

@@ -69,9 +69,9 @@ std::shared_ptr<network_manager_interface> network_factory::build( const t_neura
     switch( impl )
     {
     case t_neural_impl::NEURAL_IMPL_MLP:
-        return mlp::network_manager::create( mlp::network_manager::t_mlp_impl::MLP_IMPL_BNU_REF );
+        return mlp::network_manager_mlp::create( mlp::network_manager_mlp::t_mlp_impl::MLP_IMPL_BNU_REF );
     case t_neural_impl::NEURAL_IMPL_CONVNET:
-        return convnet::network_manager::create();
+        return convnet::network_manager_convnet::create();
     default:
         throw network_exception( "unmanaged neural implementation!" );
     }
