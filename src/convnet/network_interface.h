@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
-#include <boost/shared_array.hpp>
+#include "common/network_base_interface.h"
 
 #include <iostream>
 #include <vector>
@@ -80,27 +80,6 @@ struct layer_ptr
     boost::shared_array<float> bias;
 };
 
-struct output_ptr
-{
-    // Constructor with already allocated buffers
-    output_ptr( const size_t& no, boost::shared_array<float> o )
-        : num_outputs( no ), outputs( o ) {}
-    // Constructor with allocation requests
-    output_ptr( const size_t& no )
-        : num_outputs( no )
-    {
-        outputs.reset( new float[num_outputs] );
-    }
-    // Copy constructor
-    output_ptr( const output_ptr& l )
-        : num_outputs( l.num_outputs ), outputs( l.outputs ) {}
-    // Destructor
-    ~output_ptr() {}
-
-    const size_t num_outputs;
-    boost::shared_array<float> outputs;
-};
-
 inline std::ostream& operator<< ( std::ostream& stream, const layer_descr& layer )
 {
     // TODO-CNN : dump layer type string
@@ -108,27 +87,16 @@ inline std::ostream& operator<< ( std::ostream& stream, const layer_descr& layer
     return stream;
 }
 
-class network_interface
+class network_interface : public network_base_interface
 {
 public:
 
     // Convention : input layer is index 0
     virtual void add_layers( const std::vector<layer_descr>& layers ) = 0;
 
-    virtual void set_input(  const size_t& in_size, const float* in ) = 0;
-    virtual void set_output( const size_t& out_size, const float* out ) = 0;
-
-    virtual void feed_forward() = 0;
-
-    virtual void back_propagate() = 0;
-    virtual void gradient_descent() = 0;
-    virtual void clear_gradients() = 0;
-
     virtual const size_t count_layers() = 0;
     virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) = 0;
     virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) = 0;
-
-    virtual const output_ptr output() = 0;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

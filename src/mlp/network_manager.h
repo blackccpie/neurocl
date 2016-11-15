@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_MLP_H
 #define NETWORK_MANAGER_MLP_H
 
-#include "common/network_manager_interface.h"
+#include "common/network_manager_base.h"
 #include "common/network_sample.h"
 
 #include <boost/shared_array.hpp>
@@ -42,7 +42,7 @@ namespace mlp {
 class network_interface;
 class network_file_handler;
 
-class network_manager : public network_manager_interface
+class network_manager : public network_manager_base
 {
 public:
 
@@ -70,39 +70,6 @@ private:
 public:
 
 	virtual ~network_manager() {}
-
-    virtual void load_network( const std::string& topology_path, const std::string& weights_path ) override;
-    virtual void save_network() override;
-
-    virtual void train( const sample& s ) override;
-    virtual void train( const std::vector<sample>& training_set ) override;
-    virtual void batch_train(   const samples_manager& smp_manager,
-                                const size_t& epoch_size,
-						        const size_t& batch_size,
-						        t_progress_fct progress_fct = t_progress_fct() ) override;
-
-    // prepare gradient descent
-    virtual void prepare_training_iteration() override;
-    // finalize gradient descent
-    virtual void finalize_training_iteration() override;
-
-    virtual void compute_output( sample& s ) override;
-
-    void dump_weights();
-    void dump_bias();
-    void dump_activations();
-
-private:
-
-    void _assert_loaded();
-    void _train( const sample& s );
-
-private:
-
-    bool m_network_loaded;
-
-    std::shared_ptr<network_interface> m_net;
-    std::shared_ptr<network_file_handler> m_net_file_handler;
 };
 
 } /*namespace neurocl*/ } /*namespace mlp*/

@@ -60,6 +60,7 @@ include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 set (sources_list
 common/samples_manager.cpp
 common/network_factory.cpp
+common/network_manager_base.cpp
 common/logger.cpp
 
 common/portable_binary_archive/portable_binary_iarchive.cpp
@@ -83,8 +84,11 @@ set (headers_list
 neurocl.h
 
 common/samples_manager.h
+common/network_base_interface.h
 common/network_manager_interface.h
+common/network_file_handler_interface.h
 common/network_factory.h
+common/network_manager_base.h
 common/network_sample.h
 common/network_exception.h
 common/network_utils.h

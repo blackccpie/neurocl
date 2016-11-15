@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef NETWORK_FILE_HANDLER_H
 #define NETWORK_FILE_HANDLER_H
 
+#include "common/network_file_handler_interface.h"
+
 #include <boost/cstdint.hpp>
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -34,7 +36,7 @@ namespace neurocl { namespace convnet {
 
 class network_interface;
 
-class network_file_handler
+class network_file_handler : public network_file_handler_interface
 {
 private:
 
@@ -87,10 +89,9 @@ public:
     network_file_handler( const std::shared_ptr<network_interface>& net );
     virtual ~network_file_handler();
 
-    void load_network_topology( const std::string& topology_path );
-
-    void load_network_weights( const std::string& weights_path );
-    void save_network_weights();
+    virtual void load_network_topology( const std::string& topology_path ) override;
+    virtual void load_network_weights( const std::string& weights_path ) override;
+    virtual void save_network_weights() override;
 
 private:
 

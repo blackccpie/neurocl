@@ -98,6 +98,11 @@ struct test_sample : sample
         return ( biggest == biggest_ref );
     }
 
+    void restore_ref()
+    {
+        std::copy( osample_ref.get(), osample_ref.get() + osample_size, const_cast<float*>( osample ) );
+    }
+
     boost::shared_array<float> osample_ref;  // reference output sample buffer
 };
 

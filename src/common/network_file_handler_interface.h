@@ -22,44 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network_vexcl.h"
-#include "network_bnu_ref.h"
-#include "network_manager.h"
-#include "network_file_handler.h"
+#ifndef NETWORK_FILE_HANDLER_INTERFACE_H
+#define NETWORK_FILE_HANDLER_INTERFACE_H
 
-#ifdef SIMD_ENABLED
-    #include "network_bnu_fast.h"
-#endif
+#include <string>
 
-#include "common/network_exception.h"
+namespace neurocl {
 
-//#define TRAIN_CHRONO
-
-namespace neurocl { namespace mlp {
-
-network_manager::network_manager( const t_mlp_impl& impl )
+class network_file_handler_interface
 {
-    switch( impl )
-    {
-    case t_mlp_impl::MLP_IMPL_BNU_REF:
-        m_net = std::make_shared<network_bnu_ref>();
-        break;
-    case t_mlp_impl::MLP_IMPL_BNU_FAST:
-#ifdef SIMD_ENABLED
-        m_net = std::make_shared<network_bnu_fast>();
-#else
-        throw network_exception( "unmanaged mlp implementation (simd disabled)!" );
-#endif
-        break;
-    case t_mlp_impl::MLP_IMPL_VEXCL:
-        m_net = std::make_shared<network_vexcl>();
-        break;
-    default:
-        throw network_exception( "unmanaged mlp implementation!" );
-    }
+public:
 
-    m_net_file_handler =
-        std::make_shared<network_file_handler>( std::static_pointer_cast<network_interface>( m_net ) );
-}
+    //! load network topology text file
+    virtual void load_network_topology( const std::string& topology_path ) = 0;
+    //! load network weights binary file
+    virtual void load_network_weights( const std::string& weights_path ) = 0;
+    //! save updated network weights
+    virtual void save_network_weights() = 0;
+};
 
-} /*namespace neurocl*/ } /*namespace mlp*/
+} /*namespace neurocl*/
+
+#endif //NETWORK_FILE_HANDLER_INTERFACE_H

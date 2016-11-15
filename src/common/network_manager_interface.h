@@ -41,11 +41,16 @@ public:
 
 public:
 
+    //! load network topology & weights
     virtual void load_network( const std::string& topology_path, const std::string& weights_path ) = 0;
+    //! save network weights
     virtual void save_network() = 0;
 
+    //! train given single sample
     virtual void train( const sample& s ) = 0;
+    //! train given samples vector
     virtual void train( const std::vector<sample>& training_set ) = 0;
+    //! mini-batch train a samples set
     virtual void batch_train(   const samples_manager& smp_manager,
                                 const size_t& epoch_size,
                                 const size_t& batch_size,
@@ -55,8 +60,13 @@ public:
     virtual void prepare_training_iteration() = 0;
     // finalize gradient descent
     virtual void finalize_training_iteration() = 0;
-
+    //! compute network output
     virtual void compute_output( sample& s ) = 0;
+
+    //! dump network parameters
+    virtual void dump_weights() = 0;
+    virtual void dump_bias() = 0;
+    virtual void dump_activations() = 0;
 };
 
 } //namespace neurocl
