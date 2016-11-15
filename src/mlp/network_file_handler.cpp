@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_file_handler.h"
-#include "network_interface.h"
+#include "network_interface_mlp.h"
 
 #include "common/network_exception.h"
 #include "common/logger.h"
@@ -40,7 +40,7 @@ namespace bfs = boost::filesystem;
 
 namespace neurocl { namespace mlp {
 
-network_file_handler::network_file_handler( const std::shared_ptr<network_interface>& net ) : m_net( net ), m_layers( 0 )
+network_file_handler::network_file_handler( const std::shared_ptr<network_interface_mlp>& net ) : m_net( net ), m_layers( 0 )
 {
 }
 

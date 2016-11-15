@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 namespace neurocl { namespace mlp {
 
-class network_interface;
+class network_interface_mlp;
 
 class network_file_handler : public network_file_handler_interface
 {
@@ -86,7 +86,7 @@ private:
 
 public:
 
-    network_file_handler( const std::shared_ptr<network_interface>& net );
+    network_file_handler( const std::shared_ptr<network_interface_mlp>& net );
     virtual ~network_file_handler();
 
     virtual void load_network_topology( const std::string& topology_path ) override;
@@ -99,7 +99,7 @@ private:
 
     std::string m_weights_path;
 
-    std::shared_ptr<network_interface> m_net;
+    std::shared_ptr<network_interface_mlp> m_net;
 };
 
 } /*namespace neurocl*/ } /*namespace mlp*/

@@ -27,7 +27,6 @@ THE SOFTWARE.
 
 #include "network_vexcl.h"
 #include "network_bnu_ref.h"
-#include "network_manager.h"
 #include "network_file_handler.h"
 
 #ifdef SIMD_ENABLED
@@ -35,11 +34,11 @@ THE SOFTWARE.
 #endif
 
 #include "common/network_exception.h"
-#include "common/network_manager_base.h"
+#include "common/network_manager.h"
 
 namespace neurocl { namespace mlp {
 
-class network_manager_mlp : public network_manager_base
+class network_manager_mlp : public network_manager
 {
 public:
 
@@ -84,7 +83,7 @@ private:
         }
 
         m_net_file_handler = std::make_shared<network_file_handler>(
-            std::static_pointer_cast<network_interface>( m_net ) );
+            std::static_pointer_cast<network_interface_mlp>( m_net ) );
     }
 
 public:

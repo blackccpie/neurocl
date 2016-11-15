@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_VEXCL_H
 #define NETWORK_VEXCL_H
 
-#include "network_interface.h"
+#include "network_interface_mlp.h"
 
 #include <vexcl/vexcl.hpp>
 

@@ -22,24 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_INTERFACE_MLP_H
-#define NETWORK_INTERFACE_MLP_H
+#ifndef NETWORK_INTERFACE_CONVNET_H
+#define NETWORK_INTERFACE_CONVNET_H
 
-#include "common/network_base_interface.h"
+#include "common/network_interface.h"
 
 #include <iostream>
 #include <vector>
 
-namespace neurocl { namespace mlp {
+namespace neurocl { namespace convnet {
 
-struct layer_size
+enum layer_type
 {
-    layer_size( const size_t& sX, const size_t& sY ) : sizeX( sX ), sizeY( sY ) {}
+    INPUT_LAYER = 0,
+    CONV_LAYER,
+    POOL_LAYER,
+    FULL_LAYER,
+    OUTPUT_LAYER
+};
+
+struct layer_descr
+{
+    layer_descr( const layer_type& t, const size_t& sX, const size_t& sY, const size_t& sZ, const size_t& sF )
+        : type( t ), sizeX( sX ), sizeY( sY ), sizeZ( sZ ), sizeF( sF ) {}
+
+    const layer_type type;
 
     const size_t sizeX;
     const size_t sizeY;
+    const size_t sizeZ;
+    const size_t sizeF; // optional filter size
 
-    const size_t size() const { return sizeX * sizeY; }
+    const size_t size() const { return sizeX * sizeY * sizeZ; }
 };
 
 struct layer_ptr
@@ -66,24 +80,25 @@ struct layer_ptr
     boost::shared_array<float> bias;
 };
 
-inline std::ostream& operator<< ( std::ostream& stream, const layer_size& size )
+inline std::ostream& operator<< ( std::ostream& stream, const layer_descr& layer )
 {
-    stream << size.sizeX << "x" << size.sizeY;
+    // TODO-CNN : dump layer type string
+    stream << layer.sizeX << "x" << layer.sizeY << "x" << layer.sizeZ;
     return stream;
 }
 
-class network_interface : public network_base_interface
+class network_interface_convnet : public network_interface
 {
 public:
 
     // Convention : input layer is index 0
-    virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) = 0;
+    virtual void add_layers( const std::vector<layer_descr>& layers ) = 0;
 
     virtual const size_t count_layers() = 0;
     virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) = 0;
-    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) = 0;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) = 0;
 };
 
-} /*namespace neurocl*/ } /*namespace mlp*/
+} /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //NETWORK_INTERFACE_MLP_H
+#endif //NETWORK_INTERFACE_CONVNET_H

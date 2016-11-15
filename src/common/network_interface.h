@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_BASE_INTERFACE_H
-#define NETWORK_BASE_INTERFACE_H
+#ifndef NETWORK_INTERFACE_H
+#define NETWORK_INTERFACE_H
 
 #include <boost/shared_array.hpp>
 
@@ -52,7 +52,7 @@ struct output_ptr
     boost::shared_array<float> outputs;
 };
 
-class network_base_interface
+class network_interface
 {
 public:
 
@@ -81,4 +81,4 @@ public:
 
 } /*namespace neurocl*/
 
-#endif //NETWORK_BASE_INTERFACE_H
+#endif //NETWORK_INTERFACE_H

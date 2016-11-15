@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 #include "network_file_handler.h"
-#include "network_interface.h"
+#include "network_interface_convnet.h"
 
 #include "common/network_exception.h"
 #include "common/logger.h"
@@ -61,7 +61,7 @@ std::istream& operator>> ( std::istream &input, layer_type& type )
     return input;
 }
 
-network_file_handler::network_file_handler( const std::shared_ptr<network_interface>& net ) : m_net( net ), m_layers( 0 )
+network_file_handler::network_file_handler( const std::shared_ptr<network_interface_convnet>& net ) : m_net( net ), m_layers( 0 )
 {
 }
 

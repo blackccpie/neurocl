@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_MANAGER_BASE_H
-#define NETWORK_MANAGER_BASE_H
+#ifndef NETWORK_MANAGER_H
+#define NETWORK_MANAGER_H
 
 #include "common/network_manager_interface.h"
 #include "common/network_sample.h"
@@ -35,15 +35,15 @@ namespace neurocl {
 class network_factory;
 class samples_manager;
 
-class network_base_interface;
+class network_interface;
 class network_file_handler_interface;
 
-class network_manager_base : public network_manager_interface
+class network_manager : public network_manager_interface
 {
 public:
 
-	network_manager_base() : m_network_loaded( false ) {}
-	virtual ~network_manager_base() {}
+	network_manager() : m_network_loaded( false ) {}
+	virtual ~network_manager() {}
 
 	//! load network topology & weights
     virtual void load_network( const std::string& topology_path, const std::string& weights_path ) override;
@@ -86,10 +86,10 @@ private:
 
 protected:
 
-    std::shared_ptr<network_base_interface> m_net;
+    std::shared_ptr<network_interface> m_net;
     std::shared_ptr<network_file_handler_interface> m_net_file_handler;
 };
 
 } /*namespace neurocl*/
 
-#endif //NETWORK_MANAGER_BASE_H
+#endif //NETWORK_MANAGER_H

@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network_manager_base.h"
-#include "network_base_interface.h"
+#include "network_manager.h"
+#include "network_interface.h"
 #include "network_file_handler_interface.h"
 
 #include "common/network_exception.h"
@@ -37,30 +37,30 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-void network_manager_base::_assert_loaded()
+void network_manager::_assert_loaded()
 {
     if ( !m_network_loaded )
         throw network_exception( "no network loaded!" );
 }
 
-void network_manager_base::load_network( const std::string& topology_path, const std::string& weights_path )
+void network_manager::load_network( const std::string& topology_path, const std::string& weights_path )
 {
     m_net_file_handler->load_network_topology( topology_path );
     m_net_file_handler->load_network_weights( weights_path );
 
     m_network_loaded = true;
 
-    LOGGER(info) << "network_manager_base::load_network - network loaded" << std::endl;
+    LOGGER(info) << "network_manager::load_network - network loaded" << std::endl;
 }
 
-void network_manager_base::save_network()
+void network_manager::save_network()
 {
     _assert_loaded();
 
     m_net_file_handler->save_network_weights();
 }
 
-void network_manager_base::batch_train( const samples_manager& smp_manager,
+void network_manager::batch_train( const samples_manager& smp_manager,
                                         const size_t& epoch_size,
                                         const size_t& batch_size,
                                         t_progress_fct progress_fct )
@@ -72,7 +72,7 @@ void network_manager_base::batch_train( const samples_manager& smp_manager,
 
     for ( size_t i=0; i<epoch_size; i++ )
     {
-        LOGGER(info) << std::endl << "network_manager_base::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
+        LOGGER(info) << std::endl << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
 
         while ( true )
         {
@@ -93,7 +93,7 @@ void network_manager_base::batch_train( const samples_manager& smp_manager,
 			if ( progress_fct )
 				progress_fct( progress );
 
-            std::cout << "\network_manager_base::batch_train - progress " << progress << "%";// << std::endl;
+            std::cout << "\network_manager::batch_train - progress " << progress << "%";// << std::endl;
         }
 
         smp_manager.rewind();
@@ -105,24 +105,24 @@ void network_manager_base::batch_train( const samples_manager& smp_manager,
     save_network();
 }
 
-void network_manager_base::prepare_training_iteration()
+void network_manager::prepare_training_iteration()
 {
     m_net->clear_gradients();
 }
 
-void network_manager_base::finalize_training_iteration()
+void network_manager::finalize_training_iteration()
 {
     m_net->gradient_descent();
 }
 
-void network_manager_base::train( const sample& s )
+void network_manager::train( const sample& s )
 {
     _assert_loaded();
 
     _train( s );
 }
 
-void network_manager_base::train( const std::vector<sample>& training_set )
+void network_manager::train( const std::vector<sample>& training_set )
 {
     _assert_loaded();
 
@@ -130,7 +130,7 @@ void network_manager_base::train( const std::vector<sample>& training_set )
 
     for( const auto& s : training_set )
     {
-        //LOGGER(info) << "network_manager_base::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
+        //LOGGER(info) << "network_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 
         _train( s );
 
@@ -138,7 +138,7 @@ void network_manager_base::train( const std::vector<sample>& training_set )
     }
 }
 
-void network_manager_base::_train( const sample& s )
+void network_manager::_train( const sample& s )
 {
 #ifdef TRAIN_CHRONO
     namespace sc = std::chrono;
@@ -156,11 +156,11 @@ void network_manager_base::_train( const sample& s )
 
 #ifdef TRAIN_CHRONO
     duration = sc::duration_cast<sc::milliseconds>( sc::system_clock::now() - start );
-    LOGGER(info) << "network_manager_base::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
+    LOGGER(info) << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
 #endif
 }
 
-void network_manager_base::compute_output( sample& s )
+void network_manager::compute_output( sample& s )
 {
     _assert_loaded();
 
@@ -170,21 +170,21 @@ void network_manager_base::compute_output( sample& s )
     std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
-void network_manager_base::dump_weights()
+void network_manager::dump_weights()
 {
     _assert_loaded();
 
     std::cout << m_net->dump_weights();
 }
 
-void network_manager_base::dump_bias()
+void network_manager::dump_bias()
 {
     _assert_loaded();
 
     std::cout << m_net->dump_bias();
 }
 
-void network_manager_base::dump_activations()
+void network_manager::dump_activations()
 {
     _assert_loaded();
 

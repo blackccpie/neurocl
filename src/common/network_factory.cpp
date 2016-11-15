@@ -25,8 +25,8 @@ THE SOFTWARE.
 #include "network_factory.h"
 #include "network_config.h"
 
-#include "mlp/network_manager.h"
-#include "convnet/network_manager.h"
+#include "mlp/network_manager_mlp.h"
+#include "convnet/network_manager_convnet.h"
 
 #include <boost/lexical_cast.hpp>
 

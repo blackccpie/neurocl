@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_CONVNET_H
 #define NETWORK_CONVNET_H
 
-#include "network_interface.h"
+#include "network_interface_convnet.h"
 
 #include <memory>
 #include <vector>
@@ -35,31 +35,31 @@ namespace neurocl { namespace convnet {
 class layer;
 class tensor_solver_iface;
 
-class network : public network_interface
+class network : public network_interface_convnet
 {
 public:
 
 	network();
 	virtual ~network() {}
 
-    void add_layers( const std::vector<layer_descr>& layers ) override;
+    virtual void add_layers( const std::vector<layer_descr>& layers ) override;
 
-	void set_input(  const size_t& in_size, const float* in ) override;
-    void set_output( const size_t& out_size, const float* out ) override;
-    const output_ptr output() override;
+	virtual void set_input(  const size_t& in_size, const float* in ) override;
+    virtual void set_output( const size_t& out_size, const float* out ) override;
+    virtual const output_ptr output() override;
 
-    void feed_forward() override;
-    void back_propagate() override;
-    void gradient_descent() override;
-	void clear_gradients() override;
+    virtual void feed_forward() override;
+    virtual void back_propagate() override;
+    virtual void gradient_descent() override;
+	virtual void clear_gradients() override;
 
 	virtual const std::string  dump_weights() override { return "NOT IMPLEMENTED YET"; }
     virtual const std::string  dump_bias() override { return "NOT IMPLEMENTED YET"; }
     virtual const std::string  dump_activations() override { return "NOT IMPLEMENTED YET"; }
 
-    const size_t count_layers() override { return m_layers.size(); }
-	const layer_ptr get_layer_ptr( const size_t layer_idx ) override;
-    void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) override;
+    virtual const size_t count_layers() override { return m_layers.size(); }
+	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) override;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) override;
 
 protected:
 

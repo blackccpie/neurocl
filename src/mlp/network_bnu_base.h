@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_BNU_BASE_H
 #define NETWORK_BNU_BASE_H
 
-#include "network_interface.h"
+#include "network_interface_mlp.h"
 
 #include <boost/align/aligned_allocator.hpp>
 #include <boost/numeric/ublas/storage.hpp>
