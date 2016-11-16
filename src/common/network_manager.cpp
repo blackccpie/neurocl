@@ -23,8 +23,9 @@ THE SOFTWARE.
 */
 
 #include "network_manager.h"
-#include "network_interface.h"
-#include "network_file_handler_interface.h"
+
+#include "interfaces/network_interface.h"
+#include "interfaces/network_file_handler_interface.h"
 
 #include "common/network_exception.h"
 #include "common/samples_manager.h"

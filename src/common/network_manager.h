@@ -25,14 +25,14 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-#include "common/network_manager_interface.h"
+#include "interfaces/network_manager_interface.h"
+
 #include "common/network_sample.h"
 
 #include <vector>
 
 namespace neurocl {
 
-class network_factory;
 class samples_manager;
 
 class network_interface;

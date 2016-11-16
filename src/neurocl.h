@@ -25,8 +25,9 @@ THE SOFTWARE.
 #ifndef NEUROCL_H
 #define NEUROCL_H
 
+#include "interfaces/network_manager_interface.h"
+
 #include "common/network_factory.h"
-#include "common/network_manager_interface.h"
 #include "common/network_exception.h"
 #include "common/samples_manager.h"
 #include "common/iterative_trainer.h"

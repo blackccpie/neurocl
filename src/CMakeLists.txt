@@ -81,10 +81,11 @@ set (headers_list
 
 neurocl.h
 
+interfaces/network_interface.h
+interfaces/network_manager_interface.h
+interfaces/network_file_handler_interface.h
+
 common/samples_manager.h
-common/network_interface.h
-common/network_manager_interface.h
-common/network_file_handler_interface.h
 common/network_factory.h
 common/network_manager.h
 common/network_sample.h

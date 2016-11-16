@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_FILE_HANDLER_CONVNET_H
 #define NETWORK_FILE_HANDLER_CONVNET_H
 
-#include "common/network_file_handler_interface.h"
+#include "interfaces/network_file_handler_interface.h"
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_array.hpp>

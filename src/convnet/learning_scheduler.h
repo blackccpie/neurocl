@@ -22,50 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef ITERATIVE_TRAINER_H
-#define ITERATIVE_TRAINER_H
+#ifndef LEARNING_SCHEDULER_H
+#define LEARNING_SCHEDULER_H
 
-#include "interfaces/network_manager_interface.h"
+namespace neurocl { namespace convnet {
 
-namespace neurocl {
-
-// used for custom external training
-class iterative_trainer
+class learning_scheduler
 {
 public:
-    iterative_trainer( std::shared_ptr<network_manager_interface> net_manager, const size_t batch_size )
-        : m_net_manager( net_manager ), m_batch_pos( 0 ), m_batch_size( batch_size )
-    {
-        m_net_manager->prepare_training_iteration();
-    }
-    virtual ~iterative_trainer()
-    {
-        m_net_manager->finalize_training_iteration();
-        m_net_manager->save_network();
-    }
+    static learning_scheduler& instance() { static learning_scheduler ls; return ls; }
 
-    void train_new( const sample& sample )
-    {
-        m_net_manager->train( sample );
+    void enable_scheduling( const bool enable );
 
-        ++m_batch_pos;
-
-        if ( m_batch_pos >= m_batch_size )
-        {
-            m_net_manager->finalize_training_iteration();
-            m_net_manager->prepare_training_iteration();
-            m_batch_pos = 0;
-        }
-    }
+    void set_current_loss( const float loss );
 
 private:
+    learning_scheduler() : m_enabled( false ), m_cached_loss( 0.f ) {}
+    virtual ~learning_scheduler() {}
 
-    size_t m_batch_pos;
-    size_t m_batch_size;
-
-    std::shared_ptr<network_manager_interface> m_net_manager;
+private:
+    bool m_enabled;
+    bool m_cached_loss;
 };
 
-} /*namespace neurocl*/
+} /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //ITERATIVE_TRAINER_H
+#endif //LEARNING_SCHEDULER_H

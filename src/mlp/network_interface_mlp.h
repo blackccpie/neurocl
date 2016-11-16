@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_INTERFACE_MLP_H
 #define NETWORK_INTERFACE_MLP_H
 
-#include "common/network_interface.h"
+#include "interfaces/network_interface.h"
 
 #include <iostream>
 #include <vector>

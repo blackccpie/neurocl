@@ -27,7 +27,8 @@ THE SOFTWARE.
 
 #include "alphanum.h"
 
-#include "common/network_manager_interface.h"
+#include "interfaces/network_manager_interface.h"
+
 #include "common/network_sample.h"
 
 #include "CImg.h"
