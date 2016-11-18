@@ -31,6 +31,8 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
+using nto = neurocl::convnet::tensor_operation;
+
 class pool_layer  : public layer
 {
 public:
