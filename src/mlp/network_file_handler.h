@@ -27,10 +27,9 @@ THE SOFTWARE.
 
 #include "interfaces/network_file_handler_interface.h"
 
-#include <boost/cstdint.hpp>
-#include <boost/shared_array.hpp>
+#include "common/layer_storage.h"
+
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/array.hpp>
 
 namespace neurocl { namespace mlp {
 
@@ -38,52 +37,6 @@ class network_interface_mlp;
 
 class network_file_handler : public network_file_handler_interface
 {
-private:
-
-    class layer_storage
-    {
-    public:
-        layer_storage()
-            :   m_num_weights( 0u ), m_num_bias( 0u ) {}
-        layer_storage( boost::uint32_t nw, boost::shared_array<float> w, boost::uint32_t nb, boost::shared_array<float> b )
-            :   m_num_weights( nw ), m_weights( w ),
-                m_num_bias( nb ), m_bias( b ) {}
-        layer_storage( layer_storage const& ) = delete; // no copy construct
-        layer_storage& operator=( layer_storage const& ) = delete; // no assignment
-        ~layer_storage() {}
-
-    protected:
-
-        friend class network_file_handler;
-
-        boost::uint32_t m_num_weights;
-        boost::shared_array<float> m_weights;
-        boost::uint32_t m_num_bias;
-        boost::shared_array<float> m_bias;
-
-    private:
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & m_num_weights;
-            if ( Archive::is_loading::value )
-            {
-                assert( m_weights == 0 );
-                m_weights.reset( new float[m_num_weights] );
-            }
-            ar & boost::serialization::make_array<float>( m_weights.get(), m_num_weights );
-
-            ar & m_num_bias;
-            if ( Archive::is_loading::value )
-            {
-                assert( m_bias == 0 );
-                m_bias.reset( new float[m_num_bias] );
-            }
-            ar & boost::serialization::make_array<float>( m_bias.get(), m_num_bias );
-        }
-    };
-
 public:
 
     network_file_handler( const std::shared_ptr<network_interface_mlp>& net );

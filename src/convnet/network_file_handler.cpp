@@ -186,7 +186,7 @@ void network_file_handler::load_network_weights( const std::string& weights_path
                 LOGGER(info) << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
                 ia >> l;
 
-                layer_ptr lp( l.m_num_weights, l.m_weights, l.m_num_bias, l.m_bias );
+                layer_ptr lp( l.num_weights(), l.weights(), l.num_bias(), l.bias() );
                 m_net->set_layer_ptr( i, lp );
             }
         }
