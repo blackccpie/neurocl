@@ -147,9 +147,6 @@ void network_manager::_train( const sample& s )
     sc::milliseconds duration;
 #endif
 
-    samples_manager::random_blur( s );
-    //samples_manager::random_rotate( s );
-
     // set input/output
     m_net->set_input( s.isample_size, s.isample );
     m_net->set_output( s.osample_size, s.osample );
