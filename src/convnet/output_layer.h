@@ -34,7 +34,30 @@ namespace neurocl { namespace convnet {
 using nto = neurocl::convnet::tensor_operation;
 using nta = neurocl::convnet::tensor_activation;
 
-class output_layer : public layer
+class output_layer_iface  : public layer
+{
+public:
+
+    // populate layer
+    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth ) = 0;
+
+    // fill with incoming buffer
+    virtual void fill(  const size_t depth1,
+                        const size_t depth2,
+                        const size_t data_size,
+                        const float* data ) = 0;
+
+    // fill outcoming buffer
+    virtual void fill(  const size_t depth1,
+                        const size_t depth2,
+                        float* data ) = 0;
+};
+
+template<class errorT>
+class output_layer : public output_layer_iface
 {
 public:
 
@@ -43,10 +66,10 @@ public:
 
     virtual const std::string type() const override { return "output"; }
 
-    void populate(  const std::shared_ptr<layer>& prev_layer,
-                    const size_t width,
-                    const size_t height,
-                    const size_t depth )
+    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth ) final
     {
         LOGGER(info) << "output_layer::populate - populating output layer" << std::endl;
 
@@ -79,18 +102,18 @@ public:
     virtual size_t nb_bias() const override { return m_bias.w() * m_bias.h() * m_bias.d1() * m_bias.d2(); }
 
     // fill with incoming buffer
-    void fill(  const size_t depth1,
-                const size_t depth2,
-                const size_t data_size,
-                const float* data )
+    virtual void fill(  const size_t depth1,
+                        const size_t depth2,
+                        const size_t data_size,
+                        const float* data ) final
     {
         m_training_output.fill( depth1, depth2, data_size, data );
     }
 
     // fill outcoming buffer
-    void fill(  const size_t depth1,
-                const size_t depth2,
-                float* data )
+    virtual void fill(  const size_t depth1,
+                        const size_t depth2,
+                        float* data ) final
     {
         m_feature_maps.fill( depth1, depth2, data );
     }
@@ -127,10 +150,10 @@ public:
         // compute output layer error
         m_error_maps = nto::elemul(
             nta::d_sig( m_feature_maps ),
-            ( m_feature_maps - m_training_output )
+            errorT::d_f( m_feature_maps, m_training_output )
         );
 
-        // compute previous layer error if needed
+        // compute previous layer error
     	prev_error_maps = nto::elemul(
         		nta::d_sig( prev_feature_maps ),
         		nto::multrans1( m_weights, m_error_maps )

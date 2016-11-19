@@ -115,6 +115,7 @@ convnet/solver.h
 convnet/tensor.h
 convnet/tensor_solver.h
 convnet/tensor_activations.h
+convnet/tensor_loss_functions.h
 convnet/tensor_operations.h
 convnet/network.h
 convnet/network_manager_convnet.h
