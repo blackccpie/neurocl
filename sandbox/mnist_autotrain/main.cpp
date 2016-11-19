@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #define NEUROCL_MAX_EPOCH_SIZE 1000
 #define NEUROCL_BATCH_SIZE 20
-#define NEUROCL_STOPPING_SCORE 90
+#define NEUROCL_STOPPING_SCORE 98
 
 using namespace neurocl;
 
@@ -51,7 +51,11 @@ int compute_score(  const samples_manager& smp_manager,
 
         if ( tsample.classified() )
             ++_classif_score;
+
+        tsample.restore_ref();
     }
+
+    std::cout << "DETAILED SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
 
     rmse = mean_rmse / static_cast<float>( training_samples.size() );
 
@@ -83,6 +87,7 @@ int main( int argc, char *argv[] )
 
         int score = 0;
         float rmse = 0.f;
+        float last_rmse = 0.f;
 
         std::ofstream output_file( "mnist_training.csv" );
 
@@ -94,7 +99,11 @@ int main( int argc, char *argv[] )
 
             output_file << (i+1) << ',' << rmse << '\n';
 
-            std::cout << "CURRENT SCORE IS : " << score << "% CURRENT RMSE IS : " << rmse << std::endl;
+            float rmse_diff = rmse - last_rmse;
+
+            std::cout << "CURRENT SCORE IS : " << score << "% CURRENT RMSE IS : " << rmse << " (" << rmse_diff << ")" << std::endl;
+
+            last_rmse = rmse;
 
             if ( score > NEUROCL_STOPPING_SCORE )
             {

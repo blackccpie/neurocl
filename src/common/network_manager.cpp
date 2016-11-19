@@ -94,7 +94,7 @@ void network_manager::batch_train( const samples_manager& smp_manager,
 			if ( progress_fct )
 				progress_fct( progress );
 
-            std::cout << "\network_manager::batch_train - progress " << progress << "%";// << std::endl;
+            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
         }
 
         smp_manager.rewind();
@@ -146,6 +146,9 @@ void network_manager::_train( const sample& s )
     sc::system_clock::time_point start = sc::system_clock::now();
     sc::milliseconds duration;
 #endif
+
+    samples_manager::random_blur( s );
+    //samples_manager::random_rotate( s );
 
     // set input/output
     m_net->set_input( s.isample_size, s.isample );
