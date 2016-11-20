@@ -71,6 +71,7 @@ mlp/network_vexcl.cpp
 mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 
+convnet/learning_scheduler.cpp
 convnet/network.cpp
 convnet/network_file_handler.cpp
 convnet/tensor.cpp
@@ -106,6 +107,7 @@ mlp/network_vexcl.h
 mlp/network_bnu_base.h
 mlp/network_bnu_ref.h
 
+convnet/learning_scheduler.h
 convnet/layer.h
 convnet/conv_layer.h
 convnet/input_layer.h

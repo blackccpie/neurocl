@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define SOLVER_H
 
 #include "tensor_operations.h"
+#include "learning_scheduler.h"
 
 #include "common/logger.h"
 #include "common/network_exception.h"
@@ -36,10 +37,13 @@ namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
 
-class solver_base
+class solver_base : std::enable_shared_from_this<solver_base>
 {
 public:
-    solver_base() : m_normalize_grad( 1.f ) {}
+    solver_base() : m_normalize_grad( 1.f )
+    {
+        learning_scheduler::instance().register_solver( shared_from_this() );
+    }
 
     void set_size( const size_t& size )
     {
@@ -48,7 +52,14 @@ public:
 
         m_normalize_grad = 1.f / static_cast<float>( size );
     }
+
+    //! get current learning rate
+    virtual const float& get_learning_rate() = 0;
+    //! set learning rate (scheduled learning)
+    virtual void set_learning_rate( const float new_rate ) = 0;
+
 protected:
+
     float m_normalize_grad;
 };
 
@@ -85,6 +96,9 @@ public:
         input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient );
         input += input_momentum;
     }
+
+    virtual const float& get_learning_rate() final { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
 
 private:
 
@@ -125,6 +139,9 @@ public:
     {
         update( input, input_momentum, gradient );
     }
+
+    virtual const float& get_learning_rate() final { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
 
 private:
 

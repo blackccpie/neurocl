@@ -25,24 +25,33 @@ THE SOFTWARE.
 #ifndef LEARNING_SCHEDULER_H
 #define LEARNING_SCHEDULER_H
 
+#include <memory>
+
 namespace neurocl { namespace convnet {
+
+class solver_base;
 
 class learning_scheduler
 {
 public:
     static learning_scheduler& instance() { static learning_scheduler ls; return ls; }
 
+    void register_solver( const std::shared_ptr<solver_base>& solver );
     void enable_scheduling( const bool enable );
-
-    void set_current_loss( const float loss );
+    void set_learning_rate( const float rate );
 
 private:
-    learning_scheduler() : m_enabled( false ), m_cached_loss( 0.f ) {}
-    virtual ~learning_scheduler() {}
+
+    learning_scheduler();
+    virtual ~learning_scheduler();
+
+    void _assert_solver();
 
 private:
     bool m_enabled;
-    bool m_cached_loss;
+    float m_cached_rate;
+
+    std::shared_ptr<solver_base> m_solver;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
