@@ -32,9 +32,20 @@ THE SOFTWARE.
 namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
-using nta = neurocl::convnet::tensor_activation;
 
-class full_layer : public layer
+class full_layer_iface  : public layer
+{
+public:
+
+    // populate layer
+    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth ) = 0;
+};
+
+template<class activationT>
+class full_layer : public full_layer_iface
 {
 public:
 
@@ -43,10 +54,10 @@ public:
 
     virtual const std::string type() const override { return "full " + m_name; }
 
-    void populate(  const std::shared_ptr<layer>& prev_layer,
-                    const size_t width,
-                    const size_t height,
-                    const size_t depth )
+    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth ) final
     {
         LOGGER(info) << "full_layer::populate - populating full layer " << m_name << std::endl;
 
@@ -106,7 +117,7 @@ public:
         }
 
         // apply sigmoid function
-        nta::sig( m_feature_maps );
+        activationT::f( m_feature_maps );
     }
 
     virtual void back_propagate() override
@@ -125,7 +136,7 @@ public:
             const auto&& grouped_feature_maps = nto::group( prev_feature_maps );
 
             const tensor grouped_error_maps = nto::elemul(
-                nta::d_sig( grouped_feature_maps ),
+                activationT::d_f( grouped_feature_maps ),
                 nto::multrans1( m_weights, m_error_maps )
             );
 
@@ -134,7 +145,7 @@ public:
         else
         {
         	prev_error_maps = nto::elemul(
-            	nta::d_sig( prev_feature_maps ),
+            	activationT::d_f( prev_feature_maps ),
             	nto::multrans1( m_weights, m_error_maps )
         	);
         }

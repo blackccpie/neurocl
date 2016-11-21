@@ -27,13 +27,13 @@ THE SOFTWARE.
 
 #include "tensor_operations.h"
 
-namespace neurocl { namespace convnet {
+namespace neurocl { namespace convnet { namespace tensor_activations {
 
-class tensor_activation
+class sigmoid
 {
 public:
 
-    static void sig( tensor& input )
+    static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2).data().begin(),
@@ -42,7 +42,7 @@ public:
         }
     }
 
-    static tensor d_sig( const tensor& input )
+    static tensor d_f( const tensor& input )
     {
         using namespace boost::numeric::ublas;
 
@@ -59,8 +59,13 @@ public:
 
         return output;
     }
+};
 
-    static void relu( tensor& input )
+class relu
+{
+public:
+
+    static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2).data().begin(),
@@ -69,7 +74,7 @@ public:
         }
     }
 
-    static tensor d_relu( const tensor& input )
+    static tensor d_f( const tensor& input )
     {
         using namespace boost::numeric::ublas;
 
@@ -85,34 +90,39 @@ public:
 
         return output;
     }
+};
 
-    static void softmax( tensor& input )
+class softmax
+{
+public:
+
+    static void f( tensor& input )
     {
-        tensor_foreach_p( input.d1(), input.d2() ) {
+        /*tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2).data().begin(),
                             input.m(d1,d2).data().end(),
-                            []( float& a) { a = std::max( 0.f, a ); } ); //TODO!!!!!!!!
-        }
+                            []( float& a) { a = std::max( 0.f, a ); } ); //TODO
+        }*/
     }
 
-    static tensor d_softmax( const tensor& input )
+    static tensor d_f( const tensor& input )
     {
         using namespace boost::numeric::ublas;
 
         tensor output;
         output.resize( input );
 
-        tensor_foreach_p( input.d1(), input.d2() ) {
+        /*tensor_foreach_p( input.d1(), input.d2() ) {
             output.m(d1,d2) = input.c_m(d1,d2);
             std::for_each(  output.m(d1,d2).data().begin(),
                             output.m(d1,d2).data().end(),
-                            []( float& a) { a = ( a > 0.f ) * 1.f; } ); //TODO!!!!!!!!
-        }
+                            []( float& a) { a = ( a > 0.f ) * 1.f; } ); //TODO
+        }*/
 
         return output;
     }
 };
 
-} /*namespace neurocl*/ } /*namespace convnet*/
+} /*namespace neurocl*/ } /*namespace convnet*/ } /*namespace tensor_activations*/
 
 #endif //TENSOR_ACTIVATIONS_H

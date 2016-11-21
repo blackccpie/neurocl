@@ -32,9 +32,23 @@ THE SOFTWARE.
 namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
-using nta = neurocl::convnet::tensor_activation;
 
-class conv_layer  : public layer
+class conv_layer_iface  : public layer
+{
+public:
+
+    // populate layer
+    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth ) = 0;
+
+    // set filter kernel size
+    virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) = 0;
+};
+
+template<class activationT>
+class conv_layer  : public conv_layer_iface
 {
 public:
 
@@ -43,16 +57,16 @@ public:
 
     virtual const std::string type() const override { return "conv " + m_name; }
 
-    void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 )
+    virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) final
     {
         m_filter_size = filter_size;
         m_filter_stride = filter_stride;
     }
 
-    void populate(  const std::shared_ptr<layer>& prev_layer,
-                    const size_t width,
-                    const size_t height,
-                    const size_t depth )
+    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth ) override
     {
         LOGGER(info) << "conv_layer::populate - populating convolutional layer " << m_name << std::endl;
 
@@ -100,7 +114,7 @@ public:
         	m_filter_stride ) + m_bias;
 
 		// could be computed in next pooling layer if present for reduced computation
-        nta::sig( m_feature_maps );
+        activationT::f( m_feature_maps );
     }
 
     virtual void back_propagate() override
@@ -121,7 +135,7 @@ public:
 
         // multiply by sigma derivative
         prev_error_maps = nto::elemul(
-            nta::d_sig( prev_feature_maps ),
+            activationT::d_f( prev_feature_maps ),
             prev_error_maps
         );
     }
@@ -150,7 +164,7 @@ public:
         // Optimize gradients
 
         nto::optimize<nto::optimize_mode::std>( solver, m_filters, m_filters_momentum, m_filters_delta );
-        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_momentum, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, m_bias, m_bias_momentum, m_deltas_bias );
     }
 
     // Fill weights

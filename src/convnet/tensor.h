@@ -42,6 +42,12 @@ using matrix2F = matrix2T<float>;
 
 namespace neurocl { namespace convnet {
 
+namespace tensor_activations {
+    class sigmoid;
+    class relu;
+    class softmax;
+}
+
 #define tensor_foreach() for ( auto d1 = 0; d1 < m_depth1; d1++ ) \
                             for ( auto d2 = 0; d2 < m_depth2; d2++ )
 
@@ -175,7 +181,9 @@ public:
 protected:
 
     friend class tensor_operation;
-    friend class tensor_activation;
+    friend class tensor_activations::sigmoid;
+    friend class tensor_activations::relu;
+    friend class tensor_activations::softmax;
 
     matrixF& m( const size_t d1, const size_t d2 )  { return m_tensor_array[d1][d2]; }
     const matrixF& c_m( const size_t d1, const size_t d2 ) const { return m_tensor_array[d1][d2]; }

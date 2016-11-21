@@ -79,7 +79,8 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             break;
         case CONV_LAYER:
             {
-                std::shared_ptr<conv_layer> c = std::make_shared<conv_layer>( "c" + std::to_string(++conv_idx) );
+                std::shared_ptr<conv_layer_iface> c =
+                    std::make_shared< conv_layer<tensor_activations::sigmoid> >( "c" + std::to_string(++conv_idx) );
                 c->set_filter_size( _layer.sizeF );
                 c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = c;
@@ -94,7 +95,8 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             break;
         case FULL_LAYER:
             {
-                std::shared_ptr<full_layer> f = std::make_shared<full_layer>( "f" + std::to_string(++full_idx) );
+                std::shared_ptr<full_layer_iface> f =
+                    std::make_shared< full_layer<tensor_activations::sigmoid> >( "f" + std::to_string(++full_idx) );
                 f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = f;
             }
