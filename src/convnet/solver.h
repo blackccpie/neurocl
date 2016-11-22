@@ -37,10 +37,12 @@ namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
 
-class solver_base : std::enable_shared_from_this<solver_base>
+class solver_base : public std::enable_shared_from_this<solver_base>
 {
 public:
-    solver_base() : m_normalize_grad( 1.f )
+    solver_base() : m_normalize_grad( 1.f ) {}
+
+    void register_for_scheduling()
     {
         learning_scheduler::instance().register_solver( shared_from_this() );
     }

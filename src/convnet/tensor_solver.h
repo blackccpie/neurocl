@@ -42,26 +42,30 @@ template<class solverT>
 class tensor_solver : public tensor_solver_iface
 {
 public:
-    tensor_solver( std::initializer_list<float> params_list ) : m_solver{ params_list } {}
+    tensor_solver( std::initializer_list<float> params_list )
+    {
+        m_solver = std::make_shared<solverT>( params_list );
+        m_solver->register_for_scheduling();
+    }
     virtual ~tensor_solver() {}
 
     void set_size( const size_t& size ) override
     {
-        m_solver.set_size( size );
+        m_solver->set_size( size );
     }
 
     void update( tensor& input, tensor& input_momentum, const tensor& gradient ) override
     {
-        m_solver.update( input, input_momentum, gradient );
+        m_solver->update( input, input_momentum, gradient );
     }
 
     void update_redux( tensor& input, tensor& input_momentum, const tensor& gradient ) override
     {
-        m_solver.update_redux( input, input_momentum, gradient );
+        m_solver->update_redux( input, input_momentum, gradient );
     }
 
 private:
-    solverT m_solver;
+    std::shared_ptr<solverT> m_solver;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
