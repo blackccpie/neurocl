@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "neurocl.h"
 
+#include "convnet/learning_scheduler.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -33,12 +35,14 @@ THE SOFTWARE.
 
 using namespace neurocl;
 
-int compute_score(  const samples_manager& smp_manager,
+int compute_score(  const int i,
+                    const samples_manager& smp_manager,
                     const std::shared_ptr<network_manager_interface>& net_manager,
                     float& rmse )
 {
     const std::vector<sample>& training_samples = smp_manager.get_samples();
 
+    static float last_rmse = 0.f;
     float mean_rmse = 0.f;
     size_t _classif_score = 0;
 
@@ -55,11 +59,15 @@ int compute_score(  const samples_manager& smp_manager,
         tsample.restore_ref();
     }
 
-    std::cout << "DETAILED SCORE IS " << _classif_score << "/" << training_samples.size() << std::endl;
-
+    int score = static_cast<int>( 100 * _classif_score / training_samples.size() );
     rmse = mean_rmse / static_cast<float>( training_samples.size() );
 
-    return static_cast<int>( 100 * _classif_score / training_samples.size() );
+    std::cout << "EPOCH " << i << " - CURRENT SCORE IS : " << score << "% (" << _classif_score << "/" << training_samples.size() << ") "
+        << "CURRENT RMSE IS : " << rmse << " (" << (rmse-last_rmse) << ")" << std::endl;
+
+    last_rmse = rmse;
+
+    return score;
 }
 
 int main( int argc, char *argv[] )
@@ -85,9 +93,12 @@ int main( int argc, char *argv[] )
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
         net_manager->load_network( "../nets/mnist/topology-mnist-lenet.txt", "../nets/mnist/weights-mnist-lenet.bin" );
 
+        // TODO : not very clean namespace thing... scheduler should be moved to common sources along with solver...
+        neurocl::convnet::learning_scheduler& sched = neurocl::convnet::learning_scheduler::instance();
+        sched.enable_scheduling( true );
+
         int score = 0;
         float rmse = 0.f;
-        float last_rmse = 0.f;
 
         std::ofstream output_file( "mnist_training.csv" );
 
@@ -95,15 +106,11 @@ int main( int argc, char *argv[] )
         {
             net_manager->batch_train( smp_manager, 1, NEUROCL_BATCH_SIZE );
 
-            score = compute_score( smp_manager, net_manager, rmse );
+            score = compute_score( i, smp_manager, net_manager, rmse );
+
+            sched.push_error( rmse );
 
             output_file << (i+1) << ',' << rmse << '\n';
-
-            float rmse_diff = rmse - last_rmse;
-
-            std::cout << "CURRENT SCORE IS : " << score << "% CURRENT RMSE IS : " << rmse << " (" << rmse_diff << ")" << std::endl;
-
-            last_rmse = rmse;
 
             if ( score > NEUROCL_STOPPING_SCORE )
             {
