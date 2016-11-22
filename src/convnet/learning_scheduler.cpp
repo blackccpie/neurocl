@@ -30,7 +30,9 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-learning_scheduler::learning_scheduler() : m_enabled( false ), m_cached_rate( 0.f )
+learning_scheduler::learning_scheduler()
+    : m_enabled( false ), m_cached_rate( 0.f ), m_cached_error( 0.f ),
+    m_err_count( 0 ), m_err_window( 5 )
 {
 }
 
@@ -72,9 +74,32 @@ void learning_scheduler::enable_scheduling( const bool enable )
     }
 }
 
+void learning_scheduler::push_error( const float error )
+{
+    _assert_solver();
+
+    LOGGER(info) << "learning_scheduler::push_error - pushing error " << error << std::endl;
+
+    if ( m_err_count == 0 )
+        m_cached_error = error;
+
+    if ( ++m_err_count == m_err_window )
+    {
+        if ( error >= m_cached_error )
+        {
+            LOGGER(info) << "learning_scheduler::push_error - convergence slowdown, halving learning rate!" << std::endl;
+
+            float new_rate = 0.5f * m_solver->get_learning_rate();
+            m_solver->set_learning_rate( new_rate );
+        }
+        m_err_count = 0;
+    }
+}
+
 void learning_scheduler::set_learning_rate( const float rate )
 {
     _assert_solver();
+
     m_solver->set_learning_rate( rate );
 }
 

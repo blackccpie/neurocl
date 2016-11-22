@@ -66,7 +66,7 @@ public:
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
-                            const size_t depth ) override
+                            const size_t depth ) final
     {
         LOGGER(info) << "conv_layer::populate - populating convolutional layer " << m_name << std::endl;
 

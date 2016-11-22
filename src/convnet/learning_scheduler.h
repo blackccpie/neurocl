@@ -36,9 +36,14 @@ class learning_scheduler
 public:
     static learning_scheduler& instance() { static learning_scheduler ls; return ls; }
 
-    void register_solver( const std::shared_ptr<solver_base>& solver );
     void enable_scheduling( const bool enable );
+    void push_error( const float error );
     void set_learning_rate( const float rate );
+
+protected:
+
+    friend class solver_base;
+    void register_solver( const std::shared_ptr<solver_base>& solver );
 
 private:
 
@@ -48,8 +53,12 @@ private:
     void _assert_solver();
 
 private:
+
     bool m_enabled;
     float m_cached_rate;
+    float m_cached_error;
+    size_t m_err_count;
+    const size_t m_err_window;
 
     std::shared_ptr<solver_base> m_solver;
 };
