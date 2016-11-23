@@ -87,9 +87,10 @@ void learning_scheduler::push_error( const float error )
     {
         if ( error >= m_cached_error )
         {
-            LOGGER(info) << "learning_scheduler::push_error - convergence slowdown, halving learning rate!" << std::endl;
-
             float new_rate = 0.5f * m_solver->get_learning_rate();
+
+            LOGGER(info) << "learning_scheduler::push_error - convergence slowdown, halving learning rate to " << new_rate << "!" << std::endl;
+
             m_solver->set_learning_rate( new_rate );
         }
         m_err_count = 0;
