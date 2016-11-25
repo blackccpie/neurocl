@@ -100,6 +100,8 @@ int main( int argc, char *argv[] )
     stddev_img /= N-1;
     stddev_img.sqrt();
 
+    std::cout << "extrema in sequence are: " << min << " " << max << std::endl;
+
     stddev_img.save( "mnist-stddev.png" );
 #else
     cimg_library::CImg<float> stddev_img( "mnist-stddev.png" );
@@ -107,10 +109,13 @@ int main( int argc, char *argv[] )
 
     stddev_img.display();
 
+    const float epsilon = 1e-5f;
+
     // test on first image
     cimg_library::CImg<float> test_img( "../nets/mnist/training/validate-data/0.bmp" );
     test_img.channel(0);
-    cimg_library::CImg<float> preproc_img = ( test_img - mean_img ).div( stddev_img );
+    cimg_library::CImg<float> preproc_img = ( test_img - mean_img ).div( stddev_img + epsilon );
+    preproc_img.normalize( 0.f, 1.f );
 
     preproc_img.display();
 
