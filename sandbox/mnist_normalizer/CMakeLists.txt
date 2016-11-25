@@ -35,5 +35,7 @@ main.cpp
 add_executable(mnist_normalizer ${sources_list} ${headers_list})
 
 target_link_libraries(mnist_normalizer
+pthread
+X11
 ${extra_link_libs}
 )
