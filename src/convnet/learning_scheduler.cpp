@@ -104,6 +104,13 @@ void learning_scheduler::set_learning_rate( const float rate )
     m_solver->set_learning_rate( rate );
 }
 
+const float& learning_scheduler::get_learning_rate()
+{
+    _assert_solver();
+
+    return m_solver->get_learning_rate();
+}
+
 void learning_scheduler::_assert_solver()
 {
     if ( !m_solver )

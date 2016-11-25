@@ -39,6 +39,7 @@ public:
     void enable_scheduling( const bool enable );
     void push_error( const float error );
     void set_learning_rate( const float rate );
+    const float& get_learning_rate();
 
 protected:
 
