@@ -112,9 +112,9 @@ int main( int argc, char *argv[] )
 
         std::cout << "MEAN RMSE IS " << mean_rmse << std::endl;
         std::cout << "RMSE SCORE IS " << _rmse_score << "/" << training_samples.size()
-            << " (" << static_cast<int>( 100 * _rmse_score / training_samples.size() ) << "%%)" << std::endl;
+            << " (" << static_cast<int>( 100 * _rmse_score / training_samples.size() ) << "%)" << std::endl;
         std::cout << "CLASSIF SCORE IS " << _classif_score << "/" << training_samples.size()
-            << " (" << static_cast<int>( 100 * _classif_score / training_samples.size() ) << "%%)" << std::endl;
+            << " (" << static_cast<int>( 100 * _classif_score / training_samples.size() ) << "%)" << std::endl;
 
         std::cout << "TRAINING DONE IN : " << duration_training.count() << "ms" << std::endl;
         std::cout << "TESTING DONE IN : " << duration_testing.count() << "ms" << std::endl;
