@@ -57,7 +57,7 @@ public:
                         float* data ) = 0;
 };
 
-template<class errorT>
+template<class activationT,class errorT>
 class output_layer : public output_layer_iface
 {
 public:
@@ -131,8 +131,8 @@ public:
         // apply weights and bias
         m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
 
-        // apply sigmoid function
-        nta::sigmoid::f( m_feature_maps );
+        // apply activation function
+        activationT::f( m_feature_maps );
     }
 
     virtual void back_propagate() override
@@ -150,13 +150,13 @@ public:
 
         // compute output layer error
         m_error_maps = nto::elemul(
-            nta::sigmoid::d_f( m_feature_maps ),
+            activationT::d_f( m_feature_maps ),
             errorT::d_f( m_feature_maps, m_training_output )
         );
 
         // compute previous layer error
     	prev_error_maps = nto::elemul(
-        		nta::sigmoid::d_f( prev_feature_maps ),
+        		activationT::d_f( prev_feature_maps ),
         		nto::multrans1( m_weights, m_error_maps )
     		);
     }

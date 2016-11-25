@@ -70,7 +70,7 @@ private:
     friend class pool_layer;
     template <class T> friend class conv_layer;
     template <class T> friend class full_layer;
-    template <class T> friend class output_layer;
+    template <class T1,class T2> friend class output_layer;
 
     virtual tensor& error_maps() = 0;
 };

@@ -61,6 +61,38 @@ public:
     }
 };
 
+class tanh
+{
+public:
+
+    static void f( tensor& input )
+    {
+        // As seen in Lecun's Efficient Backprop :
+        // http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
+
+        tensor_foreach_p( input.d1(), input.d2() ) {
+            std::for_each(  input.m(d1,d2).data().begin(),
+                            input.m(d1,d2).data().end(),
+                            []( float& a) { a = 1.7159f + ::tanh(2.f*a/3.f); } );
+        }
+    }
+
+    static tensor d_f( const tensor& input )
+    {
+        using namespace boost::numeric::ublas;
+
+        tensor output;
+        output.resize( input );
+
+        tensor_foreach_p( input.d1(), input.d2() ) {
+            const matrixF& mat = input.c_m(d1,d2);
+            output.m(d1,d2) = scalar_matrix<float>( mat.size1(), mat.size2(), 1.f ) - element_prod( mat, mat );
+        }
+
+        return output;
+    }
+};
+
 class relu
 {
 public:

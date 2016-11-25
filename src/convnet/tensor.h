@@ -44,6 +44,7 @@ namespace neurocl { namespace convnet {
 
 namespace tensor_activations {
     class sigmoid;
+    class tanh;
     class relu;
     class softmax;
 }
@@ -182,6 +183,7 @@ protected:
 
     friend class tensor_operation;
     friend class tensor_activations::sigmoid;
+    friend class tensor_activations::tanh;
     friend class tensor_activations::relu;
     friend class tensor_activations::softmax;
 

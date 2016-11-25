@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <vector>
 

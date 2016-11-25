@@ -104,7 +104,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case OUTPUT_LAYER:
             {
                 std::shared_ptr<output_layer_iface> out =
-                    std::make_shared< output_layer<tensor_loss_functions::mse> >();
+                    std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::mse> >();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = out;
             }
