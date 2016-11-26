@@ -130,11 +130,23 @@ public:
 
     static void f( tensor& input )
     {
-        /*tensor_foreach_p( input.d1(), input.d2() ) {
+        float alpha = std::numeric_limits<float>::min();
+        tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2).data().begin(),
                             input.m(d1,d2).data().end(),
-                            []( float& a) { a = std::max( 0.f, a ); } ); //TODO
-        }*/
+                            [&alpha]( float& a) { if ( a > alpha ) alpha = a; } );
+        }
+        float denom = 0.f;
+        tensor_foreach_p( input.d1(), input.d2() ) {
+            std::for_each(  input.m(d1,d2).data().begin(),
+                            input.m(d1,d2).data().end(),
+                            [alpha,&denom]( float& a) { denom += std::exp(a - alpha); } );
+        }
+        tensor_foreach_p( input.d1(), input.d2() ) {
+            std::for_each(  input.m(d1,d2).data().begin(),
+                            input.m(d1,d2).data().end(),
+                            [alpha,denom]( float& a) { a = std::exp(a - alpha)/denom; } );
+        }
     }
 
     static tensor d_f( const tensor& input )
