@@ -33,6 +33,8 @@ THE SOFTWARE.
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;
 
+#include <map>
+
 namespace neurocl {
 
 static const std::string s_neurocl_config_file = "neurocl.xml";
@@ -72,6 +74,15 @@ public:
             LOGGER(info) << "network_config::update_optional - key " << key << " configured to value " << param << std::endl;
         }
     }
+    template<class T>
+    void update_set_optional( std::map<const std::string,T>& parameters_set ) const
+    {
+        for ( auto& _param : parameters_set )
+        {
+            update_optional( _param.first, _param.second.get() ); // works only because T is std::reference_wrapper<>
+        }
+    }
+
 private:
     network_config()
     {

@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "common/network_exception.h"
 
 #include <cmath>
+#include <map>
 
 namespace neurocl { namespace convnet {
 
@@ -60,7 +61,16 @@ public:
     //! set learning rate (scheduled learning)
     virtual void set_learning_rate( const float new_rate ) = 0;
 
+    //! get parameters parsing map
+    std::map<const std::string,std::reference_wrapper<float>>& get_parameters_map()
+    {
+        return m_parameters_set;
+    }
+
 protected:
+
+    //! parameters parsing map
+    std::map<const std::string,std::reference_wrapper<float>> m_parameters_set;
 
     float m_normalize_grad;
 };
@@ -82,6 +92,10 @@ public:
         }
         else
             LOGGER(warning) << "solver_sgd::solver_sgd - invalid parameters number, keeping defaults" << std::endl;
+    }
+    solver_sgd() : m_alpha( 0.01f ), m_lambda( 0.00005f ), m_mu( 0.9f )
+    {
+        m_parameters_set = { {"learning_rate",std::ref(m_alpha)}, {"weight_decay",std::ref(m_lambda)}, {"momentum",std::ref(m_mu)} };
     }
     virtual ~solver_sgd() {}
 
@@ -113,7 +127,7 @@ private:
 class solver_rms_prop : public solver_base
 {
 public:
-    solver_rms_prop( const float alpha = 0.0001f, const float mu = 0.99f ) // TODO-AM : temporary dumb constructor!!
+    solver_rms_prop( const float alpha, const float mu )
     	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
     solver_rms_prop( std::initializer_list<float> params_list )
     	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
@@ -125,6 +139,10 @@ public:
         }
         else
             LOGGER(warning) << "solver_rms_prop::solver_rms_prop - invalid parameters number, keeping defaults" << std::endl;
+    }
+    solver_rms_prop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    {
+        m_parameters_set = { {"learning_rate",std::ref(m_alpha)}, {"momentum",std::ref(m_mu)} };
     }
     virtual ~solver_rms_prop() {}
 

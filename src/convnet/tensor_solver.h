@@ -27,6 +27,10 @@ THE SOFTWARE.
 
 #include "solver.h"
 
+#include "common/network_config.h"
+
+#include <boost/lexical_cast.hpp>
+
 namespace neurocl { namespace convnet {
 
 class tensor_solver_iface
@@ -42,10 +46,16 @@ template<class solverT>
 class tensor_solver : public tensor_solver_iface
 {
 public:
+
+    tensor_solver()
+    {
+        m_solver = std::make_shared<solverT>();
+        _init();
+    }
     tensor_solver( std::initializer_list<float> params_list )
     {
         m_solver = std::make_shared<solverT>( params_list );
-        m_solver->register_for_scheduling();
+        _init();
     }
     virtual ~tensor_solver() {}
 
@@ -65,8 +75,74 @@ public:
     }
 
 private:
+
+    void _init()
+    {
+        m_solver->register_for_scheduling();
+
+        const network_config& nc = network_config::instance();
+        nc.update_set_optional<std::reference_wrapper<float>>( m_solver->get_parameters_map() );
+    }
+
+private:
     std::shared_ptr<solverT> m_solver;
 };
+
+class tensor_solver_factory
+{
+public:
+    enum class t_solver_impl
+    {
+        SOLVER_IMPL_SGD = 0,
+        SOLVER_IMPL_RMS_PROP
+    };
+public:
+
+    static std::shared_ptr<tensor_solver_iface> build()
+    {
+        std::string str_impl = "undefined";
+
+        try
+        {
+            const network_config& nc = network_config::instance();
+            nc.update_mandatory( "solver", str_impl );
+
+            return build( boost::lexical_cast<t_solver_impl>( str_impl ) );
+        }
+        catch(...)
+        {
+            throw network_exception( "unmanaged solver implementation in configuration file : " + str_impl );
+        }
+    }
+
+    static std::shared_ptr<tensor_solver_iface> build( const t_solver_impl& impl )
+    {
+        switch( impl )
+        {
+        case t_solver_impl::SOLVER_IMPL_SGD:
+            return std::make_shared< tensor_solver<solver_sgd> >();
+        case t_solver_impl::SOLVER_IMPL_RMS_PROP:
+            return std::make_shared< tensor_solver<solver_rms_prop> >();
+        default:
+            throw network_exception( "unmanaged solver implementation!" );
+        }
+    }
+};
+
+inline std::istream& operator>> ( std::istream &input, tensor_solver_factory::t_solver_impl& impl )
+{
+    std::string impl_string;
+    input >> impl_string;
+
+    if ( impl_string == "SGD" )
+        impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_SGD;
+    else if ( impl_string == "RMS_PROP" )
+        impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_RMS_PROP;
+    else
+        input.setstate( std::ios_base::failbit );
+
+    return input;
+}
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 

@@ -61,10 +61,10 @@ void network_manager::save_network()
     m_net_file_handler->save_network_weights();
 }
 
-void network_manager::batch_train( const samples_manager& smp_manager,
-                                        const size_t& epoch_size,
-                                        const size_t& batch_size,
-                                        t_progress_fct progress_fct )
+void network_manager::batch_train(	const samples_manager& smp_manager,
+                                    const size_t& epoch_size,
+                                    const size_t& batch_size,
+                                    t_progress_fct progress_fct )
 {
     _assert_loaded();
 

@@ -31,8 +31,6 @@ THE SOFTWARE.
 #include "input_layer.h"
 #include "output_layer.h"
 
-#include "common/network_config.h"
-
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace neurocl { namespace convnet {
@@ -41,22 +39,7 @@ namespace neurocl { namespace convnet {
 
 network::network() : m_training_samples( 0 )
 {
-    float learning_rate = 1.0f;
-    float weight_decay = 0.f;
-    float momentum = 0.f;
-
-    const network_config& nc = network_config::instance();
-    nc.update_optional( "learning_rate", learning_rate );
-    nc.update_optional( "weight_decay", weight_decay );
-    nc.update_optional( "momentum", momentum );
-
-    // build solver given learning rate and weight decay
-    m_solver = std::make_shared< tensor_solver<solver_sgd> >(
-        std::initializer_list<float>{ learning_rate, weight_decay, momentum }
-    );
-    /*m_solver = std::make_shared< tensor_solver<solver_rms_prop> >(
-        std::initializer_list<float>{ 0.001f, 0.99f }
-    );*/
+    m_solver = tensor_solver_factory::build();
 }
 
 void network::add_layers( const std::vector<layer_descr>& layers )

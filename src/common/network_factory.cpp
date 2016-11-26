@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-std::istream& operator>> ( std::istream &input, network_factory::t_neural_impl& impl )
+inline std::istream& operator>> ( std::istream &input, network_factory::t_neural_impl& impl )
 {
     std::string impl_string;
     input >> impl_string;
@@ -57,6 +57,10 @@ std::shared_ptr<network_manager_interface> network_factory::build()
         nc.update_mandatory( "implementation", str_impl );
 
         return build( boost::lexical_cast<t_neural_impl>( str_impl ) );
+    }
+    catch( network_exception& e )
+    {
+        throw;
     }
     catch(...)
     {
