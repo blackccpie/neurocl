@@ -81,7 +81,7 @@ private:
         m_solver->register_for_scheduling();
 
         const network_config& nc = network_config::instance();
-        nc.update_set_optional<std::reference_wrapper<float>>( m_solver->get_parameters_map() );
+        nc.update_set_optional<std::reference_wrapper<float>>( m_solver->get_parameters_map(), "solver.<xmlattr>" );
     }
 
 private:
@@ -105,7 +105,7 @@ public:
         try
         {
             const network_config& nc = network_config::instance();
-            nc.update_mandatory( "solver", str_impl );
+            nc.update_mandatory( "solver.<xmlattr>.type", str_impl );
 
             return build( boost::lexical_cast<t_solver_impl>( str_impl ) );
         }

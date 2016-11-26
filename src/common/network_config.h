@@ -75,19 +75,26 @@ public:
         }
     }
     template<class T>
-    void update_set_optional( std::map<const std::string,T>& parameters_set ) const
+    void update_set_optional( std::map<const std::string,T>& parameters_set, const std::string& prefix = "" ) const
     {
         for ( auto& _param : parameters_set )
         {
-            update_optional( _param.first, _param.second.get() ); // works only because T is std::reference_wrapper<>
+            update_optional( prefix + "." + _param.first, _param.second.get() ); // works only because T is std::reference_wrapper<>
         }
     }
 
 private:
     network_config()
     {
-        if ( bfs::exists( s_neurocl_config_file ) )
-            boost::property_tree::read_xml( s_neurocl_config_file, m_ptree );
+        try
+        {
+        	if ( bfs::exists( s_neurocl_config_file ) )
+            	boost::property_tree::read_xml( s_neurocl_config_file, m_ptree );
+        }
+        catch( const boost::property_tree::ptree_error& e )
+        {
+            LOGGER(error) << "network_config::network_config - error parsing xml configuration file (" << e.what() << std::endl;
+        }
     }
     virtual ~network_config() {}
 

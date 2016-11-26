@@ -95,7 +95,7 @@ public:
     }
     solver_sgd() : m_alpha( 0.01f ), m_lambda( 0.00005f ), m_mu( 0.9f )
     {
-        m_parameters_set = { {"learning_rate",std::ref(m_alpha)}, {"weight_decay",std::ref(m_lambda)}, {"momentum",std::ref(m_mu)} };
+        m_parameters_set = { {"lr",std::ref(m_alpha)}, {"wd",std::ref(m_lambda)}, {"m",std::ref(m_mu)} };
     }
     virtual ~solver_sgd() {}
 
@@ -142,7 +142,7 @@ public:
     }
     solver_rms_prop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
     {
-        m_parameters_set = { {"learning_rate",std::ref(m_alpha)}, {"momentum",std::ref(m_mu)} };
+        m_parameters_set = { {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} };
     }
     virtual ~solver_rms_prop() {}
 

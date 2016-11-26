@@ -1,5 +1,5 @@
 <neurocl>
 	<implementation>CONVNET</implementation>
-	<learning_rate>1.5</learning_rate>
+	<solver type="SGD" lr="0.01" wd="0.00005" m="0.9"/>
+	<!--solver type="RMS_PROP" lr="0.001" m="0.99"/-->
 </neurocl>
-

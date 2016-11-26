@@ -58,7 +58,7 @@ std::shared_ptr<network_manager_interface> network_factory::build()
 
         return build( boost::lexical_cast<t_neural_impl>( str_impl ) );
     }
-    catch( network_exception& e )
+    catch( const network_exception& e )
     {
         throw;
     }
