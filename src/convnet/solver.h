@@ -62,7 +62,8 @@ public:
     virtual void set_learning_rate( const float new_rate ) = 0;
 
     //! get parameters parsing map
-    std::map<const std::string,std::reference_wrapper<float>>& get_parameters_map()
+    using t_parameters_map = std::map<const std::string,std::reference_wrapper<float>>;
+    t_parameters_map& get_parameters_map()
     {
         return m_parameters_set;
     }
@@ -70,7 +71,7 @@ public:
 protected:
 
     //! parameters parsing map
-    std::map<const std::string,std::reference_wrapper<float>> m_parameters_set;
+    t_parameters_map m_parameters_set;
 
     float m_normalize_grad;
 };
@@ -95,7 +96,9 @@ public:
     }
     solver_sgd() : m_alpha( 0.01f ), m_lambda( 0.00005f ), m_mu( 0.9f )
     {
-        m_parameters_set = { {"lr",std::ref(m_alpha)}, {"wd",std::ref(m_lambda)}, {"m",std::ref(m_mu)} };
+        m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
+        	{ {"lr",std::ref(m_alpha)}, {"wd",std::ref(m_lambda)}, {"m",std::ref(m_mu)} }
+        );
     }
     virtual ~solver_sgd() {}
 
@@ -142,7 +145,9 @@ public:
     }
     solver_rms_prop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
     {
-        m_parameters_set = { {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} };
+        m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
+        	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
+        );
     }
     virtual ~solver_rms_prop() {}
 
