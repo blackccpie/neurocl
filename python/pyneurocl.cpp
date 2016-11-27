@@ -54,6 +54,10 @@ class py_neurocl_helper
 public:
     py_neurocl_helper( bool verbose ) : m_smp_manager( neurocl::samples_manager::instance() ), m_progress( 0 )
     {
+		logger_manager& lm = logger_manager::instance();
+		l//m.add_logger( policy_type::cout, "pyneurocl" );
+		lm.add_logger( policy_type::file, "pyneurocl.log" );
+		
         if ( !verbose )
             std::cout.rdbuf(NULL);
     }
@@ -85,9 +89,25 @@ public:
         return m_progress;
     }
 
-    void compute( const int wi, const int hi, const float* in, const int wo, const int ho, float* out )
+    void compute( const boost::python::numeric::array& in, boost::python::numeric::array& out )
     {
-        sample _sample( wi * hi, in , wo * ho, out );
+        using namespace boost::python;
+
+		const tuple &shape_in = extract<tuple>( in.attr("shape") );
+		const tuple &shape_out = extract<tuple>( out.attr("shape") );
+
+        int wi = extract<int>( shape_in[1] ); // cols
+        int hi = extract<int>( shape_in[0] ); // rows
+
+        int wo = extract<int>( shape_out[1] );
+        int ho = extract<int>( shape_out[0] );
+
+		//std::cout << wi << " " << hi << " " << wo << " " << ho << std::endl;
+
+        const float* _in = nullptr;
+        float* _out;
+
+        sample _sample( wi * hi, _in , wo * ho, _out );
 
         m_net_manager->compute_output( _sample );
     }
@@ -110,20 +130,22 @@ private:
     int m_progress;
 
     samples_manager& m_smp_manager;
-    std::shared_ptr<network_manager_interface> m_net_manager;
+	std::shared_ptr<network_manager_interface> m_net_manager;
 };
 
 BOOST_PYTHON_MODULE(pyneurocl)
 {
-  using namespace boost::python;
+	using namespace boost::python;
 
-  register_exception_translator<network_exception>( translateException );
+	boost::python::numeric::array::set_module_and_type("numpy", "ndarray");
 
-  class_<py_neurocl_helper>("helper",init<bool>())
-    .def("init",&py_neurocl_helper::init)
-    .def("uninit",&py_neurocl_helper::uninit)
-    .def("train",&py_neurocl_helper::train)
-    .def("compute",&py_neurocl_helper::compute)
-    .def("train_progress",&py_neurocl_helper::train_progress)
-  ;
+	register_exception_translator<network_exception>( translateException );
+
+	class_<py_neurocl_helper>("helper",init<bool>())
+		.def("init",&py_neurocl_helper::init)
+		.def("uninit",&py_neurocl_helper::uninit)
+		.def("train",&py_neurocl_helper::train)
+		.def("compute",&py_neurocl_helper::compute)
+		.def("train_progress",&py_neurocl_helper::train_progress)
+	;
 }

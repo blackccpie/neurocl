@@ -41,7 +41,7 @@ try:
     # NOTE: python GIL is released during training so that worker thread can call h.train_progress()
 
     print "---> pyneurocl - train 10 epochs"
-    h.train('../nets/alpr/alpr-train-let.txt',10,10)
+    h.train('../nets/alpr/training/alpr-train-let.txt',10,10)
 
     t.join()
 except Exception:

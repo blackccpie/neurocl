@@ -83,7 +83,7 @@ public:
 	}
 	void write( const std::string& msg ) override
 	{
-		(*m_out_stream) << msg << std::endl;
+		(*m_out_stream) << msg;
 	}
 
 private:
