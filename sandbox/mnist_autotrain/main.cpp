@@ -24,8 +24,6 @@ THE SOFTWARE.
 
 #include "neurocl.h"
 
-#include "convnet/learning_scheduler.h"
-
 #include <iostream>
 #include <fstream>
 
@@ -93,8 +91,7 @@ int main( int argc, char *argv[] )
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
         net_manager->load_network( "../nets/mnist/topology-mnist-lenet.txt", "../nets/mnist/weights-mnist-lenet.bin" );
 
-        // TODO : not very clean namespace thing... scheduler should be moved to common sources along with solver...
-        neurocl::convnet::learning_scheduler& sched = neurocl::convnet::learning_scheduler::instance();
+        neurocl::learning_scheduler& sched = neurocl::learning_scheduler::instance();
         sched.enable_scheduling( true );
 
         int score = 0;

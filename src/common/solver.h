@@ -25,18 +25,14 @@ THE SOFTWARE.
 #ifndef SOLVER_H
 #define SOLVER_H
 
-#include "tensor_operations.h"
 #include "learning_scheduler.h"
-
-#include "common/logger.h"
-#include "common/network_exception.h"
+#include "logger.h"
+#include "network_exception.h"
 
 #include <cmath>
 #include <map>
 
-namespace neurocl { namespace convnet {
-
-using nto = neurocl::convnet::tensor_operation;
+namespace neurocl {
 
 class solver_base : public std::enable_shared_from_this<solver_base>
 {
@@ -127,6 +123,7 @@ private:
 };
 
 /* RMSprop solver implementation */
+template <typename operatorF>
 class solver_rms_prop : public solver_base
 {
 public:
@@ -156,11 +153,11 @@ public:
     {
         input_momentum = m_mu * input_momentum
             + ( 1 - m_mu ) * m_normalize_grad * m_normalize_grad * gradient * gradient;
-        input -= m_alpha * m_normalize_grad * gradient / nto::sqrt( input_momentum + m_eps );
+        input -= m_alpha * m_normalize_grad * gradient / operatorF::sqrt( input_momentum + m_eps );
     }
 
     template<typename T>
-    void update_redux( T& input, T& input_momentum, const T& gradient ) // TODO-AM : usefull???
+    void update_redux( T& input, T& input_momentum, const T& gradient ) // TODO : usefull???
     {
         update( input, input_momentum, gradient );
     }
@@ -175,6 +172,6 @@ private:
     const float m_eps;  // constant value to avoid zero-division
 };
 
-} /*namespace neurocl*/ } /*namespace convnet*/
+} /*namespace neurocl*/
 
 #endif //SOLVER_H

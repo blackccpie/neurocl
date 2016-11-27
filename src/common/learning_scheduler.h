@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include <memory>
 
-namespace neurocl { namespace convnet {
+namespace neurocl {
 
 class solver_base;
 
@@ -64,6 +64,6 @@ private:
     std::shared_ptr<solver_base> m_solver;
 };
 
-} /*namespace neurocl*/ } /*namespace convnet*/
+} /*namespace neurocl*/
 
 #endif //LEARNING_SCHEDULER_H

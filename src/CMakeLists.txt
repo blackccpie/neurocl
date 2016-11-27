@@ -59,6 +59,7 @@ include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
 common/samples_manager.cpp
+common/learning_scheduler.cpp
 common/network_factory.cpp
 common/network_manager.cpp
 common/logger.cpp
@@ -71,7 +72,6 @@ mlp/network_vexcl.cpp
 mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 
-convnet/learning_scheduler.cpp
 convnet/network.cpp
 convnet/network_file_handler.cpp
 convnet/tensor.cpp
@@ -87,6 +87,7 @@ interfaces/network_manager_interface.h
 interfaces/network_file_handler_interface.h
 
 common/samples_manager.h
+common/learning_scheduler.h
 common/network_factory.h
 common/network_manager.h
 common/network_sample.h
@@ -95,6 +96,7 @@ common/network_utils.h
 common/network_config.h
 common/iterative_trainer.h
 common/logger.h
+common/solver.h
 
 common/portable_binary_archive/portable_binary_archive.hpp
 common/portable_binary_archive/portable_binary_iarchive.hpp
@@ -107,13 +109,11 @@ mlp/network_vexcl.h
 mlp/network_bnu_base.h
 mlp/network_bnu_ref.h
 
-convnet/learning_scheduler.h
 convnet/layer.h
 convnet/conv_layer.h
 convnet/input_layer.h
 convnet/output_layer.h
 convnet/pool_layer.h
-convnet/solver.h
 convnet/tensor.h
 convnet/tensor_solver.h
 convnet/tensor_activations.h

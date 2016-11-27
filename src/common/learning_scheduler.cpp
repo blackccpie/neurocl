@@ -24,11 +24,10 @@ THE SOFTWARE.
 
 #include "learning_scheduler.h"
 #include "solver.h"
+#include "logger.h"
+#include "network_exception.h"
 
-#include "common/logger.h"
-#include "common/network_exception.h"
-
-namespace neurocl { namespace convnet {
+namespace neurocl {
 
 learning_scheduler::learning_scheduler()
     : m_enabled( false ), m_cached_rate( 0.f ), m_cached_error( 0.f ),
@@ -117,4 +116,4 @@ void learning_scheduler::_assert_solver()
         throw network_exception( "no solver registered!" );
 }
 
-} /*namespace neurocl*/ } /*namespace convnet*/
+} /*namespace neurocl*/

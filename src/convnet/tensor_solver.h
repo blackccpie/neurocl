@@ -25,8 +25,9 @@ THE SOFTWARE.
 #ifndef TENSOR_SOLVER_H
 #define TENSOR_SOLVER_H
 
-#include "solver.h"
+#include "tensor_operations.h"
 
+#include "common/solver.h"
 #include "common/network_config.h"
 
 #include <boost/lexical_cast.hpp>
@@ -122,7 +123,7 @@ public:
         case t_solver_impl::SOLVER_IMPL_SGD:
             return std::make_shared< tensor_solver<solver_sgd> >();
         case t_solver_impl::SOLVER_IMPL_RMS_PROP:
-            return std::make_shared< tensor_solver<solver_rms_prop> >();
+            return std::make_shared< tensor_solver<solver_rms_prop<tensor_operation>> >();
         default:
             throw network_exception( "unmanaged solver implementation!" );
         }
