@@ -40,10 +40,12 @@ class samples_manager
 {
 public:
 
-    static samples_manager& instance()
+    samples_manager() : m_batch_index( 0 ), m_end( false ), m_restrict_size( 0 ) {}
+    virtual ~samples_manager() {}
+
+    void restrict_dataset( const size_t size )
     {
-        static samples_manager m;
-        return m;
+        m_restrict_size = size;
     }
 
     void load_samples( const std::string &input_filename, bool shuffle = false, t_preproc extra_preproc = t_preproc() );
@@ -65,13 +67,9 @@ public:
 
 private:
 
-    samples_manager() : m_batch_index( 0 ), m_end( false ) {}
-    virtual ~samples_manager() {}
-
-private:
-
     mutable bool m_end;
     mutable size_t m_batch_index;
+    size_t m_restrict_size;
 
     std::vector< boost::shared_array<float> > m_input_samples;
     std::vector< boost::shared_array<float> > m_output_samples;

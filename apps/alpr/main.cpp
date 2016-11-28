@@ -65,8 +65,8 @@ int main( int argc, char *argv[] )
             std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
             net_manager->load_network( argv[3], argv[4] );
 
-            samples_manager& smp_manager = samples_manager::instance();
-            samples_manager::instance().load_samples( argv[2] );
+            samples_manager smp_manager;
+            smp_manager.load_samples( argv[2] );
 
             if ( argc == 6 )
                 net_manager->batch_train( smp_manager, boost::lexical_cast<int>( argv[5] ), NEUROCL_BATCH_SIZE );

@@ -438,7 +438,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	camera.release();
 
     // TRAIN THE WHOLE NETWORK
-	neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+	neurocl::samples_manager smp_manager;
 	smp_manager.load_samples(  "../nets/facecam/auto-train.txt",
 														true /*shuffle*/,
 														&face_preprocess_generic /* extra_preproc*/ );

@@ -84,9 +84,12 @@ int main( int argc, char *argv[] )
 
     try
     {
-        samples_manager& smp_manager = neurocl::samples_manager::instance();
-        //samples_manager::instance().load_samples( "../nets/mnist/training/mnist-train.txt" );
-        samples_manager::instance().load_samples( "../nets/mnist/training/mnist-validate.txt" );
+        samples_manager smp_train_manager;
+        smp_train_manager.load_samples( "../nets/mnist/training/mnist-train.txt" );
+		smp_train_manager.restrict_size( 10000 );
+
+        samples_manager smp_validate_manager;
+        smp_validate_manager.load_samples( "../nets/mnist/training/mnist-validate.txt" );
 
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
         net_manager->load_network( "../nets/mnist/topology-mnist-lenet.txt", "../nets/mnist/weights-mnist-lenet.bin" );
@@ -101,9 +104,9 @@ int main( int argc, char *argv[] )
 
         for ( int i=0; i<NEUROCL_MAX_EPOCH_SIZE; i++ )
         {
-            net_manager->batch_train( smp_manager, 1, NEUROCL_BATCH_SIZE );
+            net_manager->batch_train( smp_train_manager, 1, NEUROCL_BATCH_SIZE );
 
-            score = compute_score( i, smp_manager, net_manager, rmse );
+            score = compute_score( i, smp_validate_manager, net_manager, rmse );
 
             sched.push_error( rmse );
 

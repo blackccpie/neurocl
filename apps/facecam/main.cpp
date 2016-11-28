@@ -235,7 +235,7 @@ int main ( int argc,char **argv )
         {
             /******** TRAIN ********/
 
-            samples_manager& smp_manager = samples_manager::instance();
+            samples_manager smp_manager;
             smp_manager.load_samples(  "../nets/facecam/facecam-train.txt",
                                                                 true /*shuffle*/,
                                                                 &face_preprocess_generic /* extra_preproc*/ );

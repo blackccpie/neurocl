@@ -52,12 +52,12 @@ private:
 class py_neurocl_helper
 {
 public:
-    py_neurocl_helper( bool verbose ) : m_smp_manager( neurocl::samples_manager::instance() ), m_progress( 0 )
+    py_neurocl_helper( bool verbose ) : m_progress( 0 )
     {
 		logger_manager& lm = logger_manager::instance();
-		l//m.add_logger( policy_type::cout, "pyneurocl" );
+		//m.add_logger( policy_type::cout, "pyneurocl" );
 		lm.add_logger( policy_type::file, "pyneurocl.log" );
-		
+
         if ( !verbose )
             std::cout.rdbuf(NULL);
     }
@@ -129,7 +129,7 @@ private:
 
     int m_progress;
 
-    samples_manager& m_smp_manager;
+    samples_manager m_smp_manager;
 	std::shared_ptr<network_manager_interface> m_net_manager;
 };
 

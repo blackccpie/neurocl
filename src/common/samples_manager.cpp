@@ -39,6 +39,8 @@ namespace neurocl {
 // Pad input image with zeros
 void _pad( const cimg_library::CImg<float>& source, cimg_library::CImg<float>& padded, const size_t& pad_size )
 {
+    // NOTE : could have used CImg resize function
+
     padded.resize( source.width() + 2*pad_size, source.height() + 2*pad_size );
 
     cimg_for_borderXY( padded, x, y, pad_size ) { padded( x, y ) = 0; }
@@ -48,9 +50,6 @@ void _pad( const cimg_library::CImg<float>& source, cimg_library::CImg<float>& p
 cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
 {
     cimg_library::CImg<float> img( file.c_str() );
-
-    //img.resize(32,32);
-    //img.resize( 32, 32, -100, -100, 0, 0, 1, 1, 0, 0 );
 
     img.equalize( 256, 0, 255 );
     img.normalize( 0.f, 1.f );
@@ -125,6 +124,10 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
 
         // store new sample
         m_samples_set.push_back( neurocl::sample( input_size, m_input_samples.back().get(), output_size, m_output_samples.back().get() ) );
+
+        // manage restricted size
+        if ( m_restrict_size == m_samples_set.size() )
+            break;
     }
 
     if ( shuffle )
@@ -136,8 +139,8 @@ const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t
     if ( m_end )
         return std::vector<neurocl::sample>();
 
-    std::vector<neurocl::sample>::const_iterator begin = m_samples_set.begin() + m_batch_index;
-    std::vector<neurocl::sample>::const_iterator end = begin + size;
+    auto begin = m_samples_set.cbegin() + m_batch_index;
+    auto end = begin + size;
 
     if ( end >= m_samples_set.end() )
     {
