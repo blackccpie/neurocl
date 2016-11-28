@@ -85,10 +85,11 @@ int main( int argc, char *argv[] )
     try
     {
         samples_manager smp_train_manager;
+        //smp_train_manager.restrict_dataset( 100 );
         smp_train_manager.load_samples( "../nets/mnist/training/mnist-train.txt" );
-		smp_train_manager.restrict_size( 10000 );
 
         samples_manager smp_validate_manager;
+        //smp_validate_manager.restrict_dataset( 100 );
         smp_validate_manager.load_samples( "../nets/mnist/training/mnist-validate.txt" );
 
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
