@@ -107,6 +107,8 @@ public:
 
     static tensor uniform_sum( const tensor& input );
 
+    static void bernoulli( tensor& input, const float p );
+
     template<optimize_mode om>
     static void optimize( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas );
 };

@@ -556,6 +556,15 @@ tensor tensor_operation::uniform_sum( const tensor& input )
     return output;
 }
 
+void tensor_operation::bernoulli( tensor& input, const float p )
+{
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        std::for_each(  input.m(d1,d2).data().begin(),
+                        input.m(d1,d2).data().end(),
+                        []( float& a) { a = a; } ); //TODO
+    }
+}
+
 template<>
 void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
 {
