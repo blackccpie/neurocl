@@ -33,6 +33,20 @@ namespace neurocl {
 
 namespace utils {
 
+class rand_bernoulli_generator
+{
+public:
+    rand_bernoulli_generator( const float p )
+        : m_gen( std::random_device{}() ), m_bernoulli{ p } {}
+    virtual ~rand_bernoulli_generator() {}
+
+    float operator()() { return m_bernoulli( m_gen ); }
+
+private:
+    std::mt19937 m_gen;
+    std::bernoulli_distribution m_bernoulli;
+};
+
 class rand_gaussian_generator
 {
 public:
