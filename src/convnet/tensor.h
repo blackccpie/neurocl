@@ -111,7 +111,7 @@ public:
     }
 
     // assignment operator
-    tensor& operator=( tensor& other )
+    tensor& operator=( const tensor& other )
     {
         m_width = other.m_width;
         m_height = other.m_height;

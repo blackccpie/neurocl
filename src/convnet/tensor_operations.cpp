@@ -25,6 +25,8 @@ THE SOFTWARE.
 #include "tensor_solver.h"
 #include "tensor_operations.h"
 
+#include "common/network_utils.h"
+
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 namespace neurocl { namespace convnet {
@@ -558,10 +560,12 @@ tensor tensor_operation::uniform_sum( const tensor& input )
 
 void tensor_operation::bernoulli( tensor& input, const float p )
 {
+    utils::rand_bernoulli_generator bernoulli( p );
+
     tensor_foreach_p( input.d1(), input.d2() ) {
         std::for_each(  input.m(d1,d2).data().begin(),
                         input.m(d1,d2).data().end(),
-                        []( float& a) { a = a; } ); //TODO
+                        [&bernoulli]( float& a) { a = bernoulli(); } );
     }
 }
 
