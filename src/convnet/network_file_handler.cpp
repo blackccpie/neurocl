@@ -49,6 +49,8 @@ std::istream& operator>> ( std::istream &input, layer_type& type )
         type = CONV_LAYER;
     else if ( layer_string == "pool" )
         type = POOL_LAYER;
+    else if ( layer_string == "drop" )
+        type = DROPOUT_LAYER;
     else if ( layer_string == "full" )
         type = FULL_LAYER;
     else if ( layer_string == "in" )

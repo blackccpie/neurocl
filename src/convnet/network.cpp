@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "pool_layer.h"
 #include "input_layer.h"
 #include "output_layer.h"
+#include "dropout_layer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -46,6 +47,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
 {
     size_t conv_idx = 0;
     size_t pool_idx = 0;
+    size_t drop_idx = 0;
     size_t full_idx = 0;
 
     for ( auto& _layer : layers )
@@ -90,6 +92,13 @@ void network::add_layers( const std::vector<layer_descr>& layers )
                     std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::mse> >();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = out;
+            }
+            break;
+        case DROPOUT_LAYER:
+            {
+                std::shared_ptr<dropout_layer> d = std::make_shared<dropout_layer>( "d" + std::to_string(++drop_idx) );
+                d->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = d;
             }
             break;
         }

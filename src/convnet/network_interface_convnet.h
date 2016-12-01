@@ -37,6 +37,7 @@ enum layer_type
     INPUT_LAYER = 0,
     CONV_LAYER,
     POOL_LAYER,
+    DROPOUT_LAYER,
     FULL_LAYER,
     OUTPUT_LAYER
 };
