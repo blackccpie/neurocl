@@ -38,14 +38,14 @@ public:
 
      virtual const std::string type() const = 0;
 
-    // SIZING OF THE FEATURE MAPS
+    //! SIZING OF THE FEATURE MAPS
     size_t size() const { return width()*height()*depth(); }
 
     virtual size_t width() const = 0;
     virtual size_t height() const = 0;
     virtual size_t depth() const = 0;
 
-    // SIZING OF THE MODEL PARAMETERS
+    //! SIZING OF THE MODEL PARAMETERS
     virtual size_t nb_weights() const = 0;
     virtual size_t nb_bias() const = 0;
 
@@ -57,23 +57,33 @@ public:
     virtual void clear_gradients() = 0;
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) = 0;
 
-    // Fill weights
+    //! Fill weights
     virtual void fill_w( const size_t data_size, const float* data ) = 0;
     virtual void fill_w( float* data ) = 0;
 
-    // Fill bias
+    //! Fill bias
     virtual void fill_b( const size_t data_size, const float* data ) = 0;
     virtual void fill_b( float* data ) = 0;
+
+    //! Set training flag
+    static void set_training( bool training ) { m_training = training; }
 
 private:
 
     friend class pool_layer;
+    friend class dropout_layer;
     template <class T> friend class conv_layer;
     template <class T> friend class full_layer;
     template <class T1,class T2> friend class output_layer;
 
     virtual tensor& error_maps() = 0;
+
+protected:
+
+    static bool m_training;
 };
+
+bool layer::m_training = false;
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 

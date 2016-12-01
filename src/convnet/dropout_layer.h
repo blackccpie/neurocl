@@ -37,7 +37,7 @@ class dropout_layer  : public layer
 {
 public:
 
-    dropout_layer( const std::string& name ) : m_name( name ), m_dropout( 0.5f ) {}
+    dropout_layer( const std::string& name ) : m_name( name ), m_dropout( 0.2f ) {}
 	virtual ~dropout_layer() {}
 
 	virtual const std::string type() const override { return "dropout " + m_name; }
@@ -71,9 +71,14 @@ public:
 
     virtual void feed_forward() override
     {
-        // generate new mask
-        nto::bernouilli( m_mask );
-        m_feature_maps = ( 1.f / ( 1.f - m_dropout ) ) * nto::elemul( m_mask, m_prev_layer->feature_maps() );
+        if ( m_training )
+        {
+        	// generate new mask
+        	nto::bernoulli( m_mask, 1.f - m_dropout );
+        	m_feature_maps = ( 1.f / ( 1.f - m_dropout ) ) * nto::elemul( m_mask, m_prev_layer->feature_maps() );
+        }
+        else
+            m_feature_maps = m_prev_layer->feature_maps();
     }
 
     virtual void back_propagate() override

@@ -113,6 +113,7 @@ convnet/layer.h
 convnet/conv_layer.h
 convnet/input_layer.h
 convnet/output_layer.h
+convnet/dropout_layer.h
 convnet/pool_layer.h
 convnet/tensor.h
 convnet/tensor_solver.h
