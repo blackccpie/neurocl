@@ -374,8 +374,6 @@ int main ( int argc,char **argv )
                 opt_computed_face = boost::none;
 
             } while( !my_display.is_closed() );
-
-            net_manager->finalize_training_iteration();
         }
     }
     catch( network_exception& e )

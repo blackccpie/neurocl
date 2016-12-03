@@ -60,10 +60,10 @@ public:
 								const size_t& batch_size,
 								t_progress_fct progress_fct = t_progress_fct() ) override;
 
-    //! prepare gradient descent
-    virtual void prepare_training_iteration() override;
-    //! finalize gradient descent
-    virtual void finalize_training_iteration() override;
+    //! prepare training epoch
+    virtual void prepare_training_epoch() override;
+    //! finalize training epoch
+    virtual void finalize_training_epoch() override;
 	//! compute network output
     virtual void compute_output( sample& s ) override;
 

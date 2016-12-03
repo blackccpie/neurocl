@@ -37,7 +37,7 @@ class pool_layer  : public layer
 {
 public:
 
-    pool_layer( const std::string& name ) : m_name( name ) {}
+    pool_layer( const std::string& name ) : m_name( name ), m_subsample( 1 ) {}
 	virtual ~pool_layer() {}
 
 	virtual const std::string type() const override { return "pool " + m_name; }
@@ -50,7 +50,7 @@ public:
         LOGGER(info) << "pool_layer::populate - populating pooling layer " << m_name << std::endl;
 
         // compute subsampling rate, throw error if not integer
-        if ( ( prev_layer->width() % width) == 0 )
+        if ( ( prev_layer->width() % width ) == 0 )
             m_subsample = prev_layer->width() / width;
         else
             throw network_exception( "invalid subsampling for max pooling" );

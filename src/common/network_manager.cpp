@@ -83,9 +83,9 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
             if ( samples.empty() )
                 break;
 
-            prepare_training_iteration();
+            prepare_training_epoch();
             train( samples );
-            finalize_training_iteration();
+            finalize_training_epoch();
 
             progress_size += samples.size();
 
@@ -106,12 +106,12 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
     save_network();
 }
 
-void network_manager::prepare_training_iteration()
+void network_manager::prepare_training_epoch()
 {
     m_net->clear_gradients();
 }
 
-void network_manager::finalize_training_iteration()
+void network_manager::finalize_training_epoch()
 {
     m_net->gradient_descent();
 }

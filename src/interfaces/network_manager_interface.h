@@ -56,10 +56,10 @@ public:
                                 const size_t& batch_size,
                                 t_progress_fct progress_fct = t_progress_fct() ) = 0;
 
-    // prepare gradient descent
-    virtual void prepare_training_iteration() = 0;
-    // finalize gradient descent
-    virtual void finalize_training_iteration() = 0;
+    // prepare training epoch
+    virtual void prepare_training_epoch() = 0;
+    // finalize training epoch
+    virtual void finalize_training_epoch() = 0;
     //! compute network output
     virtual void compute_output( sample& s ) = 0;
 

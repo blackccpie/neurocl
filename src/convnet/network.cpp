@@ -197,6 +197,9 @@ const output_ptr network::output()
 
 void network::clear_gradients()
 {
+	// we clear gradients before new training epoch, so raise training flag
+	layer::set_training( true );
+
     for ( auto _layer : m_layers )
     {
         _layer->clear_gradients();
@@ -245,6 +248,9 @@ void network::gradient_descent()
     {
         _layer->gradient_descent( m_solver );
     }
+
+	// training epoch ended with gradient descent, so bring down training flag
+    layer::set_training( false );
 }
 
 } /*namespace neurocl*/ } /*namespace convnet*/
