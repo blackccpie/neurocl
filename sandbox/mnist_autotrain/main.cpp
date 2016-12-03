@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "neurocl.h"
+#include "console_color.h"
 
 #include <iostream>
 #include <fstream>
@@ -32,6 +33,10 @@ THE SOFTWARE.
 #define NEUROCL_STOPPING_SCORE 98
 
 using namespace neurocl;
+
+console_color::modifier c_red(console_color::color_code::FG_RED);
+console_color::modifier c_green(console_color::color_code::FG_GREEN);
+console_color::modifier c_def(console_color::color_code::FG_DEFAULT);
 
 int compute_score(  const int i,
                     const samples_manager& smp_manager,
@@ -60,8 +65,10 @@ int compute_score(  const int i,
     int score = static_cast<int>( 100 * _classif_score / training_samples.size() );
     rmse = mean_rmse / static_cast<float>( training_samples.size() );
 
+    console_color::modifier* mod = ( rmse >= last_rmse ) ? &c_green : &c_red;
+
     std::cout << "EPOCH " << i << " - CURRENT SCORE IS : " << score << "% (" << _classif_score << "/" << training_samples.size() << ") "
-        << "CURRENT RMSE IS : " << rmse << " (" << (rmse-last_rmse) << ")" << std::endl;
+        << "CURRENT RMSE IS : " << rmse << " (" << *mod << (rmse-last_rmse) << c_def << ")" << std::endl;
 
     last_rmse = rmse;
 
