@@ -66,7 +66,7 @@ public:
     {
         _init_type( type );
 
-        std::vector<std::string>::const_iterator iter = std::find( m_order->begin(), m_order->end(), c );
+        auto iter = std::find( m_order->cbegin(), m_order->cend(), c );
         m_index = std::distance( m_order->begin(), iter );
     }
     const std::string string()

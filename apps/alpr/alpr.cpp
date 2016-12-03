@@ -161,7 +161,7 @@ void license_plate::_compute_distance_map()
     // Initialize distance map
     CImg<float> dist_map( m_work_plate.width(), 1, 1, 1, 0 );
 
-    std::vector<t_letter_interval>::const_iterator range_iter = m_letter_intervals.begin();
+    auto range_iter = m_letter_intervals.cbegin();
 
     size_t item_count = 1;
 
