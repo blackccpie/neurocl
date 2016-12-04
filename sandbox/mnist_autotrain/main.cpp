@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 #define NEUROCL_MAX_EPOCH_SIZE 1000
 #define NEUROCL_BATCH_SIZE 20
-#define NEUROCL_STOPPING_SCORE 98
+#define NEUROCL_STOPPING_SCORE 99.f
 
 using namespace neurocl;
 
@@ -38,7 +38,7 @@ console_color::modifier c_red(console_color::color_code::FG_RED);
 console_color::modifier c_green(console_color::color_code::FG_GREEN);
 console_color::modifier c_def(console_color::color_code::FG_DEFAULT);
 
-int compute_score(  const int i,
+float compute_score(  const int i,
                     const samples_manager& smp_manager,
                     const std::shared_ptr<network_manager_interface>& net_manager,
                     float& rmse )
@@ -62,10 +62,10 @@ int compute_score(  const int i,
         tsample.restore_ref();
     }
 
-    int score = static_cast<int>( 100 * _classif_score / training_samples.size() );
+    float score = static_cast<float>( 1000 * _classif_score / training_samples.size() ) / 10.f;
     rmse = mean_rmse / static_cast<float>( training_samples.size() );
 
-    console_color::modifier* mod = ( rmse >= last_rmse ) ? &c_green : &c_red;
+    console_color::modifier* mod = ( rmse <= last_rmse ) ? &c_green : &c_red;
 
     std::cout << "EPOCH " << i << " - CURRENT SCORE IS : " << score << "% (" << _classif_score << "/" << training_samples.size() << ") "
         << "CURRENT RMSE IS : " << rmse << " (" << *mod << (rmse-last_rmse) << c_def << ")" << std::endl;
@@ -105,10 +105,10 @@ int main( int argc, char *argv[] )
         neurocl::learning_scheduler& sched = neurocl::learning_scheduler::instance();
         sched.enable_scheduling( true );
 
-        int score = 0;
+        float score = 0.f;
         float rmse = 0.f;
 
-        std::ofstream output_file( "mnist_training.csv" );
+        std::ofstream output_file( "mnist_training.csv", std::fstream::app );
 
         for ( int i=0; i<NEUROCL_MAX_EPOCH_SIZE; i++ )
         {
@@ -118,7 +118,7 @@ int main( int argc, char *argv[] )
 
             sched.push_error( rmse );
 
-            output_file << (i+1) << ',' << rmse << '\n';
+            output_file << (i+1) << ',' << sched.get_learning_rate() << ',' << rmse << '\n';
 
             if ( score > NEUROCL_STOPPING_SCORE )
             {
