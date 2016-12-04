@@ -43,7 +43,21 @@ public:
     }
 };
 
-class cross_entropy_multiclass
+class cross_entropy_softmax // should only be used with softmax activation
+{
+public:
+
+    /*static tensor f( tensor& a, tensor& b )
+    {
+    }*/
+
+    static tensor d_f( tensor& y, tensor& t )
+    {
+        return std::move( y - t );
+    }
+};
+
+class cross_entropy_multiclass // TODO-CNN : investigate for a better name...
 {
 public:
 

@@ -151,19 +151,28 @@ public:
 
     static tensor d_f( const tensor& input )
     {
-        using namespace boost::numeric::ublas;
+        /*using namespace boost::numeric::ublas;
 
         tensor output;
         output.resize( input );
 
-        /*tensor_foreach_p( input.d1(), input.d2() ) {
+        tensor_foreach_p( input.d1(), input.d2() ) {
             output.m(d1,d2) = input.c_m(d1,d2);
             std::for_each(  output.m(d1,d2).data().begin(),
                             output.m(d1,d2).data().end(),
                             []( float& a) { a = ( a > 0.f ) * 1.f; } ); //TODO
-        }*/
+        }
 
-        return output;
+        return output;*/
+		// TODO : explain this simplification, MUST be used in conjunction with softmax cross entropy cost
+        return std::move(input);
+    }
+
+private:
+
+    static float _df( float y )
+    {
+        return y * ( 1.f - y );
     }
 };
 
