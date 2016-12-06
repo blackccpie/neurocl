@@ -254,11 +254,21 @@ void network::gradient_descent()
     layer::set_training( false );
 }
 
-void network::gradient_check()
+void network::gradient_check( const output_ptr& out_ref )
 {
     // NOTE : network input & output have to be previously set!!
 
-    //auto cost_func = []( size_t size, float* a, float* b ) { a = 1.f / ( 1.f + std::exp(-a) ); }
+    auto err_func = []( output_ptr a, output_ptr b ) {
+        float _acc = 0.f;
+        float* pa = a.outputs.get();
+        float* pb = b.outputs.get();
+        for ( size_t i=0; i<a.num_outputs; i++ )
+            _acc += (pa[i] - pb[i])*(pa[i] - pb[i]);
+
+        return std::sqrt( _acc / a.num_outputs );
+     };
+
+    float epsilon = 1e-4f;
 
     for ( auto _layer : m_layers )
     {
@@ -268,16 +278,28 @@ void network::gradient_check()
 
         for ( size_t i = 0; i<grad_check->size(); i++ )
         {
-            grad_check->mod_plus();
+            // Compute output with +epsilon increment
+            grad_check->mod( +epsilon );
             feed_forward();
             back_propagate();
-            grad_check->mod_minus();
+
+            const output_ptr out_p = output();
+            float err_p = err_func( out_p, out_ref );
+
+            // Compute output with -epsilon increment
+            grad_check->mod( -epsilon );
             feed_forward();
             back_propagate();
+
+            const output_ptr out_m = output();
+            float err_m = err_func( out_m, out_ref );
+
+            grad_check->set_grad( ( err_p - err_m ) / ( 2 * epsilon ) );
+
+            // Restore weight
             grad_check->restore();
-            feed_forward();
-            back_propagate();
-            grad_check->cost();
+
+            // switch to next parameter
             grad_check->next();
         }
         grad_check->error();

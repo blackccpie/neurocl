@@ -178,7 +178,10 @@ void network_manager::gradient_check( const sample& s )
     m_net->set_input( s.isample_size, s.isample );
     m_net->set_output( s.osample_size, s.osample );
 
-    m_net->gradient_check();
+    output_ptr out_ref( s.osample_size );
+    std::copy( s.osample, s.osample + s.osample_size, out_ref.outputs.get() );
+
+    m_net->gradient_check( out_ref );
 }
 
 void network_manager::dump_weights()

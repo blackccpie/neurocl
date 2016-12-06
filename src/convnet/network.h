@@ -35,7 +35,7 @@ namespace neurocl { namespace convnet {
 class layer;
 class tensor_solver_iface;
 
-class network : public network_interface_convnet
+class network final : public network_interface_convnet
 {
 public:
 
@@ -52,7 +52,7 @@ public:
     virtual void back_propagate() final;
     virtual void gradient_descent() final;
 	virtual void clear_gradients() final;
-	virtual void gradient_check() final;
+	virtual void gradient_check( const output_ptr& out_ref ) final;
 
 	virtual const std::string  dump_weights() final { return "NOT IMPLEMENTED YET"; }
     virtual const std::string  dump_bias() final { return "NOT IMPLEMENTED YET"; }

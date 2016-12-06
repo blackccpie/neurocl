@@ -179,8 +179,9 @@ public:
 
     const std::string dump( const size_t d1, const size_t d2 ) const;
 
-protected:
+private:
 
+    friend class gradient_checker;
     friend class tensor_operation;
     friend class tensor_activations::sigmoid;
     friend class tensor_activations::tanh;

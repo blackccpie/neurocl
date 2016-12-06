@@ -352,7 +352,7 @@ const std::string network_vexcl::dump_activations()
     return ss.str();
 }
 
-void network_vexcl::gradient_check()
+void network_vexcl::gradient_check( const output_ptr& out_ref )
 {
     LOGGER(error) << "network_vexcl::gradient_check - not implemented yet for MLP" << std::endl;
 }

@@ -33,20 +33,57 @@ class tensor_solver_iface;
 class gradient_checker
 {
 public:
-    gradient_checker( tensor& weights, tensor& deltas ) : m_weights( weights ), m_deltas( deltas ) {}
+    gradient_checker( tensor& weights, tensor& deltas )
+    	: m_index( 0 ), m_stored( 0.f ), m_weights( weights ), m_deltas( deltas )
+    {
+        m_weights._assert_same_size( m_deltas );
+
+        m_line_size = m_weights.w();
+        m_group_size = m_weights.d2();
+        m_base_size = m_weights.w() * m_weights.h();
+    }
     virtual ~gradient_checker() {}
 
-    size_t size() {}
+    size_t size()
+    {
+        return m_base_size * m_weights.d1() * m_weights.d2();
+    }
 
-    void mod_plus() {}
-    void mod_minus() {}
-    void restore() {}
-    void cost() {}
-    void next() {}
+    void mod( const float epsilon )
+    {
+        std::swap( m_stored, _get_value() );
+        _get_value() = m_stored + epsilon;
+    }
+    void restore()
+    {
+        std::swap( m_stored, _get_value() );
+    }
+    void set_grad( const float grad )
+    {
+        _get_value() = grad;
+    }
+    void next() { ++m_index; }
     void error() {}
 private:
+    float& _get_value()
+    {
+        size_t mod = m_index % m_base_size;
+        size_t y = mod / m_line_size;
+        size_t x = mod % m_line_size;
+        size_t d1 = ( m_index / m_base_size ) % m_group_size;
+        size_t d2 = ( m_index / m_base_size ) / m_group_size;
+
+        return m_weights.m(d1,d2)(x,y);
+    }
+private:
+    float m_stored;
     tensor& m_weights;
     tensor& m_deltas;
+
+    size_t m_group_size;
+    size_t m_line_size;
+    size_t m_base_size;
+    size_t m_index;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

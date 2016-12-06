@@ -70,7 +70,7 @@ public:
     //! clear gradients
     virtual void clear_gradients() = 0;
     //! gradient check
-    virtual void gradient_check() = 0;
+    virtual void gradient_check( const output_ptr& out_ref ) = 0;
 
     //! get output values
     virtual const output_ptr output() = 0;

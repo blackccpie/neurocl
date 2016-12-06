@@ -88,7 +88,7 @@ public:
     virtual void set_output( const size_t& out_size, const float* out ) final;
 
     virtual void clear_gradients() final;
-    virtual void gradient_check() final;
+    virtual void gradient_check( const output_ptr& out_ref ) final;
 
     // pure compute-critic virtuals to be implemented in inherited classes
     virtual void feed_forward() = 0;
