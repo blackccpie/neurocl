@@ -63,6 +63,9 @@ public:
     //! compute network output
     virtual void compute_output( sample& s ) = 0;
 
+    //! gradient check
+	virtual void gradient_check( const sample& s ) = 0;
+
     //! dump network parameters
     virtual void dump_weights() = 0;
     virtual void dump_bias() = 0;

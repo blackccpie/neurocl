@@ -171,6 +171,16 @@ void network_manager::compute_output( sample& s )
     std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
 }
 
+void network_manager::gradient_check( const sample& s )
+{
+    _assert_loaded();
+
+    m_net->set_input( s.isample_size, s.isample );
+    m_net->set_output( s.osample_size, s.osample );
+
+    m_net->gradient_check();
+}
+
 void network_manager::dump_weights()
 {
     _assert_loaded();

@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "input_layer.h"
 #include "output_layer.h"
 #include "dropout_layer.h"
+#include "gradient_checker.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -251,6 +252,36 @@ void network::gradient_descent()
 
 	// training epoch ended with gradient descent, so bring down training flag
     layer::set_training( false );
+}
+
+void network::gradient_check()
+{
+    // NOTE : network input & output have to be previously set!!
+
+    //auto cost_func = []( size_t size, float* a, float* b ) { a = 1.f / ( 1.f + std::exp(-a) ); }
+
+    for ( auto _layer : m_layers )
+    {
+        std::unique_ptr<gradient_checker> grad_check = _layer->get_gradient_checker();
+        if ( !grad_check )
+            continue;
+
+        for ( size_t i = 0; i<grad_check->size(); i++ )
+        {
+            grad_check->mod_plus();
+            feed_forward();
+            back_propagate();
+            grad_check->mod_minus();
+            feed_forward();
+            back_propagate();
+            grad_check->restore();
+            feed_forward();
+            back_propagate();
+            grad_check->cost();
+            grad_check->next();
+        }
+        grad_check->error();
+    }
 }
 
 } /*namespace neurocl*/ } /*namespace convnet*/

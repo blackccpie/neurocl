@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define LAYER_H
 
 #include "tensor_activations.h"
+#include "gradient_checker.h"
 
 namespace neurocl { namespace convnet {
 
@@ -33,7 +34,6 @@ class tensor_solver_iface;
 
 class layer
 {
-
 public:
 
      virtual const std::string type() const = 0;
@@ -64,6 +64,9 @@ public:
     //! Fill bias
     virtual void fill_b( const size_t data_size, const float* data ) = 0;
     virtual void fill_b( float* data ) = 0;
+
+    //! get gradient checker (not all layers have one)
+    virtual std::unique_ptr<gradient_checker> get_gradient_checker() { return std::move( std::unique_ptr<gradient_checker>() ); }
 
     //! Set training flag
     static void set_training( bool training ) { m_training = training; }

@@ -187,6 +187,12 @@ public:
          m_bias.grouped_fill( data );
     }
 
+    //! get gradient checker
+    virtual std::unique_ptr<gradient_checker> get_gradient_checker() final
+    {
+        return std::move( std::unique_ptr<gradient_checker>( new gradient_checker( m_filters, m_filters_delta ) ) );
+    }
+
 protected:
 
     virtual tensor& error_maps() override

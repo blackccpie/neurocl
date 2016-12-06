@@ -352,4 +352,9 @@ const std::string network_vexcl::dump_activations()
     return ss.str();
 }
 
+void network_vexcl::gradient_check()
+{
+    LOGGER(error) << "network_vexcl::gradient_check - not implemented yet for MLP" << std::endl;
+}
+
 } /*namespace neurocl*/ } /*namespace mlp*/

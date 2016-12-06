@@ -67,6 +67,9 @@ public:
 	//! compute network output
     virtual void compute_output( sample& s ) override;
 
+	//! gradient check
+	virtual void gradient_check( const sample& s ) override;
+
 	//! dump network parameters
 	virtual void dump_weights() override;
     virtual void dump_bias() override;

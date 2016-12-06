@@ -69,6 +69,8 @@ public:
     virtual void gradient_descent() = 0;
     //! clear gradients
     virtual void clear_gradients() = 0;
+    //! gradient check
+    virtual void gradient_check() = 0;
 
     //! get output values
     virtual const output_ptr output() = 0;

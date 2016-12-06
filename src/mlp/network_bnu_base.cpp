@@ -262,4 +262,9 @@ const std::string network_bnu_base::dump_activations()
     return ss.str();
 }
 
+void network_bnu_base::gradient_check()
+{
+    LOGGER(error) << "network_bnu_base::gradient_check - not implemented yet for MLP" << std::endl;
+}
+
 } /*namespace neurocl*/ } /*namespace mlp*/

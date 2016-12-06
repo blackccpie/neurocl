@@ -124,6 +124,7 @@ convnet/network.h
 convnet/network_manager_convnet.h
 convnet/network_interface_convnet.h
 convnet/network_file_handler.h
+convnet/gradient_checker.h
 )
 
 if (NOT APPLE)

@@ -52,6 +52,7 @@ public:
     virtual void back_propagate() final;
     virtual void gradient_descent() final;
 	virtual void clear_gradients() final;
+	virtual void gradient_check() final;
 
 	virtual const std::string  dump_weights() final { return "NOT IMPLEMENTED YET"; }
     virtual const std::string  dump_bias() final { return "NOT IMPLEMENTED YET"; }
