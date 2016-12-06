@@ -22,18 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef GRADIENT_CHECKER_H
-#define GRADIENT_CHECKER_H
+#ifndef TENSOR_GRADIENT_CHECKER_H
+#define TENSOR_GRADIENT_CHECKER_H
 
 namespace neurocl { namespace convnet {
 
-class tensor_solver_iface;
-
-// TODO-CNN : move someday to a common templated class...
-class gradient_checker
+// TODO-CNN : move someday to a common generic templated class...
+class tensor_gradient_checker
 {
 public:
-    gradient_checker( tensor& weights, tensor& deltas )
+    tensor_gradient_checker( tensor& weights, tensor& deltas )
     	: m_index( 0 ), m_stored( 0.f ), m_weights( weights ), m_deltas( deltas )
     {
         m_weights._assert_same_size( m_deltas );
@@ -42,7 +40,7 @@ public:
         m_group_size = m_weights.d2();
         m_base_size = m_weights.w() * m_weights.h();
     }
-    virtual ~gradient_checker() {}
+    virtual ~tensor_gradient_checker() {}
 
     size_t size()
     {
@@ -88,4 +86,4 @@ private:
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
-#endif //GRADIENT_CHECKER_H
+#endif //TENSOR_GRADIENT_CHECKER_H

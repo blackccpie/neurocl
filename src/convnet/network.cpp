@@ -25,13 +25,13 @@ THE SOFTWARE.
 #include "network.h"
 #include "tensor_solver.h"
 #include "tensor_loss_functions.h"
+#include "tensor_gradient_checker.h"
 #include "conv_layer.h"
 #include "full_layer.h"
 #include "pool_layer.h"
 #include "input_layer.h"
 #include "output_layer.h"
 #include "dropout_layer.h"
-#include "gradient_checker.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -272,7 +272,7 @@ void network::gradient_check( const output_ptr& out_ref )
 
     for ( auto _layer : m_layers )
     {
-        std::unique_ptr<gradient_checker> grad_check = _layer->get_gradient_checker();
+        std::unique_ptr<tensor_gradient_checker> grad_check = _layer->get_gradient_checker();
         if ( !grad_check )
             continue;
 

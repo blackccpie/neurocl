@@ -181,8 +181,8 @@ public:
 
 private:
 
-    friend class gradient_checker;
     friend class tensor_operation;
+    friend class tensor_gradient_checker;
     friend class tensor_activations::sigmoid;
     friend class tensor_activations::tanh;
     friend class tensor_activations::relu;

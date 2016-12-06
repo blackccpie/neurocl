@@ -188,9 +188,10 @@ public:
     }
 
     //! get gradient checker
-    virtual std::unique_ptr<gradient_checker> get_gradient_checker() final
+    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
-        return std::move( std::unique_ptr<gradient_checker>( new gradient_checker( m_filters, m_filters_delta ) ) );
+        return std::move( std::unique_ptr<tensor_gradient_checker>(
+            new tensor_gradient_checker( m_filters, m_filters_delta ) ) );
     }
 
 protected:
