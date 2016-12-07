@@ -65,7 +65,7 @@ public:
     void next() { ++m_index; }
     float error()
     {
-        return ( m_deltas - m_numerical_deltas ).norm2();
+        return ( m_deltas - m_numerical_deltas ).norm2() / static_cast<float>( size() );
     }
 private:
     float& _get_value( tensor& t )
@@ -73,8 +73,8 @@ private:
         size_t mod = m_index % m_base_size;
         size_t y = mod / m_line_size;
         size_t x = mod % m_line_size;
-        size_t d1 = ( m_index / m_base_size ) % m_group_size;
-        size_t d2 = ( m_index / m_base_size ) / m_group_size;
+        size_t d2 = ( m_index / m_base_size ) % m_group_size;
+        size_t d1 = ( m_index / m_base_size ) / m_group_size;
 
         return t.m(d1,d2)(x,y);
     }
