@@ -302,7 +302,8 @@ void network::gradient_check( const output_ptr& out_ref )
             // switch to next parameter
             grad_check->next();
         }
-        grad_check->error();
+
+        LOGGER(info) << "network::gradient_check - layer " << _layer->type() << " gradient check error : " << grad_check->error() << std::endl;
     }
 }
 

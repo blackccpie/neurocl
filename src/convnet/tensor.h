@@ -177,6 +177,11 @@ public:
     void grouped_fill( const size_t data_size, const float* data );
     void grouped_fill( float* data );
 
+    // returns L1 norm
+    float norm1() const;
+    // returns L2 norm
+    float norm2() const;
+
     const std::string dump( const size_t d1, const size_t d2 ) const;
 
 private:

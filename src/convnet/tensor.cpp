@@ -173,6 +173,27 @@ bool tensor::operator ==( const tensor& other ) const
     return true;
 }
 
+float tensor::norm1() const
+{
+    float _acc = 0.f;
+    tensor_foreach() {
+        _acc += norm_1( m_tensor_array[d1][d2] );
+    }
+    return _acc;
+}
+
+float tensor::norm2() const
+{
+    float _acc = 0.f;
+    float _l2 = 0.f;
+    tensor_foreach() {
+        // TODO-CNN : not very efficient, squared norm is elevated to pow2 for reduction...
+        _l2 = norm_frobenius( m_tensor_array[d1][d2] ); // frobenius = l2 norm for matrices
+        _acc += _l2 * _l2;
+    }
+    return std::sqrt( _acc );
+}
+
 void tensor::fill(  const size_t d1,
                     const size_t d2,
                     const size_t data_size,

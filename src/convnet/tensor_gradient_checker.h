@@ -36,6 +36,8 @@ public:
     {
         m_weights._assert_same_size( m_deltas );
 
+        m_numerical_deltas.resize( m_deltas );
+
         m_line_size = m_weights.w();
         m_group_size = m_weights.d2();
         m_base_size = m_weights.w() * m_weights.h();
@@ -49,21 +51,24 @@ public:
 
     void mod( const float epsilon )
     {
-        std::swap( m_stored, _get_value() );
-        _get_value() = m_stored + epsilon;
+        m_stored = _get_value( m_weights );
+        _get_value( m_weights ) = m_stored + epsilon;
     }
     void restore()
     {
-        std::swap( m_stored, _get_value() );
+        _get_value( m_weights ) = m_stored;
     }
     void set_grad( const float grad )
     {
-        _get_value() = grad;
+        _get_value( m_numerical_deltas ) = grad;
     }
     void next() { ++m_index; }
-    void error() {}
+    float error()
+    {
+        return ( m_deltas - m_numerical_deltas ).norm2();
+    }
 private:
-    float& _get_value()
+    float& _get_value( tensor& t )
     {
         size_t mod = m_index % m_base_size;
         size_t y = mod / m_line_size;
@@ -71,12 +76,13 @@ private:
         size_t d1 = ( m_index / m_base_size ) % m_group_size;
         size_t d2 = ( m_index / m_base_size ) / m_group_size;
 
-        return m_weights.m(d1,d2)(x,y);
+        return t.m(d1,d2)(x,y);
     }
 private:
     float m_stored;
     tensor& m_weights;
     tensor& m_deltas;
+    tensor m_numerical_deltas;
 
     size_t m_group_size;
     size_t m_line_size;
