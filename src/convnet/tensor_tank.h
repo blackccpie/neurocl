@@ -32,10 +32,26 @@ class tensor_tank
 public:
     static tensor_tank& instance() { static tensor_tank tt; return tt; }
 
-    tensor& get( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
+    tensor& get_shared( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
     {
         const std::string key = boost::str( boost::format{"%1%x%2%x%3%x%4%"} % width % height % depth1 % depth2 );
 
+        return _find_or_emplace( key, m_shared_tensor_tank );
+    }
+
+    tensor& get_cumulative( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
+    {
+        const std::string key = boost::str( boost::format{"%1%x%2%x%3%x%4%"} % width % height % depth1 % depth2 );
+
+        return _find_or_emplace( key, m_cumulative_tensor_tank );
+    }
+
+private:
+    tensor_tank() {}
+    virtual ~tensor_tank() {}
+
+    tensor& _find_or_emplace( const std::string& key, std::map<std::string,tensor>& map )
+    {
         auto iter = m_tensor_tank.find( key );
         if ( iter != m_tensor_tank.end() )
             return m_tensor_tank.at( key );
@@ -49,11 +65,9 @@ public:
     }
 
 private:
-    tensor_tank() {}
-    virtual ~tensor_tank() {}
+    std::map<std::string,tensor> m_shared_tensor_tank;
+    std::map<std::string,tensor> m_cumulative_tensor_tank;
 
-private:
-    std::map<std::string,tensor> m_tensor_tank;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
