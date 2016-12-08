@@ -70,6 +70,7 @@ public:
 private:
     float& _get_value( tensor& t )
     {
+        // TODO : manage a tensor iterator!
         size_t mod = m_index % m_base_size;
         size_t y = mod / m_line_size;
         size_t x = mod % m_line_size;

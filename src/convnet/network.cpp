@@ -265,7 +265,7 @@ void network::gradient_check( const output_ptr& out_ref )
         for ( size_t i=0; i<a.num_outputs; i++ )
             _acc += (pa[i] - pb[i])*(pa[i] - pb[i]);
 
-        return std::sqrt( _acc / a.num_outputs );
+        return /*std::sqrt*/( _acc / a.num_outputs ); // TODO : mse error, use a generic loss class?
      };
 
     float epsilon = 1e-4f;
@@ -301,7 +301,13 @@ void network::gradient_check( const output_ptr& out_ref )
 
             // switch to next parameter
             grad_check->next();
+
+            clear_gradients();
         }
+
+        // compute "standard" deltas
+        feed_forward();
+        back_propagate();
 
         LOGGER(info) << "network::gradient_check - layer " << _layer->type() << " gradient check error : " << grad_check->error() << std::endl;
     }
