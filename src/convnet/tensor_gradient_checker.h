@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef TENSOR_GRADIENT_CHECKER_H
 #define TENSOR_GRADIENT_CHECKER_H
 
+#include <boost/iterator/zip_iterator.hpp>
+
 namespace neurocl { namespace convnet {
 
 // TODO-CNN : move someday to a common generic templated class...
@@ -63,9 +65,25 @@ public:
         _get_value( m_numerical_deltas ) = grad;
     }
     void next() { ++m_index; }
-    float error()
+    double error()
     {
-        return ( m_deltas - m_numerical_deltas ).norm2() / static_cast<float>( size() );
+        //return ( m_deltas - m_numerical_deltas ).norm2() / static_cast<float>( size() );
+
+		// TBC : relative error implementation (http://cs231n.github.io/neural-networks-3/)
+        double _err = 0.;
+        tensor_foreach_p( m_deltas.d1(), m_deltas.d2() )
+        {
+            auto iter = boost::make_zip_iterator( boost::make_tuple( m_deltas.m(d1,d2).data().begin(), m_numerical_deltas.m(d1,d2).data().begin() ) );
+            auto end = boost::make_zip_iterator( boost::make_tuple( m_deltas.m(d1,d2).data().end(), m_numerical_deltas.m(d1,d2).data().end() ) );
+
+            for( ; iter != end ; ++iter )
+            {
+                double fa = iter->get<0>();
+                double fn = iter->get<1>();
+                _err += std::abs( fa - fn );// / std::max( std::abs( fa ), std::abs( fn ) );
+            }
+        }
+        return _err / static_cast<double>( size() );
     }
 private:
     float& _get_value( tensor& t )

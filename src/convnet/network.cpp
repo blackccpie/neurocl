@@ -294,7 +294,7 @@ void network::gradient_check( const output_ptr& out_ref )
             const output_ptr out_m = output();
             float err_m = err_func( out_m, out_ref );
 
-            grad_check->set_grad( ( err_p - err_m ) / ( 2 * epsilon ) );
+            grad_check->set_grad( ( err_p - err_m ) / ( 2.f * epsilon ) );
 
             // Restore weight
             grad_check->restore();
