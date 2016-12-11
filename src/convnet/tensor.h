@@ -154,12 +154,16 @@ public:
     size_t d1() const { return m_depth1; }
     size_t d2() const { return m_depth2; }
 
+    size_t size() const { return m_width * m_height * m_depth1 * m_depth2; }
+
     // operators overload
     tensor operator +=( const tensor& other );
     tensor operator -=( const tensor& other );
     tensor operator *( const float val );
     tensor operator /( const float val );
     tensor operator +( const float val );
+    tensor operator -( const float val );
+    tensor operator -();
     bool operator ==( const tensor& other ) const;
 
     void uniform_fill( const float& val );

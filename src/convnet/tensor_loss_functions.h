@@ -33,13 +33,16 @@ class mse
 {
 public:
 
-    /*static tensor f( tensor& a, tensor& b )
+    static tensor f( tensor& y, tensor& t )
     {
-    }*/
+        float factor = 0.5f / static_cast<float>( y.size() );
+        return std::move( factor * ( y - t ) * ( y - t ) );
+    }
 
     static tensor d_f( tensor& y, tensor& t )
     {
-        return std::move( y - t );
+        float factor = 1.f / static_cast<float>( y.size() );
+        return std::move( factor * ( y - t ) );
     }
 };
 
@@ -47,7 +50,7 @@ class cross_entropy_softmax // should only be used with softmax activation
 {
 public:
 
-    /*static tensor f( tensor& a, tensor& b )
+    /*static tensor f( tensor& y, tensor& t )
     {
     }*/
 
@@ -57,18 +60,17 @@ public:
     }
 };
 
-class cross_entropy_multiclass // TODO-CNN : investigate for a better name...
+class cross_entropy
 {
 public:
 
-    /*static tensor f( tensor& a, tensor& b )
+    /*static tensor f( tensor& y, tensor& t )
     {
     }*/
 
     static tensor d_f( tensor& y, tensor& t )
     {
-        // TODO : rewrite as y * ( 1 - y )
-        return std::move( ( y - t ) / ( y - y * y ) );
+        return std::move( ( y - t ) / ( y * ( 1.f - y ) ) );
     }
 };
 

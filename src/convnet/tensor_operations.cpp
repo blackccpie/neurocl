@@ -106,6 +106,19 @@ tensor tensor_operation::scale( const float& val, const tensor& input )
     return std::move(output);
 }
 
+tensor tensor_operation::minus( const float& val, const tensor& input )
+{
+    tensor output;
+    output.resize( input );
+
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        output.m_tensor_array[d1][d2] =
+            boost::numeric::ublas::scalar_matrix<float>( input.w(), input.h(), val ) - input.m_tensor_array[d1][d2];
+    }
+
+    return std::move(output);
+}
+
 tensor tensor_operation::add( const tensor& inputA, const tensor& inputB )
 {
     _assert_same_sizes( inputA, inputB );
@@ -374,6 +387,7 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
     auto padX = stepsX + _FmX;
     auto padY = stepsY + _FmY;
 
+    // TODO-CNN : could be optimized with a tensor_tank::instance().get( padX, padY, 1, filter.d2() )
     tensor padded_input;
     padded_input.resize( padX, padY, 1, filter.d2() );
 
@@ -565,7 +579,7 @@ void tensor_operation::bernoulli( tensor& input, const float p )
     tensor_foreach_p( input.d1(), input.d2() ) {
         std::for_each(  input.m(d1,d2).data().begin(),
                         input.m(d1,d2).data().end(),
-                        [&bernoulli]( float& a) { a = bernoulli(); } );
+                        [&bernoulli]( float& a ) { a = bernoulli(); } );
     }
 }
 

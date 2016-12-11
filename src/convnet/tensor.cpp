@@ -162,6 +162,26 @@ tensor tensor::operator +( const float val )
     return std::move(*this);
 }
 
+// TODO-CNN : write rvalue ref equivalent
+tensor tensor::operator -( const float val )
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] -= boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
+    }
+
+    return std::move(*this);
+}
+
+// TODO-CNN : write rvalue ref equivalent
+tensor tensor::operator -()
+{
+    tensor_foreach() {
+        m_tensor_array[d1][d2] = -m_tensor_array[d1][d2];
+    }
+
+    return std::move(*this);
+}
+
 bool tensor::operator ==( const tensor& other ) const
 {
     tensor_foreach() {
