@@ -116,7 +116,7 @@ public:
         	m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
         }
 
-        // apply sigmoid function
+        // apply activation function
         activationT::f( m_feature_maps );
     }
 
@@ -231,7 +231,6 @@ private:
     tensor m_deltas_weights;
 
     bool m_prev_group_features;
-    bool m_output;
 
     const std::string m_name;
 };
