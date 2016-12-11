@@ -193,7 +193,7 @@ const output_ptr network::output()
     output_ptr o( output_layer->width() * output_layer->height() );
     output_layer->fill( 0, 0, o.outputs.get() );
 
-    return o;
+    return std::move( o );
 }
 
 void network::clear_gradients()
@@ -265,7 +265,7 @@ void network::gradient_check( const output_ptr& out_ref )
         for ( size_t i=0; i<a.num_outputs; i++ )
             _acc += (pa[i] - pb[i])*(pa[i] - pb[i]);
 
-        return /*std::sqrt*/( _acc / a.num_outputs ); // TODO : mse error, use a generic loss class?
+        return _acc / ( 2.f * static_cast<float>( a.num_outputs ) ); // TODO : mse error, use a generic loss class?
      };
 
     float epsilon = 1e-4f;
@@ -278,6 +278,9 @@ void network::gradient_check( const output_ptr& out_ref )
 
         for ( size_t i = 0; i<grad_check->size(); i++ )
         {
+            // Store weight
+            grad_check->store();
+
             // Compute output with +epsilon increment
             grad_check->mod( +epsilon );
             feed_forward();

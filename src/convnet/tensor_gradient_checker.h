@@ -51,9 +51,12 @@ public:
         return m_base_size * m_weights.d1() * m_weights.d2();
     }
 
-    void mod( const float epsilon )
+    void store()
     {
         m_stored = _get_value( m_weights );
+    }
+    void mod( const float epsilon )
+    {
         _get_value( m_weights ) = m_stored + epsilon;
     }
     void restore()
@@ -80,7 +83,10 @@ public:
             {
                 double fa = iter->get<0>();
                 double fn = iter->get<1>();
-                _err += std::abs( fa - fn );// / std::max( std::abs( fa ), std::abs( fn ) );
+
+                std::cout << "fa=" << fa << " vs fn=" << fn << " r=" << fa/fn << std::endl;
+
+                _err += std::abs( fa - fn ) / std::max( std::abs( fa ), std::abs( fn ) );
             }
         }
         return _err / static_cast<double>( size() );
@@ -90,10 +96,11 @@ private:
     {
         // TODO : manage a tensor iterator!
         size_t mod = m_index % m_base_size;
-        size_t y = mod / m_line_size;
+        size_t div = m_index / m_base_size;
         size_t x = mod % m_line_size;
-        size_t d2 = ( m_index / m_base_size ) % m_group_size;
-        size_t d1 = ( m_index / m_base_size ) / m_group_size;
+        size_t y = mod / m_line_size;
+        size_t d1 = div / m_group_size;
+        size_t d2 = div % m_group_size;
 
         return t.m(d1,d2)(x,y);
     }
