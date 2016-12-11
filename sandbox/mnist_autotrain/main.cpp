@@ -82,12 +82,7 @@ int main( int argc, char *argv[] )
     logger_manager& lm = logger_manager::instance();
     lm.add_logger( policy_type::cout, "mnist_autotrain" );
 
-    /*if ( argc == 1 )
-    {
-        std::cout << "Invalid arguments!" << std::endl;
-        std::cout << "example: ./mnist_autotrain" << std::endl;
-        return -1;
-    }*/
+    bool gradient_check = ( ( argc == 2 ) && ( std::string( argv[1] ) == "-gc" ) );
 
     try
     {
@@ -101,6 +96,12 @@ int main( int argc, char *argv[] )
 
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
         net_manager->load_network( "../nets/mnist/topology-mnist-lenet.txt", "../nets/mnist/weights-mnist-lenet.bin" );
+
+        if ( gradient_check )
+        {
+            net_manager->gradient_check( smp_train_manager.get_samples()[0] );
+            return 0;
+        }
 
         neurocl::learning_scheduler& sched = neurocl::learning_scheduler::instance();
         sched.enable_scheduling( true );
