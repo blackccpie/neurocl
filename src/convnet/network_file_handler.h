@@ -25,16 +25,16 @@ THE SOFTWARE.
 #ifndef NETWORK_FILE_HANDLER_CONVNET_H
 #define NETWORK_FILE_HANDLER_CONVNET_H
 
-#include "interfaces/network_file_handler_interface.h"
+#include "network_interface_convnet.h"
 
 #include "common/layer_storage.h"
+
+#include "interfaces/network_file_handler_interface.h"
 
 #include <boost/shared_ptr.hpp>
 
 
 namespace neurocl { namespace convnet {
-
-class network_interface_convnet;
 
 class network_file_handler : public network_file_handler_interface
 {
@@ -49,10 +49,9 @@ public:
 
 private:
 
-    size_t m_layers;
+    std::vector<layer_descr> m_layers_descr;
 
     std::string m_weights_path;
-
     std::shared_ptr<network_interface_convnet> m_net;
 };
 

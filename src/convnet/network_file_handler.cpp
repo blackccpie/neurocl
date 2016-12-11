@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 #include "network_file_handler.h"
-#include "network_interface_convnet.h"
 
 #include "common/network_exception.h"
 #include "common/logger.h"
@@ -63,7 +62,7 @@ std::istream& operator>> ( std::istream &input, layer_type& type )
     return input;
 }
 
-network_file_handler::network_file_handler( const std::shared_ptr<network_interface_convnet>& net ) : m_net( net ), m_layers( 0 )
+network_file_handler::network_file_handler( const std::shared_ptr<network_interface_convnet>& net ) : m_net( net )
 {
 }
 
@@ -86,8 +85,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
         throw "error opening topology config file";
     }
 
-    std::vector<layer_descr> layers;
-    m_layers = 0;
+    m_layers_descr.clear();
 
     size_t cur_line = 0;
     size_t idx_layer = 0;
@@ -109,6 +107,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 
             	bool is_other_layer = ( _t != CONV_LAYER ) && ( split_vec.size() == 6 );
                 bool is_conv_layer = ( _t == CONV_LAYER ) && ( split_vec.size() == 7 ); // conv layer specifies filter size
+                bool has_storage = ( _t != POOL_LAYER ) && ( _t != DROPOUT_LAYER );
 
                 if ( !is_other_layer && !is_conv_layer )
             	{
@@ -134,9 +133,7 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
                 LOGGER(info) << "network_file_handler::load_network_topology - adding layer " << _idx << " of size " << _x << "x" << _y << "x" << _z
                     << ( ( _f != 0 ) ? ( ":" + std::to_string( _f ) ) : "" ) << std::endl;
 
-                layers.push_back( layer_descr( _t, _x, _y, _z, _f ) );
-
-                ++m_layers;
+                m_layers_descr.push_back( layer_descr( _t, _x, _y, _z, _f, has_storage ) );
             }
             catch( network_exception& )
             {
@@ -153,15 +150,15 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
         }
     }
 
-    if ( !layers.empty() )
-        m_net->add_layers( layers );
+    if ( !m_layers_descr.empty() )
+        m_net->add_layers( m_layers_descr );
     else
         throw network_exception( "empty topology file" );
 }
 
 void network_file_handler::load_network_weights( const std::string& weights_path )
 {
-    if ( !m_layers )
+    if ( m_layers_descr.empty() )
         throw network_exception( "no network topology loaded" );
 
     // save weights file path for further saving
@@ -182,14 +179,17 @@ void network_file_handler::load_network_weights( const std::string& weights_path
         {
         	portable_binary_iarchive ia( input_weights, endian_little );
 
-            for ( size_t i=0; i<m_layers; i++ )
+            for ( size_t i=0; i<m_layers_descr.size(); i++ )
             {
-                layer_storage l;
-                LOGGER(info) << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
-                ia >> l;
+                if ( m_layers_descr[i].has_storage )
+            	{
+                	layer_storage l;
+                	LOGGER(info) << "network_file_handler::load_network_weights - loading layer" << i << " weights" << std::endl;
+                	ia >> l;
 
-                layer_ptr lp( l.num_weights(), l.weights(), l.num_bias(), l.bias() );
-                m_net->set_layer_ptr( i, lp );
+                	layer_ptr lp( l.num_weights(), l.weights(), l.num_bias(), l.bias() );
+                	m_net->set_layer_ptr( i, lp );
+                }
             }
         }
         catch( boost::archive::archive_exception& e )
@@ -219,10 +219,13 @@ void network_file_handler::save_network_weights()
 
         for ( size_t i=0; i<m_net->count_layers(); i++ )
         {
-            LOGGER(info) << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
-            layer_ptr ptr = m_net->get_layer_ptr( i );
-            layer_storage l( ptr.num_weights, ptr.weights, ptr.num_bias, ptr.bias );
-            oar << l;
+            if ( m_layers_descr[i].has_storage )
+            {
+            	LOGGER(info) << "network_file_handler::save_network_weights - saving layer" << i << " weights" << std::endl;
+            	layer_ptr ptr = m_net->get_layer_ptr( i );
+            	layer_storage l( ptr.num_weights, ptr.weights, ptr.num_bias, ptr.bias );
+            	oar << l;
+            }
         }
     }
     else
