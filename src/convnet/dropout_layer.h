@@ -47,7 +47,7 @@ public:
                     const size_t height,
                     const size_t depth )
     {
-        LOGGER(info) << "dropout_layer::populate - populating pooling layer " << m_name << std::endl;
+        LOGGER(info) << "dropout_layer::populate - populating dropout layer " << m_name << std::endl;
 
         if ( ( prev_layer->width() != width ) || ( prev_layer->height() != height ) )
             throw network_exception( "invalid size for dropout layer, should be same size as previous layer" );
