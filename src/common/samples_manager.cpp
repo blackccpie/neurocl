@@ -51,7 +51,6 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
 {
     cimg_library::CImg<float> img( file.c_str() );
 
-    img.equalize( 256, 0, 255 );
     img.normalize( 0.f, 1.f );
     img.channel(0);
 
