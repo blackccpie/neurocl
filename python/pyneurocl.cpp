@@ -102,14 +102,20 @@ public:
         int wo = extract<int>( shape_out[1] );
         int ho = extract<int>( shape_out[0] );
 
-		//std::cout << wi << " " << hi << " " << wo << " " << ho << std::endl;
+		std::cout << wi << " " << hi << " " << wo << " " << ho << std::endl;
 
-        const float* _in = nullptr;
-        float* _out;
+        boost::shared_array<float> _in( new float[wi*hi] );
+        boost::shared_array<float> _out( new float[wo*ho] );
 
-        sample _sample( wi * hi, _in , wo * ho, _out );
+        for ( size_t i=0; i<wi*hi; i++ )
+            _in[i] = extract<float>( in[i] );
+
+        sample _sample( wi * hi, _in.get() , wo * ho, _out.get() );
 
         m_net_manager->compute_output( _sample );
+
+        for ( size_t i=0; i<wo*ho; i++ )
+            out[i] = _out[i];
     }
 
     void uninit()

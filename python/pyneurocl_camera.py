@@ -25,10 +25,10 @@ camera.color_effects = (128,128) # turn camera to black and white
 
 # grab an image from the camera
 camera.capture(raw, format="rgb")
-image = Image.fromarray(raw.array, 'RGB')
+#image = Image.fromarray(raw.array, 'RGB')
 #image.save('my.png')
 
-output = numpy.zeros(shape=(100,50)) #rows,cols 
+output = numpy.zeros(shape=(26,1)) #rows,cols
 
 print "---> compute network output:"
 h.compute(raw.array,output)
