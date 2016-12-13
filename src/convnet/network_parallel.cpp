@@ -26,17 +26,19 @@ THE SOFTWARE.
 // TODO #include "layer.h"
 #include "tensor_solver.h"
 
+#include "common/thread_pool.h"
+
 namespace neurocl { namespace convnet {
 
-#define TRAINING_PARALLEL_SIZE 4
+#define parallel_thread_count 4
 
-network_parallel::network_parallel()
+network_parallel::network_parallel() : m_thread_pool( new thread_pool{ parallel_thread_count } )
 {
     // TODO layer::set_shared( true );
 
     m_solver = tensor_solver_factory::build();
 
-    for ( size_t i = 0; i < TRAINING_PARALLEL_SIZE; i++ )
+    for ( size_t i = 0; i < parallel_thread_count; i++ )
         m_networks.emplace_back( network{} );
 }
 
@@ -96,20 +98,25 @@ void network_parallel::feed_forward()
 {
     for ( auto& _network : m_networks )
     {
-        _network.feed_forward();
+        m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, _network ) );
     }
 }
 
 void network_parallel::back_propagate()
 {
-    for ( auto& _network : m_networks )
-    {
-        _network.back_propagate();
-    }
+    // TODO-CNN : not very clear but backprop is included in feed_forwarding task dispatching
+}
+
+void network_parallel::_feed_back( network& net )
+{
+    net.feed_forward();
+    net.back_propagate();
 }
 
 void network_parallel::gradient_descent()
 {
+    m_thread_pool->wait_all();
+
     // TODO : manage gradient accumulation
 }
 

@@ -30,7 +30,11 @@ THE SOFTWARE.
 #include <memory>
 #include <vector>
 
-namespace neurocl { namespace convnet {
+namespace neurocl {
+
+class thread_pool;
+
+namespace convnet {
 
 class tensor_solver_iface;
 
@@ -61,8 +65,13 @@ public:
 	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
     virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) final;
 
+private:
+
+	void _feed_back( network& net );
+
 protected:
 
+	std::unique_ptr<thread_pool> m_thread_pool;
 	std::shared_ptr<tensor_solver_iface> m_solver;
 	std::vector<network> m_networks;
 };
