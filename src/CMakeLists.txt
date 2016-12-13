@@ -73,6 +73,7 @@ mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 
 convnet/network.cpp
+convnet/network_parallel.cpp
 convnet/network_file_handler.cpp
 convnet/tensor.cpp
 convnet/tensor_operations.cpp
@@ -97,6 +98,7 @@ common/network_config.h
 common/iterative_trainer.h
 common/logger.h
 common/solver.h
+common/thread_pool.h
 
 common/portable_binary_archive/portable_binary_archive.hpp
 common/portable_binary_archive/portable_binary_iarchive.hpp
@@ -121,6 +123,7 @@ convnet/tensor_activations.h
 convnet/tensor_loss_functions.h
 convnet/tensor_operations.h
 convnet/network.h
+convnet/network_parallel.h
 convnet/network_manager_convnet.h
 convnet/network_interface_convnet.h
 convnet/network_file_handler.h
