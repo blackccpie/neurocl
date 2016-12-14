@@ -238,6 +238,18 @@ int main( int argc, char *argv[] )
 
     std::cout << "d_subsample test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 
+    // BERNOULLI
+
+    Res.resize(100,100,1,1);
+    Comp.resize(100,100,1,1);
+
+    nto::bernoulli( Res, 0.25f );
+    nto::bernoulli( Comp, 0.25f );
+
+    std::cout << "bernoulli test1 : " << ( !( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+    std::cout << "bernoulli test2 : " << ( ( ( Res.norm1() - 2500.f ) < 100.f ) ? "PASSED" : "FAILED" ) << std::endl;
+    std::cout << "bernoulli test3 : " << ( ( ( Comp.norm1() - 2500.f ) < 100.f ) ? "PASSED" : "FAILED" ) << std::endl;
+
     // GROUP
 
     A.resize(5,5,1,2);
