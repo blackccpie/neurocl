@@ -197,7 +197,10 @@ float tensor::norm1() const
 {
     float _acc = 0.f;
     tensor_foreach() {
-        _acc += norm_1( m_tensor_array[d1][d2] );
+        std::for_each(m_tensor_array[d1][d2].data().begin(), m_tensor_array[d1][d2].data().end(),
+            [&_acc] ( float a ) {
+                _acc += std::abs( a );
+            });
     }
     return _acc;
 }
@@ -205,11 +208,11 @@ float tensor::norm1() const
 float tensor::norm2() const
 {
     float _acc = 0.f;
-    float _l2 = 0.f;
     tensor_foreach() {
-        // TODO-CNN : not very efficient, squared norm is elevated to pow2 for reduction...
-        _l2 = norm_frobenius( m_tensor_array[d1][d2] ); // frobenius = l2 norm for matrices
-        _acc += _l2 * _l2;
+        std::for_each(m_tensor_array[d1][d2].data().begin(), m_tensor_array[d1][d2].data().end(),
+            [&_acc] ( float a ) {
+        		_acc += a * a;
+            });
     }
     return std::sqrt( _acc );
 }
