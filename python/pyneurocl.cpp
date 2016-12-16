@@ -23,8 +23,7 @@ THE SOFTWARE.
 */
 
 #include "neurocl.h"
-
-#include <boost/python.hpp>
+#include "numpy_scalar_converter.h"
 
 #include <iostream>
 #include <functional>
@@ -144,6 +143,8 @@ BOOST_PYTHON_MODULE(pyneurocl)
 	using namespace boost::python;
 
 	boost::python::numeric::array::set_module_and_type("numpy", "ndarray");
+
+    NumpyScalarConverter<float>();
 
 	register_exception_translator<network_exception>( translateException );
 

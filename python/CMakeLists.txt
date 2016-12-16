@@ -29,7 +29,15 @@ include_directories(
 
 # Find necessary python packages
 find_package( PythonLibs 2.7 REQUIRED )
-include_directories( ${PYTHON_INCLUDE_DIRS} )
+include_directories(
+    ${PYTHON_INCLUDE_DIRS}
+)
+
+if (APPLE)
+    include_directories(
+        "/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include"
+    )  
+endif ()
 
 set (sources_list
 pyneurocl.cpp
