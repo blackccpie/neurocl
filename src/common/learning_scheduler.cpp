@@ -75,24 +75,27 @@ void learning_scheduler::enable_scheduling( const bool enable )
 
 void learning_scheduler::push_error( const float error )
 {
-    _assert_solver();
-
-    LOGGER(info) << "learning_scheduler::push_error - pushing error " << error << std::endl;
-
-    if ( m_err_count == 0 )
-        m_cached_error = error;
-
-    if ( ++m_err_count == m_err_window )
+    if ( m_enabled )
     {
-        if ( error >= m_cached_error )
-        {
-            float new_rate = 0.5f * m_solver->get_learning_rate();
+    	_assert_solver();
 
-            LOGGER(info) << "learning_scheduler::push_error - convergence slowdown, halving learning rate to " << new_rate << "!" << std::endl;
+    	LOGGER(info) << "learning_scheduler::push_error - pushing error " << error << std::endl;
 
-            m_solver->set_learning_rate( new_rate );
+    	if ( m_err_count == 0 )
+        	m_cached_error = error;
+
+    	if ( ++m_err_count == m_err_window )
+    	{
+        	if ( error >= m_cached_error )
+        	{
+            	float new_rate = 0.5f * m_solver->get_learning_rate();
+
+            	LOGGER(info) << "learning_scheduler::push_error - convergence slowdown, halving learning rate to " << new_rate << "!" << std::endl;
+
+            	m_solver->set_learning_rate( new_rate );
+        	}
+        	m_err_count = 0;
         }
-        m_err_count = 0;
     }
 }
 
