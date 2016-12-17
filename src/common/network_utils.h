@@ -25,9 +25,12 @@ THE SOFTWARE.
 #ifndef NETWORK_UTILS_H
 #define NETWORK_UTILS_H
 
+//TODO-CNN : get rid of boost random
 #include <boost/random.hpp>
 #include <boost/random/random_device.hpp>
 #include <boost/random/normal_distribution.hpp>
+
+#include <random>
 
 namespace neurocl {
 
