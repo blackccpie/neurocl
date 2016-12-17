@@ -27,7 +27,6 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/utils"
 )
 
-add_subdirectory(test_mnist)
 add_subdirectory(test_vexcl)
 add_subdirectory(test_edge)
 add_subdirectory(test_tensor)
