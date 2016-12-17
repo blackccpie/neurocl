@@ -35,6 +35,7 @@ add_executable(mnist_autotrainer ${sources_list} ${headers_list})
 
 target_link_libraries(mnist_autotrainer
 neurocl
+boost_program_options${boost_suffix}
 pthread
 ${extra_link_libs}
 )
