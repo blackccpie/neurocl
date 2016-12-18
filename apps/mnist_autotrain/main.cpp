@@ -107,7 +107,8 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    std::cout << "=== mnist autotrain options recap ===" << std::endl;
+    std::cout << std::endl;
+    std::cout << "===== mnist autotrain options recap =====" << std::endl;
     if ( vm.count( "scheduling" ) )
         std::cout << "scheduling has been " << ( scheduling ? "enabled" : "disabled" ) << std::endl;
     if ( vm.count( "gradient_check" ) )
@@ -116,6 +117,8 @@ int main( int argc, char *argv[] )
         std::cout << "training dataset size has been restricted to " << train_restrict << std::endl;
     if ( vm.count( "valid_restrict" ) )
         std::cout << "validation dataset size has been restricted to " << valid_restrict << std::endl;
+    std::cout << "=========================================" << std::endl;
+    std::cout << std::endl;
 
     logger_manager& lm = logger_manager::instance();
     lm.add_logger( policy_type::cout, "mnist_autotrain" );
