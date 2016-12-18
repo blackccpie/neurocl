@@ -83,7 +83,7 @@ public:
 
 protected:
 
-    virtual tensor& error_maps() override
+    virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; } // returns empty tensor
 
 private:

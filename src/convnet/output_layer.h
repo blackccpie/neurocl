@@ -140,7 +140,7 @@ public:
         // TODO-CNN : no grouping managed yet!
 
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
-        tensor& prev_error_maps = m_prev_layer->error_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps({});
 
         // Need to back prop?
         if ( prev_error_maps.empty() )
@@ -210,7 +210,7 @@ public:
 
 protected:
 
-    virtual tensor& error_maps() override
+    virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
 private:

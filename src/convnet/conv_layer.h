@@ -120,7 +120,7 @@ public:
     virtual void back_propagate() override
     {
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
-        tensor& prev_error_maps = m_prev_layer->error_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps({});
 
         // Need to back prop?
         if ( prev_error_maps.empty() )
@@ -194,9 +194,12 @@ public:
             new tensor_gradient_checker( m_filters, m_filters_delta ) ) );
     }
 
+	// copy accessor, not made for performance but rather for network introspection
+    virtual tensor weights( key_weights ) final { return m_filters; }
+
 protected:
 
-    virtual tensor& error_maps() override
+    virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
 private:

@@ -151,7 +151,7 @@ public:
     // also called 'PassKey' idiom
     // cf: http://stackoverflow.com/questions/3217390/clean-c-granular-friend-equivalent-answer-attorney-client-idiom
 
-    class Key
+    class key
     {
         friend class tensor_gradient_checker;
         friend class tensor_activations::sigmoid;
@@ -160,11 +160,11 @@ public:
         friend class tensor_activations::softmax;
         friend class tensor_utils::visualizer;
 
-        Key() {} Key( Key const& ) {}
+        key() {} key( key const& ) {}
     };
 
-    matrixF& m( const size_t d1, const size_t d2, Key )  { return m_tensor_array[d1][d2]; }
-    const matrixF& c_m( const size_t d1, const size_t d2, Key ) const { return m_tensor_array[d1][d2]; }
+    matrixF& m( const size_t d1, const size_t d2, key )  { return m_tensor_array[d1][d2]; }
+    const matrixF& c_m( const size_t d1, const size_t d2, key ) const { return m_tensor_array[d1][d2]; }
 
 private:
 

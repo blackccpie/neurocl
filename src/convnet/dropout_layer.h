@@ -83,7 +83,7 @@ public:
 
     virtual void back_propagate() override
     {
-        m_prev_layer->error_maps() = nto::elemul( m_mask, m_error_maps );
+        m_prev_layer->error_maps({}) = nto::elemul( m_mask, m_error_maps );
     }
 
     virtual void update_gradients() override
@@ -111,7 +111,7 @@ public:
 
 protected:
 
-    virtual tensor& error_maps() override
+    virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
 private:

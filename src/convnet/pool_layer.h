@@ -79,7 +79,7 @@ public:
     virtual void back_propagate() override
     {
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
-        tensor& prev_error_maps = m_prev_layer->error_maps();
+        tensor& prev_error_maps = m_prev_layer->error_maps({});
 
         // Compute errors
 
@@ -114,7 +114,7 @@ public:
 
 protected:
 
-    virtual tensor& error_maps() override
+    virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
 private:

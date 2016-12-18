@@ -72,15 +72,31 @@ public:
     //! Set training flag
     static void set_training( bool training ) { m_training = training; }
 
-private:
+public:
 
-    friend class pool_layer;
-    friend class dropout_layer;
-    template <class T> friend class conv_layer;
-    template <class T> friend class full_layer;
-    template <class T1,class T2> friend class output_layer;
+    class key_errors
+    {
+    	friend class pool_layer;
+    	friend class dropout_layer;
+    	template <class T> friend class conv_layer;
+    	template <class T> friend class full_layer;
+    	template <class T1,class T2> friend class output_layer;
 
-    virtual tensor& error_maps() = 0;
+        key_errors() {} key_errors( key_errors const& ) {}
+    };
+
+    virtual tensor& error_maps( key_errors ) = 0;
+
+public:
+
+    class key_weights
+    {
+        friend class network;
+        key_weights() {} key_weights( key_weights const& ) {}
+    };
+
+    // copy accessor, not made for performance but rather for network introspection
+    virtual tensor weights( key_weights ) { return tensor(); }
 
 protected:
 
