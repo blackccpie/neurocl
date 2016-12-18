@@ -25,19 +25,26 @@ THE SOFTWARE.
 #include "tensor_utils.h"
 #include "tensor.h"
 
+//#define cimg_use_tiff
 #include "CImg.h"
 
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
+namespace bfs = boost::filesystem;
 
 namespace neurocl { namespace convnet {
 
 namespace tensor_utils {
 
-void visualizer::dump_features( const std::string& prefix, const tensor& t )
+void visualizer::dump_features( const std::string& path, const std::string& prefix, const tensor& t )
 {
+    if ( !bfs::exists( path ) )
+        bfs::create_directory( path );
+
     tensor_foreach_p( t.d1(), t.d2() ) {
-        cimg_library::CImg<float> tensor_img( t.c_m(d1,d2,{}).data().begin(), t.w(), t.h(), 1, 1, true /*shared*/ );
-        tensor_img.save( boost::str( boost::format{"%1%_%2%_%3%.png"} % prefix % d1 % d2 ).c_str() );
+        cimg_library::CImg<float> tensor_img( t.c_m(d1,d2,{}).data().begin(), t.w(), t.h(), 1, 1, false /*shared*/ );
+        tensor_img.normalize(0,255);
+        tensor_img.save( boost::str( boost::format{"%1%/%2%_%3%_%4%.png"} % path % prefix % d1 % d2 ).c_str() );
     }
 }
 

@@ -45,6 +45,11 @@ network::network() : m_training_samples( 0 )
     m_solver = tensor_solver_factory::build();
 }
 
+network::~network()
+{
+    //dump_image_features();
+}
+
 void network::add_layers( const std::vector<layer_descr>& layers )
 {
     size_t conv_idx = 0;
@@ -319,9 +324,14 @@ void network::gradient_check( const output_ptr& out_ref )
 
 void network::dump_image_features()
 {
+    //tensor_utils::visualizer::dump_features( "features_dump", m_layers[1]->type(), m_layers[1]->weights({}) );
+    //return;
+
     for ( auto _layer : m_layers )
     {
-        tensor_utils::visualizer::dump_features( _layer->type(), _layer->feature_maps() );
+        // dump only if the layer has weights
+        if ( _layer->nb_weights() )
+        	tensor_utils::visualizer::dump_features( "features_dump", _layer->type(), _layer->weights({}) );
     }
 }
 

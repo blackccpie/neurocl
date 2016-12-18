@@ -40,7 +40,7 @@ class network final : public network_interface_convnet
 public:
 
 	network();
-	virtual ~network() {}
+	virtual ~network();
 
     virtual void add_layers( const std::vector<layer_descr>& layers ) final;
 

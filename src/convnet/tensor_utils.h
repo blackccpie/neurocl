@@ -36,7 +36,7 @@ namespace tensor_utils {
 class visualizer
 {
 public:
-    static void dump_features( const std::string& prefix, const tensor& t );
+    static void dump_features( const std::string& path, const std::string& prefix, const tensor& t );
 };
 
 } //namespace utils
