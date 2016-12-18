@@ -7,56 +7,78 @@
     <script type="text/javascript" src="canvasjs.min.js"></script>
     <script type="text/javascript">
         window.onload = function() {
-            var dataPoints = [];
+            var dataPointsArray = [ [],[],[] ];
+            var chart;
 
             function getDataPointsFromCSV(csv) {
-                var dataPointsArray = [
-                    [],
-                    []
-                ];
                 var csvLines = points = [];
                 csvLines = csv.split(/[\r?\n|\r|\n]+/);
 
                 for (var i = 0; i < csvLines.length; i++)
                     if (csvLines[i].length > 0) {
                         points = csvLines[i].split(",");
-                        dataPointsArray[0].push({
+                        dataPointsArray[0][i] = {
                             x: parseFloat(points[0]),
                             y: parseFloat(points[1])
-                        });
-                        dataPointsArray[1].push({
+                        };
+                        dataPointsArray[1][i] = {
                             x: parseFloat(points[0]),
                             y: parseFloat(points[2])
-                        });
+                        };
+                        dataPointsArray[2][i] = {
+                            x: parseFloat(points[0]),
+                            y: 100*parseFloat(points[3])
+                        };
                     }
                 return dataPointsArray;
+            }
+
+            function updateChart() {
+                $.get("http://192.168.0.1:8080/bin/mnist_training.csv", function(data) {
+                    dataPointsArray = getDataPointsFromCSV(data);
+                    chart.render();
+                    setTimeout(function(){ updateChart() }, 1000);
+                });
             }
 
             $.get("http://192.168.0.1:8080/bin/mnist_training.csv", function(data) {
 
                 dataPointsArray = getDataPointsFromCSV(data);
 
-                var chart = new CanvasJS.Chart("chartContainer", {
+                chart = new CanvasJS.Chart("chartContainer", {
                     title: {
                         text: "Neurocl training data",
                     },
                     axisX: {
                         title: "EPOCHS",
                     },
-                    axisY: {
+                    axisY:
+                    {
                         title: "SCORE %",
                     },
-                    data: [{
+                    data: [
+                    {
                         type: "line",
+                        showInLegend: true,
+                        name: "Training score",
                         dataPoints: dataPointsArray[0]
-                    }, {
+                    },
+                    {
                         type: "line",
+                        showInLegend: true,
+                        name: "Testing score",
                         dataPoints: dataPointsArray[1]
+                    },
+                    {
+                        type: "line",
+                        showInLegend: true,
+                        name: "Error",
+                        dataPoints: dataPointsArray[2]
                     }]
                 });
 
                 chart.render();
-                //setTimeout(function(){updateChart()}, 1000);
+                updateChart();
             });
         }
     </script>
