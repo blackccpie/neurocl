@@ -132,6 +132,11 @@ void network_parallel::gradient_descent()
     // gradient accumulation
     tensor_tank::instance().accumulate();
 
+   //m_networks[0].set_training_samples( 5 );
+
+    // gradient descent
+    m_networks[0].gradient_descent();
+
 	// reset net index
     m_current_net = 0;
 }
