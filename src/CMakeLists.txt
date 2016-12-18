@@ -72,6 +72,7 @@ mlp/network_vexcl.cpp
 mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 
+convnet/layer.cpp
 convnet/network.cpp
 convnet/network_parallel.cpp
 convnet/network_file_handler.cpp

@@ -23,18 +23,20 @@ THE SOFTWARE.
 */
 
 #include "network_parallel.h"
-// TODO #include "layer.h"
+#include "layer.h"
+#include "tensor_tank.h"
 #include "tensor_solver.h"
 
 #include "common/thread_pool.h"
 
 namespace neurocl { namespace convnet {
 
-#define parallel_thread_count 4
+#define parallel_thread_count 5
 
-network_parallel::network_parallel() : m_thread_pool( new thread_pool{ parallel_thread_count } )
+network_parallel::network_parallel()
+    : m_thread_pool( new thread_pool{ parallel_thread_count } ), m_current_net( 0 )
 {
-    // TODO layer::set_shared( true );
+    layer::set_shared( true );
 
     m_solver = tensor_solver_factory::build();
 
@@ -42,10 +44,17 @@ network_parallel::network_parallel() : m_thread_pool( new thread_pool{ parallel_
         m_networks.emplace_back( network{} );
 }
 
+network_parallel::~network_parallel()
+{
+    layer::set_shared( false );
+}
+
 void network_parallel::add_layers( const std::vector<layer_descr>& layers )
 {
+    size_t i = 0;
     for ( auto& _network : m_networks )
     {
+        LOGGER(info) << "network_parallel::add_layers - adding layers for net #" << i++ << std::endl;
         _network.add_layers( layers );
     }
 }
@@ -62,7 +71,7 @@ void network_parallel::set_output( const size_t& out_size, const float* out )
 {
     for ( auto& _network : m_networks )
     {
-        _network.set_input( out_size, out );
+        _network.set_output( out_size, out );
     }
 }
 
@@ -78,12 +87,15 @@ const layer_ptr network_parallel::get_layer_ptr( const size_t layer_idx )
 
 void network_parallel::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
 {
-    m_networks[0].set_layer_ptr( layer_idx, l );
+    for ( auto& _network : m_networks )
+    {
+    	_network.set_layer_ptr( layer_idx, l );
+    }
 }
 
 const output_ptr network_parallel::output()
 {
-    return m_networks[0].output();
+    return std::move( m_networks[0].output() );
 }
 
 void network_parallel::clear_gradients()
@@ -96,10 +108,10 @@ void network_parallel::clear_gradients()
 
 void network_parallel::feed_forward()
 {
-    for ( auto& _network : m_networks )
-    {
-        m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, _network ) );
-    }
+    //if ( layer::get_training() )
+        m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, m_networks[m_current_net++] ) );
+    //else
+    //    _feed_back( m_networks[0] );
 }
 
 void network_parallel::back_propagate()
@@ -117,7 +129,11 @@ void network_parallel::gradient_descent()
 {
     m_thread_pool->wait_all();
 
-    // TODO : manage gradient accumulation
+    // gradient accumulation
+    tensor_tank::instance().accumulate();
+
+	// reset net index
+    m_current_net = 0;
 }
 
 void network_parallel::gradient_check( const output_ptr& out_ref )

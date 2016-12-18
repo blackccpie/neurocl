@@ -27,6 +27,7 @@
     - [ ] Finish camera wrapper using numpy
     - [ ] Finalize autonomous pizero OCR app
 - [ ] Update UML with Convnet
+- [ ] Improve tensor random inits methods' names and prototypes (use fan-in denomination)
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark

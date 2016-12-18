@@ -46,7 +46,14 @@ public:
     {
         LOGGER(info) << "input_layer::populate - populating input layer" << std::endl;
 
-        m_feature_maps.resize( width, height, 1, depth );
+        if ( m_shared )
+        {
+            m_feature_maps = tensor_tank::instance().get_standard( "feature_maps", width, height, 1, depth );
+        }
+        else
+        {
+        	m_feature_maps.resize( width, height, 1, depth );
+        }
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); };

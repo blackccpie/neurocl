@@ -79,20 +79,36 @@ public:
         // TODO-CNN : no need to allocate in non-training mode!
         m_training_output.resize( width, height, 1, depth );
 
-        // TODO-CNN : what to do with error_maps, unused here!
-        m_error_maps.resize( width, height, 1, depth );
-
         const size_t prev_layer_size = prev_layer->width() * prev_layer->height();
 
-        m_feature_maps.resize( width, height, 1, depth );
+        if ( m_shared )
+        {
+            m_feature_maps = tensor_tank::instance().get_standard( "feature_maps", width, height, 1, depth );
+            m_error_maps = tensor_tank::instance().get_standard( "error_maps", width, height, 1, depth );
 
-        m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
-        m_bias_momentum.resize( width, height, 1, depth );
-        m_deltas_bias.resize( width, height, 1, depth );
+            m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
+            m_bias.fill_random( 1 ); // stddev 1 for bias
+            m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
+            m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
 
-        m_weights.resize( width * height, prev_layer_size, 1, depth, prev_layer_size/*nin*/ );
-        m_weights_momentum.resize( width * height, prev_layer_size, 1, depth );
-        m_deltas_weights.resize( width * height, prev_layer_size, 1, depth );
+            m_weights = tensor_tank::instance().get_shared( "weights", width * height, prev_layer_size, 1, depth );
+            m_weights.fill_random( prev_layer_size/*nin*/ );
+            m_weights_momentum = tensor_tank::instance().get_shared( "weights_momentum", width * height, prev_layer_size, 1, depth );
+            m_deltas_weights = tensor_tank::instance().get_cumulative( "weights_delta", width * height, prev_layer_size, 1, depth );
+        }
+        else
+        {
+        	m_feature_maps.resize( width, height, 1, depth );
+            m_error_maps.resize( width, height, 1, depth );
+
+        	m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
+        	m_bias_momentum.resize( width, height, 1, depth );
+        	m_deltas_bias.resize( width, height, 1, depth );
+
+        	m_weights.resize( width * height, prev_layer_size, 1, depth, prev_layer_size/*nin*/ );
+        	m_weights_momentum.resize( width * height, prev_layer_size, 1, depth );
+        	m_deltas_weights.resize( width * height, prev_layer_size, 1, depth );
+        }
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); }

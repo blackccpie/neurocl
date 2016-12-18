@@ -158,7 +158,7 @@ const layer_ptr network::get_layer_ptr( const size_t layer_idx )
 
     std::shared_ptr<layer> _layer = m_layers[layer_idx];
 
-    LOGGER(info) << "network::set_layer_ptr - getting layer  " << _layer->type() << std::endl;
+    LOGGER(info) << "network::get_layer_ptr - getting layer  " << _layer->type() << std::endl;
 
     layer_ptr l( _layer->nb_weights(), _layer->nb_bias() );
     _layer->fill_w( l.weights.get() );

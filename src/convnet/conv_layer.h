@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define CONV_LAYER_H
 
 #include "layer.h"
+#include "tensor_tank.h"
 
 #include "common/logger.h"
 
@@ -82,18 +83,35 @@ public:
 
         size_t filter_total_size = m_filter_size * m_filter_size;
 
-        m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, filter_total_size/*nin*/ );
-        m_filters_momentum.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
-        m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        if ( m_shared )
+        {
+            m_feature_maps = tensor_tank::instance().get_standard( "feature_maps", width, height, 1, depth );
+            m_error_maps = tensor_tank::instance().get_standard( "error_maps", width, height, 1, depth );
 
-        m_bias.resize( width, height, 1, depth );
-        m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
-        m_bias_momentum.resize( width, height, 1, depth );
-        m_deltas_bias.resize( width, height, 1, depth );
+            m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
+            m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
+            m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
+            m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
 
-        m_feature_maps.resize( width, height, 1, depth );
+        	m_filters = tensor_tank::instance().get_shared( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_filters.fill_random( filter_total_size/*nin*/ );
+        	m_filters_momentum = tensor_tank::instance().get_shared( "filters_momentum", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        	m_filters_delta = tensor_tank::instance().get_cumulative( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        }
+        else
+        {
+            m_feature_maps.resize( width, height, 1, depth );
+            m_error_maps.resize( width, height, 1, depth );
 
-        m_error_maps.resize( width, height, 1, depth );
+        	m_bias.resize( width, height, 1, depth );
+        	m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
+        	m_bias_momentum.resize( width, height, 1, depth );
+        	m_deltas_bias.resize( width, height, 1, depth );
+
+            m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, filter_total_size/*nin*/ );
+            m_filters_momentum.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        }
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); }

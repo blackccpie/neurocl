@@ -27,13 +27,16 @@ THE SOFTWARE.
 
 #include <boost/format.hpp>
 
+#include <map>
+
 namespace neurocl { namespace convnet {
 
 class tensor_tank
 {
 public:
 
-    using tensor_tank_map = std::map<std::string,tensor>;
+    using shared_tensor_tank = std::map<std::string,tensor>;
+    using multi_tensor_tank = std::map<std::string,std::vector<tensor>>;
 
 public:
     static tensor_tank& instance() { static tensor_tank tt; return tt; }
@@ -56,6 +59,21 @@ public:
         return t;
     }
 
+    tensor& get_standard(   const std::string& key,
+                            const size_t width,
+                            const size_t height,
+                            const size_t depth1,
+                            const size_t depth2 )
+    {
+        auto& t_map = m_standard_tensor_tank[key];
+
+        const std::string size_key = boost::str( boost::format{"%1%x%2%x%3%x%4%"} % width % height % depth1 % depth2 );
+
+        tensor& t = _emplace( size_key, t_map );
+        t.resize( width, height, depth1, depth2 );
+        return t;
+    }
+
     tensor& get_cumulative( const std::string& key,
                             const size_t width,
                             const size_t height,
@@ -66,19 +84,38 @@ public:
 
         const std::string size_key = boost::str( boost::format{"%1%x%2%x%3%x%4%"} % width % height % depth1 % depth2 );
 
-        bool populate = false;
-
-        tensor& t = _find_or_emplace( size_key, t_map, populate );
-        if ( populate )
-            t.resize( width, height, depth1, depth2 );
+        tensor& t = _emplace( size_key, t_map );
+        t.resize( width, height, depth1, depth2 );
         return t;
+    }
+
+    void accumulate()
+    {
+        for ( auto& tank : m_cumulative_tensor_tank )
+        {
+            for ( auto& elem : tank.second )
+            {
+                auto& v_tensor = elem.second;
+                tensor& ref_tensor = v_tensor.front();
+                std::for_each(  v_tensor.begin()+1,
+                                v_tensor.end(),
+                                [&ref_tensor]( tensor& t ) { ref_tensor += t; } );
+            }
+        }
     }
 
 private:
     tensor_tank() {}
     virtual ~tensor_tank() {}
 
-    tensor& _find_or_emplace( const std::string& key, tensor_tank_map& map, bool& populate )
+    tensor& _emplace( const std::string& key, multi_tensor_tank& map )
+    {
+        auto& t_vec = map[key];
+        t_vec.emplace_back( tensor{} );
+        return t_vec.back();
+    }
+
+    tensor& _find_or_emplace( const std::string& key, shared_tensor_tank& map, bool& populate )
     {
         auto iter = map.find( key );
         if ( iter != map.end() )
@@ -97,8 +134,9 @@ private:
 
 private:
 
-    std::map<std::string,tensor_tank_map> m_shared_tensor_tank;
-    std::map<std::string,tensor_tank_map> m_cumulative_tensor_tank;
+    std::map<std::string,shared_tensor_tank> m_shared_tensor_tank;
+    std::map<std::string,multi_tensor_tank> m_cumulative_tensor_tank;
+    std::map<std::string,multi_tensor_tank> m_standard_tensor_tank;
 
 };
 

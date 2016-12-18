@@ -43,7 +43,7 @@ class network_parallel final : public network_interface_convnet
 public:
 
 	network_parallel();
-	virtual ~network_parallel() {}
+	virtual ~network_parallel();
 
     virtual void add_layers( const std::vector<layer_descr>& layers ) final;
 
@@ -70,6 +70,8 @@ private:
 	void _feed_back( network& net );
 
 protected:
+
+	size_t m_current_net;
 
 	std::unique_ptr<thread_pool> m_thread_pool;
 	std::shared_ptr<tensor_solver_iface> m_solver;

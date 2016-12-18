@@ -121,6 +121,7 @@ public:
     tensor operator -();
     bool operator ==( const tensor& other ) const;
 
+    void fill_random( const size_t& rand_nin );
     void uniform_fill( const float& val );
     void uniform_fill_random( const float& stddev );
 

@@ -152,6 +152,16 @@ void tensor::resize( const size_t width, const size_t height, const size_t depth
         }
 }
 
+void tensor::fill_random( const size_t& rand_nin )
+{
+    for( auto _matrices : m_tensor_array )
+        for( auto& _matrix : _matrices )
+        {
+            _matrix = matrixF( m_width, m_height, 0.f );
+            random_normal_init( _matrix, 1.f / std::sqrt( static_cast<float>( rand_nin ) ) );
+        }
+}
+
 void tensor::uniform_fill( const float& val )
 {
     tensor_foreach() {

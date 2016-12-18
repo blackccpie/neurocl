@@ -72,6 +72,9 @@ public:
     //! Set training flag
     static void set_training( bool training ) { m_training = training; }
 
+    //! Set shared flag
+    static void set_shared( bool shared ) { m_shared = shared; }
+
 public:
 
     class key_errors
@@ -101,9 +104,8 @@ public:
 protected:
 
     static bool m_training;
+    static bool m_shared;
 };
-
-bool layer::m_training = false;
 
 } /*namespace neurocl*/ } /*namespace convnet*/
 
