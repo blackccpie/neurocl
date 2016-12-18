@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "tensor.h"
 
 #include "common/network_exception.h"
-#include "common/network_utils.h"
+#include "common/network_random.h"
 
 namespace neurocl { namespace convnet {
 
@@ -50,7 +50,7 @@ const std::string dump_mat( const matrixF& mat /*, boost::optional<std::string> 
 template<class T>
 inline void random_normal_init( T& container, const float stddev = 1.f )
 {
-    utils::rand_gaussian_generator rgg( 0.f, stddev );
+    random::rand_gaussian_generator rgg( 0.f, stddev );
 
     for( auto& element : container.data() )
     {
@@ -58,7 +58,7 @@ inline void random_normal_init( T& container, const float stddev = 1.f )
     }
 }
 
-void tensor::_assert_same_size( const tensor& t )
+void tensor::assert_same_size( const tensor& t )
 {
     if ( ( m_width != t.w() ) ||
         ( m_height != t.h() ) ||
@@ -70,6 +70,66 @@ void tensor::_assert_same_size( const tensor& t )
 const std::string tensor::dump( const size_t d1, const size_t d2 ) const
 {
     return dump_mat( m_tensor_array[d1][d2] );
+}
+
+tensor::tensor( const tensor&& t )
+{
+    // TODO-CNN
+    // NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
+    m_width = t.m_width;
+    m_height = t.m_height;
+    m_depth1 = t.m_depth1;
+    m_depth2 = t.m_depth2;
+
+    m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+
+    tensor_foreach() {
+        m_tensor_array[d1][d2] = std::move( t.m_tensor_array[d1][d2] );
+    }
+}
+
+tensor& tensor::operator=( const tensor& other )
+{
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_depth1 = other.m_depth1;
+    m_depth2 = other.m_depth2;
+
+    m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+
+    tensor_foreach_p( other.d1(), other.d2() ) {
+        m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
+    }
+
+    return *this;
+}
+
+tensor::tensor( const tensor& t )
+{
+    // TODO-CNN
+    // NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
+    m_width = t.m_width;
+    m_height = t.m_height;
+    m_depth1 = t.m_depth1;
+    m_depth2 = t.m_depth2;
+
+    m_tensor_array.resize( boost::extents[t.m_depth1][t.m_depth2] );
+
+    tensor_foreach() {
+        m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
+    }
+}
+
+tensor& tensor::operator=( tensor&& other )
+{
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_depth1 = other.m_depth1;
+    m_depth2 = other.m_depth2;
+
+    m_tensor_array = std::move( other.m_tensor_array );
+
+    return *this;
 }
 
 void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, boost::optional<size_t> opt_rand_nin )
@@ -101,7 +161,7 @@ void tensor::uniform_fill( const float& val )
 
 void tensor::uniform_fill_random( const float& stddev )
 {
-    utils::rand_gaussian_generator rgg( 0.f, stddev );
+    random::rand_gaussian_generator rgg( 0.f, stddev );
 
     tensor_foreach() {
         m_tensor_array[d1][d2] = boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, rgg() );
@@ -111,10 +171,10 @@ void tensor::uniform_fill_random( const float& stddev )
 // TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator +=( const tensor& other )
 {
-    _assert_same_size( other );
+    assert_same_size( other );
 
     tensor_foreach() {
-        m_tensor_array[d1][d2] += other.c_m(d1,d2);
+        m_tensor_array[d1][d2] += other.m_tensor_array[d1][d2];
     }
 
     return std::move(*this);
@@ -123,10 +183,10 @@ tensor tensor::operator +=( const tensor& other )
 // TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator -=( const tensor& other )
 {
-    _assert_same_size( other );
+    assert_same_size( other );
 
     tensor_foreach() {
-        m_tensor_array[d1][d2] -= other.c_m(d1,d2);
+        m_tensor_array[d1][d2] -= other.m_tensor_array[d1][d2];
     }
 
     return std::move(*this);

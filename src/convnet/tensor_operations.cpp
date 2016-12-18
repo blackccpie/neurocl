@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "tensor_solver.h"
 #include "tensor_operations.h"
 
-#include "common/network_utils.h"
+#include "common/network_random.h"
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
@@ -156,7 +156,7 @@ tensor tensor_operation::group( const tensor& input )
     tensor output;
     output.resize( input.d2() * input.w() * input.h(), 1, 1, 1 );
 
-    auto output_mat_iter = output.m(0,0).data().begin();
+    auto output_mat_iter = output.m_tensor_array[0][0].data().begin();
 
     size_t _offset = 0;
 
@@ -165,8 +165,8 @@ tensor tensor_operation::group( const tensor& input )
 
     tensor_foreach_p( 1, input.d2() ) {
 
-        auto input_mat_iter = input.c_m(d1,d2).data().begin();
-        const size_t _size = input.c_m(d1,d2).size1() * input.c_m(d1,d2).size2();
+        auto input_mat_iter = input.m_tensor_array[d1][d2].data().begin();
+        const size_t _size = input.m_tensor_array[d1][d2].size1() * input.m_tensor_array[d1][d2].size2();
 
         std::copy( input_mat_iter, input_mat_iter + _size, output_mat_iter + _offset );
 
@@ -180,7 +180,7 @@ void tensor_operation::ungroup( const tensor& input, tensor& output )
 {
     _assert_no_replication( output );
 
-    auto input_mat_iter = input.c_m(0,0).data().begin();
+    auto input_mat_iter = input.m_tensor_array[0][0].data().begin();
 
     size_t _offset = 0;
 
@@ -189,9 +189,9 @@ void tensor_operation::ungroup( const tensor& input, tensor& output )
 
     tensor_foreach_p( 1, output.d2() ) {
 
-        const size_t _size = output.m(d1,d2).size1() * output.m(d1,d2).size2();
+        const size_t _size = output.m_tensor_array[d1][d2].size1() * output.m_tensor_array[d1][d2].size2();
 
-        std::copy( input_mat_iter, input_mat_iter + _size, output.m(d1,d2).data().begin() );
+        std::copy( input_mat_iter, input_mat_iter + _size, output.m_tensor_array[d1][d2].data().begin() );
 
         input_mat_iter += _size;
     }
@@ -207,7 +207,8 @@ tensor tensor_operation::elediv( const tensor& inputA, const tensor& inputB )
     output.resize( inputA );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m(d1,d2) = element_div( inputA.c_m(d1,d2), inputB.c_m(d1,d2) );
+        output.m_tensor_array[d1][d2] =
+            element_div( inputA.m_tensor_array[d1][d2], inputB.m_tensor_array[d1][d2] );
     }
 
     return output;
@@ -223,7 +224,8 @@ tensor tensor_operation::elemul( const tensor& inputA, const tensor& inputB )
     output.resize( inputA );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m(d1,d2) = element_prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) );
+        output.m_tensor_array[d1][d2] =
+            element_prod( inputA.m_tensor_array[d1][d2], inputB.m_tensor_array[d1][d2] );
     }
 
     return output;
@@ -239,7 +241,8 @@ tensor tensor_operation::mul( const tensor& inputA, const tensor& inputB )
     output.resize( inputA );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) );
+        output.m_tensor_array[d1][d2] =
+            prod( inputA.m_tensor_array[d1][d2], inputB.m_tensor_array[d1][d2] );
     }
 
     return output;
@@ -255,8 +258,8 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
     output.resize( inputC ); // output is homogenous to inputC
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m(d1,d2) = prod( inputA.c_m(d1,d2), inputB.c_m(d1,d2) )
-                + inputC.c_m(d1,d2);
+        output.m_tensor_array[d1][d2] = prod( inputA.m_tensor_array[d1][d2], inputB.m_tensor_array[d1][d2] )
+                + inputC.m_tensor_array[d1][d2];
     }
 
     return output;
@@ -272,7 +275,8 @@ tensor tensor_operation::multrans1( const tensor& inputA, const tensor& inputB )
     output.resize( inputA.h(), inputB.h(), inputA.d1(), inputA.d2() );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m(d1,d2) = prod( trans( inputA.c_m(d1,d2) ), inputB.c_m(d1,d2) );
+        output.m_tensor_array[d1][d2] =
+            prod( trans( inputA.m_tensor_array[d1][d2] ), inputB.m_tensor_array[d1][d2] );
     }
 
     return output;
@@ -288,7 +292,8 @@ tensor tensor_operation::multrans2( const tensor& inputA, const tensor& inputB )
     output.resize( inputA.w(), inputB.w(), inputA.d1(), inputA.d2() );
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m(d1,d2) = prod( inputA.c_m(d1,d2), trans( inputB.c_m(d1,d2) ) );
+        output.m_tensor_array[d1][d2] =
+            prod( inputA.m_tensor_array[d1][d2], trans( inputB.m_tensor_array[d1][d2] ) );
     }
 
     return output;
@@ -300,8 +305,8 @@ tensor tensor_operation::sqrt( const tensor& input )
     output.resize( input );
 
     tensor_foreach_p( output.d1(), output.d2() ) {
-        matrixF& _output = output.m(d1,d2);
-        _output = input.c_m(d1,d2);
+        matrixF& _output = output.m_tensor_array[d1][d2];
+        _output = input.m_tensor_array[d1][d2];
         std::transform( _output.data().begin(), _output.data().end(), _output.data().begin(), std::ptr_fun<float,float>( std::sqrt ) );
     }
 
@@ -349,13 +354,14 @@ tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_mode::fli
                 for ( auto i=0; i<stepsX; i++ )
                 {
                     // multiply
-                    matrixF conv = element_prod( f.flipped( filter.c_m(d1,d2) ),
-                        project( input.c_m(0,d1),
+                    matrixF conv = element_prod( f.flipped( filter.m_tensor_array[d1][d2] ),
+                        project( input.m_tensor_array[0][d1],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
                     // accumulate + add
-                    output.m(0,d2)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    output.m_tensor_array[0][d2](i,j) +=
+                        std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
         }
@@ -394,10 +400,10 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
         // update padded matrix
-        project(    padded_input.m(0,d2),
+        project(    padded_input.m_tensor_array[0][d2],
                     range( _FmX, _FmX + input.w() ),
                     range( _FmY, _FmY + input.h() ) )
-            = input.c_m(0,d2);
+            = input.m_tensor_array[0][d2];
 
         for ( auto d1 = 0; d1 < filter.d1(); d1++ )
         {
@@ -406,14 +412,15 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
                 for ( auto i=0; i<stepsX; i++ )
                 {
 					// multiply
-                    matrixF conv = element_prod( filter.c_m(d1,d2),
-                        project( padded_input.c_m(0,d2),
+                    matrixF conv = element_prod( filter.m_tensor_array[d1][d2],
+                        project( padded_input.m_tensor_array[0][d2],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
                     // accumulate + add
                     // question was raised about the necessity to divide proportionnaly to forward feed accumulation filter replication
-                    output.m(0,d1)(i,j) += std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    output.m_tensor_array[0][d1](i,j) +=
+                        std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
         }
@@ -449,13 +456,14 @@ tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::flip,ten
                 for ( auto i=0; i<stepsX; i++ )
                 {
 					// multiply
-                    matrixF conv = element_prod( f.flipped( filter.c_m(0,d2) ),
-                        project( input.c_m(0,d1),
+                    matrixF conv = element_prod( f.flipped( filter.m_tensor_array[0][d2] ),
+                        project( input.m_tensor_array[0][d1],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
 
                     // accumulate
-                    output.m(d1,d2)(i,j) = std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
+                    output.m_tensor_array[d1][d2](i,j) =
+                        std::accumulate( conv.data().begin(), conv.data().end(), 0.f );
                 }
             }
         }
@@ -473,9 +481,9 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
 
     tensor_foreach_p( input.d1(), input.d2() )
     {
-        matrixF& feature_map = output.m(d1,d2);
+        matrixF& feature_map = output.m_tensor_array[d1][d2];
 
-        const matrixF& prev_feature_map = input.c_m(d1,d2);
+        const matrixF& prev_feature_map = input.m_tensor_array[d1][d2];
         auto prev_width = prev_feature_map.size1();
         auto prev_it1 = prev_feature_map.begin1();
 
@@ -516,13 +524,13 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
     tensor_foreach_p( input.d1(), input.d2() )
     {
         // Initialize iterators
-        const matrixF& prev_feature_map = input_ref.c_m(d1,d2);
+        const matrixF& prev_feature_map = input_ref.m_tensor_array[d1][d2];
         auto prev_width = prev_feature_map.size1();
 
-        const matrixF& error_map = input.c_m(d1,d2);
+        const matrixF& error_map = input.m_tensor_array[d1][d2];
         auto err_it1 = error_map.begin1();
 
-        matrixF& prev_error_map = output.m(d1,d2);
+        matrixF& prev_error_map = output.m_tensor_array[d1][d2];
         auto prev_err_iter1 = prev_error_map.begin1();
 
         // Iterate
@@ -565,8 +573,8 @@ tensor tensor_operation::uniform_sum( const tensor& input )
     output.resize( input.w(), input.h(), input.d1(), input.d2() );
 
     tensor_foreach_p( input.d1(), input.d2() ) {
-        float _acc = std::accumulate( input.c_m(d1,d2).data().begin(), input.c_m(d1,d2).data().end(), 0.f );
-        output.m(d1,d2) = boost::numeric::ublas::scalar_matrix<float>( input.w(), input.h(), _acc );
+        float _acc = std::accumulate( input.m_tensor_array[d1][d2].data().begin(), input.m_tensor_array[d1][d2].data().end(), 0.f );
+        output.m_tensor_array[d1][d2] = boost::numeric::ublas::scalar_matrix<float>( input.w(), input.h(), _acc );
     }
 
     return output;
@@ -574,11 +582,11 @@ tensor tensor_operation::uniform_sum( const tensor& input )
 
 void tensor_operation::bernoulli( tensor& input, const float p )
 {
-    utils::rand_bernoulli_generator bernoulli( p );
+    random::rand_bernoulli_generator bernoulli( p );
 
     tensor_foreach_p( input.d1(), input.d2() ) {
-        std::for_each(  input.m(d1,d2).data().begin(),
-                        input.m(d1,d2).data().end(),
+        std::for_each(  input.m_tensor_array[d1][d2].data().begin(),
+                        input.m_tensor_array[d1][d2].data().end(),
                         [&bernoulli]( float& a ) { a = bernoulli(); } );
     }
 }

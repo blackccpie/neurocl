@@ -36,7 +36,7 @@ public:
     tensor_gradient_checker( tensor& weights, tensor& deltas )
     	: m_index( 0 ), m_stored( 0.f ), m_weights( weights ), m_deltas( deltas )
     {
-        m_weights._assert_same_size( m_deltas );
+        m_weights.assert_same_size( m_deltas );
 
         m_numerical_deltas.resize( m_deltas );
 
@@ -76,8 +76,10 @@ public:
         double _err = 0.;
         tensor_foreach_p( m_deltas.d1(), m_deltas.d2() )
         {
-            auto iter = boost::make_zip_iterator( boost::make_tuple( m_deltas.m(d1,d2).data().begin(), m_numerical_deltas.m(d1,d2).data().begin() ) );
-            auto end = boost::make_zip_iterator( boost::make_tuple( m_deltas.m(d1,d2).data().end(), m_numerical_deltas.m(d1,d2).data().end() ) );
+            auto iter = boost::make_zip_iterator( boost::make_tuple( m_deltas.m(d1,d2,{}).data().begin(),
+                m_numerical_deltas.m(d1,d2,{}).data().begin() ) );
+            auto end = boost::make_zip_iterator( boost::make_tuple( m_deltas.m(d1,d2,{}).data().end(),
+                m_numerical_deltas.m(d1,d2,{}).data().end() ) );
 
             for( ; iter != end ; ++iter )
             {
@@ -102,7 +104,7 @@ private:
         size_t d1 = div / m_group_size;
         size_t d2 = div % m_group_size;
 
-        return t.m(d1,d2)(x,y);
+        return t.m(d1,d2,{})(x,y);
     }
 private:
     float m_stored;

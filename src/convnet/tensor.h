@@ -42,6 +42,10 @@ using matrix2F = matrix2T<float>;
 
 namespace neurocl { namespace convnet {
 
+namespace tensor_utils {
+    class visualizer;
+}
+
 namespace tensor_activations {
     class sigmoid;
     class tanh;
@@ -57,6 +61,9 @@ namespace tensor_activations {
 
 class tensor
 {
+    // tensor_operation has full access on tensor class
+    friend class tensor_operation;
+
 public:
     tensor() : m_width(0), m_height(0), m_depth1(0), m_depth2(0) {}
     virtual ~tensor() {}
@@ -64,68 +71,16 @@ public:
     bool empty() const { return ( m_depth1 == 0 ) && ( m_depth2 == 0 ); }
 
     // move constructor
-    tensor( const tensor&& t )
-    {
-		// TODO-CNN
-		// NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
-        m_width = t.m_width;
-        m_height = t.m_height;
-        m_depth1 = t.m_depth1;
-        m_depth2 = t.m_depth2;
-
-        m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
-
-        tensor_foreach() {
-            m_tensor_array[d1][d2] = std::move( t.m_tensor_array[d1][d2] );
-        }
-    }
+    tensor( const tensor&& t );
 
     // copy constructor
-    tensor( const tensor& t )
-    {
-		// TODO-CNN
-		// NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
-        m_width = t.m_width;
-        m_height = t.m_height;
-        m_depth1 = t.m_depth1;
-        m_depth2 = t.m_depth2;
-
-        m_tensor_array.resize( boost::extents[t.m_depth1][t.m_depth2] );
-
-        tensor_foreach() {
-            m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
-        }
-    }
+    tensor( const tensor& t );
 
     // move assignment operator
-    tensor& operator=( tensor&& other )
-    {
-        m_width = other.m_width;
-        m_height = other.m_height;
-        m_depth1 = other.m_depth1;
-        m_depth2 = other.m_depth2;
-
-        m_tensor_array = std::move( other.m_tensor_array );
-
-        return *this;
-    }
+    tensor& operator=( tensor&& other );
 
     // assignment operator
-    tensor& operator=( const tensor& other )
-    {
-        m_width = other.m_width;
-        m_height = other.m_height;
-        m_depth1 = other.m_depth1;
-        m_depth2 = other.m_depth2;
-
-        m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
-
-        tensor_foreach_p( other.d1(), other.d2() ) {
-            m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
-        }
-
-        return *this;
-    }
+    tensor& operator=( const tensor& other );
 
     void resize( const tensor& other )
     {
@@ -186,23 +141,30 @@ public:
     // returns L2 norm
     float norm2() const;
 
+    void assert_same_size( const tensor& t );
+
     const std::string dump( const size_t d1, const size_t d2 ) const;
 
-private:
+public:
 
-    friend class tensor_operation;
-    friend class tensor_gradient_checker;
-    friend class tensor_activations::sigmoid;
-    friend class tensor_activations::tanh;
-    friend class tensor_activations::relu;
-    friend class tensor_activations::softmax;
+    // Implementing sort of granular friend idiom
+    // also called 'PassKey' idiom
+    // cf: http://stackoverflow.com/questions/3217390/clean-c-granular-friend-equivalent-answer-attorney-client-idiom
 
-    matrixF& m( const size_t d1, const size_t d2 )  { return m_tensor_array[d1][d2]; }
-    const matrixF& c_m( const size_t d1, const size_t d2 ) const { return m_tensor_array[d1][d2]; }
+    class Key
+    {
+        friend class tensor_gradient_checker;
+        friend class tensor_activations::sigmoid;
+        friend class tensor_activations::tanh;
+        friend class tensor_activations::relu;
+        friend class tensor_activations::softmax;
+        friend class tensor_utils::visualizer;
 
-private:
+        Key() {} Key( Key const& ) {}
+    };
 
-    void _assert_same_size( const tensor& t );
+    matrixF& m( const size_t d1, const size_t d2, Key )  { return m_tensor_array[d1][d2]; }
+    const matrixF& c_m( const size_t d1, const size_t d2, Key ) const { return m_tensor_array[d1][d2]; }
 
 private:
 

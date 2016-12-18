@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include "common/network_config.h"
 #include "common/network_exception.h"
-#include "common/network_utils.h"
+#include "common/network_random.h"
 
 #include <boost/shared_array.hpp>
 
@@ -64,7 +64,7 @@ const std::string dump_vec( const vex::vector<T>& vec, boost::optional<std::stri
 
 void random_normal_init( vex::vector<float>& container, const float stddev = 1.f )
 {
-    utils::rand_gaussian_generator rgg( 0.f, stddev );
+    random::rand_gaussian_generator rgg( 0.f, stddev );
 
     boost::shared_array<float> arand( new float[container.size()] );
 

@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "network.h"
 #include "tensor_solver.h"
+#include "tensor_utils.h"
 #include "tensor_loss_functions.h"
 #include "tensor_gradient_checker.h"
 #include "conv_layer.h"
@@ -313,6 +314,14 @@ void network::gradient_check( const output_ptr& out_ref )
         back_propagate();
 
         LOGGER(info) << "network::gradient_check - layer " << _layer->type() << " gradient check error : " << grad_check->error() << std::endl;
+    }
+}
+
+void network::dump_image_features()
+{
+    for ( auto _layer : m_layers )
+    {
+        tensor_utils::visualizer::dump_features( _layer->type(), _layer->feature_maps() );
     }
 }
 

@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include "common/network_config.h"
 #include "common/network_exception.h"
-#include "common/network_utils.h"
+#include "common/network_random.h"
 
 #include <boost/optional.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
@@ -70,7 +70,7 @@ const std::string dump_vec( const vectorF& vec, boost::optional<std::string> lab
 template<class T>
 void random_normal_init( T& container, const float stddev = 1.f )
 {
-    utils::rand_gaussian_generator rgg( 0.f, stddev );
+    random::rand_gaussian_generator rgg( 0.f, stddev );
 
     for( auto& element : container.data() )
     {

@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef NETWORK_UTILS_H
-#define NETWORK_UTILS_H
+#ifndef NETWORK_RANDOM_H
+#define NETWORK_RANDOM_H
 
 //TODO-CNN : get rid of boost random
 #include <boost/random.hpp>
@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-namespace utils {
+namespace random {
 
 class rand_bernoulli_generator
 {
@@ -76,7 +76,7 @@ private:
     boost::variate_generator< boost::mt19937&,boost::normal_distribution<> > m_var_nor;
 };
 
-} //namespace utils
+} //namespace random
 
 } //namespace neurocl
 

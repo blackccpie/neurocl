@@ -36,8 +36,8 @@ public:
     static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
                             []( float& a) { a = 1.f / ( 1.f + std::exp(-a) ); } );
         }
     }
@@ -50,8 +50,8 @@ public:
         output.resize( input );
 
         tensor_foreach_p( input.d1(), input.d2() ) {
-            const matrixF& mat = input.c_m(d1,d2);
-            output.m(d1,d2) = element_prod(
+            const matrixF& mat = input.c_m(d1,d2,{});
+            output.m(d1,d2,{}) = element_prod(
                 mat,
                 ( scalar_matrix<float>( mat.size1(), mat.size2(), 1.f ) - mat )
             );
@@ -71,8 +71,8 @@ public:
         // http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
 
         tensor_foreach_p( input.d1(), input.d2() ) {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
                             []( float& a) { a = 1.7159f + ::tanh(2.f*a/3.f); } );
         }
     }
@@ -85,8 +85,8 @@ public:
         output.resize( input );
 
         tensor_foreach_p( input.d1(), input.d2() ) {
-            const matrixF& mat = input.c_m(d1,d2);
-            output.m(d1,d2) = scalar_matrix<float>( mat.size1(), mat.size2(), 1.f ) - element_prod( mat, mat );
+            const matrixF& mat = input.c_m(d1,d2,{});
+            output.m(d1,d2,{}) = scalar_matrix<float>( mat.size1(), mat.size2(), 1.f ) - element_prod( mat, mat );
         }
 
         return output;
@@ -100,8 +100,8 @@ public:
     static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
                             []( float& a) { a = std::max( 0.f, a ); } );
         }
     }
@@ -114,9 +114,9 @@ public:
         output.resize( input );
 
         tensor_foreach_p( input.d1(), input.d2() ) {
-            output.m(d1,d2) = input.c_m(d1,d2);
-            std::for_each(  output.m(d1,d2).data().begin(),
-                            output.m(d1,d2).data().end(),
+            output.m(d1,d2,{}) = input.c_m(d1,d2,{});
+            std::for_each(  output.m(d1,d2,{}).data().begin(),
+                            output.m(d1,d2,{}).data().end(),
                             []( float& a) { a = ( a > 0.f ) * 1.f; } );
         }
 
@@ -132,19 +132,19 @@ public:
     {
         float alpha = std::numeric_limits<float>::min();
         tensor_foreach_p( input.d1(), input.d2() ) {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
                             [&alpha]( float& a) { if ( a > alpha ) alpha = a; } );
         }
         float denom = 0.f;
         tensor_foreach_p( input.d1(), input.d2() ) {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
                             [alpha,&denom]( float& a) { denom += std::exp(a - alpha); } );
         }
         tensor_foreach_p( input.d1(), input.d2() ) {
-            std::for_each(  input.m(d1,d2).data().begin(),
-                            input.m(d1,d2).data().end(),
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
                             [alpha,denom]( float& a) { a = std::exp(a - alpha)/denom; } );
         }
     }
@@ -158,8 +158,8 @@ public:
 
         tensor_foreach_p( input.d1(), input.d2() ) {
             output.m(d1,d2) = input.c_m(d1,d2);
-            std::for_each(  output.m(d1,d2).data().begin(),
-                            output.m(d1,d2).data().end(),
+            std::for_each(  output.m(d1,d2,{}).data().begin(),
+                            output.m(d1,d2,{}).data().end(),
                             []( float& a) { a = ( a > 0.f ) * 1.f; } ); //TODO
         }
 

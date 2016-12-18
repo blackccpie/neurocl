@@ -77,6 +77,7 @@ convnet/network_parallel.cpp
 convnet/network_file_handler.cpp
 convnet/tensor.cpp
 convnet/tensor_operations.cpp
+convnet/tensor_utils.cpp
 )
 
 set (headers_list
@@ -93,7 +94,7 @@ common/network_factory.h
 common/network_manager.h
 common/network_sample.h
 common/network_exception.h
-common/network_utils.h
+common/network_random.h
 common/network_config.h
 common/iterative_trainer.h
 common/logger.h
@@ -122,12 +123,13 @@ convnet/tensor_solver.h
 convnet/tensor_activations.h
 convnet/tensor_loss_functions.h
 convnet/tensor_operations.h
+convnet/tensor_gradient_checker.h
+convnet/tensor_utils.h
 convnet/network.h
 convnet/network_parallel.h
 convnet/network_manager_convnet.h
 convnet/network_interface_convnet.h
 convnet/network_file_handler.h
-convnet/tensor_gradient_checker.h
 )
 
 if (NOT APPLE)

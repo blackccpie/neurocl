@@ -58,6 +58,8 @@ public:
     virtual const std::string  dump_bias() final { return "NOT IMPLEMENTED YET"; }
     virtual const std::string  dump_activations() final { return "NOT IMPLEMENTED YET"; }
 
+	void dump_image_features();
+
     virtual const size_t count_layers() final { return m_layers.size(); }
 	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
     virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) final;
