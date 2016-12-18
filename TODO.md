@@ -1,21 +1,43 @@
-# TODO - General
-- [ ] Conclude with FCNN weight decay management implementation
+# TODO - MLP
+- [ ] Conclude with weight decay management implementation
 - [x] Update doc with xml config, picoPi2 TTS use, new network type enums...
 - [ ] Optimization works:
-    - [x] end major/obvious simd optimizations in the bnu fast implementation
+    - [x] End major/obvious simd optimizations in the bnu fast implementation
     - [x] Try to use boost specific containers (static_vector etc...)
     - [ ] Get a better understanding of simd memory alignment constraints applied to layer sizes
-    - [ ] try a fast exp(x) implementation for sigmoid function
+    - [ ] Try a fast exp(x) implementation for sigmoid function
     - [ ] Try to use boost bounded_array as ublas matrix/vector storage
     - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
-- [ ] Work on CNN implementation
+
+# TODO - CONVNET
+- [ ] Optimize inverse pooling with cached pooling map
+- [ ] Merge convnet implementation to Git head
+- [ ] Tensor optimizations:
+    - [ ] Use expression templates to combine tensor operators
+    - [ ] Ublas speed improvements (cf. Boost guidelines)
+    - [ ] Ublas special products (axpy)
+    - [ ] Move semantics checks
+    - [ ] Valgrind/kcachegrind profiling
+- [ ] Parallel batch training
+- [ ] Use "expanded" (rot/trans) MNIST dataset
+- [ ] Introduce fan-in size layer base method
+- [ ] Python:
+    - [ ] Turn pyneurocl into a '.pyd'
+    - [ ] Finish camera wrapper using numpy
+    - [ ] Finalize autonomous pizero OCR app
+- [ ] Update UML with Convnet
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark
 - [ ] Use dual Canny/Sobel nets?
+- [ ] Convert facecam to new training architecture
 
-# Current MNIST benchmarks (60000 samples / 10 epochs / 10 samples per batch):
+# TODO - OCR
+- [ ] Use gravity center based image centering
+- [ ] Work on a better autocontrast algorithm
+
+# Current MLP-MNIST benchmarks (60000 samples / 10 epochs / 10 samples per batch):
 
 | Implementation | Training time | Testing time |
 | :--- | :---: | :---: |
