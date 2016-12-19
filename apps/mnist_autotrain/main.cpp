@@ -50,6 +50,7 @@ float compute_score(	const int i,
 {
     const std::vector<sample>& training_samples = smp_manager.get_samples();
 
+    int progress = 0;
     float mean_rmse = 0.f;
     size_t _classif_score = 0;
 
@@ -64,7 +65,12 @@ float compute_score(	const int i,
             ++_classif_score;
 
         tsample.restore_ref();
+
+        progress = 100 * i / training_samples.size();
+        std::cout << "\rtesting - progress " << progress << "%";// << std::endl;
     }
+
+    std::cout << std::endl;
 
     float score = static_cast<float>( 1000 * _classif_score / training_samples.size() ) / 10.f;
     rmse = mean_rmse / static_cast<float>( training_samples.size() );
