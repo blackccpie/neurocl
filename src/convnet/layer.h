@@ -71,6 +71,8 @@ public:
 
     //! Set training flag
     static void set_training( bool training ) { m_training = training; }
+    //! Get training flag
+    static bool get_training() { return m_training; }
 
     //! Set shared flag
     static void set_shared( bool shared ) { m_shared = shared; }
