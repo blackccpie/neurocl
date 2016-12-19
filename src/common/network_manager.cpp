@@ -73,7 +73,7 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
 
     for ( size_t i=0; i<epoch_size; i++ )
     {
-        LOGGER(info) << std::endl << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
+        LOGGER(info) << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
 
         while ( true )
         {
