@@ -18,15 +18,15 @@
                     if (csvLines[i].length > 0) {
                         points = csvLines[i].split(",");
                         dataPointsArray[0][i] = {
-                            x: parseFloat(points[0]),
+                            x: parseFloat(i+1/*points[0]*/),
                             y: parseFloat(points[1])
                         };
                         dataPointsArray[1][i] = {
-                            x: parseFloat(points[0]),
+                            x: parseFloat(i+1/*points[0]*/),
                             y: parseFloat(points[2])
                         };
                         dataPointsArray[2][i] = {
-                            x: parseFloat(points[0]),
+                            x: parseFloat(i+1/*points[0]*/),
                             y: 100*parseFloat(points[3])
                         };
                     }
@@ -37,7 +37,7 @@
                 $.get("http://192.168.0.1:8080/bin/mnist_training.csv", function(data) {
                     dataPointsArray = getDataPointsFromCSV(data);
                     chart.render();
-                    setTimeout(function(){ updateChart() }, 1000);
+                    setTimeout(function(){ updateChart() }, 60000);
                 });
             }
 
@@ -51,6 +51,8 @@
                     },
                     axisX: {
                         title: "EPOCHS",
+                        valueFormatString: "####",
+                        interval: 1
                     },
                     axisY:
                     {
