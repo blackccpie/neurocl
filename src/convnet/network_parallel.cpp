@@ -61,10 +61,15 @@ void network_parallel::add_layers( const std::vector<layer_descr>& layers )
 
 void network_parallel::set_input(  const size_t& in_size, const float* in )
 {
-    for ( auto& _network : m_networks )
+    if ( layer::get_training() )
     {
-        _network.set_input( in_size, in );
+    	for ( auto& _network : m_networks )
+    	{
+        	_network.set_input( in_size, in );
+    	}
     }
+    else
+        return m_networks[0].set_input( in_size, in );
 }
 
 void network_parallel::set_output( const size_t& out_size, const float* out )
@@ -108,10 +113,10 @@ void network_parallel::clear_gradients()
 
 void network_parallel::feed_forward()
 {
-    //if ( layer::get_training() )
+    if ( layer::get_training() )
         m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, m_networks[m_current_net++] ) );
-    //else
-    //    _feed_back( m_networks[0] );
+    else
+        _feed_back( m_networks[0] );
 }
 
 void network_parallel::back_propagate()
@@ -132,7 +137,7 @@ void network_parallel::gradient_descent()
     // gradient accumulation
     tensor_tank::instance().accumulate();
 
-   //m_networks[0].set_training_samples( 5 );
+	//m_networks[0].set_training_size( parallel_thread_count );
 
     // gradient descent
     m_networks[0].gradient_descent();
