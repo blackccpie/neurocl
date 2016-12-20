@@ -39,6 +39,13 @@ public:
 
     using t_progress_fct = std::function<void(int)>;
 
+    // keypass idiom to restrict access to set_training & train
+    class key_training
+    {
+    	friend class iterative_trainer;
+        key_training() {} key_training( key_training const& ) {}
+    };
+
 public:
 
     //! load network topology & weights
@@ -46,11 +53,12 @@ public:
     //! save network weights
     virtual void save_network() = 0;
 
-    //! train given single sample
-    virtual void train( const sample& s ) = 0;
-    //! train given samples vector
-    virtual void train( const std::vector<sample>& training_set ) = 0;
-    //! mini-batch train a samples set
+    //! Set training flag
+    virtual void set_training( bool training, key_training ) = 0;
+    //! train given single sample (training flag IS NOT managed)
+    virtual void train( const sample& s, key_training ) = 0;
+
+    //! mini-batch train a samples set (training flag IS managed)
     virtual void batch_train(   const samples_manager& smp_manager,
                                 const size_t& epoch_size,
                                 const size_t& batch_size,

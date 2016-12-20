@@ -44,6 +44,8 @@ public:
 
     virtual void add_layers( const std::vector<layer_descr>& layers ) final;
 
+    virtual void set_training( bool training ) final;
+
 	virtual void set_input(  const size_t& in_size, const float* in ) final;
     virtual void set_output( const size_t& out_size, const float* out ) final;
     virtual const output_ptr output() final;
@@ -63,6 +65,8 @@ public:
     virtual const size_t count_layers() final { return m_layers.size(); }
 	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
     virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) final;
+
+	void set_training_samples( const size_t ts ) { m_training_samples = ts; }
 
 protected:
 

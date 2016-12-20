@@ -47,6 +47,8 @@ public:
 
     virtual void add_layers( const std::vector<layer_descr>& layers ) final;
 
+	virtual void set_training( bool training ) final;
+
 	virtual void set_input(  const size_t& in_size, const float* in ) final;
     virtual void set_output( const size_t& out_size, const float* out ) final;
     virtual const output_ptr output() final;

@@ -49,6 +49,11 @@ network_parallel::~network_parallel()
     layer::set_shared( false );
 }
 
+void network_parallel::set_training( bool training )
+{
+    m_networks[0].set_training( training );
+}
+
 void network_parallel::add_layers( const std::vector<layer_descr>& layers )
 {
     size_t i = 0;

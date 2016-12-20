@@ -56,6 +56,9 @@ class network_interface
 {
 public:
 
+    //! Set training flag
+    virtual void set_training( bool training ) = 0;
+
     //! set input values
     virtual void set_input(  const size_t& in_size, const float* in ) = 0;
     //! set output values

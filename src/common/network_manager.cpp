@@ -38,10 +38,30 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+class scoped_training
+{
+public:
+    scoped_training( std::shared_ptr<network_interface> net ) : m_net( net )
+    {
+        m_net->set_training( true );
+    }
+    virtual ~scoped_training()
+    {
+        m_net->set_training( false );
+    }
+private:
+    std::shared_ptr<network_interface> m_net;
+};
+
 void network_manager::_assert_loaded()
 {
     if ( !m_network_loaded )
         throw network_exception( "no network loaded!" );
+}
+
+void network_manager::set_training( bool training, key_training )
+{
+    m_net->set_training( training );
 }
 
 void network_manager::load_network( const std::string& topology_path, const std::string& weights_path )
@@ -68,6 +88,8 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
 {
     _assert_loaded();
 
+    scoped_training _scoped_training( m_net );
+
     size_t progress_size = 0;
     const size_t pbm_size = epoch_size * smp_manager.samples_size();
 
@@ -84,7 +106,7 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
                 break;
 
             prepare_training_epoch();
-            train( samples );
+            _train( samples );
             finalize_training_epoch();
 
             progress_size += samples.size();
@@ -116,14 +138,14 @@ void network_manager::finalize_training_epoch()
     m_net->gradient_descent();
 }
 
-void network_manager::train( const sample& s )
+void network_manager::train( const sample& s, key_training )
 {
     _assert_loaded();
 
     _train( s );
 }
 
-void network_manager::train( const std::vector<sample>& training_set )
+void network_manager::_train( const std::vector<sample>& training_set )
 {
     _assert_loaded();
 

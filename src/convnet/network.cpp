@@ -50,6 +50,11 @@ network::~network()
     //dump_image_features();
 }
 
+void network::set_training( bool training )
+{
+    layer::set_training( training );
+}
+
 void network::add_layers( const std::vector<layer_descr>& layers )
 {
     size_t conv_idx = 0;
@@ -204,9 +209,6 @@ const output_ptr network::output()
 
 void network::clear_gradients()
 {
-	// we clear gradients before new training epoch, so raise training flag
-	layer::set_training( true );
-
     for ( auto _layer : m_layers )
     {
         _layer->clear_gradients();
@@ -255,9 +257,6 @@ void network::gradient_descent()
     {
         _layer->gradient_descent( m_solver );
     }
-
-	// training epoch ended with gradient descent, so bring down training flag
-    layer::set_training( false );
 }
 
 void network::gradient_check( const output_ptr& out_ref )

@@ -50,10 +50,11 @@ public:
 	//! save network weights
 	virtual void save_network() override;
 
+	//! Set training flag
+    virtual void set_training( bool training, key_training ) final;
 	//! train given single sample
-    virtual void train( const sample& s ) override;
-	//! train given samples vector
-    virtual void train( const std::vector<sample>& training_set ) override;
+    virtual void train( const sample& s, key_training ) override;
+
 	//! mini-batch train a samples set
     virtual void batch_train(	const samples_manager& smp_manager,
 								const size_t& epoch_size,
@@ -82,6 +83,7 @@ protected:
 private:
 
     void _train( const sample& s );
+    void _train( const std::vector<sample>& training_set );
 
 private:
 

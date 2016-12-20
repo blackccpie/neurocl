@@ -36,17 +36,19 @@ public:
     iterative_trainer( std::shared_ptr<network_manager_interface> net_manager, const size_t batch_size )
         : m_net_manager( net_manager ), m_batch_pos( 0 ), m_batch_size( batch_size )
     {
+        m_net_manager->set_training( true, {} );
         m_net_manager->prepare_training_epoch();
     }
     virtual ~iterative_trainer()
     {
         m_net_manager->finalize_training_epoch();
         m_net_manager->save_network();
+        m_net_manager->set_training( false, {} );
     }
 
     void train_new( const sample& sample )
     {
-        m_net_manager->train( sample );
+        m_net_manager->train( sample, {} );
 
         ++m_batch_pos;
 

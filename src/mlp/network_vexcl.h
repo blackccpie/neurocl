@@ -78,6 +78,8 @@ public:
     // Convention : input layer is index 0
     virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) final;
 
+    virtual void set_training( bool training ) final { /*NOTHING TO DO YET*/ }
+
     virtual void set_input(  const size_t& in_size, const float* in ) final;
     virtual void set_output( const size_t& out_size, const float* out ) final;
 
