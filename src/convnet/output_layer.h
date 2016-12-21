@@ -62,7 +62,10 @@ class output_layer : public output_layer_iface
 {
 public:
 
-    output_layer() {}
+    output_layer()
+     :  m_weights( nullptr ), m_weights_momentum( nullptr ), m_deltas_weights( nullptr ),
+        m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
+
     virtual ~output_layer() {}
 
     virtual const std::string type() const override { return "output"; }
@@ -87,24 +90,26 @@ public:
         if ( m_shared )
         {
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
-            m_bias.fill_random( 1 ); // stddev 1 for bias
+            m_bias->fill_random( 1 ); // stddev 1 for bias
             m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
             m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
 
             m_weights = tensor_tank::instance().get_shared( "weights", width * height, prev_layer_size, 1, depth );
-            m_weights.fill_random( prev_layer_size/*nin*/ );
+            m_weights->fill_random( prev_layer_size/*nin*/ );
             m_weights_momentum = tensor_tank::instance().get_shared( "weights_momentum", width * height, prev_layer_size, 1, depth );
             m_deltas_weights = tensor_tank::instance().get_cumulative( "weights_delta", width * height, prev_layer_size, 1, depth );
         }
         else
         {
-        	m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
-        	m_bias_momentum.resize( width, height, 1, depth );
-        	m_deltas_bias.resize( width, height, 1, depth );
+        	m_bias = tensor_tank::instance().get_standard( "bias", width, height, 1, depth );
+            m_bias->fill_random( 1 ); // stddev 1 for bias
+        	m_bias_momentum = tensor_tank::instance().get_standard( "bias_momentum", width, height, 1, depth );
+        	m_deltas_bias = tensor_tank::instance().get_standard( "bias_delta", width, height, 1, depth );
 
-        	m_weights.resize( width * height, prev_layer_size, 1, depth, prev_layer_size/*nin*/ );
-        	m_weights_momentum.resize( width * height, prev_layer_size, 1, depth );
-        	m_deltas_weights.resize( width * height, prev_layer_size, 1, depth );
+        	m_weights = tensor_tank::instance().get_standard( "weights", width * height, prev_layer_size, 1, depth );
+            m_weights->fill_random( prev_layer_size/*nin*/ );
+        	m_weights_momentum = tensor_tank::instance().get_standard( "weights_momentum", width * height, prev_layer_size, 1, depth );
+        	m_deltas_weights = tensor_tank::instance().get_standard( "weights_delta", width * height, prev_layer_size, 1, depth );
         }
     }
 
@@ -112,8 +117,8 @@ public:
     virtual size_t height() const override { return m_feature_maps.h(); }
     virtual size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const override { return m_weights.w() * m_weights.h() * m_weights.d1() * m_weights.d2(); }
-    virtual size_t nb_bias() const override { return m_bias.w() * m_bias.h() * m_bias.d1() * m_bias.d2(); }
+    virtual size_t nb_weights() const override { return m_weights->w() * m_weights->h() * m_weights->d1() * m_weights->d2(); }
+    virtual size_t nb_bias() const override { return m_bias->w() * m_bias->h() * m_bias->d1() * m_bias->d2(); }
 
     // fill with incoming buffer
     virtual void fill(  const size_t depth1,
@@ -142,7 +147,7 @@ public:
         const auto& prev_feature_maps = m_prev_layer->feature_maps();
 
         // apply weights and bias
-        m_feature_maps = nto::muladd( m_weights, prev_feature_maps, m_bias );
+        m_feature_maps = nto::muladd( *m_weights, prev_feature_maps, *m_bias );
 
         // apply activation function
         activationT::f( m_feature_maps );
@@ -170,55 +175,55 @@ public:
         // compute previous layer error
     	prev_error_maps = nto::elemul(
         		activationT::d_f( prev_feature_maps ),
-        		nto::multrans1( m_weights, m_error_maps )
+        		nto::multrans1( *m_weights, m_error_maps )
     		);
     }
 
     virtual void update_gradients() override
     {
-        m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
-        m_deltas_bias += m_error_maps;
+        *m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
+        *m_deltas_bias += m_error_maps;
     }
 
 	virtual void clear_gradients() override
     {
-        m_deltas_weights.clear();
-        m_deltas_bias.clear();
+        m_deltas_weights->clear();
+        m_deltas_bias->clear();
     }
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // Optimize gradients
 
-        nto::optimize<nto::optimize_mode::std>( solver, m_weights, m_weights_momentum, m_deltas_weights );
-        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_momentum, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, *m_weights, *m_weights_momentum, *m_deltas_weights );
+        nto::optimize<nto::optimize_mode::redux>( solver, *m_bias, *m_bias_momentum, *m_deltas_bias );
     }
 
     // Fill weights
     virtual void fill_w( const size_t data_size, const float* data ) override
     {
-         m_weights.grouped_fill( data_size, data );
+         m_weights->grouped_fill( data_size, data );
     }
     virtual void fill_w( float* data ) override
     {
-         m_weights.grouped_fill( data );
+         m_weights->grouped_fill( data );
     }
 
     // Fill bias
     virtual void fill_b( const size_t data_size, const float* data ) override
     {
-         m_bias.grouped_fill( data_size, data );
+         m_bias->grouped_fill( data_size, data );
     }
     virtual void fill_b( float* data ) override
     {
-         m_bias.grouped_fill( data );
+         m_bias->grouped_fill( data );
     }
 
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
         return std::move( std::unique_ptr<tensor_gradient_checker>(
-            new tensor_gradient_checker( m_weights, m_deltas_weights ) ) );
+            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) ) );
     }
 
 protected:
@@ -234,13 +239,13 @@ private:
     tensor m_feature_maps;
     tensor m_error_maps;
 
-    tensor m_bias;
-    tensor m_bias_momentum;
-    tensor m_deltas_bias;
+    tensor* m_bias;
+    tensor* m_bias_momentum;
+    tensor* m_deltas_bias;
 
-    tensor m_weights;
-    tensor m_weights_momentum;
-    tensor m_deltas_weights;
+    tensor* m_weights;
+    tensor* m_weights_momentum;
+    tensor* m_deltas_weights;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define TENSOR_TANK_H
 
 #include <boost/format.hpp>
+#include <boost/container/stable_vector.hpp>
 
 #include <map>
 
@@ -36,12 +37,12 @@ class tensor_tank
 public:
 
     using shared_tensor_tank = std::map<std::string,tensor>;
-    using multi_tensor_tank = std::map<std::string,std::vector<tensor>>;
+    using multi_tensor_tank = std::map<std::string,boost::container::stable_vector<tensor>>;
 
 public:
     static tensor_tank& instance() { static tensor_tank tt; return tt; }
 
-    tensor& get_shared( const std::string& key,
+    tensor* get_shared( const std::string& key,
                         const size_t width,
                         const size_t height,
                         const size_t depth1,
@@ -56,10 +57,10 @@ public:
         tensor& t = _find_or_emplace( size_key, t_map, populate );
         if ( populate )
             t.resize( width, height, depth1, depth2 );
-        return t;
+        return &t;
     }
 
-    tensor& get_standard(   const std::string& key,
+    tensor* get_standard(   const std::string& key,
                             const size_t width,
                             const size_t height,
                             const size_t depth1,
@@ -71,10 +72,10 @@ public:
 
         tensor& t = _emplace( size_key, t_map );
         t.resize( width, height, depth1, depth2 );
-        return t;
+        return &t;
     }
 
-    tensor& get_cumulative( const std::string& key,
+    tensor* get_cumulative( const std::string& key,
                             const size_t width,
                             const size_t height,
                             const size_t depth1,
@@ -86,7 +87,7 @@ public:
 
         tensor& t = _emplace( size_key, t_map );
         t.resize( width, height, depth1, depth2 );
-        return t;
+        return &t;
     }
 
     void accumulate()
@@ -125,10 +126,9 @@ private:
         }
         else
         {
-            map.emplace( key, tensor{} );
-            tensor& t = map.at( key );
             populate = true;
-            return t;
+            map.emplace( key, tensor{} );
+            return map.at( key );
         }
     }
 

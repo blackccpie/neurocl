@@ -53,8 +53,11 @@ class conv_layer  : public conv_layer_iface
 {
 public:
 
-    conv_layer( const std::string& name ) : m_name( name ) {}
-	virtual ~conv_layer() {}
+    conv_layer( const std::string& name ) : m_name( name ),
+    m_filters( nullptr ), m_filters_momentum( nullptr ), m_deltas_filters( nullptr ),
+    m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
+
+    virtual ~conv_layer() {}
 
     virtual const std::string type() const override { return "conv " + m_name; }
 
@@ -89,25 +92,26 @@ public:
         if ( m_shared )
         {
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
-            m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
+            m_bias->uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
             m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
             m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
 
         	m_filters = tensor_tank::instance().get_shared( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
-            m_filters.fill_random( filter_total_size/*nin*/ );
+            m_filters->fill_random( filter_total_size/*nin*/ );
         	m_filters_momentum = tensor_tank::instance().get_shared( "filters_momentum", m_filter_size, m_filter_size, prev_layer->depth(), depth );
-        	m_filters_delta = tensor_tank::instance().get_cumulative( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+        	m_deltas_filters = tensor_tank::instance().get_cumulative( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
         }
         else
         {
-        	m_bias.resize( width, height, 1, depth );
-        	m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
-        	m_bias_momentum.resize( width, height, 1, depth );
-        	m_deltas_bias.resize( width, height, 1, depth );
+        	m_bias = tensor_tank::instance().get_standard( "bias", width, height, 1, depth );
+        	m_bias->uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
+        	m_bias_momentum = tensor_tank::instance().get_standard( "bias_momentum", width, height, 1, depth );
+        	m_deltas_bias = tensor_tank::instance().get_standard( "bias_delta", width, height, 1, depth );
 
-            m_filters.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth, filter_total_size/*nin*/ );
-            m_filters_momentum.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
-            m_filters_delta.resize( m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_filters = tensor_tank::instance().get_standard( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_filters->fill_random( filter_total_size/*nin*/ );
+            m_filters_momentum = tensor_tank::instance().get_standard( "filters_momentum", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_deltas_filters = tensor_tank::instance().get_standard( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
         }
     }
 
@@ -115,8 +119,8 @@ public:
     virtual size_t height() const override { return m_feature_maps.h(); }
     virtual size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const override { return m_filters.w() * m_filters.h() * m_filters.d1() * m_filters.d2(); }
-    virtual size_t nb_bias() const override { return m_bias.w() * m_bias.h() * m_bias.d1() * m_bias.d2(); }
+    virtual size_t nb_weights() const override { return m_filters->w() * m_filters->h() * m_filters->d1() * m_filters->d2(); }
+    virtual size_t nb_bias() const override { return m_bias->w() * m_bias->h() * m_bias->d1() * m_bias->d2(); }
 
     virtual const tensor& feature_maps() const override
         { return m_feature_maps; }
@@ -125,8 +129,8 @@ public:
     {
         m_feature_maps = nto::convolve_add_forward<nto::kernel_mode::flip,nto::pad_mode::valid>(
             m_prev_layer->feature_maps(),
-            m_filters,
-        	m_filter_stride ) + m_bias;
+            *m_filters,
+        	m_filter_stride ) + *m_bias;
 
 		// could be computed in next pooling layer if present for reduced computation
         activationT::f( m_feature_maps );
@@ -145,7 +149,7 @@ public:
 
         prev_error_maps = nto::convolve_add_backward<nto::kernel_mode::std,nto::pad_mode::full>(
             m_error_maps,
-            m_filters,
+            *m_filters,
             m_filter_stride );
 
         // multiply by sigma derivative
@@ -164,53 +168,53 @@ public:
             m_error_maps,
             m_filter_stride);
 
-        m_filters_delta += grad / static_cast<float>( m_filters_delta.d2() );
-        m_deltas_bias += nto::uniform_sum( m_error_maps );
+        *m_deltas_filters += grad / static_cast<float>( m_deltas_filters->d2() );
+        *m_deltas_bias += nto::uniform_sum( m_error_maps );
     }
 
 	virtual void clear_gradients() override
     {
-        m_filters_delta.clear();
-        m_deltas_bias.clear();
+        m_deltas_filters->clear();
+        m_deltas_bias->clear();
     }
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // Optimize gradients
 
-        nto::optimize<nto::optimize_mode::std>( solver, m_filters, m_filters_momentum, m_filters_delta );
-        nto::optimize<nto::optimize_mode::std>( solver, m_bias, m_bias_momentum, m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, *m_filters, *m_filters_momentum, *m_deltas_filters );
+        nto::optimize<nto::optimize_mode::std>( solver, *m_bias, *m_bias_momentum, *m_deltas_bias );
     }
 
     // Fill weights
     virtual void fill_w( const size_t data_size, const float* data ) override
     {
-         m_filters.grouped_fill( data_size, data );
+         m_filters->grouped_fill( data_size, data );
     }
     virtual void fill_w( float* data ) override
     {
-         m_filters.grouped_fill( data );
+         m_filters->grouped_fill( data );
     }
 
     // Fill bias
     virtual void fill_b( const size_t data_size, const float* data ) override
     {
-         m_bias.grouped_fill( data_size, data );
+         m_bias->grouped_fill( data_size, data );
     }
     virtual void fill_b( float* data ) override
     {
-         m_bias.grouped_fill( data );
+         m_bias->grouped_fill( data );
     }
 
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
         return std::move( std::unique_ptr<tensor_gradient_checker>(
-            new tensor_gradient_checker( m_filters, m_filters_delta ) ) );
+            new tensor_gradient_checker( *m_filters, *m_deltas_filters ) ) );
     }
 
 	// copy accessor, not made for performance but rather for network introspection
-    virtual tensor weights( key_weights ) final { return m_filters; }
+    virtual tensor weights( key_weights ) final { return *m_filters; }
 
 protected:
 
@@ -224,13 +228,13 @@ private:
     size_t m_filter_size;
     size_t m_filter_stride;
 
-    tensor m_filters;
-    tensor m_filters_momentum;
-    tensor m_filters_delta;
+    tensor* m_filters;
+    tensor* m_filters_momentum;
+    tensor* m_deltas_filters;
 
-    tensor m_bias;
-    tensor m_bias_momentum;
-    tensor m_deltas_bias;
+    tensor* m_bias;
+    tensor* m_bias_momentum;
+    tensor* m_deltas_bias;
 
     tensor m_feature_maps;
     tensor m_error_maps;

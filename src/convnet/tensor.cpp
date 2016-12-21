@@ -132,7 +132,7 @@ tensor& tensor::operator=( tensor&& other )
     return *this;
 }
 
-void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2, boost::optional<size_t> opt_rand_nin )
+void tensor::resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 )
 {
     m_width = width;
     m_height = height;
@@ -144,11 +144,6 @@ void tensor::resize( const size_t width, const size_t height, const size_t depth
         for( auto& _matrix : _matrices )
         {
             _matrix = matrixF( m_width, m_height, 0.f );
-            if ( opt_rand_nin )
-            {
-                //cf. http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
-                random_normal_init( _matrix, 1.f / std::sqrt( static_cast<float>( opt_rand_nin.get() ) ) );
-            }
         }
 }
 
