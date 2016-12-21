@@ -88,8 +88,8 @@ public:
     {
         // scoped lock
         {
-        std::lock_guard<std::mutex> lock( m_queue_mutex );
-       m_queue.emplace( job );
+			std::lock_guard<std::mutex> lock( m_queue_mutex );
+			m_queue.emplace( job );
         }
         // scoped lock
         {

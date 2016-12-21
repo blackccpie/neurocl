@@ -51,7 +51,7 @@ network_parallel::~network_parallel()
 
 void network_parallel::set_training( bool training )
 {
-    m_networks[0].set_training( training );
+    m_networks.at(0).set_training( training );
 }
 
 void network_parallel::add_layers( const std::vector<layer_descr>& layers )
@@ -74,7 +74,7 @@ void network_parallel::set_input(  const size_t& in_size, const float* in )
     	}
     }
     else
-        return m_networks[0].set_input( in_size, in );
+        return m_networks.at(0).set_input( in_size, in );
 }
 
 void network_parallel::set_output( const size_t& out_size, const float* out )
@@ -87,12 +87,12 @@ void network_parallel::set_output( const size_t& out_size, const float* out )
 
 const size_t network_parallel::count_layers()
 {
-    return m_networks[0].count_layers();
+    return m_networks.at(0).count_layers();
 }
 
 const layer_ptr network_parallel::get_layer_ptr( const size_t layer_idx )
 {
-    return m_networks[0].get_layer_ptr( layer_idx );
+    return m_networks.at(0).get_layer_ptr( layer_idx );
 }
 
 void network_parallel::set_layer_ptr( const size_t layer_idx, const layer_ptr& l )
@@ -105,7 +105,7 @@ void network_parallel::set_layer_ptr( const size_t layer_idx, const layer_ptr& l
 
 const output_ptr network_parallel::output()
 {
-    return std::move( m_networks[0].output() );
+    return std::move( m_networks.at(0).output() );
 }
 
 void network_parallel::clear_gradients()
@@ -119,9 +119,9 @@ void network_parallel::clear_gradients()
 void network_parallel::feed_forward()
 {
     if ( layer::get_training() )
-        m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, m_networks[m_current_net++] ) );
+        m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, &m_networks.at(m_current_net++) ) );
     else
-        _feed_back( m_networks[0] );
+        _feed_back( &m_networks.at(0) );
 }
 
 void network_parallel::back_propagate()
@@ -129,10 +129,10 @@ void network_parallel::back_propagate()
     // TODO-CNN : not very clear but backprop is included in feed_forwarding task dispatching
 }
 
-void network_parallel::_feed_back( network& net )
+void network_parallel::_feed_back( network* net )
 {
-    net.feed_forward();
-    net.back_propagate();
+    net->feed_forward();
+    net->back_propagate();
 }
 
 void network_parallel::gradient_descent()
@@ -142,10 +142,10 @@ void network_parallel::gradient_descent()
     // gradient accumulation
     tensor_tank::instance().accumulate();
 
-	//m_networks[0].set_training_size( parallel_thread_count );
+	//m_networks.at(0).set_training_samples( parallel_thread_count );
 
     // gradient descent
-    m_networks[0].gradient_descent();
+    m_networks.at(0).gradient_descent();
 
 	// reset net index
     m_current_net = 0;

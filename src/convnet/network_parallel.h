@@ -69,7 +69,7 @@ public:
 
 private:
 
-	void _feed_back( network& net );
+	void _feed_back( network* net );
 
 protected:
 
