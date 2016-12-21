@@ -38,9 +38,11 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
+std::atomic_size_t network::m_training_samples{ 0 };
+
 //#define VERBOSE_NETWORK
 
-network::network() : m_training_samples( 0 )
+network::network()
 {
     m_solver = tensor_solver_factory::build();
 }
@@ -101,7 +103,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case OUTPUT_LAYER:
             {
                 std::shared_ptr<output_layer_iface> out =
-                    std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::mse> >();
+                    std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::cross_entropy> >();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
                 l = out;
             }

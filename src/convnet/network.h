@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "network_interface_convnet.h"
 
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -66,11 +67,9 @@ public:
 	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
     virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) final;
 
-	void set_training_samples( const size_t ts ) { m_training_samples = ts; }
-
 protected:
 
-    size_t m_training_samples;
+    static std::atomic_size_t m_training_samples;
 
 	std::shared_ptr<tensor_solver_iface> m_solver;
 

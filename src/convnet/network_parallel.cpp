@@ -142,8 +142,6 @@ void network_parallel::gradient_descent()
     // gradient accumulation
     tensor_tank::instance().accumulate();
 
-	//m_networks.at(0).set_training_samples( parallel_thread_count );
-
     // gradient descent
     m_networks.at(0).gradient_descent();
 
