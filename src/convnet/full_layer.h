@@ -77,11 +77,11 @@ public:
         size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
         size_t prev_layer_size = k_group * prev_layer->width() * prev_layer->height();
 
+        m_feature_maps.resize( width, height, 1, depth );
+        m_error_maps.resize( width, height, 1, depth );
+
         if ( m_shared )
         {
-            m_feature_maps = tensor_tank::instance().get_standard( "feature_maps", width, height, 1, depth );
-            m_error_maps = tensor_tank::instance().get_standard( "error_maps", width, height, 1, depth );
-
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
             m_bias.fill_random( 1 ); // stddev 1 for bias
             m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
@@ -94,9 +94,6 @@ public:
         }
         else
         {
-        	m_feature_maps.resize( width, height, 1, depth );
-        	m_error_maps.resize( width, height, 1, depth );
-
         	m_bias.resize( width, height, 1, depth, 1 ); // stddev 1 for bias
         	m_bias_momentum.resize( width, height, 1, depth );
         	m_deltas_bias.resize( width, height, 1, depth );

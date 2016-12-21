@@ -83,11 +83,11 @@ public:
 
         size_t filter_total_size = m_filter_size * m_filter_size;
 
+        m_feature_maps.resize( width, height, 1, depth );
+        m_error_maps.resize( width, height, 1, depth );
+
         if ( m_shared )
         {
-            m_feature_maps = tensor_tank::instance().get_standard( "feature_maps", width, height, 1, depth );
-            m_error_maps = tensor_tank::instance().get_standard( "error_maps", width, height, 1, depth );
-
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
             m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
             m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
@@ -100,9 +100,6 @@ public:
         }
         else
         {
-            m_feature_maps.resize( width, height, 1, depth );
-            m_error_maps.resize( width, height, 1, depth );
-
         	m_bias.resize( width, height, 1, depth );
         	m_bias.uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
         	m_bias_momentum.resize( width, height, 1, depth );
