@@ -51,8 +51,8 @@ class full_layer : public full_layer_iface
 public:
 
     full_layer( const std::string& name ) : m_name( name ), m_prev_group_features( false ),
-    m_weights( nullptr ), m_weights_momentum( nullptr ), m_deltas_weights( nullptr ),
-    m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
+    	m_weights( nullptr ), m_weights_momentum( nullptr ), m_deltas_weights( nullptr ),
+    	m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
 
     virtual ~full_layer() {}
 

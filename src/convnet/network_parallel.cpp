@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-#define parallel_thread_count 5
+#define parallel_thread_count 10
 
 network_parallel::network_parallel()
     : m_thread_pool( new thread_pool{ parallel_thread_count } ), m_current_net( 0 )
@@ -40,8 +40,13 @@ network_parallel::network_parallel()
 
     m_solver = tensor_solver_factory::build();
 
+    m_networks.reserve( parallel_thread_count );
+
     for ( size_t i = 0; i < parallel_thread_count; i++ )
-        m_networks.emplace_back( network{} );
+    {
+        m_networks.emplace_back();
+        m_parallel_jobs.emplace_back( std::bind( &network_parallel::_feed_back, this, i ) );
+    }
 }
 
 network_parallel::~network_parallel()
@@ -51,7 +56,7 @@ network_parallel::~network_parallel()
 
 void network_parallel::set_training( bool training )
 {
-    m_networks.at(0).set_training( training );
+    layer::set_training( training );
 }
 
 void network_parallel::add_layers( const std::vector<layer_descr>& layers )
@@ -59,7 +64,7 @@ void network_parallel::add_layers( const std::vector<layer_descr>& layers )
     size_t i = 0;
     for ( auto& _network : m_networks )
     {
-        LOGGER(info) << "network_parallel::add_layers - adding layers for net #" << i++ << std::endl;
+        LOGGER(info) << "network_parallel::add_layers - adding layers for net #" << i++ << "(" << &_network << ")" << std::endl;
         _network.add_layers( layers );
     }
 }
@@ -68,10 +73,7 @@ void network_parallel::set_input(  const size_t& in_size, const float* in )
 {
     if ( layer::get_training() )
     {
-    	for ( auto& _network : m_networks )
-    	{
-        	_network.set_input( in_size, in );
-    	}
+    	m_networks[m_current_net].set_input( in_size, in );
     }
     else
         return m_networks.at(0).set_input( in_size, in );
@@ -79,10 +81,7 @@ void network_parallel::set_input(  const size_t& in_size, const float* in )
 
 void network_parallel::set_output( const size_t& out_size, const float* out )
 {
-    for ( auto& _network : m_networks )
-    {
-        _network.set_output( out_size, out );
-    }
+    m_networks[m_current_net].set_output( out_size, out );
 }
 
 const size_t network_parallel::count_layers()
@@ -119,9 +118,11 @@ void network_parallel::clear_gradients()
 void network_parallel::feed_forward()
 {
     if ( layer::get_training() )
-        m_thread_pool->add_job( std::bind( &network_parallel::_feed_back, this, &m_networks.at(m_current_net++) ) );
+    {
+        m_thread_pool->add_job( m_parallel_jobs.at( m_current_net++ ) );
+    }
     else
-        _feed_back( &m_networks.at(0) );
+        _feed_back( 0 );
 }
 
 void network_parallel::back_propagate()
@@ -129,10 +130,10 @@ void network_parallel::back_propagate()
     // TODO-CNN : not very clear but backprop is included in feed_forwarding task dispatching
 }
 
-void network_parallel::_feed_back( network* net )
+void network_parallel::_feed_back( const size_t i )
 {
-    net->feed_forward();
-    net->back_propagate();
+    m_networks[i].feed_forward();
+    m_networks[i].back_propagate();
 }
 
 void network_parallel::gradient_descent()

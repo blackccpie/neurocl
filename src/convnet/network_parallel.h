@@ -69,9 +69,12 @@ public:
 
 private:
 
-	void _feed_back( network* net );
+	void _feed_back( const size_t i );
 
-protected:
+private:
+
+	using parallel_job = std::function<void(void)>;
+	std::vector<parallel_job> m_parallel_jobs;
 
 	size_t m_current_net;
 

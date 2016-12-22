@@ -184,6 +184,7 @@ private:
             	m_queue.pop();
             }
 
+            // do the job
             job();
 
             // scoped lock

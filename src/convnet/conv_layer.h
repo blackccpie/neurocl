@@ -54,8 +54,8 @@ class conv_layer  : public conv_layer_iface
 public:
 
     conv_layer( const std::string& name ) : m_name( name ),
-    m_filters( nullptr ), m_filters_momentum( nullptr ), m_deltas_filters( nullptr ),
-    m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
+    	m_filters( nullptr ), m_filters_momentum( nullptr ), m_deltas_filters( nullptr ),
+    	m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
 
     virtual ~conv_layer() {}
 
