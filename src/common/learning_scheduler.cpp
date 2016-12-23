@@ -31,7 +31,7 @@ namespace neurocl {
 
 learning_scheduler::learning_scheduler()
     : m_enabled( false ), m_cached_rate( 0.f ), m_cached_error( 0.f ),
-    m_err_count( 0 ), m_err_window( 3 )
+    m_err_count( 0 ), m_err_window( 8 )
 {
 }
 
