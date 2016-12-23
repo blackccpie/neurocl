@@ -46,13 +46,14 @@
                 dataPointsArray = getDataPointsFromCSV(data);
 
                 chart = new CanvasJS.Chart("chartContainer", {
+                    zoomEnabled: true,
                     title: {
                         text: "Neurocl training data",
                     },
                     axisX: {
                         title: "EPOCHS",
                         valueFormatString: "####",
-                        interval: 1
+                        interval: 10
                     },
                     axisY:
                     {
