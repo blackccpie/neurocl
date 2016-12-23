@@ -57,6 +57,9 @@ public:
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
         m_mask.resize( width, height, 1, depth );
+
+		// generate initial mask
+        nto::bernoulli( m_mask, 1.f - m_dropout );
     }
 
     virtual size_t width() const override { return m_feature_maps.w(); }
@@ -72,11 +75,7 @@ public:
     virtual void feed_forward() override
     {
         if ( m_training )
-        {
-        	// generate new mask
-        	nto::bernoulli( m_mask, 1.f - m_dropout );
         	m_feature_maps = ( 1.f / ( 1.f - m_dropout ) ) * nto::elemul( m_mask, m_prev_layer->feature_maps() );
-        }
         else
             m_feature_maps = m_prev_layer->feature_maps();
     }
@@ -98,7 +97,8 @@ public:
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
-        // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
+        // pool layer does not manage gradients, but it has to generate new mask after each iteration
+        nto::bernoulli( m_mask, 1.f - m_dropout );
     }
 
     // Fill weights
