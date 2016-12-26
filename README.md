@@ -8,7 +8,7 @@ There are two different **_MLP_** implementations in Neurocl : one using standar
 
 There is only one **_CONVNET_** implementation for now, based on a tensor abstraction class, using _Boost.ublas_ containers.
 
-As MLP was developped first, and emphasis was put on the CONVNET implementation, things are still managed a bit differently between these two architectures, but my plan is to factorize all possible things between them (solver, activation, loss function etc..) to have a common framework between them.
+As MLP was developped first, and emphasis was put on the CONVNET implementation, things are still managed a bit differently between these two architectures, but my plan is to factorize all possible things (solver, activation, loss function etc..) to have a common framework between them.
 
 The upcoming evolutions will also focus on optimizations dedicated to running neural network based algorithms on small low power devices, like the ARM based Raspberry Pi.
 
@@ -125,27 +125,26 @@ neurocl main entry point is interface **network_manager_interface**, which can o
     ```c++
     std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
     ```
-
-    or given a specific scheme:
+    
+   or given a specific scheme:
 
     ```c++
     std::shared_ptr<network_manager_interface> net_manager =
         network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_CONVNET );
     ```
-
-    The two availables schemes are:
+   The two availables schemes are:
     - **NEURAL_IMPL_MLP**,
     - **NEURAL_IMPL_CONVNET**
 
-    -> There are 3 MLP backends available:
+	-> There are 3 MLP backends available:
 
-        * *NEURAL_IMPL_BNU_REF* : the reference implementation only using boost::numeric::ublas containers and operators
-        * *NEURAL_IMPL_BNU_FAST* : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4)
-        * *NEURAL_IMPL_VEXCL* : _experimental_ vexcl reference implementation.
+	* *NEURAL_IMPL_BNU_REF* : the reference implementation only using boost::numeric::ublas containers and operators
+	* *NEURAL_IMPL_BNU_FAST* : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4)
+	* *NEURAL_IMPL_VEXCL* : _experimental_ vexcl reference implementation.
 
         NOTE : MLP default backend is hardcoded to *NEURAL_IMPL_BNU_REF*
 
-    -> For now there is a unique CONVNET backend.
+	-> For now there is a unique CONVNET backend.
 
 - a given network can be loaded, given its topology and weights file names
 
