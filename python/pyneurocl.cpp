@@ -23,7 +23,10 @@ THE SOFTWARE.
 */
 
 #include "neurocl.h"
-#include "numpy_scalar_converter.h"
+
+#include <boost/python.hpp>
+
+#include <numpy/arrayobject.h>
 
 #include <iostream>
 #include <functional>
@@ -106,8 +109,7 @@ public:
         boost::shared_array<float> _in( new float[wi*hi] );
         boost::shared_array<float> _out( new float[wo*ho] );
 
-        for ( size_t i=0; i<wi*hi; i++ )
-            _in[i] = extract<float>( in[i] );
+		_array_converter<unsigned char,float>( in, _in.get() );
 
         sample _sample( wi * hi, _in.get() , wo * ho, _out.get() );
 
@@ -130,6 +132,27 @@ private:
         m_progress = p;
     }
 
+	template <typename Ti,typename To>
+	void _array_converter( const boost::python::numeric::array& in, To* out )
+    {
+        using namespace boost::python;
+
+        const tuple &shape_in = extract<tuple>( in.attr("shape") );
+
+        int wi = extract<int>( shape_in[1] ); // cols
+        int hi = extract<int>( shape_in[0] ); // rows
+
+		//std::cout << wi << " " << hi << " " << std::endl;
+
+        PyArrayObject* np = reinterpret_cast<PyArrayObject*>( in.ptr() );
+        Ti* data = reinterpret_cast<Ti*>( PyArray_DATA( np ) );
+
+		std::copy( data, data + (wi*hi), out );
+
+        //for ( size_t i=0; i<wi*hi; i++ )
+        //    std::cout << out[i] << std::endl;
+    }
+
 private:
 
     int m_progress;
@@ -143,8 +166,6 @@ BOOST_PYTHON_MODULE(pyneurocl)
 	using namespace boost::python;
 
 	boost::python::numeric::array::set_module_and_type("numpy", "ndarray");
-
-    NumpyScalarConverter<float>();
 
 	register_exception_translator<network_exception>( translateException );
 
