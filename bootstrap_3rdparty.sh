@@ -27,6 +27,10 @@ pushd ..
 echo "--> bootstrapping git"
 sudo apt-get install -y git
 
+#bootstrap numpy
+echo "--> bootstrapping numpy"
+sudo apt-get install -y python-numpy
+
 #bootstrap libpython
 echo "--> bootstrapping libpython"
 sudo apt-get install -y libpython-dev

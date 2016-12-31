@@ -36,12 +36,14 @@ include_directories(
 if (APPLE)
     include_directories(
         "/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include"
-    )  
+    )
 endif ()
 
 set (sources_list
 pyneurocl.cpp
 )
+
+add_definitions(-Wno-cpp)
 
 add_library(pyneurocl SHARED ${sources_list} ${headers_list})
 
