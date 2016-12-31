@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 
@@ -59,6 +60,8 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
 
 void samples_manager::load_samples( const std::string &input_filename, bool shuffle, t_preproc extra_preproc )
 {
+    m_sample_sizeX = m_sample_sizeY = 0;
+
     if ( !bfs::exists( input_filename ) )
     {
         LOGGER(error) << "samples_manager::load_samples - error reading input samples config file \'" << input_filename << "\'" << std::endl;
@@ -93,6 +96,20 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
 
         // preprocess and save input image
         cimg_library::CImg<float> img = _get_preprocessed_image( image_filename );
+
+        if ( !m_sample_sizeX && !m_sample_sizeY )
+        {
+            m_sample_sizeX = img.width();
+            m_sample_sizeY = img.height();
+
+            m_augmenter = std::make_shared<samples_augmenter>( m_sample_sizeX, m_sample_sizeY );
+        }
+        else
+        {
+            if ( ( m_sample_sizeX != img.width() ) ||
+                ( m_sample_sizeY != img.height() ) )
+                throw network_exception( "non uniform sample size in input sample set" );
+        }
 
         // manage custom preprocessing if needed
         if ( extra_preproc )
@@ -141,9 +158,9 @@ const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t
     auto begin = m_samples_set.cbegin() + m_batch_index;
     auto end = begin + size;
 
-    if ( end >= m_samples_set.end() )
+    if ( end >= m_samples_set.cend() )
     {
-        end = m_samples_set.end();
+        end = m_samples_set.cend();
         m_end = true;
     }
     else
@@ -161,6 +178,56 @@ void samples_manager::rewind() const noexcept
 void samples_manager::shuffle() const noexcept
 {
     std::random_shuffle( m_samples_set.begin(), m_samples_set.end() );
+}
+
+void samples_manager::_assert_sample_size() const
+{
+	if ( !m_sample_sizeX || !m_sample_sizeY )
+        throw network_exception( "no sample set loaded yet (undefined sample 2D size)" );
+}
+
+std::shared_ptr<samples_augmenter> samples_manager::get_augmenter() const
+{
+    _assert_sample_size();
+
+    return m_augmenter;
+}
+
+cimg_library::CImg<float> g_buf_img{};
+
+samples_augmenter::samples_augmenter( const int sizeX, const int sizeY ) : m_sizeX( sizeX ), m_sizeY( sizeY )
+{
+}
+
+neurocl::sample samples_augmenter::noise( const neurocl::sample& s, const float sigma ) const
+{
+	g_buf_img.assign( s.isample, m_sizeX, m_sizeY, 1, 1, false );
+	g_buf_img.noise( sigma, 0 ); // gaussian
+
+	return neurocl::sample( m_sizeX * m_sizeY, g_buf_img.data(), s.osample_size, s.osample );
+}
+
+neurocl::sample samples_augmenter::rotate( const neurocl::sample& s, const float angle ) const
+{
+	g_buf_img.assign( s.isample, m_sizeX, m_sizeY, 1, 1, false );
+	g_buf_img.rotate( angle );
+	g_buf_img.resize( m_sizeX, m_sizeY ); // rotate does not guarantee size conservation, cf. CImg documentation
+
+	return neurocl::sample( m_sizeX * m_sizeY, g_buf_img.data(), s.osample_size, s.osample );
+}
+
+neurocl::sample samples_augmenter::translate( const neurocl::sample& s, const int sx, const int sy ) const
+{
+    if ( ( sx > 2 ) || ( sy > 2 ) )
+        throw network_exception( "no translation over 2px manageed yet" );
+
+	g_buf_img.assign( s.isample, m_sizeX, m_sizeY, 1, 1, false );
+    g_buf_img.resize( m_sizeX+4, m_sizeY+4, -100, -100, 0, 0, 0.5f, 0.5f );
+    int startX = 2 + sx;
+    int startY = 2 + sy;
+    g_buf_img.crop( startX, startY, startX + m_sizeX, startY + m_sizeY );
+
+	return neurocl::sample( m_sizeX * m_sizeY, g_buf_img.data(), s.osample_size, s.osample );
 }
 
 }; //namespace neurocl

@@ -36,11 +36,28 @@ namespace neurocl {
 
 using t_preproc = std::function<void (float*,const size_t,const size_t)>;
 
+class samples_augmenter
+{
+public:
+    samples_augmenter( const int sizeX, const int sizeY );
+
+    //! noise a given sample
+    neurocl::sample noise( const neurocl::sample& s, const float sigma ) const;
+    //! rotate a given sample
+    neurocl::sample rotate( const neurocl::sample& s, const float angle ) const;
+    //! translate a given sample
+    neurocl::sample translate( const neurocl::sample& s, const int sx, const int sy ) const;
+
+private:
+    const int m_sizeX;
+    const int m_sizeY;
+};
+
 class samples_manager
 {
 public:
 
-    samples_manager() : m_batch_index( 0 ), m_end( false ), m_restrict_size( 0 ) {}
+    samples_manager() : m_end( false ), m_batch_index( 0 ), m_restrict_size( 0 ), m_sample_sizeX( 0 ), m_sample_sizeY( 0 ) {}
     virtual ~samples_manager() {}
 
     void restrict_dataset( const size_t size )
@@ -48,22 +65,35 @@ public:
         m_restrict_size = size;
     }
 
+    //! load all training samples
     void load_samples( const std::string &input_filename, bool shuffle = false, t_preproc extra_preproc = t_preproc() );
 
+    //! get number of loaded samples
     const size_t samples_size() const
     {
         return m_samples_set.size();
     }
 
+    //! get samples list
     const std::vector<neurocl::sample>& get_samples() const noexcept
     {
         return m_samples_set;
     }
 
+    //! get samples mini-batch
     const std::vector<neurocl::sample> get_next_batch( const size_t size ) const noexcept;
 
+    //! rewind sample "cursor"
     void rewind() const noexcept;
+
+    //! shuffle samples list
     void shuffle() const noexcept;
+
+    std::shared_ptr<samples_augmenter> get_augmenter() const;
+
+private:
+
+	void _assert_sample_size() const;
 
 private:
 
@@ -71,9 +101,14 @@ private:
     mutable size_t m_batch_index;
     size_t m_restrict_size;
 
+    size_t m_sample_sizeX;
+    size_t m_sample_sizeY;
+
     std::vector< boost::shared_array<float> > m_input_samples;
     std::vector< boost::shared_array<float> > m_output_samples;
     mutable std::vector<neurocl::sample> m_samples_set;
+
+	std::shared_ptr<samples_augmenter> m_augmenter;
 };
 
 } //namespace neurocl
