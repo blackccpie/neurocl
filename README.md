@@ -113,7 +113,7 @@ neurocl requires three main input files:
     ```xml
     <neurocl>
     	<implementation>CONVNET</implementation>
-    	<solver type="RMS_PROP" lr="0.001" m="0.99"/>
+    	<solver type="RMSPROP" lr="0.001" m="0.99"/>
     </neurocl>
     ```
 
@@ -125,7 +125,7 @@ neurocl main entry point is interface **network_manager_interface**, which can o
     ```c++
     std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
     ```
-    
+
    or given a specific scheme:
 
     ```c++
@@ -185,13 +185,28 @@ MLP Class diagram:
 - Raspberry Pi Raspbian
 
 ## References:
+
+MLP:
 - [Neural networks and deep learning](http://neuralnetworksanddeeplearning.com)
-- [Stanford CS class CS231n](http://cs231n.github.io)
 - [Stanford class about sparse auto-encoders](http://web.stanford.edu/class/cs294a/sparseAutoencoder.pdf)
+
+CONVNETS:
+- [Stanford CS class CS231n](http://cs231n.github.io)
+
+CLASSIFIERS:
+- [How to implement a neural network](http://peterroelants.github.io/posts/neural_network_implementation_part01)
+- [The Softmax function and its derivative](http://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative)
+
+SOLVERS:
+- [Caffe solver tutorial](http://caffe.berkeleyvision.org/tutorial/solver.html)
 
 ## ToRead:
 - http://page.mi.fu-berlin.de/rojas/neural/chapter/K7.pdf
 -> ß7.3.3 concerning matrix form
+
+## Inspirations
+- [tiny-dnn](http://github.com/tiny-dnn)
+- [ConvNetJS](http://github.com/karpathy/convnetjs)
 
 ## License:
 

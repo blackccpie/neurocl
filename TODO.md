@@ -20,7 +20,9 @@
     - [ ] Move semantics checks
     - [ ] Valgrind/kcachegrind profiling
 - [ ] Parallel batch training
-- [ ] Use "expanded" (rot/trans) MNIST dataset
+- [ ] Confirm bias tensors initialisation
+- [ ] Cross validate with similar ConvnetJS topologies
+- [ ] Use "expanded" (rot/noise/trans) MNIST dataset
 - [ ] Introduce fan-in size layer base method
 - [ ] Python:
     - [ ] Turn pyneurocl into a '.pyd'
