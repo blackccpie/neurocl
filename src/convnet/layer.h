@@ -105,6 +105,10 @@ public:
 
 protected:
 
+    virtual size_t fan_in() const = 0;
+
+protected:
+
     static bool m_training;
     static bool m_shared;
 };

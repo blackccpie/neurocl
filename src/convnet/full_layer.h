@@ -79,9 +79,6 @@ public:
                 m_prev_group_features = true;
         }
 
-        size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
-        size_t prev_layer_size = k_group * prev_layer->width() * prev_layer->height();
-
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
 
@@ -94,12 +91,12 @@ public:
             for ( auto& _bias : m_bias_cache )
                 _bias = tensor_tank::instance().get_shared( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
-            m_weights = tensor_tank::instance().get_shared( "weights", width * height, prev_layer_size, 1, depth );
-            m_weights->fill_random( prev_layer_size/*nin*/ );
-            m_deltas_weights = tensor_tank::instance().get_cumulative( "weights_delta", width * height, prev_layer_size, 1, depth );
+            m_weights = tensor_tank::instance().get_shared( "weights", width * height, fan_in(), 1, depth );
+            m_weights->fill_random( fan_in() );
+            m_deltas_weights = tensor_tank::instance().get_cumulative( "weights_delta", width * height, fan_in(), 1, depth );
             m_weights_cache.resize( cache_size ); int j = 0;
             for ( auto& _weights : m_weights_cache )
-                _weights = tensor_tank::instance().get_shared( "weights_cache" + std::to_string(j++), width * height, prev_layer_size, 1, depth );
+                _weights = tensor_tank::instance().get_shared( "weights_cache" + std::to_string(j++), width * height, fan_in(), 1, depth );
         }
         else
         {
@@ -110,12 +107,12 @@ public:
             for ( auto& _bias : m_bias_cache )
                 _bias = tensor_tank::instance().get_standard( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
-        	m_weights = tensor_tank::instance().get_standard( "weights", width * height, prev_layer_size, 1, depth );
-            m_weights->fill_random( prev_layer_size/*nin*/ );
-        	m_deltas_weights = tensor_tank::instance().get_standard( "weights_delta", width * height, prev_layer_size, 1, depth );
+        	m_weights = tensor_tank::instance().get_standard( "weights", width * height, fan_in(), 1, depth );
+            m_weights->fill_random( fan_in() );
+        	m_deltas_weights = tensor_tank::instance().get_standard( "weights_delta", width * height, fan_in(), 1, depth );
             m_weights_cache.resize( cache_size ); int j = 0;
             for ( auto& _weights : m_weights_cache )
-                _weights = tensor_tank::instance().get_standard( "weights_cache" + std::to_string(j++), width * height, prev_layer_size, 1, depth );
+                _weights = tensor_tank::instance().get_standard( "weights_cache" + std::to_string(j++), width * height, fan_in(), 1, depth );
         }
     }
 
@@ -240,10 +237,16 @@ public:
             new tensor_gradient_checker( *m_weights, *m_deltas_weights ) ) );
     }
 
-protected:
-
     virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; }
+
+protected:
+
+    virtual size_t fan_in() const final
+    {
+        size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
+        return k_group * m_prev_layer->width() * m_prev_layer->height();
+    }
 
 private:
 

@@ -109,10 +109,15 @@ public:
     virtual void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
     virtual void fill_b( float* data ) override { /* NOTHING TO DO */ }
 
-protected:
-
     virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; }
+
+protected:
+
+    virtual size_t fan_in() const final
+    {
+        return m_prev_layer->width() * m_prev_layer->height();
+    }
 
 private:
 

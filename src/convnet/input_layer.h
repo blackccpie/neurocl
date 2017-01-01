@@ -40,6 +40,8 @@ public:
 
     virtual const std::string type() const override { return "input"; }
 
+    virtual size_t fan_in() const final { return 0; }
+
     void populate(  const size_t width,
                     const size_t height,
                     const size_t depth )
@@ -80,8 +82,6 @@ public:
     // Fill bias
     virtual void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
     virtual void fill_b( float* data ) override { /* NOTHING TO DO */ }
-
-protected:
 
     virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; } // returns empty tensor

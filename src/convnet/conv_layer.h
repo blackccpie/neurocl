@@ -60,7 +60,7 @@ public:
 
     virtual ~conv_layer() {}
 
-    virtual const std::string type() const override { return "conv " + m_name; }
+    virtual const std::string type() const final { return "conv " + m_name; }
 
     virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) final
     {
@@ -86,8 +86,6 @@ public:
 
         m_prev_layer = prev_layer;
 
-        size_t filter_total_size = m_filter_size * m_filter_size;
-
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
 
@@ -101,7 +99,7 @@ public:
                 _bias = tensor_tank::instance().get_shared( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
         	m_filters = tensor_tank::instance().get_shared( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
-            m_filters->fill_random( filter_total_size/*nin*/ );
+            m_filters->fill_random( fan_in() );
         	m_deltas_filters = tensor_tank::instance().get_cumulative( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
             m_filters_cache.resize( cache_size ); int j = 0;
             for ( auto& _filters : m_filters_cache )
@@ -117,7 +115,7 @@ public:
         		_bias = tensor_tank::instance().get_standard( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
             m_filters = tensor_tank::instance().get_standard( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
-            m_filters->fill_random( filter_total_size/*nin*/ );
+            m_filters->fill_random( fan_in() );
             m_deltas_filters = tensor_tank::instance().get_standard( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
             m_filters_cache.resize( cache_size ); int j = 0;
             for ( auto& _filters : m_filters_cache )
@@ -216,6 +214,9 @@ public:
          m_bias->grouped_fill( data );
     }
 
+    virtual tensor& error_maps( key_errors ) override
+        { return m_error_maps; }
+
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
@@ -228,8 +229,10 @@ public:
 
 protected:
 
-    virtual tensor& error_maps( key_errors ) override
-        { return m_error_maps; }
+    virtual size_t fan_in() const final
+    {
+        return m_filter_size * m_filter_size;
+    }
 
 private:
 
