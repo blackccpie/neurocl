@@ -31,6 +31,7 @@ camera.capture(raw, format="rgb")
 output = numpy.zeros(shape=(26,1)) #rows,cols
 
 print "---> compute network output:"
+# NOTE : raw.array.dtype is uint8
 h.compute(raw.array,output)
 print output
 

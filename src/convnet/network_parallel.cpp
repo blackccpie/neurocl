@@ -36,6 +36,9 @@ namespace neurocl { namespace convnet {
 network_parallel::network_parallel()
     : m_thread_pool( new thread_pool{ parallel_thread_count } ), m_current_net( 0 )
 {
+    LOGGER(info) << "network_parallel::network_parallel - " <<
+        std::thread::hardware_concurrency() << " concurrent threads are supported" << std::endl;
+
     layer::set_shared( true );
 
     m_solver = tensor_solver_factory::build();
