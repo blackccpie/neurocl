@@ -52,6 +52,9 @@ public:
         m_normalize_grad = 1.f / static_cast<float>( size );
     }
 
+    //! get cache size
+    virtual size_t get_cache_size() = 0;
+
     //! get current learning rate
     virtual const float& get_learning_rate() = 0;
     //! set learning rate (scheduled learning)
@@ -99,21 +102,24 @@ public:
     virtual ~solver_sgd() {}
 
     template<typename T>
-    void update( T& input, T& input_momentum, const T& gradient )
+    void update( T& input, T** input_cache, const T& gradient )
     {
+        T& input_momentum = *(input_cache[0]);
         input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient + m_lambda * input );
         input += input_momentum;
     }
 
     template<typename T>
-    void update_redux( T& input, T& input_momentum, const T& gradient )
+    void update_redux( T& input, T** input_cache, const T& gradient )
     {
+        T& input_momentum = *(input_cache[0]);
         input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient );
         input += input_momentum;
     }
 
     virtual const float& get_learning_rate() final { return m_alpha; }
     virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final { return 1; }
 
 private:
 
@@ -124,12 +130,12 @@ private:
 
 /* RMSprop solver implementation */
 template <typename operatorF>
-class solver_rms_prop : public solver_base
+class solver_rmsprop : public solver_base
 {
 public:
-    solver_rms_prop( const float alpha, const float mu )
+    solver_rmsprop( const float alpha, const float mu )
     	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
-    solver_rms_prop( std::initializer_list<float> params_list )
+    solver_rmsprop( std::initializer_list<float> params_list )
     	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
     {
         if ( params_list.size() == 2 )
@@ -138,32 +144,88 @@ public:
         	m_mu        = params_list.begin()[1];
         }
         else
-            LOGGER(warning) << "solver_rms_prop::solver_rms_prop - invalid parameters number, keeping defaults" << std::endl;
+            LOGGER(warning) << "solver_rmsprop::solver_rmsprop - invalid parameters number, keeping defaults" << std::endl;
     }
-    solver_rms_prop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    solver_rmsprop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
     {
         m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
         	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
         );
     }
-    virtual ~solver_rms_prop() {}
+    virtual ~solver_rmsprop() {}
 
     template<typename T>
-    void update( T& input, T& input_momentum, const T& gradient )
+    void update( T& input, T** input_cache, const T& gradient )
     {
+        T& input_momentum = *(input_cache[0]);
         input_momentum = m_mu * input_momentum
             + ( 1 - m_mu ) * m_normalize_grad * m_normalize_grad * gradient * gradient;
         input -= m_alpha * m_normalize_grad * gradient / operatorF::sqrt( input_momentum + m_eps );
     }
 
     template<typename T>
-    void update_redux( T& input, T& input_momentum, const T& gradient ) // TODO : usefull???
+    void update_redux( T& input, T** input_cache, const T& gradient ) // TODO : usefull???
     {
-        update( input, input_momentum, gradient );
+        update( input, input_cache, gradient );
     }
 
     virtual const float& get_learning_rate() final { return m_alpha; }
     virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final { return 1; }
+
+private:
+
+    float m_mu;         // decay term
+    float m_alpha;      // learning rate
+    const float m_eps;  // constant value to avoid zero-division
+};
+
+/* Adadelta solver implementation */
+template <typename operatorF>
+class solver_adadelta : public solver_base
+{
+public:
+    solver_adadelta( const float alpha, const float mu )
+    	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
+    solver_adadelta( std::initializer_list<float> params_list )
+    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    {
+        if ( params_list.size() == 2 )
+    	{
+        	m_alpha     = params_list.begin()[0];
+        	m_mu        = params_list.begin()[1];
+        }
+        else
+            LOGGER(warning) << "solver_adadelta::solver_adadelta - invalid parameters number, keeping defaults" << std::endl;
+    }
+    solver_adadelta() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    {
+        m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
+        	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
+        );
+    }
+    virtual ~solver_adadelta() {}
+
+    template<typename T>
+    void update( T& input, T** input_cache, const T& gradient )
+    {
+        T& input_momentum1 = *(input_cache[0]);
+        T& input_momentum2 = *(input_cache[1]);
+        input_momentum1 = m_mu * input_momentum1 + ( 1 - m_mu ) * gradient * gradient;
+        T dx = operatorF::sqrt( ( input_momentum2 + m_eps ) / ( input_momentum1 + m_eps ) ) * gradient;
+        input_momentum2 = m_mu * input_momentum2 + ( 1 - m_mu ) * dx * dx;
+        input -= m_alpha * dx;
+    }
+
+    template<typename T>
+    void update_redux( T& input, T** input_cache, const T& gradient ) // TODO : usefull???
+    {
+        update( input, input_cache, gradient );
+    }
+
+    virtual const float& get_learning_rate() final { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final { return 2; }
 
 private:
 

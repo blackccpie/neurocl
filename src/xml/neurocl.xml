@@ -1,5 +1,6 @@
 <neurocl>
 	<implementation>CONVNET</implementation>
 	<solver type="SGD" lr="0.01" wd="0.00005" m="0.9"/>
-	<!--solver type="RMS_PROP" lr="0.001" m="0.99"/-->
+	<!--solver type="RMSPROP" lr="0.001" m="0.99"/-->
+	<!--solver type="ADADELTA" lr="0.001" m="0.99"/-->
 </neurocl>

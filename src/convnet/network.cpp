@@ -64,6 +64,8 @@ void network::add_layers( const std::vector<layer_descr>& layers )
     size_t drop_idx = 0;
     size_t full_idx = 0;
 
+    size_t cache_size = m_solver->get_cache_size();
+
     for ( auto& _layer : layers )
     {
         std::shared_ptr<layer> l;
@@ -79,9 +81,9 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case CONV_LAYER:
             {
                 std::shared_ptr<conv_layer_iface> c =
-                    std::make_shared< conv_layer<tensor_activations::sigmoid> >( "c" + std::to_string(++conv_idx) );
+                    std::make_shared< conv_layer<tensor_activations::relu> >( "c" + std::to_string(++conv_idx) );
                 c->set_filter_size( _layer.sizeF );
-                c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                c->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = c;
             }
             break;
@@ -96,7 +98,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             {
                 std::shared_ptr<full_layer_iface> f =
                     std::make_shared< full_layer<tensor_activations::sigmoid> >( "f" + std::to_string(++full_idx) );
-                f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = f;
             }
             break;
@@ -104,7 +106,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
             {
                 std::shared_ptr<output_layer_iface> out =
                     std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::cross_entropy> >();
-                out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = out;
             }
             break;

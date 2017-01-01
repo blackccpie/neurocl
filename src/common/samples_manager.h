@@ -89,7 +89,12 @@ public:
     //! shuffle samples list
     void shuffle() const noexcept;
 
-    std::shared_ptr<samples_augmenter> get_augmenter() const;
+    class key_augmenter
+    {
+    	friend class network_manager;
+        key_augmenter() {} key_augmenter( key_augmenter const& ) {}
+    };
+    std::shared_ptr<samples_augmenter> get_augmenter( key_augmenter ) const;
 
 private:
 

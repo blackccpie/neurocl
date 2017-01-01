@@ -592,15 +592,15 @@ void tensor_operation::bernoulli( tensor& input, const float p )
 }
 
 template<>
-void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optimize_mode::redux>( const std::shared_ptr<tensor_solver_iface>& solver, tensor* input, tensor** input_cache, const tensor* deltas )
 {
-    solver->update_redux( input, input_momentum, deltas );
+    solver->update_redux( *input, input_cache, *deltas );
 }
 
 template<>
-void tensor_operation::optimize<tensor_operation::optimize_mode::std>( const std::shared_ptr<tensor_solver_iface>& solver, tensor& input, tensor& input_momentum, const tensor& deltas )
+void tensor_operation::optimize<tensor_operation::optimize_mode::std>( const std::shared_ptr<tensor_solver_iface>& solver, tensor* input, tensor** input_cache, const tensor* deltas )
 {
-    solver->update( input, input_momentum, deltas );
+    solver->update( *input, input_cache, *deltas );
 }
 
 } /*namespace neurocl*/ } /*namespace convnet*/

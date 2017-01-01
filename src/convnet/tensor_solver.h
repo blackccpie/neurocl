@@ -38,9 +38,10 @@ class tensor_solver_iface
 {
 public:
     virtual void set_size( const size_t& size ) = 0;
+    virtual size_t get_cache_size() = 0;
 
-    virtual void update( tensor& input, tensor& input_momentum, const tensor& gradient ) = 0;
-    virtual void update_redux( tensor& input, tensor& input_momentum, const tensor& gradient ) = 0;
+    virtual void update( tensor& input, tensor** input_cache, const tensor& gradient ) = 0;
+    virtual void update_redux( tensor& input, tensor** input_cache, const tensor& gradient ) = 0;
 };
 
 template<class solverT>
@@ -65,14 +66,19 @@ public:
         m_solver->set_size( size );
     }
 
-    void update( tensor& input, tensor& input_momentum, const tensor& gradient ) override
+    size_t get_cache_size() override
     {
-        m_solver->update( input, input_momentum, gradient );
+        return m_solver->get_cache_size();
     }
 
-    void update_redux( tensor& input, tensor& input_momentum, const tensor& gradient ) override
+    void update( tensor& input, tensor** input_cache, const tensor& gradient ) override
     {
-        m_solver->update_redux( input, input_momentum, gradient );
+        m_solver->update( input, input_cache, gradient );
+    }
+
+    void update_redux( tensor& input, tensor** input_cache, const tensor& gradient ) override
+    {
+        m_solver->update_redux( input, input_cache, gradient );
     }
 
 private:
@@ -95,7 +101,8 @@ public:
     enum class t_solver_impl
     {
         SOLVER_IMPL_SGD = 0,
-        SOLVER_IMPL_RMS_PROP
+        SOLVER_IMPL_ADADELTA,
+        SOLVER_IMPL_RMSPROP
     };
 public:
 
@@ -122,8 +129,10 @@ public:
         {
         case t_solver_impl::SOLVER_IMPL_SGD:
             return std::make_shared< tensor_solver<solver_sgd> >();
-        case t_solver_impl::SOLVER_IMPL_RMS_PROP:
-            return std::make_shared< tensor_solver<solver_rms_prop<tensor_operation>> >();
+        case t_solver_impl::SOLVER_IMPL_ADADELTA:
+            return std::make_shared< tensor_solver<solver_adadelta<tensor_operation>> >();
+        case t_solver_impl::SOLVER_IMPL_RMSPROP:
+            return std::make_shared< tensor_solver<solver_rmsprop<tensor_operation>> >();
         default:
             throw network_exception( "unmanaged solver implementation!" );
         }
@@ -137,8 +146,10 @@ inline std::istream& operator>> ( std::istream &input, tensor_solver_factory::t_
 
     if ( impl_string == "SGD" )
         impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_SGD;
-    else if ( impl_string == "RMS_PROP" )
-        impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_RMS_PROP;
+    else if ( impl_string == "ADADELTA" )
+            impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_ADADELTA;
+    else if ( impl_string == "RMSPROP" )
+        impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_RMSPROP;
     else
         input.setstate( std::ios_base::failbit );
 

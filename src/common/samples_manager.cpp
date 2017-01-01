@@ -186,7 +186,7 @@ void samples_manager::_assert_sample_size() const
         throw network_exception( "no sample set loaded yet (undefined sample 2D size)" );
 }
 
-std::shared_ptr<samples_augmenter> samples_manager::get_augmenter() const
+std::shared_ptr<samples_augmenter> samples_manager::get_augmenter( key_augmenter ) const
 {
     _assert_sample_size();
 

@@ -42,7 +42,8 @@ public:
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
-                            const size_t depth ) = 0;
+                            const size_t depth,
+                            const size_t cache_size ) = 0;
 };
 
 template<class activationT>
@@ -51,8 +52,8 @@ class full_layer : public full_layer_iface
 public:
 
     full_layer( const std::string& name ) : m_name( name ), m_prev_group_features( false ),
-    	m_weights( nullptr ), m_weights_momentum( nullptr ), m_deltas_weights( nullptr ),
-    	m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
+    	m_weights( nullptr ), m_deltas_weights( nullptr ),
+    	m_bias( nullptr ), m_deltas_bias( nullptr ) {}
 
     virtual ~full_layer() {}
 
@@ -61,7 +62,8 @@ public:
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
-                            const size_t depth ) final
+                            const size_t depth,
+                            const size_t cache_size ) final
     {
         LOGGER(info) << "full_layer::populate - populating full layer " << m_name << std::endl;
 
@@ -87,25 +89,33 @@ public:
         {
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
             m_bias->fill_random( 1 ); // stddev 1 for bias
-            m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
             m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
+            m_bias_cache.resize( cache_size ); int i = 0;
+            for ( auto& _bias : m_bias_cache )
+                _bias = tensor_tank::instance().get_shared( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
             m_weights = tensor_tank::instance().get_shared( "weights", width * height, prev_layer_size, 1, depth );
             m_weights->fill_random( prev_layer_size/*nin*/ );
-            m_weights_momentum = tensor_tank::instance().get_shared( "weights_momentum", width * height, prev_layer_size, 1, depth );
             m_deltas_weights = tensor_tank::instance().get_cumulative( "weights_delta", width * height, prev_layer_size, 1, depth );
+            m_weights_cache.resize( cache_size ); int j = 0;
+            for ( auto& _weights : m_weights_cache )
+                _weights = tensor_tank::instance().get_shared( "weights_cache" + std::to_string(j++), width * height, prev_layer_size, 1, depth );
         }
         else
         {
         	m_bias = tensor_tank::instance().get_standard( "bias", width, height, 1, depth );
             m_bias->fill_random( 1 ); // stddev 1 for bias
-        	m_bias_momentum = tensor_tank::instance().get_standard( "bias_momentum", width, height, 1, depth );
         	m_deltas_bias = tensor_tank::instance().get_standard( "bias_delta", width, height, 1, depth );
+            m_bias_cache.resize( cache_size ); int i = 0;
+            for ( auto& _bias : m_bias_cache )
+                _bias = tensor_tank::instance().get_standard( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
         	m_weights = tensor_tank::instance().get_standard( "weights", width * height, prev_layer_size, 1, depth );
             m_weights->fill_random( prev_layer_size/*nin*/ );
-        	m_weights_momentum = tensor_tank::instance().get_standard( "weights_momentum", width * height, prev_layer_size, 1, depth );
         	m_deltas_weights = tensor_tank::instance().get_standard( "weights_delta", width * height, prev_layer_size, 1, depth );
+            m_weights_cache.resize( cache_size ); int j = 0;
+            for ( auto& _weights : m_weights_cache )
+                _weights = tensor_tank::instance().get_standard( "weights_cache" + std::to_string(j++), width * height, prev_layer_size, 1, depth );
         }
     }
 
@@ -199,8 +209,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize<nto::optimize_mode::std>( solver, *m_weights, *m_weights_momentum, *m_deltas_weights );
-        nto::optimize<nto::optimize_mode::redux>( solver, *m_bias, *m_bias_momentum, *m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, m_weights, m_weights_cache.data(), m_deltas_weights );
+        nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_cache.data(), m_deltas_bias );
     }
 
     // Fill weights
@@ -243,12 +253,12 @@ private:
     tensor m_error_maps;
 
     tensor* m_bias;
-    tensor* m_bias_momentum;
     tensor* m_deltas_bias;
+    std::vector<tensor*> m_bias_cache;
 
     tensor* m_weights;
-    tensor* m_weights_momentum;
     tensor* m_deltas_weights;
+    std::vector<tensor*> m_weights_cache;
 
     bool m_prev_group_features;
 

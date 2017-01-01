@@ -42,7 +42,8 @@ public:
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
-                            const size_t depth ) = 0;
+                            const size_t depth,
+                            const size_t cache_size ) = 0;
 
     // set filter kernel size
     virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) = 0;
@@ -54,8 +55,8 @@ class conv_layer  : public conv_layer_iface
 public:
 
     conv_layer( const std::string& name ) : m_name( name ),
-    	m_filters( nullptr ), m_filters_momentum( nullptr ), m_deltas_filters( nullptr ),
-    	m_bias( nullptr ), m_bias_momentum( nullptr ), m_deltas_bias( nullptr ) {}
+    	m_filters( nullptr ), m_deltas_filters( nullptr ),
+    	m_bias( nullptr ), m_deltas_bias( nullptr ) {}
 
     virtual ~conv_layer() {}
 
@@ -70,7 +71,8 @@ public:
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
-                            const size_t depth ) final
+                            const size_t depth,
+                            const size_t cache_size) final
     {
         LOGGER(info) << "conv_layer::populate - populating convolutional layer " << m_name << std::endl;
 
@@ -93,25 +95,33 @@ public:
         {
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
             m_bias->uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
-            m_bias_momentum = tensor_tank::instance().get_shared( "bias_momentum", width, height, 1, depth );
             m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
+            m_bias_cache.resize( cache_size ); int i = 0;
+            for ( auto& _bias : m_bias_cache )
+                _bias = tensor_tank::instance().get_shared( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
         	m_filters = tensor_tank::instance().get_shared( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
             m_filters->fill_random( filter_total_size/*nin*/ );
-        	m_filters_momentum = tensor_tank::instance().get_shared( "filters_momentum", m_filter_size, m_filter_size, prev_layer->depth(), depth );
         	m_deltas_filters = tensor_tank::instance().get_cumulative( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_filters_cache.resize( cache_size ); int j = 0;
+            for ( auto& _filters : m_filters_cache )
+                _filters = tensor_tank::instance().get_shared( "filters_cache" + std::to_string(j++), m_filter_size, m_filter_size, prev_layer->depth(), depth );
         }
         else
         {
         	m_bias = tensor_tank::instance().get_standard( "bias", width, height, 1, depth );
         	m_bias->uniform_fill_random( 1.f /*stddev*/ ); // uniform because of parameters sharing
-        	m_bias_momentum = tensor_tank::instance().get_standard( "bias_momentum", width, height, 1, depth );
         	m_deltas_bias = tensor_tank::instance().get_standard( "bias_delta", width, height, 1, depth );
+            m_bias_cache.resize( cache_size ); int i = 0;
+            for ( auto& _bias : m_bias_cache )
+        		_bias = tensor_tank::instance().get_standard( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
             m_filters = tensor_tank::instance().get_standard( "filters", m_filter_size, m_filter_size, prev_layer->depth(), depth );
             m_filters->fill_random( filter_total_size/*nin*/ );
-            m_filters_momentum = tensor_tank::instance().get_standard( "filters_momentum", m_filter_size, m_filter_size, prev_layer->depth(), depth );
             m_deltas_filters = tensor_tank::instance().get_standard( "filters_delta", m_filter_size, m_filter_size, prev_layer->depth(), depth );
+            m_filters_cache.resize( cache_size ); int j = 0;
+            for ( auto& _filters : m_filters_cache )
+                _filters = tensor_tank::instance().get_standard( "filters_cache" + std::to_string(j++), m_filter_size, m_filter_size, prev_layer->depth(), depth );
         }
     }
 
@@ -182,8 +192,8 @@ public:
     {
         // Optimize gradients
 
-        nto::optimize<nto::optimize_mode::std>( solver, *m_filters, *m_filters_momentum, *m_deltas_filters );
-        nto::optimize<nto::optimize_mode::std>( solver, *m_bias, *m_bias_momentum, *m_deltas_bias );
+        nto::optimize<nto::optimize_mode::std>( solver, m_filters, m_filters_cache.data(), m_deltas_filters );
+        nto::optimize<nto::optimize_mode::std>( solver, m_bias, m_bias_cache.data(), m_deltas_bias );
     }
 
     // Fill weights
@@ -229,12 +239,12 @@ private:
     size_t m_filter_stride;
 
     tensor* m_filters;
-    tensor* m_filters_momentum;
     tensor* m_deltas_filters;
+    std::vector<tensor*> m_filters_cache;
 
     tensor* m_bias;
-    tensor* m_bias_momentum;
     tensor* m_deltas_bias;
+    std::vector<tensor*> m_bias_cache;
 
     tensor m_feature_maps;
     tensor m_error_maps;
