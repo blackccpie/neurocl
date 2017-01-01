@@ -43,7 +43,11 @@ set (sources_list
 pyneurocl.cpp
 )
 
-add_definitions(-Wno-cpp)
+if (NOT APPLE)
+	add_definitions(-Wno-cpp)
+else ()
+	add_definitions("-Wno-#warnings")
+endif ()
 
 add_library(pyneurocl SHARED ${sources_list} ${headers_list})
 

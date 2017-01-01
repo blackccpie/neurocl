@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_CONVNET_H
 #define NETWORK_MANAGER_CONVNET_H
 
-#include "network.h"
+#include "network_parallel.h"
 #include "network_file_handler.h"
 
 #include "common/network_manager.h"
@@ -34,19 +34,40 @@ namespace neurocl { namespace convnet {
 
 class network_manager_convnet : public network_manager
 {
+public:
+
+	enum class t_convnet_impl
+    {
+        CONVNET = 0,
+		CONVNET_PARALLEL
+    };
+
 private:
 
 	friend network_factory;
 
-	static std::shared_ptr<network_manager_interface> create()
+	static std::shared_ptr<network_manager_interface> create( const t_convnet_impl& impl )
 	{
-		struct make_shared_enabler : public network_manager_convnet {};
-		return std::make_shared<make_shared_enabler>();
+		struct make_shared_enabler : public network_manager_convnet {
+			make_shared_enabler( const t_convnet_impl& impl ) : network_manager_convnet( impl ) {}
+		};
+		return std::make_shared<make_shared_enabler>( impl );
 	}
 
-    network_manager_convnet()
+    network_manager_convnet( const t_convnet_impl& impl )
 	{
-		m_net = std::make_shared<network>();
+		switch( impl )
+		{
+		case t_convnet_impl::CONVNET:
+	        m_net = std::make_shared<network>();
+	        break;
+		case t_convnet_impl::CONVNET_PARALLEL:
+		    m_net = std::make_shared<network_parallel>();
+		    break;
+	    default:
+	        throw network_exception( "unmanaged convnet implementation!" );
+		}
+		m_net = std::make_shared<network/*_parallel*/>();
     	m_net_file_handler = std::make_shared<network_file_handler>(
 			std::static_pointer_cast<network_interface_convnet>( m_net ) );
 	}
