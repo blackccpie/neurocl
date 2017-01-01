@@ -60,6 +60,7 @@ public:
     }
 };
 
+// cross-entropy loss function for (multiple independent) binary classifications
 class cross_entropy
 {
 public:
@@ -71,6 +72,21 @@ public:
     static tensor d_f( tensor& y, tensor& t )
     {
         return std::move( ( y - t ) / ( y * ( 1.f - y ) ) );
+    }
+};
+
+// cross-entropy loss function for multi-class classification
+class cross_entropy_multiclass
+{
+public:
+
+    /*static tensor f( tensor& y, tensor& t )
+    {
+    }*/
+
+    static tensor d_f( tensor& y, tensor& t )
+    {
+        return std::move( -t / y );
     }
 };
 
