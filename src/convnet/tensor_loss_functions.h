@@ -46,21 +46,8 @@ public:
     }
 };
 
-class cross_entropy_softmax // should only be used with softmax activation
-{
-public:
-
-    /*static tensor f( tensor& y, tensor& t )
-    {
-    }*/
-
-    static tensor d_f( tensor& y, tensor& t )
-    {
-        return std::move( y - t );
-    }
-};
-
-// cross-entropy loss function for (multiple independent) binary classifications
+// cross-entropy loss function for (multiple independent) binary classifications, aka binary logistic regression
+// better use with sigmoid activation : removes the 1/(1-y) term, and only relies on (y-t) error
 class cross_entropy
 {
 public:
@@ -75,7 +62,8 @@ public:
     }
 };
 
-// cross-entropy loss function for multi-class classification
+// cross-entropy loss function for multi-class classification, aka negative log likelihood
+// better use with softmax activation
 class cross_entropy_multiclass
 {
 public:
@@ -87,6 +75,20 @@ public:
     static tensor d_f( tensor& y, tensor& t )
     {
         return std::move( -t / y );
+    }
+};
+
+class cross_entropy_softmax // should only be used with softmax activation
+{
+public:
+
+    /*static tensor f( tensor& y, tensor& t )
+    {
+    }*/
+
+    static tensor d_f( tensor& y, tensor& t )
+    {
+        return std::move( y - t );
     }
 };
 
