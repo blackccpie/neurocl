@@ -90,6 +90,8 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
 
     scoped_training _scoped_training( m_net );
 
+    std::shared_ptr<samples_augmenter> smp_augmenter;// = smp_manager.get_augmenter({});
+
     size_t progress_size = 0;
     const size_t pbm_size = epoch_size * smp_manager.samples_size();
 
@@ -106,7 +108,7 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
                 break;
 
             prepare_training_epoch();
-            _train_batch( sample );
+            _train_batch( samples, smp_augmenter );
             finalize_training_epoch();
 
             progress_size += samples.size();
@@ -145,7 +147,7 @@ void network_manager::train( const sample& s, key_training )
     _train_single( s );
 }
 
-void network_manager::_train_batch( const std::vector<sample>& training_set )
+void network_manager::_train_batch( const std::vector<sample>& training_set, const std::shared_ptr<samples_augmenter>& smp_augmenter )
 {
     _assert_loaded();
 
@@ -181,6 +183,11 @@ void network_manager::_train_single( const sample& s )
     duration = sc::duration_cast<sc::milliseconds>( sc::system_clock::now() - start );
     LOGGER(info) << "network_manager::_train_single - training successfull in "  << duration.count() << "ms"<< std::endl;
 #endif
+}
+
+void network_manager::compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter )
+{
+	// NOT IMPLEMENTED YET
 }
 
 void network_manager::compute_output( sample& s )

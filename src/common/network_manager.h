@@ -34,6 +34,7 @@ THE SOFTWARE.
 namespace neurocl {
 
 class samples_manager;
+class samples_augmenter;
 
 class network_interface;
 class network_file_handler_interface;
@@ -67,6 +68,8 @@ public:
     virtual void finalize_training_epoch() override;
 	//! compute network output
     virtual void compute_output( sample& s ) override;
+	//! compute network output using augmented sample
+	virtual void compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter ) override;
 
 	//! gradient check
 	virtual void gradient_check( const sample& s ) override;
@@ -83,7 +86,7 @@ protected:
 private:
 
     void _train_single( const sample& s );
-    void _train_batch( const std::vector<sample>& training_set );
+    void _train_batch( const std::vector<sample>& training_set, const std::shared_ptr<samples_augmenter>& smp_augmenter );
 
 private:
 

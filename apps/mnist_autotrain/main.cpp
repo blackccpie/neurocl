@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -58,6 +58,7 @@ float compute_score(	const int i,
     {
         test_sample tsample( smp_manager.get_samples()[i] );
         net_manager->compute_output( tsample );
+        //net_manager->compute_augmented_output( tsample, smp_manager.get_augmenter({}) );
 
         mean_rmse += tsample.RMSE();
 
@@ -177,7 +178,7 @@ int main( int argc, char *argv[] )
                         << sched.get_learning_rate() << '\n';
             output_file.flush();
 
-            if ( valid_score > NEUROCL_STOPPING_SCORE )
+            if ( valid_score >= NEUROCL_STOPPING_SCORE )
             {
                 std::cout << "TRAINING SUCCEEDED IN " << (i+1) << " EPOCHS :-)" << std::endl;
                 return 1;

@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,14 @@ THE SOFTWARE.
 #define NETWORK_MANAGER_INTERFACE_H
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace neurocl {
 
 class sample;
 class samples_manager;
+class samples_augmenter;
 
 class network_manager_interface
 {
@@ -70,6 +72,8 @@ public:
     virtual void finalize_training_epoch() = 0;
     //! compute network output
     virtual void compute_output( sample& s ) = 0;
+    //! compute network output using augmented sample
+	virtual void compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter ) = 0;
 
     //! gradient check
 	virtual void gradient_check( const sample& s ) = 0;
