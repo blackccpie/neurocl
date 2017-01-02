@@ -67,7 +67,7 @@ private:
 	    default:
 	        throw network_exception( "unmanaged convnet implementation!" );
 		}
-		m_net = std::make_shared<network/*_parallel*/>();
+		
     	m_net_file_handler = std::make_shared<network_file_handler>(
 			std::static_pointer_cast<network_interface_convnet>( m_net ) );
 	}
