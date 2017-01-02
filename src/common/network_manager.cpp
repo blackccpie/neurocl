@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -106,7 +106,7 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
                 break;
 
             prepare_training_epoch();
-            _train( samples );
+            _train_batch( sample );
             finalize_training_epoch();
 
             progress_size += samples.size();
@@ -142,10 +142,10 @@ void network_manager::train( const sample& s, key_training )
 {
     _assert_loaded();
 
-    _train( s );
+    _train_single( s );
 }
 
-void network_manager::_train( const std::vector<sample>& training_set )
+void network_manager::_train_batch( const std::vector<sample>& training_set )
 {
     _assert_loaded();
 
@@ -153,15 +153,15 @@ void network_manager::_train( const std::vector<sample>& training_set )
 
     for( const auto& s : training_set )
     {
-        //LOGGER(info) << "network_manager::train - training sample " << (index+1) << "/" << training_set.size() << std::endl;
+        //LOGGER(info) << "network_manager::_train_batch - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 
-        _train( s );
+		_train_single( s );
 
         ++index;
     }
 }
 
-void network_manager::_train( const sample& s )
+void network_manager::_train_single( const sample& s )
 {
 #ifdef TRAIN_CHRONO
     namespace sc = std::chrono;
@@ -179,7 +179,7 @@ void network_manager::_train( const sample& s )
 
 #ifdef TRAIN_CHRONO
     duration = sc::duration_cast<sc::milliseconds>( sc::system_clock::now() - start );
-    LOGGER(info) << "network_manager::_train - training successfull in "  << duration.count() << "ms"<< std::endl;
+    LOGGER(info) << "network_manager::_train_single - training successfull in "  << duration.count() << "ms"<< std::endl;
 #endif
 }
 

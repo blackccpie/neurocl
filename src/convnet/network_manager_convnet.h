@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,7 @@ private:
 	    default:
 	        throw network_exception( "unmanaged convnet implementation!" );
 		}
-		
+
     	m_net_file_handler = std::make_shared<network_file_handler>(
 			std::static_pointer_cast<network_interface_convnet>( m_net ) );
 	}

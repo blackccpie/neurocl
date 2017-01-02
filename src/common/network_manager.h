@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -82,8 +82,8 @@ protected:
 
 private:
 
-    void _train( const sample& s );
-    void _train( const std::vector<sample>& training_set );
+    void _train_single( const sample& s );
+    void _train_batch( const std::vector<sample>& training_set );
 
 private:
 

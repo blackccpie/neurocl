@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -89,12 +89,8 @@ public:
     //! shuffle samples list
     void shuffle() const noexcept;
 
-    class key_augmenter
-    {
-    	friend class network_manager;
-        key_augmenter() {} key_augmenter( key_augmenter const& ) {}
-    };
-    std::shared_ptr<samples_augmenter> get_augmenter( key_augmenter ) const;
+	//! get data augmenter
+    std::shared_ptr<samples_augmenter> get_augmenter() const;
 
 private:
 
