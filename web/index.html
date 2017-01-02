@@ -7,6 +7,9 @@
     <script type="text/javascript" src="canvasjs.min.js"></script>
     <script type="text/javascript">
         window.onload = function() {
+
+            var csv_url = "http://" + window.location.host + "/bin/mnist_training.csv";
+
             var dataPointsArray = [ [],[],[] ];
             var chart;
 
@@ -34,14 +37,14 @@
             }
 
             function updateChart() {
-                $.get("http://192.168.0.1:8080/bin/mnist_training.csv", function(data) {
+                $.get(csv_url, function(data) {
                     dataPointsArray = getDataPointsFromCSV(data);
                     chart.render();
-                    setTimeout(function(){ updateChart() }, 60000);
+                    setTimeout(function(){ updateChart() }, 30000);
                 });
             }
 
-            $.get("http://192.168.0.1:8080/bin/mnist_training.csv", function(data) {
+            $.get(csv_url, function(data) {
 
                 dataPointsArray = getDataPointsFromCSV(data);
 
