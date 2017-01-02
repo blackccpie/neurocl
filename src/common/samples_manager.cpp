@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "samples_manager.h"
+#include "network_random.h"
 #include "network_exception.h"
 #include "logger.h"
 
@@ -193,10 +194,20 @@ std::shared_ptr<samples_augmenter> samples_manager::get_augmenter() const
     return m_augmenter;
 }
 
-cimg_library::CImg<float> g_buf_img{};
+cimg_library::CImg<float> g_buf_img{}; // TODO : not very clean :-(
 
 samples_augmenter::samples_augmenter( const int sizeX, const int sizeY ) : m_sizeX( sizeX ), m_sizeY( sizeY )
 {
+}
+
+int samples_augmenter::rand_shift()
+{
+    random::rand_bernoulli_generator bernoulli( 0.5f );
+
+    int sign = bernoulli.gen() ? 1 : -1;
+    int val = bernoulli.gen() ? 1 : 0;
+
+    return sign * val;
 }
 
 neurocl::sample samples_augmenter::noise( const neurocl::sample& s, const float sigma ) const

@@ -90,7 +90,7 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
 
     scoped_training _scoped_training( m_net );
 
-    std::shared_ptr<samples_augmenter> smp_augmenter;// = smp_manager.get_augmenter({});
+    std::shared_ptr<samples_augmenter> smp_augmenter;// = smp_manager.get_augmenter();
 
     size_t progress_size = 0;
     const size_t pbm_size = epoch_size * smp_manager.samples_size();
@@ -157,9 +157,17 @@ void network_manager::_train_batch( const std::vector<sample>& training_set, con
     {
         //LOGGER(info) << "network_manager::_train_batch - training sample " << (index+1) << "/" << training_set.size() << std::endl;
 
-		_train_single( s );
+        if ( !smp_augmenter )
+        {
+			_train_single( s );
+        }
+        else
+        {
+            sample _s = smp_augmenter->translate( s, samples_augmenter::rand_shift(), samples_augmenter::rand_shift() );
+            _train_single( _s );
+        }
 
-        ++index;
+    ++index;
     }
 }
 
@@ -188,6 +196,45 @@ void network_manager::_train_single( const sample& s )
 void network_manager::compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter )
 {
 	// NOT IMPLEMENTED YET
+
+    /*std::vector< std::pair<int,int> > translations{ {-1,1}, {1,-1}, {1,1}, {-1,-1} };
+
+    std::vector<output_ptr> outputs;
+
+    m_net->set_input( s.isample_size, s.isample );
+    m_net->feed_forward();
+    outputs.emplace_back( m_net->output() );
+
+    //max_comp_val
+
+    for ( auto& trans : translations )
+    {
+        sample _s = smp_augmenter->translate( s, trans.first, trans.second );
+        m_net->set_input( _s.isample_size, _s.isample );
+        m_net->feed_forward();
+        outputs.emplace_back( m_net->output() );
+        //output_layer += m_net->output();
+    }
+
+    int i = 0;
+    int l = 0;
+    float max = std::numeric_limits<float>::min();
+    for ( const auto& output : outputs )
+    {
+        if ( output.max_comp_val() > max )
+        {
+            l = i;
+            max = output.max_comp_val();
+        }
+        i++;
+    }
+
+    std::copy( outputs[l].outputs.get(), outputs[l].outputs.get() + outputs[l].num_outputs, const_cast<float*>( s.osample ) );
+
+    //output_layer /= 5.f;
+
+    //std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
+	*/
 }
 
 void network_manager::compute_output( sample& s )

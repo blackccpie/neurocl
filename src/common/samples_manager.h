@@ -48,6 +48,9 @@ public:
     //! translate a given sample
     neurocl::sample translate( const neurocl::sample& s, const int sx, const int sy ) const;
 
+    //! returns random translation
+    static int rand_shift();
+
 private:
     const int m_sizeX;
     const int m_sizeY;

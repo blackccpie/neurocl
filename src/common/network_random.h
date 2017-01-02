@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,8 @@ public:
         : m_gen( std::random_device{}() ), m_bernoulli{ p } {}
     virtual ~rand_bernoulli_generator() {}
 
-    float operator()() { return m_bernoulli( m_gen ); }
+    template <typename T = bool>
+    T gen() { return static_cast<T>( m_bernoulli( m_gen ) ); }
 
 private:
     std::mt19937 m_gen;

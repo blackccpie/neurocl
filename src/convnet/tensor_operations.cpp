@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -587,7 +587,7 @@ void tensor_operation::bernoulli( tensor& input, const float p )
     tensor_foreach_p( input.d1(), input.d2() ) {
         std::for_each(  input.m_tensor_array[d1][d2].data().begin(),
                         input.m_tensor_array[d1][d2].data().end(),
-                        [&bernoulli]( float& a ) { a = bernoulli(); } );
+                        [&bernoulli]( float& a ) { a = bernoulli.gen<float>(); } );
     }
 }
 
