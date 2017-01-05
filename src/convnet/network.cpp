@@ -94,6 +94,13 @@ void network::add_layers( const std::vector<layer_descr>& layers )
                 l = s;
             }
             break;
+        case DROPOUT_LAYER:
+            {
+                std::shared_ptr<dropout_layer> d = std::make_shared<dropout_layer>( "d" + std::to_string(++drop_idx) );
+                d->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
+                l = d;
+            }
+            break;
         case FULL_LAYER:
             {
                 std::shared_ptr<full_layer_iface> f =
@@ -108,13 +115,6 @@ void network::add_layers( const std::vector<layer_descr>& layers )
                     std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::cross_entropy> >();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = out;
-            }
-            break;
-        case DROPOUT_LAYER:
-            {
-                std::shared_ptr<dropout_layer> d = std::make_shared<dropout_layer>( "d" + std::to_string(++drop_idx) );
-                d->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ );
-                l = d;
             }
             break;
         }
