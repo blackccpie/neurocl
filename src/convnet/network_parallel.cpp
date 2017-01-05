@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@ network_parallel::network_parallel()
 
     m_solver = tensor_solver_factory::build();
 
+    m_mutex.resize( parallel_thread_count );
     m_networks.reserve( parallel_thread_count );
 
     for ( size_t i = 0; i < parallel_thread_count; i++ )
@@ -123,6 +124,7 @@ void network_parallel::feed_forward()
     if ( layer::get_training() )
     {
         m_thread_pool->add_job( m_parallel_jobs.at( m_current_net++ ) );
+        m_current_net = ( m_current_net == parallel_thread_count ) ? 0 : m_current_net;
     }
     else
         _feed_back( 0 );
@@ -135,6 +137,8 @@ void network_parallel::back_propagate()
 
 void network_parallel::_feed_back( const size_t i )
 {
+    std::lock_guard<std::mutex> guard( m_mutex[i] );
+
     m_networks[i].feed_forward();
     m_networks[i].back_propagate();
 }

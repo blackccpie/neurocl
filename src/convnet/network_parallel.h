@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,10 @@ THE SOFTWARE.
 
 #include "network.h"
 
+#include <boost/container/small_vector.hpp>
+
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace neurocl {
@@ -81,6 +84,8 @@ private:
 	std::unique_ptr<thread_pool> m_thread_pool;
 	std::shared_ptr<tensor_solver_iface> m_solver;
 	std::vector<network> m_networks;
+	
+	boost::container::small_vector<std::mutex,10> m_mutex;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
