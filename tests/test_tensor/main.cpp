@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 
     namespace nta = neurocl::convnet::tensor_activations;
 
-    neurocl::convnet::tensor A,B,C,Res,Comp;
+    neurocl::convnet::tensor A,B,C,Res,Comp,O,ResO,CompO;
 
     A.resize(4,4,1,1);
     A.uniform_fill( 1.f );
@@ -43,6 +43,9 @@ int main( int argc, char *argv[] )
 
     C.resize(4,4,1,1);
     C.uniform_fill( -4.f );
+
+    ResO.resize(4,1,1,1);
+    CompO.resize(4,1,1,1);
 
     Comp.resize(4,4,1,1);
     Comp.uniform_fill( 0.f );
@@ -123,6 +126,24 @@ int main( int argc, char *argv[] )
     Res = nta::relu::d_f( A );
 
     std::cout << "d_relu test2 : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    // SOFTMAX
+
+    float out[4] = { 1.f, 2.f, 3.f, 4.f };
+    ResO.fill( 0, 0, 4, out );
+
+    std::for_each(  out,
+                    out+4,
+                    []( float& a) { a = std::exp(a-4.f) / ( std::exp(-3.f) + std::exp(-2.f) + std::exp(-1.f) + std::exp(0.f) ); } );
+    CompO.fill( 0, 0, 4, out );
+
+    nta::softmax::f( ResO );
+
+    std::cout << "softmax test : " << ( ( ResO == CompO ) ? "PASSED" : "FAILED" ) << std::endl;
+
+    // D_SOFTMAX
+
+    // NOT IMPLEMENTED YET
 
     // INCREMENT
 
