@@ -87,6 +87,13 @@ public:
         m_feature_maps.resize( width, height, 1, depth );
         m_error_maps.resize( width, height, 1, depth );
 
+		//http://neuralnetworksanddeeplearning.com/chap6.html
+		// However, there's no particular reason the argument should apply to softmax layers.
+		// So there's no a priori reason to apply that initialization again.
+		// Rather than do that, I shall initialize all the weights and biases to be 0.
+		// This is a rather ad hoc procedure, but works well enough in practice
+		// TODO check if activation is softmax????
+
         if ( m_shared )
         {
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
