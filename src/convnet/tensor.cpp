@@ -152,8 +152,9 @@ void tensor::fill_random( const size_t& rand_nin )
     for( auto _matrices : m_tensor_array )
         for( auto& _matrix : _matrices )
         {
+            /* http://cs231n.github.io/neural-networks-2/ cf. end Summary */
             _matrix = matrixF( m_width, m_height, 0.f );
-            random_normal_init( _matrix, 1.f / std::sqrt( static_cast<float>( rand_nin ) ) );
+            random_normal_init( _matrix, std::sqrt( 2.f / static_cast<float>( rand_nin ) ) );
         }
 }
 
