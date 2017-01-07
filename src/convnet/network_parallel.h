@@ -27,8 +27,7 @@ THE SOFTWARE.
 
 #include "network.h"
 
-#include <boost/container/small_vector.hpp>
-
+#include <array>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -41,11 +40,13 @@ namespace convnet {
 
 class tensor_solver_iface;
 
+#define MAX_PARRALLEL_TASKS 10
+
 class network_parallel final : public network_interface_convnet
 {
 public:
 
-	network_parallel();
+	network_parallel( const size_t tasks_size );
 	virtual ~network_parallel();
 
     virtual void add_layers( const std::vector<layer_descr>& layers ) final;
@@ -79,13 +80,14 @@ private:
 	using parallel_job = std::function<void(void)>;
 	std::vector<parallel_job> m_parallel_jobs;
 
+	size_t m_tasks_size;
 	size_t m_current_net;
 
 	std::unique_ptr<thread_pool> m_thread_pool;
 	std::shared_ptr<tensor_solver_iface> m_solver;
 	std::vector<network> m_networks;
-	
-	boost::container::small_vector<std::mutex,10> m_mutex;
+
+	std::array<std::mutex,MAX_PARRALLEL_TASKS> m_mutex;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

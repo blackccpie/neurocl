@@ -30,6 +30,8 @@ THE SOFTWARE.
 
 #include "common/network_manager.h"
 
+#include <thread>
+
 namespace neurocl { namespace convnet {
 
 class network_manager_convnet : public network_manager
@@ -62,7 +64,7 @@ private:
 	        m_net = std::make_shared<network>();
 	        break;
 		case t_convnet_impl::CONVNET_PARALLEL:
-		    m_net = std::make_shared<network_parallel>();
+		    m_net = std::make_shared<network_parallel>( std::thread::hardware_concurrency()+1 );
 		    break;
 	    default:
 	        throw network_exception( "unmanaged convnet implementation!" );

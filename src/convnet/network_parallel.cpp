@@ -31,22 +31,24 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-#define parallel_thread_count 10
-
-network_parallel::network_parallel()
-    : m_thread_pool( new thread_pool{ parallel_thread_count } ), m_current_net( 0 )
+network_parallel::network_parallel( const size_t tasks_size )
+    : m_tasks_size( tasks_size ), m_current_net( 0 )
 {
-    LOGGER(info) << "network_parallel::network_parallel - " <<
-        std::thread::hardware_concurrency() << " concurrent threads are supported" << std::endl;
+    if ( m_tasks_size > MAX_PARRALLEL_TASKS )
+        throw network_exception( "maximum parallel tasks number is limited to 10 for now" );
+    else
+        LOGGER(info) << "network_parallel::network_parallel - " << m_tasks_size <<
+            " concurrent threads will be managed" << std::endl;
 
     layer::set_shared( true );
 
+    m_thread_pool.reset( new thread_pool{ m_tasks_size } );
+
     m_solver = tensor_solver_factory::build();
 
-    m_mutex.resize( parallel_thread_count );
-    m_networks.reserve( parallel_thread_count );
+    m_networks.reserve( m_tasks_size );
 
-    for ( size_t i = 0; i < parallel_thread_count; i++ )
+    for ( size_t i = 0; i < m_tasks_size; i++ )
     {
         m_networks.emplace_back();
         m_parallel_jobs.emplace_back( std::bind( &network_parallel::_feed_back, this, i ) );
@@ -124,7 +126,7 @@ void network_parallel::feed_forward()
     if ( layer::get_training() )
     {
         m_thread_pool->add_job( m_parallel_jobs.at( m_current_net++ ) );
-        m_current_net = ( m_current_net == parallel_thread_count ) ? 0 : m_current_net;
+        m_current_net = ( m_current_net == m_tasks_size ) ? 0 : m_current_net;
     }
     else
         _feed_back( 0 );
