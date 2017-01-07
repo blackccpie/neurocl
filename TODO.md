@@ -9,6 +9,7 @@
     - [ ] Try to use boost bounded_array as ublas matrix/vector storage
     - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
+- [ ] Work on a better solvers class refactoring (factorization...)
 
 # TODO - CONVNET
 - [ ] Optimize inverse pooling with cached pooling map
@@ -19,17 +20,19 @@
     - [ ] Ublas special products (axpy)
     - [ ] Move semantics checks
     - [ ] Valgrind/kcachegrind profiling
-- [ ] Parallel batch training
+- [x] Parallel batch training
 - [ ] Confirm bias tensors initialisation
 - [ ] Cross validate with similar ConvnetJS topologies
 - [ ] Use "expanded" (rot/noise/trans) MNIST dataset
-- [ ] Introduce fan-in size layer base method
+- [x] Introduce fan-in size layer base method
 - [ ] Python:
     - [ ] Turn pyneurocl into a '.pyd'
     - [ ] Finish camera wrapper using numpy
     - [ ] Finalize autonomous pizero OCR app
 - [ ] Update UML with Convnet
 - [ ] Improve tensor random inits methods' names and prototypes (use fan-in denomination)
+- [ ] ConvNet layers code factorization
+- [ ] If needed implement Adam solver
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark

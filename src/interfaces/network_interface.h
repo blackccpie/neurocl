@@ -48,6 +48,16 @@ struct output_ptr
     // Destructor
     ~output_ptr() {}
 
+    size_t max_comp_idx() const
+    {
+        return std::distance( outputs.get(), std::max_element( outputs.get(), outputs.get() + num_outputs ) );
+    }
+
+    float max_comp_val() const
+    {
+        return *std::max_element( outputs.get(), outputs.get() + num_outputs );
+    }
+
     const size_t num_outputs;
     boost::shared_array<float> outputs;
 };

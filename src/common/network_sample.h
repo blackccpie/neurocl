@@ -39,7 +39,7 @@ struct sample
     sample( const size_t isize, const float* idata, const size_t osize, const float* odata )
         : isample_size( isize ), isample( idata ), osample_size( osize ), osample( odata ) {}
 
-    std::string output()
+    std::string output() const
     {
         std::stringstream ss;
         for ( size_t i=0; i<osample_size; i++ )
@@ -47,12 +47,12 @@ struct sample
         return ss.str();
     }
 
-    size_t max_comp_idx()
+    size_t max_comp_idx() const
     {
         return std::distance( osample, std::max_element( osample, osample + osample_size ) );
     }
 
-    float max_comp_val()
+    float max_comp_val() const
     {
         return *std::max_element( osample, osample + osample_size );
     }

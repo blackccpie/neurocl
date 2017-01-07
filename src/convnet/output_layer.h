@@ -93,6 +93,7 @@ public:
 		// Rather than do that, I shall initialize all the weights and biases to be 0.
 		// This is a rather ad hoc procedure, but works well enough in practice
 		// TODO check if activation is softmax????
+        //bool check = std::is_same<activationT,tensor_activations::softmax>();
 
         if ( m_shared )
         {
