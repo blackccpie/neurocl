@@ -180,6 +180,57 @@ private:
     const float m_eps;  // constant value to avoid zero-division
 };
 
+/* Adagrad solver implementation */
+template <typename operatorF>
+class solver_adagrad : public solver_base
+{
+public:
+    solver_adagrad( const float alpha, const float mu )
+    	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
+    solver_adagrad( std::initializer_list<float> params_list )
+    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    {
+        if ( params_list.size() == 2 )
+    	{
+        	m_alpha     = params_list.begin()[0];
+        	m_mu        = params_list.begin()[1];
+        }
+        else
+            LOGGER(warning) << "solver_adagrad::solver_adagrad - invalid parameters number, keeping defaults" << std::endl;
+    }
+    solver_adagrad() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    {
+        m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
+        	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
+        );
+    }
+    virtual ~solver_adagrad() {}
+
+    template<typename T>
+    void update( T& input, T** input_cache, const T& gradient )
+    {
+        T& input_momentum = *(input_cache[0]);
+        input_momentum = input_momentum + gradient * gradient;
+        input -= m_alpha * gradient / operatorF::sqrt( input_momentum + m_eps );
+    }
+
+    template<typename T>
+    void update_redux( T& input, T** input_cache, const T& gradient ) // TODO : usefull???
+    {
+        update( input, input_cache, gradient );
+    }
+
+    virtual const float& get_learning_rate() final { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final { return 1; }
+
+private:
+
+    float m_mu;         // decay term
+    float m_alpha;      // learning rate
+    const float m_eps;  // constant value to avoid zero-division
+};
+
 /* Adadelta solver implementation */
 template <typename operatorF>
 class solver_adadelta : public solver_base
@@ -209,12 +260,23 @@ public:
     template<typename T>
     void update( T& input, T** input_cache, const T& gradient )
     {
+        // inspired by:
+        // http://github.com/karpathy/convnetjs/blob/master/src/convnet_trainers.js
+        // http://blog.wtf.sg/2014/08/28/implementing-adadelta/
         T& input_momentum1 = *(input_cache[0]);
         T& input_momentum2 = *(input_cache[1]);
+
+        // calculates the new "average" of the squared gradients
         input_momentum1 = m_mu * input_momentum1 + ( 1 - m_mu ) * gradient * gradient;
-        T dx = operatorF::sqrt( ( input_momentum2 + m_eps ) / ( input_momentum1 + m_eps ) ) * gradient;
-        input_momentum2 = m_mu * input_momentum2 + ( 1 - m_mu ) * dx * dx;
-        input -= m_alpha * dx;
+
+        // calculates the step in direction.
+        // the square root is an approximation to getting the RMS for the average value
+        T adjusted_gradient = operatorF::sqrt( ( input_momentum2 + m_eps ) / ( input_momentum1 + m_eps ) ) * gradient;
+
+        // calculates the new "average" of the squared deltas
+        input_momentum2 = m_mu * input_momentum2 + ( 1 - m_mu ) * adjusted_gradient * adjusted_gradient;
+
+        input -= m_alpha * adjusted_gradient;
     }
 
     template<typename T>
