@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -92,20 +92,22 @@ public:
 		// So there's no a priori reason to apply that initialization again.
 		// Rather than do that, I shall initialize all the weights and biases to be 0.
 		// This is a rather ad hoc procedure, but works well enough in practice
-		// TODO check if activation is softmax????
-        //bool check = std::is_same<activationT,tensor_activations::softmax>();
+        bool null_init = std::is_same<activationT,tensor_activations::softmax>();
+
+        if ( null_init )
+            LOGGER(warning) << "output_layer::populate - ad hoc null init for softmax output activation" << std::endl;
 
         if ( m_shared )
         {
             m_bias = tensor_tank::instance().get_shared( "bias", width, height, 1, depth );
-            m_bias->fill_random( 1 ); // stddev 1 for bias
+            if ( !null_init ) m_bias->fill_random( 1 ); // stddev 1 for bias
             m_deltas_bias = tensor_tank::instance().get_cumulative( "bias_delta", width, height, 1, depth );
             m_bias_cache.resize( cache_size ); int i = 0;
             for ( auto& _bias : m_bias_cache )
                 _bias = tensor_tank::instance().get_shared( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
             m_weights = tensor_tank::instance().get_shared( "weights", width * height, fan_in(), 1, depth );
-            m_weights->fill_random( fan_in() );
+            if ( !null_init ) m_weights->fill_random( fan_in() );
             m_deltas_weights = tensor_tank::instance().get_cumulative( "weights_delta", width * height, fan_in(), 1, depth );
             m_weights_cache.resize( cache_size ); int j = 0;
             for ( auto& _weights : m_weights_cache )
@@ -114,14 +116,14 @@ public:
         else
         {
         	m_bias = tensor_tank::instance().get_standard( "bias", width, height, 1, depth );
-            m_bias->fill_random( 1 ); // stddev 1 for bias
+            if ( !null_init ) m_bias->fill_random( 1 ); // stddev 1 for bias
         	m_deltas_bias = tensor_tank::instance().get_standard( "bias_delta", width, height, 1, depth );
             m_bias_cache.resize( cache_size ); int i = 0;
             for ( auto& _bias : m_bias_cache )
                 _bias = tensor_tank::instance().get_standard( "bias_cache" + std::to_string(i++), width, height, 1, depth );
 
         	m_weights = tensor_tank::instance().get_standard( "weights", width * height, fan_in(), 1, depth );
-            m_weights->fill_random( fan_in() );
+            if ( !null_init ) m_weights->fill_random( fan_in() );
         	m_deltas_weights = tensor_tank::instance().get_standard( "weights_delta", width * height, fan_in(), 1, depth );
             m_weights_cache.resize( cache_size ); int j = 0;
             for ( auto& _weights : m_weights_cache )
