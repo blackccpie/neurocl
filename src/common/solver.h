@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -422,6 +422,7 @@ public:
         // inspired by:
         // http://arxiv.org/pdf/1412.6980.pdf
         // http://computing.ece.vt.edu/~f15ece6504/slides/L23_LROptimizations.pdf
+        // http://github.com/fchollet/keras/blob/master/keras/optimizers.py
         T& input_momentum1 = *(input_cache[0]);
         T& input_momentum2 = *(input_cache[1]);
 
@@ -430,9 +431,11 @@ public:
 
         input_momentum1 = m_mu1 * input_momentum1 + ( 1.f - m_mu1 ) * _ngrad;
         input_momentum2 = operatorF::binary_operator( input_momentum2, _ngrad,
-            [this](const float& a,const float& b){ return std::max( m_mu2 * a + m_eps, std::abs( b ) ); } );
+            [this](const float& a,const float& b){ return std::max( m_mu2 * a, std::abs( b ) ); } );
 
-        input -= m_alpha * ( input_momentum1 / input_momentum2 ) / ( 1.f - m_mu1_exp );
+        float _alpha = m_alpha / ( 1.f - m_mu1_exp );
+
+        input -= _alpha * ( input_momentum1 / ( input_momentum2 + m_eps ) );
 
         m_mu1_exp *= m_mu1;
     }
