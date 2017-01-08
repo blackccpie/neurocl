@@ -51,7 +51,25 @@ struct output_ptr
     size_t max_comp_idx() const
     {
         return std::distance( outputs.get(), std::max_element( outputs.get(), outputs.get() + num_outputs ) );
+	}
+
+	// Increment operator
+    output_ptr operator +=( const output_ptr& other )
+    {
+        for ( size_t i=0; i<num_outputs; i++ )
+            outputs[i] += other.outputs[i];
+
+        return *this;
     }
+
+	// Divider operator
+    output_ptr operator /=( const float& val )
+    {
+        for ( size_t i=0; i<num_outputs; i++ )
+            outputs[i] /= val;
+
+        return *this;
+	}
 
     float max_comp_val() const
     {
