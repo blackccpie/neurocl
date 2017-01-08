@@ -140,7 +140,7 @@ public:
         tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2,{}).data().begin(),
                             input.m(d1,d2,{}).data().end(),
-                            [alpha,&denom]( float& a) { denom += std::exp(a - alpha); } );
+                            [alpha,&denom]( float& a) { denom += /*1e-10 +*/ std::exp(a - alpha); } );
         }
         tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2,{}).data().begin(),

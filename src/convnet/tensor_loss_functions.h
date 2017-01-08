@@ -58,7 +58,7 @@ public:
 
     static tensor d_f( tensor& y, tensor& t )
     {
-        return std::move( ( y - t ) / ( y * ( 1.f - y ) ) );
+        return std::move( ( y - t ) / ( y * ( 1.f - y ) /*+ 1e-10f*/ ) );
     }
 };
 
