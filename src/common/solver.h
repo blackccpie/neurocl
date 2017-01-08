@@ -105,7 +105,11 @@ public:
     void update( T& input, T** input_cache, const T& gradient )
     {
         T& input_momentum = *(input_cache[0]);
-        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient + m_lambda * input );
+
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
+        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( _ngrad + m_lambda * input );
         input += input_momentum;
     }
 
@@ -113,7 +117,11 @@ public:
     void update_redux( T& input, T** input_cache, const T& gradient )
     {
         T& input_momentum = *(input_cache[0]);
-        input_momentum = ( m_mu * input_momentum ) - m_alpha * ( m_normalize_grad * gradient );
+
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
+        input_momentum = ( m_mu * input_momentum ) - ( m_alpha * _ngrad );
         input += input_momentum;
     }
 
@@ -136,7 +144,7 @@ public:
     solver_rmsprop( const float alpha, const float mu )
     	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
     solver_rmsprop( std::initializer_list<float> params_list )
-    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    	: m_mu( 0.99f ), m_alpha( 0.001f ), m_eps( 1e-8f )
     {
         if ( params_list.size() == 2 )
     	{
@@ -146,7 +154,7 @@ public:
         else
             LOGGER(warning) << "solver_rmsprop::solver_rmsprop - invalid parameters number, keeping defaults" << std::endl;
     }
-    solver_rmsprop() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    solver_rmsprop() : m_mu( 0.99f ), m_alpha( 0.001f ), m_eps( 1e-8f )
     {
         m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
         	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
@@ -158,9 +166,12 @@ public:
     void update( T& input, T** input_cache, const T& gradient )
     {
         T& input_momentum = *(input_cache[0]);
-        input_momentum = m_mu * input_momentum
-            + ( 1 - m_mu ) * m_normalize_grad * m_normalize_grad * gradient * gradient;
-        input -= m_alpha * m_normalize_grad * gradient / operatorF::sqrt( input_momentum + m_eps );
+
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
+        input_momentum = m_mu * input_momentum + ( 1.f - m_mu ) * _ngrad * _ngrad;
+        input -= m_alpha * _ngrad / operatorF::sqrt( input_momentum + m_eps );
     }
 
     template<typename T>
@@ -185,23 +196,22 @@ template <typename operatorF>
 class solver_adagrad : public solver_base
 {
 public:
-    solver_adagrad( const float alpha, const float mu )
-    	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
+    solver_adagrad( const float alpha )
+    	: m_alpha( alpha ), m_eps( 1e-8f ) {}
     solver_adagrad( std::initializer_list<float> params_list )
-    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    	: m_alpha( 0.01f ), m_eps( 1e-8f )
     {
-        if ( params_list.size() == 2 )
+        if ( params_list.size() == 1 )
     	{
         	m_alpha     = params_list.begin()[0];
-        	m_mu        = params_list.begin()[1];
         }
         else
             LOGGER(warning) << "solver_adagrad::solver_adagrad - invalid parameters number, keeping defaults" << std::endl;
     }
-    solver_adagrad() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    solver_adagrad() : m_alpha( 0.01f ), m_eps( 1e-8f )
     {
         m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
-        	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
+        	{ {"lr",std::ref(m_alpha)} }
         );
     }
     virtual ~solver_adagrad() {}
@@ -210,8 +220,12 @@ public:
     void update( T& input, T** input_cache, const T& gradient )
     {
         T& input_momentum = *(input_cache[0]);
-        input_momentum = input_momentum + gradient * gradient;
-        input -= m_alpha * gradient / operatorF::sqrt( input_momentum + m_eps );
+
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
+        input_momentum = input_momentum + _ngrad * _ngrad;
+        input -= m_alpha * _ngrad / operatorF::sqrt( input_momentum + m_eps );
     }
 
     template<typename T>
@@ -226,7 +240,6 @@ public:
 
 private:
 
-    float m_mu;         // decay term
     float m_alpha;      // learning rate
     const float m_eps;  // constant value to avoid zero-division
 };
@@ -239,7 +252,7 @@ public:
     solver_adadelta( const float alpha, const float mu )
     	: m_mu( mu ), m_alpha( alpha ), m_eps( 1e-8f ) {}
     solver_adadelta( std::initializer_list<float> params_list )
-    	: m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    	: m_mu( 0.95f ), m_alpha( 1.f ), m_eps( 1e-8f )
     {
         if ( params_list.size() == 2 )
     	{
@@ -249,7 +262,7 @@ public:
         else
             LOGGER(warning) << "solver_adadelta::solver_adadelta - invalid parameters number, keeping defaults" << std::endl;
     }
-    solver_adadelta() : m_mu( 0.99f ), m_alpha( 0.0001f ), m_eps( 1e-8f )
+    solver_adadelta() : m_mu( 0.95f ), m_alpha( 1.f ), m_eps( 1e-8f )
     {
         m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
         	{ {"lr",std::ref(m_alpha)}, {"m",std::ref(m_mu)} }
@@ -266,15 +279,18 @@ public:
         T& input_momentum1 = *(input_cache[0]);
         T& input_momentum2 = *(input_cache[1]);
 
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
         // calculates the new "average" of the squared gradients
-        input_momentum1 = m_mu * input_momentum1 + ( 1 - m_mu ) * gradient * gradient;
+        input_momentum1 = m_mu * input_momentum1 + ( 1.f - m_mu ) * _ngrad * _ngrad;
 
         // calculates the step in direction.
         // the square root is an approximation to getting the RMS for the average value
-        T adjusted_gradient = operatorF::sqrt( ( input_momentum2 + m_eps ) / ( input_momentum1 + m_eps ) ) * gradient;
+        T adjusted_gradient = operatorF::sqrt( ( input_momentum2 + m_eps ) / ( input_momentum1 + m_eps ) ) * _ngrad;
 
         // calculates the new "average" of the squared deltas
-        input_momentum2 = m_mu * input_momentum2 + ( 1 - m_mu ) * adjusted_gradient * adjusted_gradient;
+        input_momentum2 = m_mu * input_momentum2 + ( 1.f - m_mu ) * adjusted_gradient * adjusted_gradient;
 
         input -= m_alpha * adjusted_gradient;
     }
@@ -292,6 +308,75 @@ public:
 private:
 
     float m_mu;         // decay term
+    float m_alpha;      // learning rate
+    const float m_eps;  // constant value to avoid zero-division
+};
+
+/* Adamax solver implementation */
+template <typename operatorF>
+class solver_adamax : public solver_base
+{
+public:
+    solver_adamax( const float alpha, const float mu1, const float mu2 )
+    	: m_mu1( mu1 ), m_mu1_exp( m_mu1 ),m_mu2( mu2 ), m_alpha( alpha ), m_eps( 1e-8f ) {}
+    solver_adamax( std::initializer_list<float> params_list )
+    	: m_mu1( 0.9f ), m_mu1_exp( m_mu1 ), m_mu2( 0.999f ), m_alpha( 0.002f ), m_eps( 1e-8f )
+    {
+        if ( params_list.size() == 3 )
+    	{
+            m_alpha     = params_list.begin()[0];
+            m_mu1       = params_list.begin()[1];
+            m_mu2       = params_list.begin()[2];
+
+            m_mu1_exp   = m_mu1;
+        }
+        else
+            LOGGER(warning) << "solver_adamax::solver_adamax - invalid parameters number, keeping defaults" << std::endl;
+    }
+    solver_adamax() : m_mu1( 0.9f ), m_mu1_exp( m_mu1 ), m_mu2( 0.999f ), m_alpha( 0.002f ), m_eps( 1e-8f )
+    {
+        m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
+        	{ {"lr",std::ref(m_alpha)}, {"m1",std::ref(m_mu1)}, {"m2",std::ref(m_mu2)} }
+        );
+    }
+    virtual ~solver_adamax() {}
+
+    template<typename T>
+    void update( T& input, T** input_cache, const T& gradient )
+    {
+        // inspired by:
+        // http://arxiv.org/pdf/1412.6980.pdf
+        // http://computing.ece.vt.edu/~f15ece6504/slides/L23_LROptimizations.pdf
+        T& input_momentum1 = *(input_cache[0]);
+        T& input_momentum2 = *(input_cache[1]);
+
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
+        input_momentum1 = m_mu1 * input_momentum1 + ( 1.f - m_mu1 ) * _ngrad;
+        input_momentum2 = operatorF::binary_operator( input_momentum2, _ngrad,
+            [this](const float& a,const float& b){ return std::max( m_mu2 * a + m_eps, std::abs( b ) ); } );
+
+        input -= m_alpha * ( input_momentum1 / input_momentum2 ) / ( 1.f - m_mu1_exp );
+
+        m_mu1_exp *= m_mu1;
+    }
+
+    template<typename T>
+    void update_redux( T& input, T** input_cache, const T& gradient ) // TODO : usefull???
+    {
+        update( input, input_cache, gradient );
+    }
+
+    virtual const float& get_learning_rate() final { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final { return 2; }
+
+private:
+
+    float m_mu1;        // decay term1
+    float m_mu1_exp;    // decay term1 exponent
+    float m_mu2;        // decay term2
     float m_alpha;      // learning rate
     const float m_eps;  // constant value to avoid zero-division
 };
