@@ -73,7 +73,7 @@ public:
         tensor_foreach_p( input.d1(), input.d2() ) {
             std::for_each(  input.m(d1,d2,{}).data().begin(),
                             input.m(d1,d2,{}).data().end(),
-                            []( float& a) { a = 1.7159f + ::tanh(2.f*a/3.f); } );
+                            []( float& a) { a = 1.7159f * ::tanh(2.f*a/3.f); } );
         }
     }
 
