@@ -103,6 +103,7 @@ public:
         SOLVER_IMPL_SGD = 0,
         SOLVER_IMPL_ADAGRAD,
         SOLVER_IMPL_ADADELTA,
+        SOLVER_IMPL_ADAM,
         SOLVER_IMPL_ADAMAX,
         SOLVER_IMPL_RMSPROP
     };
@@ -135,6 +136,8 @@ public:
                 return std::make_shared< tensor_solver<solver_adagrad<tensor_operation>> >();
         case t_solver_impl::SOLVER_IMPL_ADADELTA:
             return std::make_shared< tensor_solver<solver_adadelta<tensor_operation>> >();
+        case t_solver_impl::SOLVER_IMPL_ADAM:
+            return std::make_shared< tensor_solver<solver_adam<tensor_operation>> >();
         case t_solver_impl::SOLVER_IMPL_ADAMAX:
             return std::make_shared< tensor_solver<solver_adamax<tensor_operation>> >();
         case t_solver_impl::SOLVER_IMPL_RMSPROP:
@@ -156,6 +159,8 @@ inline std::istream& operator>> ( std::istream &input, tensor_solver_factory::t_
             impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_ADAGRAD;
     else if ( impl_string == "ADADELTA" )
             impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_ADADELTA;
+    else if ( impl_string == "ADAM" )
+            impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_ADAM;
     else if ( impl_string == "ADAMAX" )
             impl = tensor_solver_factory::t_solver_impl::SOLVER_IMPL_ADAMAX;
     else if ( impl_string == "RMSPROP" )

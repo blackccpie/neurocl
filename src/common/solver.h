@@ -312,6 +312,81 @@ private:
     const float m_eps;  // constant value to avoid zero-division
 };
 
+/* Adam solver implementation */
+template <typename operatorF>
+class solver_adam : public solver_base
+{
+public:
+    solver_adam( const float alpha, const float mu1, const float mu2 )
+    	: m_mu1( mu1 ), m_mu1_exp( m_mu1 ),m_mu2( mu2 ), m_mu2_exp( m_mu2 ), m_alpha( alpha ), m_eps( 1e-8f ) {}
+    solver_adam( std::initializer_list<float> params_list )
+    	: m_mu1( 0.9f ), m_mu1_exp( m_mu1 ), m_mu2( 0.999f ), m_mu2_exp( m_mu2 ), m_alpha( 0.001f ), m_eps( 1e-8f )
+    {
+        if ( params_list.size() == 3 )
+    	{
+            m_alpha     = params_list.begin()[0];
+            m_mu1       = params_list.begin()[1];
+            m_mu2       = params_list.begin()[2];
+
+            m_mu1_exp   = m_mu1;
+            m_mu2_exp   = m_mu2;
+        }
+        else
+            LOGGER(warning) << "solver_adam::solver_adam - invalid parameters number, keeping defaults" << std::endl;
+    }
+    solver_adam() : m_mu1( 0.9f ), m_mu1_exp( m_mu1 ), m_mu2( 0.999f ), m_mu2_exp( m_mu2 ), m_alpha( 0.001f ), m_eps( 1e-8f )
+    {
+        m_parameters_set = t_parameters_map( // assignment workaround added for clang/OSX
+        	{ {"lr",std::ref(m_alpha)}, {"m1",std::ref(m_mu1)}, {"m2",std::ref(m_mu2)} }
+        );
+    }
+    virtual ~solver_adam() {}
+
+    template<typename T>
+    void update( T& input, T** input_cache, const T& gradient )
+    {
+        // inspired by:
+        // http://arxiv.org/pdf/1412.6980.pdf
+        // http://computing.ece.vt.edu/~f15ece6504/slides/L23_LROptimizations.pdf
+        T& input_momentum1 = *(input_cache[0]);
+        T& input_momentum2 = *(input_cache[1]);
+
+        // normalize gradient (wr. to batch size)
+        T _ngrad = m_normalize_grad * gradient;
+
+        input_momentum1 = m_mu1 * input_momentum1 + ( 1.f - m_mu1 ) * _ngrad;
+        input_momentum2 = m_mu2 * input_momentum1 + ( 1.f - m_mu2 ) * _ngrad * _ngrad;
+
+        T _m1_tilda = input_momentum1 / ( 1.f - m_mu1_exp );
+        T _m2_tilda = input_momentum2 / ( 1.f - m_mu2_exp );
+
+        input -= m_alpha * ( _m1_tilda / ( operatorF::sqrt( _m2_tilda ) + m_eps ) );
+
+        m_mu1_exp *= m_mu1;
+        m_mu2_exp *= m_mu2;
+    }
+
+    template<typename T>
+    void update_redux( T& input, T** input_cache, const T& gradient ) // TODO : usefull???
+    {
+        update( input, input_cache, gradient );
+    }
+
+    virtual const float& get_learning_rate() final { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final { return 2; }
+
+private:
+
+    float m_mu1;        // decay term1
+    float m_mu1_exp;    // decay term1 exponent
+    float m_mu2;        // decay term2
+    float m_mu2_exp;    // decay term2 exponent
+    float m_alpha;      // learning rate
+    const float m_eps;  // constant value to avoid zero-division
+};
+
+
 /* Adamax solver implementation */
 template <typename operatorF>
 class solver_adamax : public solver_base
