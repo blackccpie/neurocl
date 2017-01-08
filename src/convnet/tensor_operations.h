@@ -112,6 +112,8 @@ public:
 
     static void bernoulli( tensor& input, const float p );
 
+    static tensor binary_operator( const tensor& inputA, const tensor& inputB, std::function<float (const float&,const float&)> op );
+
     template<optimize_mode om>
     static void optimize( const std::shared_ptr<tensor_solver_iface>& solver, tensor* input, tensor** input_cache, const tensor* deltas );
 };

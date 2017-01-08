@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "common/network_random.h"
 
+#include <boost/iterator/zip_iterator.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 namespace neurocl { namespace convnet {
@@ -589,6 +590,32 @@ void tensor_operation::bernoulli( tensor& input, const float p )
                         input.m_tensor_array[d1][d2].data().end(),
                         [&bernoulli]( float& a ) { a = bernoulli.gen<float>(); } );
     }
+}
+
+tensor tensor_operation::binary_operator( const tensor& inputA, const tensor& inputB, std::function<float (const float&,const float&)> op )
+{
+    _assert_same_sizes( inputA, inputB );
+
+    tensor output;
+    output.resize( inputA );
+
+    tensor_foreach_p( inputA.d1(), inputA.d2() ) {
+        auto iter = boost::make_zip_iterator( boost::make_tuple( inputA.m_tensor_array[d1][d2].data().begin(),
+            inputB.m_tensor_array[d1][d2].data().begin(), output.m_tensor_array[d1][d2].data().begin() ) );
+        auto end = boost::make_zip_iterator( boost::make_tuple( inputA.m_tensor_array[d1][d2].data().end(),
+            inputB.m_tensor_array[d1][d2].data().end(), output.m_tensor_array[d1][d2].data().end() ) );
+
+            for( ; iter != end ; ++iter )
+            {
+                const float& ia = iter->get<0>();
+                const float& ib = iter->get<1>();
+                float& o = iter->get<2>();
+
+                o = op( ia, ib );
+            }
+    }
+
+    return output;
 }
 
 template<>
