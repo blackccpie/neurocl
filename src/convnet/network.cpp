@@ -104,7 +104,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case FULL_LAYER:
             {
                 std::shared_ptr<full_layer_iface> f =
-                    std::make_shared< full_layer<tensor_activations::sigmoid> >( "f" + std::to_string(++full_idx) );
+                    std::make_shared< full_layer<tensor_activations::relu> >( "f" + std::to_string(++full_idx) );
                 f->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = f;
             }
@@ -112,7 +112,7 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case OUTPUT_LAYER:
             {
                 std::shared_ptr<output_layer_iface> out =
-                    std::make_shared< output_layer<tensor_activations::sigmoid,tensor_loss_functions::cross_entropy> >();
+                    std::make_shared< output_layer<tensor_activations::softmax,tensor_loss_functions::cross_entropy_softmax> >();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = out;
             }
