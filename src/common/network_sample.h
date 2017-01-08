@@ -73,13 +73,14 @@ struct test_sample : sample
         std::copy( osample, osample + osample_size, osample_ref.get() );
     }
 
+    // TODO-CNN : use a generic error operator, matching the one used in the output layer!!!
     float RMSE()
     {
         float sum = 0.f;
         for ( size_t i=0; i<osample_size; i++ )
             sum += boost::math::pow<2>( osample[i] - osample_ref[i] );
 
-        return std::sqrt( sum / osample_size );
+        return std::sqrt( sum / ( 2.f * static_cast<float>( osample_size ) ) );
     }
 
     std::string ref_output()
