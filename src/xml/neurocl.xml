@@ -1,4 +1,11 @@
 <neurocl>
-	<learning_rate>1.5</learning_rate>
+	<!-- MLP / CONVNET -->
+	<implementation>CONVNET</implementation>
+	<!-- solver values hints from : https://keras.io/optimizers/ -->
+	<solver type="SGD" lr="0.01" wd="0.00005" m="0.9"/>
+	<!--solver type="RMSPROP" lr="0.001" m="0.9"/-->
+	<!--solver type="ADADELTA" lr="1.0" m="0.95"/-->
+	<!--solver type="ADAGRAD" lr="0.01"/-->
+	<!--solver type="ADAM" lr="0.001" m1="0.9" m2="0.999"/-->
+	<!--solver type="ADAMAX" lr="0.002" m1="0.9" m2="0.999"/-->
 </neurocl>
-

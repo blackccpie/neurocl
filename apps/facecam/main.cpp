@@ -24,9 +24,7 @@ THE SOFTWARE.
 
 #include "face_filer.h"
 
-#include "samples_manager.h"
-#include "network_manager.h"
-#include "network_exception.h"
+#include "neurocl.h"
 
 #include "facetools/edge_detect.h"
 #include "facetools/face_detect.h"
@@ -35,6 +33,7 @@ THE SOFTWARE.
 
 #include <iostream>
 
+using namespace neurocl;
 using namespace cimg_library;
 
 #define NEUROCL_EPOCH_SIZE 100
@@ -50,7 +49,7 @@ using namespace cimg_library;
 static const unsigned char green[] = { 0,255,0 };
 static const unsigned char red[] = { 255,0,0 };
 
-typedef enum
+enum class face_type
 {
     FT_GUESS = 0,
     FT_USERA,
@@ -58,7 +57,7 @@ typedef enum
     FT_UNKNOWN,
     //FT_NOT_A_FACE,
     FT_MAX
-} face_type;
+};
 
 struct face_result
 {
@@ -70,20 +69,20 @@ struct face_result
         std::string str_type;
         switch( type )
         {
-        case FT_USERA:
+        case face_type::FT_USERA:
             str_type = "YOU ARE JOHN! ";
             break;
-        case FT_USERB:
+        case face_type::FT_USERB:
             str_type = "YOU ARE JANE! ";
             break;
-        case FT_UNKNOWN:
+        case face_type::FT_UNKNOWN:
         default:
             str_type = "YOU ARE UNKNOWN... ";
             break;
         }
         return str_type
-            + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
-            + boost::lexical_cast<std::string>( score2 ) + ")";
+            + "(" + std::to_string( score1 ) + ";"
+            + std::to_string( score2 ) + ")";
     }
 
     face_type type;
@@ -114,8 +113,8 @@ void face_preprocess_generic( float* image, const size_t sizeX, const size_t siz
 }
 
 void face_process(  CImg<float> image, const face_type& ftype,
-                    neurocl::network_manager& net_manager,
-                    neurocl::iterative_trainer& trainer,
+                    std::shared_ptr<network_manager_interface> net_manager,
+                    iterative_trainer& trainer,
                     face_filer& face_files )
 {
     image.resize( 50, 50 );
@@ -129,30 +128,30 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
+    sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
 
     bool compute = false;
 
     switch( ftype )
     {
-    case FT_USERA:
+    case face_type::FT_USERA:
         label = "A";
         output[0] = 1.f;
         break;
-    case FT_USERB:
+    case face_type::FT_USERB:
         label = "B";
         output[1] = 1.f;
         break;
-    case FT_UNKNOWN:
+    case face_type::FT_UNKNOWN:
         label = "U";
         //output[2] = 1.f;
         break;
     //case FT_NOT_A_FACE:
     //    break;
-    case FT_GUESS:
+    case face_type::FT_GUESS:
         compute = true;
         break;
-    case FT_MAX:
+    case face_type::FT_MAX:
     default:
         // should never be reached
     break;
@@ -160,14 +159,14 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
     if ( compute )
     {
-        net_manager.compute_output( sample );
+        net_manager->compute_output( sample );
 
         std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
         if ( sample.max_comp_idx() == 0 )
-            opt_computed_face = face_result( FT_USERA, output[0], output[1] );
+            opt_computed_face = face_result( face_type::FT_USERA, output[0], output[1] );
         else if ( sample.max_comp_idx() == 1 )
-            opt_computed_face = face_result( FT_USERB, output[0], output[1] );
+            opt_computed_face = face_result( face_type::FT_USERB, output[0], output[1] );
     }
     else
     {
@@ -178,17 +177,24 @@ void face_process(  CImg<float> image, const face_type& ftype,
 
 void grab_image( CImg<float>& image )
 {
+    int res = 0;
 #ifdef __APPLE__
     // grab using ImageCapture utility
-    system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
+    res = system( "../../ImageCapture-v0.2/ImageCapture face_scene.png" );
 #elif __arm__
     // grab using raspistill utility
-    system( "raspistill -w 480 -h 320 -e png -o face_scene.png");
+    res = system( "raspistill -w 480 -h 320 -e png -o face_scene.png");
 #else
-	system( "fswebcam -r 480x320 --png -D face_scene.png");
+    res = system( "fswebcam -r 480x320 --png -D face_scene.png");
 #endif
-    image.load( "face_scene.png" );
-    image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
+
+    if ( res != -1 )
+    {
+    	image.load( "face_scene.png" );
+    	image.resize( IMAGE_SIZEX, IMAGE_SIZEY );
+    }
+    else
+        std::cerr << "error trying to grab webcam image!" << std::endl;
 }
 
 void draw_metadata( CImg<float>& image, const std::vector<face_detect::face_rect>& faces )
@@ -215,8 +221,8 @@ int main ( int argc,char **argv )
 
     try
     {
-        neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
-        net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+        std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_MLP );
+        net_manager->load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 
         // TODO : check command arguments with boost
         // 0 normal use
@@ -229,16 +235,16 @@ int main ( int argc,char **argv )
         {
             /******** TRAIN ********/
 
-            neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+            samples_manager smp_manager;
             smp_manager.load_samples(  "../nets/facecam/facecam-train.txt",
                                                                 true /*shuffle*/,
                                                                 &face_preprocess_generic /* extra_preproc*/ );
 
-            net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+            net_manager->batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
             /******** VALIDATE ********/
 
-            const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+            const std::vector<sample>& training_samples = smp_manager.get_samples();
 
             float mean_rmse = 0.f;
             size_t _rmse_score = 0;
@@ -246,8 +252,8 @@ int main ( int argc,char **argv )
 
             for ( size_t i = 0; i<training_samples.size(); i++ )
             {
-                neurocl::test_sample tsample( smp_manager.get_samples()[i] );
-                net_manager.compute_output( tsample );
+                test_sample tsample( smp_manager.get_samples()[i] );
+                net_manager->compute_output( tsample );
 
                 std::cout << tsample.output() << std::endl;
                 std::cout << tsample.ref_output() << std::endl;
@@ -277,7 +283,7 @@ int main ( int argc,char **argv )
 
             face_filer face_files;
 
-            neurocl::iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
+            iterative_trainer trainer( net_manager, NEUROCL_BATCH_SIZE );
 
             CImg<float> input_image;
             CImg<float> display_image;
@@ -291,36 +297,36 @@ int main ( int argc,char **argv )
             welcome.draw_text( 50, 50, "Welcome to FaceCam\nPlease wait during capture initialization...", green );
             my_display.display( welcome );
 
-            face_type ftype = FT_MAX;
+            face_type ftype = face_type::FT_MAX;
 
             do
             {
-                ftype = FT_MAX;
+                ftype = face_type::FT_MAX;
 
             	if ( my_display.is_key( cimg::keyG ) )
             	{
                     std::cout << "Guess that face!" << std::endl;
-                    ftype = FT_GUESS;
+                    ftype = face_type::FT_GUESS;
                 }
                 else if ( my_display.is_key( cimg::keyA ) )
                 {
                     std::cout << "This is John!" << std::endl;
-                    ftype = FT_USERA;
+                    ftype = face_type::FT_USERA;
                 }
                 else if ( my_display.is_key( cimg::keyE ) )
                 {
                     std::cout << "This is Jane!" << std::endl;
-                    ftype = FT_USERB;
+                    ftype = face_type::FT_USERB;
                 }
                 else if ( my_display.is_key( cimg::keyU ) )
                 {
                     std::cout << "This person is unknown!" << std::endl;
-                    ftype = FT_UNKNOWN;
+                    ftype = face_type::FT_UNKNOWN;
                 }
                 /*else if ( my_display.is_key( cimg::key0 ) )
                 {
                     std::cout << "There is no one!" << std::endl;
-                    ftype = FT_NOT_A_FACE;
+                    ftype = face_type::FT_NOT_A_FACE;
                 }*/
                 else if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )
                 {
@@ -335,7 +341,7 @@ int main ( int argc,char **argv )
 
                 std::cout << "key " << my_display.key() << std::endl;
 
-                if ( ( ftype != FT_MAX ) && !faces.empty() )
+                if ( ( ftype != face_type::FT_MAX ) && !faces.empty() )
                 {
                     face_process(	input_image.get_crop( faces[0].x0, faces[0].y0, faces[0].x1, faces[0].y1 ), ftype,
                                     net_manager, trainer,
@@ -368,11 +374,9 @@ int main ( int argc,char **argv )
                 opt_computed_face = boost::none;
 
             } while( !my_display.is_closed() );
-
-            net_manager.finalize_training_iteration();
         }
     }
-    catch( neurocl::network_exception& e )
+    catch( network_exception& e )
     {
         std::cerr << "network exception : " << e.what() << std::endl;
     }

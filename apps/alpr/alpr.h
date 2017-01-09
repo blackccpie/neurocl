@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef ALPR_H
 #define ALPR_H
 
-#include "network_manager.h"
 #include "plate_resolution.h"
 
 #include "CImg.h"
@@ -34,13 +33,15 @@ THE SOFTWARE.
 
 namespace alpr {
 
-class network_manager;
+class network_manager_interface;
 
 // Class to manage license plate recognition
 class license_plate
 {
 public:
-    license_plate( const std::string& file_plate, neurocl::network_manager& net_num, neurocl::network_manager& net_let );
+    license_plate(  const std::string& file_plate,
+                    std::shared_ptr<neurocl::network_manager_interface> net_num,
+                    std::shared_ptr<neurocl::network_manager_interface> net_let );
     virtual ~license_plate();
 
     void analyze();
@@ -57,7 +58,7 @@ private:
     cimg_library::CImg<float> m_input_plate;
     cimg_library::CImg<float> m_work_plate;
 
-    typedef std::pair<size_t,size_t> t_letter_interval;
+    using t_letter_interval = std::pair<size_t,size_t>;
     std::vector<t_letter_interval> m_letter_intervals;
 
     plate_resolution m_plate_resol;

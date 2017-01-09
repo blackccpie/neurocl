@@ -22,6 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#ifndef THE_BRAIN_H
+#define THE_BRAIN_H
+
+#include "face_commons.h"
 #include "speech_manager.h"
 
 #include <boost/lockfree/spsc_queue.hpp>
@@ -35,7 +39,7 @@ public:
     thebrain();
     virtual ~thebrain();
 
-    void push_face_type( int type );
+    void push_face_type( const face_type& type );
 
 private:
 
@@ -49,7 +53,9 @@ private:
     int m_current_face_type;
 
     speech_manager m_speech_manager;
-    boost::shared_ptr<boost::thread> m_thread;
+    std::shared_ptr<boost::thread> m_thread;
 
-    boost::lockfree::spsc_queue<int, boost::lockfree::capacity<BRAIN_QUEUE_SIZE> > m_queue;
+    boost::lockfree::spsc_queue<face_type, boost::lockfree::capacity<BRAIN_QUEUE_SIZE> > m_queue;
 };
+
+#endif //THE_BRAIN_H

@@ -23,10 +23,8 @@ THE SOFTWARE.
 */
 
 #include <boost/circular_buffer.hpp>
-#include <boost/chrono.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -39,43 +37,43 @@ public:
 	void start()
 	{
 		m_labelled_durations.clear();
-		m_key_time = boost::chrono::system_clock::now();
-		m_last_frame_key_time = boost::chrono::system_clock::now();
+		m_key_time = std::chrono::system_clock::now();
+		m_last_frame_key_time = std::chrono::system_clock::now();
 	}
 
 	void step( const std::string& label )
 	{
-		boost::chrono::milliseconds duration = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - m_key_time );
+		std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - m_key_time );
 		m_labelled_durations.push_back( std::make_pair( label, duration.count() ) );
-		m_key_time = boost::chrono::system_clock::now();
+		m_key_time = std::chrono::system_clock::now();
 	}
 
 	const std::string summary()
 	{
 		std::string summary = "";
-		typedef std::pair<std::string,int> labelled_ms_t;
-		BOOST_FOREACH( const labelled_ms_t& lms, m_labelled_durations )
+		using labelled_ms_t = std::pair<std::string,int>;
+		for( const auto& lms : m_labelled_durations )
 		{
 			summary += "|";
 			summary += lms.first;
 			summary += "=";
-			summary += boost::lexical_cast<std::string>( lms.second );
+			summary += std::to_string( lms.second );
 			summary += "ms|";
 		}
 		return summary;
 	}
-	
+
 	void frame()
 	{
-		boost::chrono::milliseconds duration = boost::chrono::duration_cast<boost::chrono::milliseconds>( boost::chrono::system_clock::now() - m_last_frame_key_time );
+		std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - m_last_frame_key_time );
 		m_frame_periods.push_back( duration.count() );
-		m_last_frame_key_time = boost::chrono::system_clock::now();
+		m_last_frame_key_time = std::chrono::system_clock::now();
 	}
-	
+
 	float framerate()
 	{
 		float mean_fps = 0.f;
-		BOOST_FOREACH( const int& period, m_frame_periods )
+		for( const auto& period : m_frame_periods )
 		{
 			mean_fps += 1000.f / static_cast<float>( period );
 		}
@@ -85,9 +83,9 @@ public:
 
 private:
 
-	boost::chrono::system_clock::time_point m_key_time;
+	std::chrono::system_clock::time_point m_key_time;
 	std::vector< std::pair<std::string,int> > m_labelled_durations;
-	
-	boost::chrono::system_clock::time_point m_last_frame_key_time;
+
+	std::chrono::system_clock::time_point m_last_frame_key_time;
 	boost::circular_buffer<int> m_frame_periods;
 };

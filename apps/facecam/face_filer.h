@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "CImg.h"
 
 #include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 
@@ -49,7 +48,7 @@ public:
         size_t idx = 0;
         do
         {
-            path _path = m_save_path / path( label ) / path( boost::lexical_cast<std::string>( idx ) + ".png" );
+            path _path = m_save_path / path( label ) / path( std::to_string( idx ) + ".png" );
             if ( !exists( _path ) )
             {
                 if ( !exists( _path.parent_path() ) )

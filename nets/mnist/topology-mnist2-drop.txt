@@ -1,0 +1,6 @@
+layer:in:0:28x28x1
+layer:conv:1:24x24x5:5
+layer:pool:2:12x12x5
+layer:full:3:100x1x1
+layer:drop:4:100x1x1
+layer:out:5:10x1:1

@@ -2,3 +2,6 @@ build_gcc/*
 build/*
 lib/*
 bin/*
+nets/alpr/training/*
+nets/mnist/training/*
+nbproject/*

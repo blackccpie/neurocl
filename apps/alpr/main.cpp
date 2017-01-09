@@ -22,9 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "network_manager.h"
-#include "network_exception.h"
-#include "samples_manager.h"
+#include "neurocl.h"
+
 #include "alpr.h"
 
 #include <boost/lexical_cast.hpp>
@@ -35,9 +34,20 @@ THE SOFTWARE.
 #define NEUROCL_BATCH_SIZE 10
 #define MAX_MATCH_ERROR 0.1f
 
+using namespace neurocl;
+
 int main( int argc, char *argv[] )
 {
-    std::cout << "Welcome to test_alpr!" << std::endl;
+    std::cout << "Welcome to alpr!" << std::endl;
+
+    if ( argc == 1 )
+    {
+        std::cout << "Invalid arguments!" << std::endl;
+        std::cout << "example training numbers: ./alpr 1 alpr-train-num.txt topology-alpr-num.txt weights-alpr-num.bin 10" << std::endl;
+        std::cout << "example training letters: ./alpr 1 alpr-train-let.txt topology-alpr-let.txt weights-alpr-let.bin 10" << std::endl;
+        std::cout << "example testing: ./alpr 0 plaque.png topology-alpr-num.txt weights-alpr-num.bin topology-alpr-let.txt weights-alpr-let.bin" << std::endl;
+        return -1;
+    }
 
     try
     {
@@ -52,20 +62,20 @@ int main( int argc, char *argv[] )
         {
             /******** TRAIN ********/
 
-            neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
-            net_manager.load_network( argv[3], argv[4] );
+            std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
+            net_manager->load_network( argv[3], argv[4] );
 
-            neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
-            neurocl::samples_manager::instance().load_samples( argv[2] );
+            samples_manager smp_manager;
+            smp_manager.load_samples( argv[2] );
 
             if ( argc == 6 )
-                net_manager.batch_train( smp_manager, boost::lexical_cast<int>( argv[5] ), NEUROCL_BATCH_SIZE );
+                net_manager->batch_train( smp_manager, boost::lexical_cast<int>( argv[5] ), NEUROCL_BATCH_SIZE );
             else
-            	net_manager.batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
+            	net_manager->batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
             /******** VALIDATE ********/
 
-            const std::vector<neurocl::sample>& training_samples = smp_manager.get_samples();
+            const std::vector<sample>& training_samples = smp_manager.get_samples();
 
             float mean_rmse = 0.f;
             size_t _rmse_score = 0;
@@ -73,12 +83,12 @@ int main( int argc, char *argv[] )
 
             for ( size_t i = 0; i<training_samples.size(); i++ )
             {
-                neurocl::test_sample tsample( smp_manager.get_samples()[i] );
-                net_manager.compute_output( tsample );
+                test_sample tsample( smp_manager.get_samples()[i] );
+                net_manager->compute_output( tsample );
 
-                std::cout << tsample.output() << std::endl;
-                std::cout << tsample.ref_output() << std::endl;
-                std::cout << tsample.RMSE() << std::endl;
+                //std::cout << tsample.output() << std::endl;
+                //std::cout << tsample.ref_output() << std::endl;
+                //std::cout << tsample.RMSE() << std::endl;
 
                 mean_rmse += tsample.RMSE();
 
@@ -102,17 +112,17 @@ int main( int argc, char *argv[] )
 
         else
         {
-            neurocl::network_manager net_num( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
-            net_num.load_network( argv[3], argv[4] );
+            std::shared_ptr<network_manager_interface> net_num = network_factory::build();
+            net_num->load_network( argv[3], argv[4] );
 
-            neurocl::network_manager net_let( neurocl::network_manager::NEURAL_IMPL_BNU_REF );
-            net_let.load_network( argv[5], argv[6] );
+            std::shared_ptr<network_manager_interface> net_let = network_factory::build();
+            net_let->load_network( argv[5], argv[6] );
 
             alpr::license_plate lic( argv[2], net_num, net_let );
             lic.analyze();
         }
     }
-    catch( neurocl::network_exception& e )
+    catch( network_exception& e )
     {
         std::cerr << "network exception : " << e.what() << std::endl;
     }

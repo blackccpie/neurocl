@@ -1,0 +1,11 @@
+#https://www.kaggle.com/ftence/digit-recognizer/keras-cnn-inspired-by-lenet-5
+layer:in:0:28x28x1
+layer:conv:1:24x24x12:5
+layer:pool:2:12x12x12
+layer:conv:3:8x8x25:5
+layer:pool:4:4x4x25
+layer:full:5:180x1x1
+layer:drop:6:180x1x1
+layer:full:7:100x1x1
+layer:drop:8:100x1x1
+layer:out:9:10x1x1

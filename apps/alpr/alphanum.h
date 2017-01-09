@@ -25,40 +25,38 @@ THE SOFTWARE.
 #ifndef ALPHANUM_H
 #define ALPHANUM_H
 
-#include <boost/foreach.hpp>
-#include <boost/assign/list_of.hpp>
-using namespace boost::assign;;
-
+#include <algorithm>
 #include <sstream>
 #include <vector>
 
-const std::vector<std::string> v_alphanum_order =
-    list_of ("A")("B")("C")("D")("E")("F")("G")("H")("I")("J")("K")("L")("M")
-            ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z")
-            ("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
+const std::vector<std::string> v_alphanum_order {
+    "A","B","C","D","E","F","G","H","I","J","K","L","M",
+    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+    "0","1","2","3","4","5","6","7","8","9"
+};
 
-const std::vector<std::string> v_numbers_order =
-    list_of ("0")("1")("2")("3")("4")("5")("6")("7")("8")("9");
+const std::vector<std::string> v_numbers_order {
+    "0","1","2","3","4","5","6","7","8","9"
+};
 
-const std::vector<std::string> v_letters_order =
-    list_of ("A")("B")("C")("D")("E")("F")("G")("H")("I")("J")("K")("L")("M")
-            ("N")("O")("P")("Q")("R")("S")("T")("U")("V")("W")("X")("Y")("Z");
+const std::vector<std::string> v_letters_order {
+    "A","B","C","D","E","F","G","H","I","J","K","L","M"
+    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+};
 
-const std::vector<std::string> v_separators_order =
-    list_of ("-");
-
+const std::vector<std::string> v_separators_order {"-"};
 
 class alphanum
 {
 public:
-    typedef enum
+    enum class data_type
     {
         NUMBER = 0,
         LETTER,
         BOTH,
         SEPARATOR,
         UNKNOWN
-    } data_type;
+    };
 public:
 	alphanum( const size_t index, const data_type type ) : m_index( index )
     {
@@ -68,7 +66,7 @@ public:
     {
         _init_type( type );
 
-        std::vector<std::string>::const_iterator iter = std::find( m_order->begin(), m_order->end(), c );
+        auto iter = std::find( m_order->cbegin(), m_order->cend(), c );
         m_index = std::distance( m_order->begin(), iter );
     }
     const std::string string()
@@ -78,7 +76,7 @@ public:
     const std::string bitset_string()
     {
         std::stringstream ss;
-        BOOST_FOREACH( const std::string& _c, *m_order )
+        for( const auto& _c : *m_order )
         {
             ss << ( ( _c == (*m_order)[m_index] ) ? "1" : "0" ) << " ";
         }
@@ -89,17 +87,17 @@ private:
     {
         switch(type)
         {
-        case NUMBER:
+        case data_type::NUMBER:
             m_order = &v_numbers_order;
             break;
-        case LETTER:
+        case data_type::LETTER:
             m_order = &v_letters_order;
             break;
-        case SEPARATOR:
+        case data_type::SEPARATOR:
             m_order = &v_separators_order;
             break;
-        case BOTH:
-        case UNKNOWN:
+        case data_type::BOTH:
+        case data_type::UNKNOWN:
         default:
             m_order = &v_alphanum_order;
             break;

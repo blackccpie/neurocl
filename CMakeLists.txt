@@ -20,7 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.2)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -31,6 +31,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include("${CMAKE_SOURCE_DIR}/cmake/platform_extras.cmake")
 
 add_subdirectory(src)
+add_subdirectory(python)
 add_subdirectory(utils)
 add_subdirectory(apps)
 add_subdirectory(tests)
+
+#### SANDBOX ####
+# NOTHING YET

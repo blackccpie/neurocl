@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Neurocl training data</title>
+    <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="canvasjs.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+
+            var csv_url = "http://" + window.location.host + "/bin/mnist_training.csv";
+
+            var dataPointsArray = [ [],[],[] ];
+            var chart;
+
+            function getDataPointsFromCSV(csv) {
+                var csvLines = points = [];
+                csvLines = csv.split(/[\r?\n|\r|\n]+/);
+
+                for (var i = 0; i < csvLines.length; i++)
+                    if (csvLines[i].length > 0) {
+                        points = csvLines[i].split(",");
+                        dataPointsArray[0][i] = {
+                            x: parseFloat(i+1/*points[0]*/),
+                            y: parseFloat(points[1])
+                        };
+                        dataPointsArray[1][i] = {
+                            x: parseFloat(i+1/*points[0]*/),
+                            y: parseFloat(points[2])
+                        };
+                        dataPointsArray[2][i] = {
+                            x: parseFloat(i+1/*points[0]*/),
+                            y: 100*parseFloat(points[3])
+                        };
+                    }
+                return dataPointsArray;
+            }
+
+            function updateChart() {
+                $.get(csv_url, function(data) {
+                    dataPointsArray = getDataPointsFromCSV(data);
+                    chart.render();
+                    setTimeout(function(){ updateChart() }, 30000);
+                });
+            }
+
+            $.get(csv_url, function(data) {
+
+                dataPointsArray = getDataPointsFromCSV(data);
+
+                chart = new CanvasJS.Chart("chartContainer", {
+                    zoomEnabled: true,
+                    title: {
+                        text: "Neurocl training data",
+                    },
+                    axisX: {
+                        title: "EPOCHS",
+                        valueFormatString: "####",
+                        interval: 10
+                    },
+                    axisY:
+                    {
+                        title: "SCORE %",
+                    },
+                    data: [
+                    {
+                        type: "line",
+                        showInLegend: true,
+                        name: "Training score",
+                        dataPoints: dataPointsArray[0]
+                    },
+                    {
+                        type: "line",
+                        showInLegend: true,
+                        name: "Testing score",
+                        dataPoints: dataPointsArray[1]
+                    },
+                    {
+                        type: "line",
+                        showInLegend: true,
+                        name: "Error",
+                        dataPoints: dataPointsArray[2]
+                    }]
+                });
+
+                chart.render();
+                updateChart();
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div id="chartContainer" style="width:100%; height:500px;"></div>
+</body>
+
+</html>

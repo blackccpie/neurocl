@@ -25,9 +25,8 @@ THE SOFTWARE.
 #include "thebrain.h"
 #include "face_filer.h"
 #include "chrono_manager.h"
-#include "samples_manager.h"
-#include "network_manager.h"
-#include "network_exception.h"
+
+#include "neurocl.h"
 
 #include "raspicam/raspicam.h"
 
@@ -39,11 +38,10 @@ THE SOFTWARE.
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/assign/list_of.hpp>
-using boost::assign::list_of;
 
 #include <fstream>
 
+using namespace neurocl;
 using namespace cimg_library;
 
 #define IMAGE_SIZEX 480
@@ -114,21 +112,21 @@ struct face_result
         std::string str_type;
         switch( type )
         {
-        case FT_USERA:
+        case face_type::FT_USERA:
             str_type = "YOU ARE " + boost::to_upper_copy( facecam_users::instance().nicknameA() ) + "! ";
             break;
-        case FT_USERB:
+        case face_type::FT_USERB:
             str_type = "YOU ARE " + boost::to_upper_copy( facecam_users::instance().nicknameB() ) + "! ";
             break;
-        case FT_UNKNOWN:
+        case face_type::FT_UNKNOWN:
         default:
             str_type = "YOU ARE UNKNOWN... ";
             break;
         }
         if ( scores )
 			return str_type
-            + "(" + boost::lexical_cast<std::string>( score1 ) + ";"
-            + boost::lexical_cast<std::string>( score2 ) + ")";
+            + "(" + std::to_string( score1 ) + ";"
+            + std::to_string( score2 ) + ")";
 		else
            return str_type;
     }
@@ -137,11 +135,11 @@ struct face_result
 	{
 		switch( type )
         {
-        case FT_USERA:
+        case face_type::FT_USERA:
             return green;
-        case FT_USERB:
+        case face_type::FT_USERB:
             return blue;
-        case FT_UNKNOWN:
+        case face_type::FT_UNKNOWN:
         default:
             return red;
         }
@@ -169,7 +167,7 @@ void face_preprocess_generic( float* image, const size_t sizeX, const size_t siz
     face_preprocess( _image );
 }
 
-const face_result face_process(  CImg<unsigned char> image, neurocl::network_manager& net_manager )
+const face_result face_process(  CImg<unsigned char> image, std::shared_ptr<network_manager_interface> net_manager )
 {
 	CImg<float> work_image( image );
 
@@ -188,24 +186,24 @@ const face_result face_process(  CImg<unsigned char> image, neurocl::network_man
 
     std::string label;
     float output[2] = { 0.f, 0.f };
-    neurocl::sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
+    sample sample( work_image.width() * work_image.height(), work_image.data(), 2, output );
 
-	net_manager.compute_output( sample );
+	net_manager->compute_output( sample );
 
     g_chrono.step( "classification" );
 
 	//std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
 	if (sample.max_comp_val() < MIN_FACE_RECO_SCORE )
-		return face_result( FT_UNKNOWN, output[0], output[1] );
+		return face_result( face_type::FT_UNKNOWN, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 0 )
-		return face_result( FT_USERA, output[0], output[1] );
+		return face_result( face_type::FT_USERA, output[0], output[1] );
 	else if ( sample.max_comp_idx() == 1 )
-		return face_result( FT_USERB, output[0], output[1] );
+		return face_result( face_type::FT_USERB, output[0], output[1] );
     else
     {
         std::cout << "Warning : unmanaged use case" << std::endl;
-        return face_result( FT_UNKNOWN, output[0], output[1] );
+        return face_result( face_type::FT_UNKNOWN, output[0], output[1] );
     }
 }
 
@@ -301,7 +299,7 @@ int main ( int argc,char **argv )
         else
             _main_live( camera, my_display, auto_trained );
 	}
-    catch( neurocl::network_exception& e )
+    catch( network_exception& e )
     {
         std::cerr << "network exception : " << e.what() << std::endl;
     }
@@ -329,7 +327,7 @@ const std::string g_training_file_auto = "../nets/facecam/auto-train.txt";
 void progress( int percent, cimg_library::CImgDisplay& my_display, cimg_library::CImg<unsigned char>& display_image )
 {
 	display_image = (unsigned char)0;
-	draw_message( display_image, "NEURAL NETWORK TRAINING PROGRESS : " + boost::lexical_cast<std::string>( percent ) + "%", 20 );
+	draw_message( display_image, "NEURAL NETWORK TRAINING PROGRESS : " + std::to_string( percent ) + "%", 20 );
 	my_display.display( display_image );
 }
 
@@ -338,8 +336,10 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	using namespace boost::filesystem;
 
 	// TODO : define in face_commons?
-	std::vector<std::string> users = list_of("autoA")("autoB");
-	std::vector<std::string> scores = list_of("1 0")("0 1");
+    // constexpr compile error due to non-litteral types
+    const/*expr*/ std::array<std::string,2> users {"autoA","autoB"};
+    const/*expr*/ std::array<std::string,2> scores {"1 0","0 1"};
+
 
 	std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
@@ -351,13 +351,13 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 		remove( g_weights_facecam_auto );
 	}
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
-    net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
+    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_MLP );
+    net_manager->load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
 	// remove existing training file + image files
 	if ( exists( g_training_file_auto ) )
 		remove( g_training_file_auto );
-	BOOST_FOREACH( const std::string& user, users )
+	for ( const std::string& user : users )
 	{
 		if ( exists( "/home/pi/Pictures/facecam_faces/" + user ) )
 			remove_all( "/home/pi/Pictures/facecam_faces/" + user );
@@ -420,7 +420,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 				auto_train_file << face_files.last_path() << " " << scores[u] << std::endl;
 
-				draw_metadata( display_image, faces, users[u] + " - " + boost::lexical_cast<std::string>( user_faces+1 ) );
+				draw_metadata( display_image, faces, users[u] + " - " + std::to_string( user_faces+1 ) );
 
 				my_display.display( display_image );
 
@@ -438,15 +438,15 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 	camera.release();
 
     // TRAIN THE WHOLE NETWORK
-	neurocl::samples_manager& smp_manager = neurocl::samples_manager::instance();
+	neurocl::samples_manager smp_manager;
 	smp_manager.load_samples(  "../nets/facecam/auto-train.txt",
 														true /*shuffle*/,
 														&face_preprocess_generic /* extra_preproc*/ );
 
-	net_manager.batch_train( 	smp_manager,
+	net_manager->batch_train( 	smp_manager,
 								100 /*epoch*/,
 								20 /*batch*/,
-								boost::bind( &progress, _1, my_display, display_image ) );
+								std::bind( &progress, std::placeholders::_1, my_display, display_image ) );
 }
 
 void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_display, bool auto_trained )
@@ -456,11 +456,11 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     std::vector<face_detect::face_rect> faces;
     face_detect my_face_detect;
 
-    neurocl::network_manager net_manager( neurocl::network_manager::NEURAL_IMPL_BNU_FAST );
+    std::shared_ptr<network_manager_interface> net_manager = network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_MLP );
     if ( !auto_trained )
-		net_manager.load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
+		net_manager->load_network( "../nets/facecam/topology-facecam.txt", "../nets/facecam/weights-facecam.bin" );
 	else
-		net_manager.load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
+		net_manager->load_network( "../nets/facecam/topology-facecam.txt", g_weights_facecam_auto );
 
     boost::shared_array<unsigned char> data( new unsigned char[ camera.getImageBufferSize() ] );
 

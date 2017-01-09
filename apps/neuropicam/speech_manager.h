@@ -31,7 +31,7 @@ THE SOFTWARE.
 class speech_manager
 {
 public:
-    speech_manager() : m_current_listener( FT_UNKNOWN ) {}
+    speech_manager() : m_current_listener( face_type::FT_UNKNOWN ) {}
     virtual ~speech_manager() {}
 
     void speak( const std::string& message )
@@ -51,15 +51,15 @@ public:
     {
 		switch( type )
 		{
-		case FT_USERA:
+		case face_type::FT_USERA:
 			speak( "Hello " + facecam_users::instance().nicknameA() );
 			speak( "What can I do you for?" );
 			break;
-		case FT_USERB:
+		case face_type::FT_USERB:
 			speak( "Hello " + facecam_users::instance().nicknameB() );
 			speak( "What can I do you for?" );
 			break;
-		case FT_UNKNOWN:
+		case face_type::FT_UNKNOWN:
 		default:
 			break;
 		}
