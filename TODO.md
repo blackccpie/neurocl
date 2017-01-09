@@ -32,7 +32,7 @@
 - [ ] Update UML with Convnet
 - [ ] Improve tensor random inits methods' names and prototypes (use fan-in denomination)
 - [ ] ConvNet layers code factorization
-- [ ] If needed implement Adam solver
+- [x] If needed implement Adam solver
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark
