@@ -69,7 +69,7 @@ public:
     }
 
     //! load all training samples
-    void load_samples( const std::string &input_filename, bool shuffle = false, t_preproc extra_preproc = t_preproc() );
+    void load_samples( const std::string& input_filename, bool shuffle = false, t_preproc extra_preproc = t_preproc() );
 
     //! get number of loaded samples
     const size_t samples_size() const
@@ -94,6 +94,13 @@ public:
 
 	//! get data augmenter
     std::shared_ptr<samples_augmenter> get_augmenter() const;
+
+    /******************************************************/
+    /******************* CUSTOM LOADERS *******************/
+    /******************************************************/
+
+    //! load all kaggle digit recognizer formatted training samples (https://www.kaggle.com/c/digit-recognizer)
+    void load_kaggle_digit_recognizer( const std::string& input_filename );
 
 private:
 
