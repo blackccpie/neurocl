@@ -95,7 +95,9 @@ public:
         bool null_init = std::is_same<activationT,tensor_activations::softmax>();
 
         if ( null_init )
+        {
             LOGGER(warning) << "output_layer::populate - ad hoc null init for softmax output activation" << std::endl;
+        }
 
         if ( m_shared )
         {
