@@ -124,6 +124,37 @@ public:
     }
 };
 
+class leaky_relu
+{
+public:
+
+    static void f( tensor& input )
+    {
+        tensor_foreach_p( input.d1(), input.d2() ) {
+            std::for_each(  input.m(d1,d2,{}).data().begin(),
+                            input.m(d1,d2,{}).data().end(),
+                            []( float& a) { a = a > 0.f ? a : 0.01f * a; } );
+        }
+    }
+
+    static tensor d_f( const tensor& input )
+    {
+        using namespace boost::numeric::ublas;
+
+        tensor output;
+        output.resize( input );
+
+        tensor_foreach_p( input.d1(), input.d2() ) {
+            output.m(d1,d2,{}) = input.c_m(d1,d2,{});
+            std::for_each(  output.m(d1,d2,{}).data().begin(),
+                            output.m(d1,d2,{}).data().end(),
+                            []( float& a) { a = a > 0.f ? 1.f : 0.01f; } );
+        }
+
+        return output;
+    }
+};
+
 class softmax
 {
 public:

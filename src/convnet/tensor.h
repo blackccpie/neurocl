@@ -50,6 +50,7 @@ namespace tensor_activations {
     class sigmoid;
     class tanh;
     class relu;
+    class leaky_relu;
     class softmax;
 }
 
@@ -158,6 +159,7 @@ public:
         friend class tensor_activations::sigmoid;
         friend class tensor_activations::tanh;
         friend class tensor_activations::relu;
+        friend class tensor_activations::leaky_relu;
         friend class tensor_activations::softmax;
         friend class tensor_utils::visualizer;
 
