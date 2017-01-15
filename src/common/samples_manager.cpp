@@ -294,6 +294,7 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
         cimg_library::CImg<float> img( img_uchar );
         img.normalize( 0.f, 1.f );
 
+        // TODO-CNN : lot of this method's blocks could be factorized...
         if ( !m_sample_sizeX && !m_sample_sizeY )
         {
             m_sample_sizeX = img.width();
@@ -322,6 +323,10 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
 
         // store new sample
         m_samples_set.push_back( neurocl::sample( input_size, m_input_samples.back().get(), output_size, m_output_samples.back().get() ) );
+
+        // manage restricted size
+        if ( m_restrict_size == m_samples_set.size() )
+            break;
     }
 
     LOGGER(info) << "samples_manager::load_kaggle_digit_recognizer - successfully loaded " << m_samples_set.size() << " samples" << std::endl;
