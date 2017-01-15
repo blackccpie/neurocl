@@ -37,7 +37,7 @@ class dropout_layer  : public layer
 {
 public:
 
-    dropout_layer( const std::string& name ) : m_name( name ), m_dropout( 0.2f ) {}
+    dropout_layer( const std::string& name ) : m_name( name ), m_dropout( 0.5f ) {}
 	virtual ~dropout_layer() {}
 
 	virtual const std::string type() const override { return "dropout " + m_name; }
