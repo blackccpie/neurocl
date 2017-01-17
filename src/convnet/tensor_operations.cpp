@@ -571,7 +571,7 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
 tensor tensor_operation::uniform_sum( const tensor& input )
 {
     tensor output;
-    output.resize( input.w(), input.h(), input.d1(), input.d2() );
+    output.resize( input );
 
     tensor_foreach_p( input.d1(), input.d2() ) {
         float _acc = std::accumulate( input.m_tensor_array[d1][d2].data().begin(), input.m_tensor_array[d1][d2].data().end(), 0.f );
