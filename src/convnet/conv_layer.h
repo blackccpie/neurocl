@@ -62,6 +62,8 @@ public:
 
     virtual const std::string type() const final { return "conv " + m_name; }
 
+    virtual tensor d_activation( const tensor& in ) const final { return activationT::d_f( in ); }
+
     virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) final
     {
         m_filter_size = filter_size;
@@ -162,7 +164,7 @@ public:
 
         // multiply by sigma derivative
         prev_error_maps = nto::elemul(
-            activationT::d_f( prev_feature_maps ),
+            m_prev_layer->d_activation( prev_feature_maps ),
             prev_error_maps
         );
     }

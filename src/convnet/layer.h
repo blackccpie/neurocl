@@ -65,6 +65,9 @@ public:
     virtual void fill_b( const size_t data_size, const float* data ) = 0;
     virtual void fill_b( float* data ) = 0;
 
+    //! Apply activation gradient function
+    virtual tensor d_activation( const tensor& in ) const = 0;
+
     //! get gradient checker (not all layers have one)
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker()
         { return std::move( std::unique_ptr<tensor_gradient_checker>() ); }
