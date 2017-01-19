@@ -432,7 +432,7 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
 
 // name reflects the filters gradient update specifity of this method
 template <>
-tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::flip,tensor_operation::pad_mode::valid>(
+tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::std,tensor_operation::pad_mode::valid>(
     const tensor& input, const tensor& filter, const int stride )
 {
     using namespace boost::numeric::ublas;
@@ -446,8 +446,6 @@ tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::flip,ten
     // no replication in output features
     output.resize( stepsX, stepsY, input.d2(), filter.d2() );
 
-    flipper f( filter.w(), filter.h() );
-
     for ( auto d1 = 0; d1 < input.d2(); d1++ )
     {
         for ( auto d2 = 0; d2 < filter.d2(); d2++ )
@@ -457,7 +455,7 @@ tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::flip,ten
                 for ( auto i=0; i<stepsX; i++ )
                 {
 					// multiply
-                    matrixF conv = element_prod( f.flipped( filter.m_tensor_array[0][d2] ),
+                    matrixF conv = element_prod( filter.m_tensor_array[0][d2],
                         project( input.m_tensor_array[0][d1],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );

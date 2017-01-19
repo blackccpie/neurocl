@@ -148,6 +148,13 @@ public:
 
     virtual void back_propagate() override
     {
+        // the most explicit equation sabout this CNN backprop part can be found here:
+        //http://www.simon-hohberg.de/2014/10/10/conv-net.html
+        // In brief:
+        // FeedForward : convolution
+        // Weights Update : rot180( cross-correlation ) (final flip to be consistent with kernel ff orientation)
+        // Deltas : cross-correlation, backrpopagated error
+
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
         tensor& prev_error_maps = m_prev_layer->error_maps({});
 
@@ -173,12 +180,12 @@ public:
     {
         // Compute gradients
 
-        auto&& grad = nto::convolve_update<nto::kernel_mode::flip,nto::pad_mode::valid>(
+        auto&& grad = nto::convolve_update<nto::kernel_mode::std,nto::pad_mode::valid>(
             m_prev_layer->feature_maps(),
             m_error_maps,
             m_filter_stride);
 
-        *m_deltas_filters += grad / static_cast<float>( m_deltas_filters->d2() );
+        *m_deltas_filters += grad.flip() / static_cast<float>( m_deltas_filters->d2() );
         *m_deltas_bias += nto::uniform_sum( m_error_maps );
     }
 
