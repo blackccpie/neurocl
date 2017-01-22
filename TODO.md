@@ -13,7 +13,7 @@
 
 # TODO - CONVNET
 - [ ] Optimize inverse pooling with cached pooling map
-- [ ] Merge convnet implementation to Git head
+- [x] Merge convnet implementation to Git head
 - [ ] Tensor optimizations:
     - [ ] Use expression templates to combine tensor operators
     - [ ] Ublas speed improvements (cf. Boost guidelines)
@@ -21,7 +21,7 @@
     - [ ] Move semantics checks
     - [ ] Valgrind/kcachegrind profiling
 - [x] Parallel batch training
-- [ ] Confirm bias tensors initialisation
+- [x] Confirm bias tensors initialisation
 - [ ] Cross validate with similar ConvnetJS topologies
 - [ ] Use "expanded" (rot/noise/trans) MNIST dataset
 - [x] Introduce fan-in size layer base method
@@ -30,9 +30,11 @@
     - [ ] Finish camera wrapper using numpy
     - [ ] Finalize autonomous pizero OCR app
 - [ ] Update UML with Convnet
-- [ ] Improve tensor random inits methods' names and prototypes (use fan-in denomination)
+- [x] Improve tensor random inits methods' names and prototypes (use fan-in denomination)
 - [ ] ConvNet layers code factorization
 - [x] If needed implement Adam solver
+- [ ] Clarify L1/L2 regularizations
+- [ ] Missing dimension check if pool depth is different than conv depth
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark
