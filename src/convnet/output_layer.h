@@ -66,7 +66,13 @@ public:
     output_layer()
      :  m_prev_group_features( false ),
         m_weights( nullptr ), m_deltas_weights( nullptr ),
-        m_bias( nullptr ), m_deltas_bias( nullptr ) {}
+        m_bias( nullptr ), m_deltas_bias( nullptr )
+    {
+        static_assert( !std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ||
+            ( std::is_same<activationT, tensor_activations::softmax>::value &&
+            std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ),
+            "softmax cross entropy loss must only be used with softmax activation function!" );
+    }
 
     virtual ~output_layer() {}
 
@@ -212,6 +218,8 @@ public:
             activationT::d_f( m_feature_maps ),
             errorT::d_f( m_feature_maps, m_training_output )
         );
+        // TODO-CNN : non one-hot vector error maps case, not managed yet...
+        //m_error_maps = activationT::d_f( m_feature_maps, errorT::d_f( m_feature_maps, m_training_output ) );
 
         // compute previous layer error
 
