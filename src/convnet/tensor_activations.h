@@ -180,9 +180,11 @@ public:
         }
     }
 
-    static tensor d_f( const tensor& input/*, const tensor& prev_delta*/ )
+    static tensor d_f( const tensor& input, const tensor& prev_delta )
     {
-        /*using namespace boost::numeric::ublas;
+		// TODO-CNN : still not a fully validated implementation
+
+        using namespace boost::numeric::ublas;
 
         tensor output;
         output.resize( input );
@@ -209,10 +211,18 @@ public:
                 }
         }
 
-        return output;*/
+        return output;
+    }
 
-		// TODO : explain this simplification, MUST be used in conjunction with softmax cross entropy cost
-        return std::move(input);
+    static tensor d_f( const tensor& input )
+    {
+		// One hot gradient version MUST be used in conjunction with softmax cross entropy cost:
+        // http://www.ics.uci.edu/~pjsadows/notes.pdf
+		// http://peterroelants.github.io/posts/neural_network_implementation_intermezzo02
+        tensor identity;
+        identity.resize( input );
+        identity.uniform_fill(1.f);
+        return identity;
     }
 
 private:
