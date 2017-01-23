@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <fstream>
 
 #define NEUROCL_MAX_EPOCH_SIZE 1000
+#define NEUROCL_EPOCH_PERIOD 1
 #define NEUROCL_BATCH_SIZE 10
 #define NEUROCL_STOPPING_SCORE 99.f
 
@@ -162,9 +163,9 @@ int main( int argc, char *argv[] )
 
         std::ofstream output_file( "mnist_training.csv", std::fstream::app );
 
-        for ( int i=0; i<NEUROCL_MAX_EPOCH_SIZE; i++ )
+        for ( int i=0; i<NEUROCL_MAX_EPOCH_SIZE; i+= NEUROCL_EPOCH_PERIOD )
         {
-            net_manager->batch_train( smp_train_manager, 1, NEUROCL_BATCH_SIZE );
+            net_manager->batch_train( smp_train_manager, NEUROCL_EPOCH_PERIOD, NEUROCL_BATCH_SIZE );
 
             train_score = compute_score( i, smp_train_manager, net_manager, rmse, last_train_rmse, false );
             valid_score = compute_score( i, smp_validate_manager, net_manager, rmse, last_valid_rmse, true );

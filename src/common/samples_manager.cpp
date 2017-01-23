@@ -59,7 +59,7 @@ cimg_library::CImg<float> _get_preprocessed_image( const std::string& file )
     return img;
 }
 
-void samples_manager::load_samples( const std::string &input_filename, bool shuffle, t_preproc extra_preproc )
+void samples_manager::load_samples( const std::string& input_filename, bool shuffle, t_preproc extra_preproc )
 {
     m_sample_sizeX = m_sample_sizeY = 0;
 
@@ -133,7 +133,7 @@ void samples_manager::load_samples( const std::string &input_filename, bool shuf
                 _vals.push_back( val );
         }
 
-        // save output image
+        // store output sample in list
         size_t output_size = _vals.size();
         boost::shared_array<float> output_sample{ new float[output_size] };
         std::copy( _vals.begin(), _vals.end(), output_sample.get() );
@@ -239,6 +239,97 @@ neurocl::sample samples_augmenter::translate( const neurocl::sample& s, const in
     g_buf_img.crop( startX, startY, startX + m_sizeX, startY + m_sizeY );
 
 	return neurocl::sample( m_sizeX * m_sizeY, g_buf_img.data(), s.osample_size, s.osample );
+}
+
+/******************************************************/
+/******************* CUSTOM LOADERS *******************/
+/******************************************************/
+
+void samples_manager::load_kaggle_digit_recognizer( const std::string &input_filename )
+{
+    m_sample_sizeX = m_sample_sizeY = 0;
+
+    if ( !bfs::exists( input_filename ) )
+    {
+        LOGGER(error) << "samples_manager::load_kaggle_digit_recognizer - error reading input samples config file \'" << input_filename << "\'" << std::endl;
+        throw network_exception( "error reading input samples config file" );
+    }
+
+    std::ifstream data_in( input_filename );
+    if ( !data_in || !data_in.is_open() )
+    {
+        LOGGER(error) << "samples_manager::load_kaggle_digit_recognizer - error opening input samples config file \'" << input_filename << "\'" << std::endl;
+        throw network_exception( "error reading input samples config file" );
+    }
+
+    // clear previous samples
+    m_input_samples.clear();
+    m_output_samples.clear();
+    m_samples_set.clear();
+
+    std::string line;
+
+    // get first ignored line : labels etc...
+    std::getline( data_in, line );
+
+    while ( std::getline( data_in, line ) )
+    {
+        std::stringstream ss{ line };
+
+        // Read the target values from the line:
+        std::vector<std::uint8_t> _vals;
+        while ( !ss.eof() )
+        {
+            std::uint16_t val;
+            if ( !(ss >> val).fail() )
+                _vals.push_back( static_cast<std::uint8_t>( val ) );
+        }
+
+        int digit = _vals.at(0);
+        size_t input_size = _vals.size()-1;
+        size_t square_size = std::sqrt( input_size );
+
+        // preprocess and save input image
+        cimg_library::CImg<unsigned char> img_uchar( _vals.data(), square_size, square_size, 1, 1, true /*shared*/ );
+        cimg_library::CImg<float> img( img_uchar );
+        img.normalize( 0.f, 1.f );
+
+        // TODO-CNN : lot of this method's blocks could be factorized...
+        if ( !m_sample_sizeX && !m_sample_sizeY )
+        {
+            m_sample_sizeX = img.width();
+            m_sample_sizeY = img.height();
+
+            m_augmenter = std::make_shared<samples_augmenter>( m_sample_sizeX, m_sample_sizeY );
+        }
+        else
+        {
+            if ( ( m_sample_sizeX != img.width() ) ||
+                ( m_sample_sizeY != img.height() ) )
+                throw network_exception( "non uniform sample size in input sample set" );
+        }
+
+        // store input sample in list
+        boost::shared_array<float> input_sample( new float[input_size] );
+        std::copy( img.data(), img.data()+input_size, input_sample.get() );
+        m_input_samples.push_back( input_sample );
+
+        // store output sample in list
+        int i = 0;
+        size_t output_size = 10;
+        boost::shared_array<float> output_sample{ new float[output_size] };
+        std::for_each( output_sample.get(), output_sample.get()+output_size, [&i,&digit](float& a){ a = ( i++ == digit ) ? 1.f : 0.f; } );
+        m_output_samples.push_back( output_sample );
+
+        // store new sample
+        m_samples_set.push_back( neurocl::sample( input_size, m_input_samples.back().get(), output_size, m_output_samples.back().get() ) );
+
+        // manage restricted size
+        if ( m_restrict_size == m_samples_set.size() )
+            break;
+    }
+
+    LOGGER(info) << "samples_manager::load_kaggle_digit_recognizer - successfully loaded " << m_samples_set.size() << " samples" << std::endl;
 }
 
 }; //namespace neurocl

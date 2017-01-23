@@ -30,6 +30,7 @@ include_directories(
 set (headers_list
 alphanum.h
 alpr.h
+autothreshold.h
 plate_resolution.h
 )
 

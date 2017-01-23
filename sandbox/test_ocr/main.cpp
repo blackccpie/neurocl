@@ -74,7 +74,7 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     sobel_ccv::process<unsigned char>( work, work_edge );
 
     work_edge.normalize( 0, 255 );
-    work_edge.dilate( 2 );
+    //work_edge.dilate( 2 );
     work_edge.threshold( 40 );
     //input_edge.display();
 
@@ -227,11 +227,36 @@ void center_number( CImg<float>& input )
         last_val = cur_val;
     }
 
+    // try to prepare image like MNIST does:
+    // http://yann.lecun.com/exdb/mnist/
+
     //int max_dim = std::max( input.width(), input.height() );
-    int max_dim = ( 5 * std::max( stopX - startX, stopY - startY ) ) / 4;
+    int max_dim = std::max( stopX - startX, stopY - startY );
 
     input.crop( startX, startY, stopX, stopY);
     input.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
+    input.resize( 20, 20, -100, -100, 6 );
+    input.normalize( 0, 255 );
+
+    input.display();
+
+    // compute center of mass
+    int massX = 0;
+    int massY = 0;
+    int num = 0;
+    cimg_forXY( input, x, y )
+    {
+        massX += input( x, y ) * x;
+        massY += input( x, y ) * y;
+        num += input( x, y );
+    }
+    massX /= num;
+    massY /= num;
+
+    std::cout << "Mass center X=" << massX << " Y=" << massY << std::endl;
+
+    input.resize( 28, 28, -100, -100, 0, 0, 1.f - ((float)massX)/20.f, 1.f - ((float)massY)/20.f );
+
     input.normalize( 0.f, 1.f );
 
     input.display();
@@ -254,7 +279,7 @@ int main( int argc, char *argv[] )
     try
     {
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
-        net_manager->load_network( "../nets/mnist/topology-mnist-lenet.txt", "../nets/mnist/weights-mnist-lenet.bin" );
+        net_manager->load_network( "../nets/mnist/topology-mnist-kaggle.txt", "../nets/mnist/weights-mnist-kaggle.bin" );
 
     	CImg<unsigned char> input( argv[1] );
         input.channel(0);
@@ -264,7 +289,7 @@ int main( int argc, char *argv[] )
         cropped_numbers.normalize( 0, 255 );
         auto_threshold( cropped_numbers );
 
-        //cropped_numbers.display();
+        cropped_numbers.display();
 
         std::vector<t_number_interval> number_intervals;
         compute_ranges( cropped_numbers, number_intervals );
@@ -283,8 +308,6 @@ int main( int argc, char *argv[] )
             CImg<float> cropped_number( cropped_numbers.get_columns( ni.first, ni.second ) );
 
             center_number( cropped_number );
-
-            cropped_number.resize( 28, 28, -100, -100, 6 );
 
             sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
             net_manager->compute_output( sample );

@@ -59,6 +59,8 @@ public:
 
     virtual const std::string type() const override { return "full " + m_name; }
 
+    virtual tensor d_activation( const tensor& in ) const final { return activationT::d_f( in ); }
+
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
@@ -163,7 +165,7 @@ public:
             const auto&& grouped_feature_maps = nto::group( prev_feature_maps );
 
             const tensor grouped_error_maps = nto::elemul(
-                activationT::d_f( grouped_feature_maps ),
+                m_prev_layer->d_activation( grouped_feature_maps ),
                 nto::multrans1( *m_weights, m_error_maps )
             );
 
@@ -172,7 +174,7 @@ public:
         else
         {
         	prev_error_maps = nto::elemul(
-            	activationT::d_f( prev_feature_maps ),
+            	m_prev_layer->d_activation( prev_feature_maps ),
             	nto::multrans1( *m_weights, m_error_maps )
         	);
         }

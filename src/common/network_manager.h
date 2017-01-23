@@ -70,6 +70,8 @@ public:
     virtual void compute_output( sample& s ) override;
 	//! compute network output using augmented sample
 	virtual void compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter ) override;
+	//! compute network output for multiple samples
+    virtual void compute_output( std::vector<sample>& s ) override {}
 
 	//! gradient check
 	virtual void gradient_check( const sample& s ) override;

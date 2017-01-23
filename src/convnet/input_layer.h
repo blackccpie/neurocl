@@ -40,7 +40,7 @@ public:
 
     virtual const std::string type() const override { return "input"; }
 
-    virtual size_t fan_in() const final { return 0; }
+    virtual tensor d_activation( const tensor& in ) const final { /* NOTHING TO DO */return tensor{};  }
 
     void populate(  const size_t width,
                     const size_t height,
@@ -85,6 +85,10 @@ public:
 
     virtual tensor& error_maps( key_errors ) override
         { return m_error_maps; } // returns empty tensor
+
+protected:
+
+    virtual size_t fan_in() const final { return 0; }
 
 private:
 

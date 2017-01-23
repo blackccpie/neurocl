@@ -8,7 +8,9 @@ There are two different **_MLP_** implementations in Neurocl : one using standar
 
 There is only one **_CONVNET_** implementation for now, based on a tensor abstraction class, using _Boost.ublas_ containers.
 
-As MLP was developped first, and emphasis was put on the CONVNET implementation, things are still managed a bit differently between these two architectures, but my plan is to factorize all possible things (solver, activation, loss function etc..) to have a common framework between them.
+As MLP was developped first, and emphasis was put on the CONVNET implementation for the past months, things are still managed a bit differently between these two architectures, but my plan is to factorize all possible things (solver, activation, loss function etc..) to have a common framework between them.
+
+Please note that CONVNET implementation is still missing some configuration features and does not benefit of a fast tensor container implementation yet.
 
 The upcoming evolutions will also focus on optimizations dedicated to running neural network based algorithms on small low power devices, like the ARM based Raspberry Pi.
 
@@ -75,6 +77,18 @@ neurocl requires three main input files:
 
 1. the **topology description** file: this is a structured text file describing the neural net layers.
 
+    FOR **MLP**:
+
+    ```text
+    layer:0:28x28
+    layer:1:6x6
+    layer:2:10x1
+    ```
+
+    *NOTE : MLP does not allow configurable activation functions for now, the default is sigmoid activations for all layers.*
+
+    FOR **CONVNET**:
+
     ```text
     layer:in:0:28x28x1
     layer:conv:1:24x24x3:5
@@ -83,6 +97,8 @@ neurocl requires three main input files:
     layer:full:4:100x1x1
     layer:out:5:10x1:1
     ```
+
+    *NOTE : CONVNET does not allow configurable activation functions for now, the default configuration is ReLU for convolutional layers, and Softmax with cross entropy error for the output layer. It can be edited in the **src/convnet/network.cpp** file.*
 
 2. the **neural net weights** file: this is a binary file containing the layers weight and bias values. This file is managed internally by neurocl, but user has to specify the name of the weights file to load for training/classifying.
 
@@ -138,8 +154,8 @@ neurocl main entry point is interface **network_manager_interface**, which can o
 
 	-> There are 3 MLP backends available:
 
-	* *NEURAL_IMPL_BNU_REF* : the reference implementation only using boost::numeric::ublas containers and operators
-	* *NEURAL_IMPL_BNU_FAST* : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4)
+	* *NEURAL_IMPL_BNU_REF* : the reference implementation only using boost::numeric::ublas containers and operators.
+	* *NEURAL_IMPL_BNU_FAST* : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4).
 	* *NEURAL_IMPL_VEXCL* : _experimental_ vexcl reference implementation.
 
         NOTE : MLP default backend is hardcoded to *NEURAL_IMPL_BNU_REF*
@@ -176,6 +192,10 @@ neurocl main entry point is interface **network_manager_interface**, which can o
 MLP Class diagram:
 
 ![PlantUML class diagram](http://plantuml.com/plantuml/png/XP91Ri8m44NtFiM8Rbf4KBfYWxBa0XmWcfXnOc4co3QXKilTGIMnQYSDAqlVppFpvriQT0wO_BMrnrAsh7GDsosyxrTlkzrca-SVu3JNXdpBK1J2jpNvXYny2ysUh499uNrGX8pgLdmfAtIftD6NDE8s0LjI4wf2vnFvX8mrsKHLsb3P81_CwChXwMo6GVHZNFIwez9Rr1pW9-H2TP4QWVNwfvYm7Jbx1VL6OooiAZN-0kj7XSNd0fPPzdl-ttgEZfOtCfvbHV9T4jCpmD3rBzBdCKeYWeOSvgbdAH19UXFC7G00)
+
+CONVNET Class diagram:
+
+*TODO*
 
 ## Targeted platforms:
 

@@ -50,6 +50,7 @@ namespace tensor_activations {
     class sigmoid;
     class tanh;
     class relu;
+    class leaky_relu;
     class softmax;
 }
 
@@ -90,11 +91,12 @@ public:
     // TODO-CNN : name of the function doesn't tell the matrix will be set to 0
     void resize( const size_t width, const size_t height, const size_t depth1, const size_t depth2 );
 
-    void flip()
+    tensor& flip()
     {
         tensor_foreach() {
             std::reverse( m_tensor_array[d1][d2].data().begin(), m_tensor_array[d1][d2].data().end() );
         }
+        return *this;
     }
 
     void clear()
@@ -158,6 +160,7 @@ public:
         friend class tensor_activations::sigmoid;
         friend class tensor_activations::tanh;
         friend class tensor_activations::relu;
+        friend class tensor_activations::leaky_relu;
         friend class tensor_activations::softmax;
         friend class tensor_utils::visualizer;
 

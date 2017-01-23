@@ -70,10 +70,12 @@ public:
     virtual void prepare_training_epoch() = 0;
     // finalize training epoch
     virtual void finalize_training_epoch() = 0;
-    //! compute network output
+    //! compute network output for single sample
     virtual void compute_output( sample& s ) = 0;
     //! compute network output using augmented sample
 	virtual void compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter ) = 0;
+    //! compute network output for multiple samples
+    virtual void compute_output( std::vector<sample>& s ) = 0;
 
     //! gradient check
 	virtual void gradient_check( const sample& s ) = 0;

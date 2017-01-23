@@ -387,7 +387,7 @@ int main( int argc, char *argv[] )
     for( auto i=0; i<4; i++ )
         for( auto j=0; j<4; j++ )
                 matB(i,j) = 1.f;
-    matB(3,3) = 2.f;
+    matB(0,0) = 2.f;
     B.fill(0,0,16,&matB.data()[0]);
     B.fill(0,1,16,&matB.data()[0]);
 
@@ -406,7 +406,7 @@ int main( int argc, char *argv[] )
 
     Res.resize(3,3,2,2);
 
-    Res = nto::convolve_update<nto::kernel_mode::flip,nto::pad_mode::valid>( A, B, 1 );
+    Res = nto::convolve_update<nto::kernel_mode::std,nto::pad_mode::valid>( A, B, 1 );
 
     std::cout << "convolve_update flip/valid test : " << ( ( Res == Comp ) ? "PASSED" : "FAILED" ) << std::endl;
 

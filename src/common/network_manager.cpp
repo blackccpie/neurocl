@@ -121,6 +121,8 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
             std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
         }
 
+        std::cout << "\r";
+
         smp_manager.rewind();
         smp_manager.shuffle();
     }

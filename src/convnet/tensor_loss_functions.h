@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -88,6 +88,9 @@ public:
 
     static tensor d_f( tensor& y, tensor& t )
     {
+		// For detailed explanation of the multiclass cross entropy with softmax simplified equation:
+		// http://www.ics.uci.edu/~pjsadows/notes.pdf
+		// http://peterroelants.github.io/posts/neural_network_implementation_intermezzo02
         return std::move( y - t );
     }
 };

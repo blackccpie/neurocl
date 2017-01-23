@@ -64,12 +64,21 @@ class output_layer : public output_layer_iface
 public:
 
     output_layer()
-     :  m_weights( nullptr ), m_deltas_weights( nullptr ),
-        m_bias( nullptr ), m_deltas_bias( nullptr ) {}
+     :  m_prev_group_features( false ),
+        m_weights( nullptr ), m_deltas_weights( nullptr ),
+        m_bias( nullptr ), m_deltas_bias( nullptr )
+    {
+        static_assert( !std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ||
+            ( std::is_same<activationT, tensor_activations::softmax>::value &&
+            std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ),
+            "softmax cross entropy loss must only be used with softmax activation function!" );
+    }
 
     virtual ~output_layer() {}
 
     virtual const std::string type() const override { return "output"; }
+
+    virtual tensor d_activation( const tensor& in ) const final { /* NOTHING TO DO */return tensor{}; }
 
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
@@ -80,6 +89,16 @@ public:
         LOGGER(info) << "output_layer::populate - populating output layer" << std::endl;
 
         m_prev_layer = prev_layer;
+
+        // check if we have to group previous layer feature maps
+        // grouping is only allowed if current depth is 1
+        if ( m_prev_layer->depth() != depth )
+        {
+            if ( depth > 1 )
+                throw network_exception( "depth mismatch between output layer and previous layer" );
+            else
+                m_prev_group_features = true;
+        }
 
         // TODO-CNN : no need to allocate in non-training mode!
         m_training_output.resize( width, height, 1, depth );
@@ -95,7 +114,9 @@ public:
         bool null_init = std::is_same<activationT,tensor_activations::softmax>();
 
         if ( null_init )
+        {
             LOGGER(warning) << "output_layer::populate - ad hoc null init for softmax output activation" << std::endl;
+        }
 
         if ( m_shared )
         {
@@ -160,12 +181,20 @@ public:
 
     virtual void feed_forward() override
     {
-        // TODO-CNN : no grouping managed yet!
-
         const auto& prev_feature_maps = m_prev_layer->feature_maps();
 
-        // apply weights and bias
-        m_feature_maps = nto::muladd( *m_weights, prev_feature_maps, *m_bias );
+        if ( m_prev_group_features )
+        {
+            const tensor grouped_feature_maps = nto::group( prev_feature_maps );
+
+            // apply weights and bias
+            m_feature_maps = nto::muladd( *m_weights, grouped_feature_maps, *m_bias );
+        }
+        else
+        {
+        	// apply weights and bias
+        	m_feature_maps = nto::muladd( *m_weights, prev_feature_maps, *m_bias );
+        }
 
         // apply activation function
         activationT::f( m_feature_maps );
@@ -189,18 +218,47 @@ public:
             activationT::d_f( m_feature_maps ),
             errorT::d_f( m_feature_maps, m_training_output )
         );
+        // TODO-CNN : non one-hot vector error maps case, not managed yet...
+        //m_error_maps = activationT::d_f( m_feature_maps, errorT::d_f( m_feature_maps, m_training_output ) );
 
         // compute previous layer error
-    	prev_error_maps = nto::elemul(
-        		activationT::d_f( prev_feature_maps ),
+
+        if ( m_prev_group_features )
+        {
+            const auto&& grouped_feature_maps = nto::group( prev_feature_maps );
+
+            const tensor grouped_error_maps = nto::elemul(
+                m_prev_layer->d_activation( grouped_feature_maps ),
+                nto::multrans1( *m_weights, m_error_maps )
+            );
+
+            nto::ungroup( grouped_error_maps, prev_error_maps );
+        }
+        else
+        {
+    		prev_error_maps = nto::elemul(
+        		m_prev_layer->d_activation( prev_feature_maps ),
         		nto::multrans1( *m_weights, m_error_maps )
     		);
+        }
     }
 
     virtual void update_gradients() override
     {
-        *m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
-        *m_deltas_bias += m_error_maps;
+        // Compute gradients
+
+        if ( m_prev_group_features )
+        {
+            const auto&& grouped_feature_maps = nto::group( m_prev_layer->feature_maps() );
+
+            *m_deltas_weights += nto::multrans2( m_error_maps, grouped_feature_maps );
+        	*m_deltas_bias += m_error_maps;
+        }
+        else
+        {
+        	*m_deltas_weights += nto::multrans2( m_error_maps, m_prev_layer->feature_maps() );
+        	*m_deltas_bias += m_error_maps;
+        }
     }
 
 	virtual void clear_gradients() override
@@ -251,7 +309,8 @@ protected:
 
     virtual size_t fan_in() const final
     {
-        return m_prev_layer->width() * m_prev_layer->height();
+        size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
+        return k_group * m_prev_layer->width() * m_prev_layer->height();
     }
 
 private:
@@ -269,6 +328,8 @@ private:
     tensor* m_weights;
     tensor* m_deltas_weights;
     std::vector<tensor*> m_weights_cache;
+
+    bool m_prev_group_features;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
