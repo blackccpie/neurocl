@@ -238,8 +238,6 @@ void center_number( CImg<float>& input )
     input.resize( 20, 20, -100, -100, 6 );
     input.normalize( 0, 255 );
 
-    input.display();
-
     // compute center of mass
     int massX = 0;
     int massY = 0;
@@ -259,7 +257,7 @@ void center_number( CImg<float>& input )
 
     input.normalize( 0.f, 1.f );
 
-    input.display();
+    //input.display();
 }
 
 unsigned char green[] = { 0,255,0 };
@@ -303,6 +301,8 @@ int main( int argc, char *argv[] )
         }
         cropped_numbers_res.normalize( 0, 255 );
 
+        std::shared_ptr<samples_augmenter> smp_augmenter = std::make_shared<samples_augmenter>( 28, 28 );
+
         for ( auto& ni : number_intervals )
         {
             CImg<float> cropped_number( cropped_numbers.get_columns( ni.first, ni.second ) );
@@ -310,7 +310,7 @@ int main( int argc, char *argv[] )
             center_number( cropped_number );
 
             sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
-            net_manager->compute_output( sample );
+            net_manager->compute_augmented_output( sample, smp_augmenter );
 
             std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
