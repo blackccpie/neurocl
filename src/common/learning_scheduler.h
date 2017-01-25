@@ -57,9 +57,6 @@ private:
 
     bool m_enabled;
     float m_cached_rate;
-    float m_cached_error;
-    size_t m_err_count;
-    const size_t m_err_window;
 
     std::shared_ptr<solver_base> m_solver;
 };
