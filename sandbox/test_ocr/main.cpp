@@ -23,7 +23,8 @@ THE SOFTWARE.
 */
 
 #include "neurocl.h"
-#include "ocr.h"
+
+#include "imagetools/ocr.h"
 
 unsigned char green[] = { 0,255,0 };
 unsigned char red[] = { 255,0,0 };

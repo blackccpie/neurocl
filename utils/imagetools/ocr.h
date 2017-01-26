@@ -22,10 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "neurocl.h"
-
-#include "../../apps/alpr/autothreshold.h"
-#include "../../utils/imagetools/edge_detect.h"
+#include "autothreshold.h"
+#include "edge_detect.h"
 
 #include "CImg.h"
 
