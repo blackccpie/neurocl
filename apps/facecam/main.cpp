@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,8 @@ THE SOFTWARE.
 
 #include "neurocl.h"
 
-#include "facetools/edge_detect.h"
-#include "facetools/face_detect.h"
+#include "imagetools/edge_detect.h"
+#include "imagetools/face_detect.h"
 
 #include <boost/lexical_cast.hpp>
 

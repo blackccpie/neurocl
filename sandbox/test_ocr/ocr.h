@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "neurocl.h"
 
 #include "../../apps/alpr/autothreshold.h"
-#include "../../utils/facetools/edge_detect.h"
+#include "../../utils/imagetools/edge_detect.h"
 
 #include "CImg.h"
 
