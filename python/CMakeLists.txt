@@ -51,7 +51,7 @@ endif ()
 
 add_library(pyneurocl SHARED ${sources_list} ${headers_list})
 
-set_target_properties(pyneurocl PROPERTIES SUFFIX .so)
+set_target_properties(pyneurocl PROPERTIES SUFFIX .pyd)
 
 target_link_libraries(pyneurocl
 boost_python${boost_suffix}
