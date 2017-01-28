@@ -26,7 +26,7 @@
 - [ ] Use "expanded" (rot/noise/trans) MNIST dataset
 - [x] Introduce fan-in size layer base method
 - [ ] Python:
-    - [ ] Turn pyneurocl into a '.pyd'
+    - [x] Turn pyneurocl into a '.pyd'
     - [ ] Finish camera wrapper using numpy
     - [ ] Finalize autonomous pizero OCR app
 - [ ] Update UML with Convnet

@@ -69,6 +69,8 @@ $ cd neurocl
 $ sh build_gcc_xxx.sh
 ```
 
+NOTE: if experiencing problems due to *libccv* linking issues, rebuild the latter with the *-fPIC* compiler directive.
+
 ## User Guide:
 
 ### File management
@@ -219,6 +221,11 @@ CLASSIFIERS:
 
 SOLVERS:
 - [Caffe solver tutorial](http://caffe.berkeleyvision.org/tutorial/solver.html)
+
+FRENCH SPEAKING:
+
+- http://clement.chatelain.free.fr/enseignements/rdn.pdf
+- http://emilie.caillault.free.fr/doc/EPoisson2001.pdf
 
 ## ToRead:
 - http://page.mi.fu-berlin.de/rojas/neural/chapter/K7.pdf

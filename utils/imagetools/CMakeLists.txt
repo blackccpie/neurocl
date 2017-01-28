@@ -39,6 +39,8 @@ edge_detect.h
 face_detect.h
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 add_library(imagetools STATIC ${sources_list} ${headers_list})
 
 set(ccv_libs
