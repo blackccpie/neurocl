@@ -140,6 +140,8 @@ public:
 
         CImg<float> input( wi, hi, 1, 1 );
 
+        std::cout << "digit reco input image is " << wi << "x" << hi << std::endl;
+
         _array_converter<unsigned char,float>( in, input );
 
         ocr_helper helper( m_net_manager );
@@ -198,5 +200,6 @@ BOOST_PYTHON_MODULE(pyneurocl)
 		.def("train",&py_neurocl_helper::train)
 		.def("compute",&py_neurocl_helper::compute)
 		.def("train_progress",&py_neurocl_helper::train_progress)
+        .def("digit_recognizer",&py_neurocl_helper::digit_recognizer)
 	;
 }

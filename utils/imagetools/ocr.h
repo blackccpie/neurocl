@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include <iostream>
 
+// TODO-CNN : not very happy to leave this in a header file... :-(
 using namespace neurocl;
 using namespace cimg_library;
 
@@ -54,7 +55,7 @@ public:
         m_cropped_numbers.normalize( 0, 255 );
         auto_threshold( m_cropped_numbers );
 
-        m_cropped_numbers.display();
+        //m_cropped_numbers.display();
 
         std::vector<t_digit_interval> number_intervals;
         compute_ranges( m_cropped_numbers, number_intervals );
