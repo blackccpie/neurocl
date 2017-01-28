@@ -48,17 +48,10 @@ int main( int argc, char *argv[] )
     	CImg<unsigned char> input( argv[1] );
         input.channel(0);
 
-        CImg<float> cropped_numbers = get_cropped_numbers( input );
+        ocr_helper helper( net_manager );
+        helper.process( input );
 
-        cropped_numbers.normalize( 0, 255 );
-        auto_threshold( cropped_numbers );
-
-        cropped_numbers.display();
-
-        std::vector<t_number_interval> number_intervals;
-        compute_ranges( cropped_numbers, number_intervals );
-
-        float output[10] = { 0.f };
+        CImg<float> cropped_numbers = helper.cropped_numbers();
 
         CImg<float> cropped_numbers_res( cropped_numbers.width(), cropped_numbers.height(), 1, 3, 0 );
         cimg_forXY( cropped_numbers, x, y )
@@ -67,25 +60,12 @@ int main( int argc, char *argv[] )
         }
         cropped_numbers_res.normalize( 0, 255 );
 
-        std::shared_ptr<samples_augmenter> smp_augmenter = std::make_shared<samples_augmenter>( 28, 28 );
-
-        for ( auto& ni : number_intervals )
+        for ( auto& reco : helper.recognitions() )
         {
-            CImg<float> cropped_number( cropped_numbers.get_columns( ni.first, ni.second ) );
-
-            center_number( cropped_number );
-
-            sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
-            net_manager->compute_augmented_output( sample, smp_augmenter );
-
-            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
-
-            //cropped_number.display();
-
-            std::string item = std::to_string( sample.max_comp_idx() );
-            std::string item_confidence = std::to_string( (int)( 100 * sample.max_comp_val() ) ) + "%%";
-            cropped_numbers_res.draw_text( ni.first, 10, item.c_str(), green, 0, 1.f, 50 );
-            cropped_numbers_res.draw_text( ni.first, 70, item_confidence.c_str(), red, 0, 1.f, 15 );
+            std::string item = std::to_string( reco.value );
+            std::string item_confidence = std::to_string( (int)( reco.confidence ) ) + "%%";
+            cropped_numbers_res.draw_text( reco.position, 10, item.c_str(), green, 0, 1.f, 50 );
+            cropped_numbers_res.draw_text( reco.position, 70, item_confidence.c_str(), red, 0, 1.f, 15 );
         }
 
         cropped_numbers_res.display();

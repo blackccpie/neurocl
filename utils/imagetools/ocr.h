@@ -257,3 +257,63 @@ void center_number( CImg<float>& input )
 
     //input.display();
 }
+
+class ocr_helper
+{
+public:
+    ocr_helper( std::shared_ptr<network_manager_interface> net_manager )
+        : m_net_manager( net_manager ) {}
+    virtual ~ocr_helper() {}
+
+    void process( const CImg<float>& input )
+    {
+        m_cropped_numbers = get_cropped_numbers( input );
+
+        m_cropped_numbers.normalize( 0, 255 );
+        auto_threshold( m_cropped_numbers );
+
+        m_cropped_numbers.display();
+
+        std::vector<t_number_interval> number_intervals;
+        compute_ranges( m_cropped_numbers, number_intervals );
+
+        std::shared_ptr<samples_augmenter> smp_augmenter = std::make_shared<samples_augmenter>( 28, 28 );
+
+        float output[10] = { 0.f };
+
+        for ( auto& ni : number_intervals )
+        {
+            CImg<float> cropped_number( m_cropped_numbers.get_columns( ni.first, ni.second ) );
+
+            center_number( cropped_number );
+
+            sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
+            m_net_manager->compute_augmented_output( sample, smp_augmenter );
+
+            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
+
+            m_recognitions.emplace_back( reco{ ni.first, sample.max_comp_idx(), 100.f * sample.max_comp_val() } );
+
+            //cropped_number.display();
+        }
+    }
+
+    const CImg<float>& cropped_numbers() { return m_cropped_numbers; }
+
+public:
+
+    struct reco
+    {
+        size_t position;
+        size_t value;
+        float confidence;
+    };
+
+    const std::vector<reco>& recognitions() { return m_recognitions; }
+
+private:
+
+    std::vector<reco> m_recognitions;
+    CImg<float> m_cropped_numbers;
+    std::shared_ptr<network_manager_interface> m_net_manager;
+};
