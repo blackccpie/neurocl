@@ -47,7 +47,7 @@ add_executable(neuropicam ${sources_list} ${headers_list})
 
 target_link_libraries(neuropicam
 neurocl
-facetools
+imagetools
 raspicam
 X11
 pthread
