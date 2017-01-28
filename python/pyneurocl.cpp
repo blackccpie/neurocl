@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "neurocl.h"
 
+#include "imagetools/ocr.h"
+
 #include <boost/python.hpp>
 
 #include <numpy/arrayobject.h>
@@ -123,6 +125,27 @@ public:
     {
         m_net_manager->save_network();
         m_net_manager.reset();
+    }
+
+    /********** ADVANCED FEATURES ***************/
+
+    std::string digit_recognizer( const boost::python::numeric::array& in )
+    {
+        using namespace boost::python;
+
+		const tuple &shape_in = extract<tuple>( in.attr("shape") );
+
+        int wi = extract<int>( shape_in[1] ); // cols
+        int hi = extract<int>( shape_in[0] ); // rows
+
+        CImg<float> input( wi, hi, 1, 1 );
+
+        _array_converter<unsigned char,float>( in, input );
+
+        ocr_helper helper( m_net_manager );
+        helper.process( input );
+
+        return helper.reco_string();
     }
 
 private:

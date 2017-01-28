@@ -21,7 +21,7 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.2)
-project (facetools)
+project (imagetools)
 
 include_directories(
     .
@@ -39,7 +39,7 @@ edge_detect.h
 face_detect.h
 )
 
-add_library(facetools STATIC ${sources_list} ${headers_list})
+add_library(imagetools STATIC ${sources_list} ${headers_list})
 
 set(ccv_libs
     ${CMAKE_SOURCE_DIR}/../ccv/lib/libccv.a
@@ -47,7 +47,7 @@ set(ccv_libs
     jpeg
 )
 
-target_link_libraries(facetools
+target_link_libraries(imagetools
 ${ccv_libs}
 X11
 )

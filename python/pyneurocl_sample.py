@@ -2,7 +2,7 @@ import os, sys, time, threading
 
 microdot = False
 
-if ( os.uname()[1] == 'rapsberry' ):
+if ( os.uname()[1] == 'raspberry' ):
     try:
         from microdotphat import write_string
         microdot = True
