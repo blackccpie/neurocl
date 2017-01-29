@@ -51,6 +51,9 @@ public:
     {
         LOGGER(info) << "dropout_layer::populate - populating dropout layer " << m_name << std::endl;
 
+        if ( prev_layer->depth() != depth )
+            throw network_exception( "invalid depth for dropout layer, should be same depth as previous layer" );
+
         if ( ( prev_layer->width() != width ) || ( prev_layer->height() != height ) )
             throw network_exception( "invalid size for dropout layer, should be same size as previous layer" );
 
