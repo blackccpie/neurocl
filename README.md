@@ -194,6 +194,7 @@ neurocl main entry point is interface **network_manager_interface**, which can o
 *NOTE : for the sake of clarity, the following diagrams have been simplified to the main classes. More detailed diagrams will be added as appendices soon.*
 
 MLP Class diagram:
+
 ![PlantUML class diagram](http://www.plantuml.com/plantuml/png/ZP3H2i8m34NV-nLblWaR-0C--HybgwaEqsoadGhglrkA22iLbvT0xWcvDmmUmmGMDUCiewNEqwGtXrpwePGb2269yJRAnGmSKLp2JS8ApGs4vWny99H2yi1mGibBXTJpR7e8M8olUBTKGGLTPUeWHAKgrtIpQ_IsRNEl6bsxj4nUkjTTzzp_ONEaDU0dvnBz_gdC_GDJhpS0)
 
 CONVNET Class diagram:
