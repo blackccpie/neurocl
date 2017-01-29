@@ -13,7 +13,7 @@ def rgb2gray(rgb):
     return r/4 + g/2 + b/4
 
 print "---> pyneurocl - initialize"
-h = pyneurocl.helper(True)
+h = pyneurocl.helper(False)
 h.init('../nets/mnist/topology-mnist-kaggle.txt','../nets/mnist/weights-mnist-kaggle.bin')
 
 # initialize the camera and grab a reference to the raw camera capture

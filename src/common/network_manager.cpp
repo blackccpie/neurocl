@@ -222,7 +222,7 @@ void network_manager::compute_augmented_output( sample& s, const std::shared_ptr
     {
         float _tmp_max = output.max_comp_val();
 
-        std::cout << "network_manager::compute_augmented_output - " << _tmp_max << " " << output.max_comp_idx() << std::endl;
+        LOGGER(info) << "network_manager::compute_augmented_output - " << _tmp_max << " " << output.max_comp_idx() << std::endl;
 
         if ( _tmp_max > max )
         {
