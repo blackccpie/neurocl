@@ -53,6 +53,7 @@ public:
         m_cropped_numbers = get_cropped_numbers( input );
 
         m_cropped_numbers.normalize( 0, 255 );
+
         auto_threshold( m_cropped_numbers );
 
         //m_cropped_numbers.display();
@@ -66,8 +67,16 @@ public:
 
         for ( auto& ni : number_intervals )
         {
+            if ( ( ni.second - ni.first ) < 10 ) // letter is thinner than 10px, too small!!
+            {
+                std::cout << "digit is too thin, skipping..." << std::endl;
+                continue;
+            }
+
+            std::cout << "cropping at " << ni.first << " " << ni.second << std::endl;
             CImg<float> cropped_number( m_cropped_numbers.get_columns( ni.first, ni.second ) );
 
+            std::cout << "centering number" << std::endl;
             center_number( cropped_number );
 
             sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
@@ -149,18 +158,26 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     sobel_ccv::process<unsigned char>( work, work_edge );
 
     work_edge.normalize( 0, 255 );
-    //work_edge.dilate( 2 );
+
+    std::cout << "image mean value is " << work_edge.mean() << " , noise variance is " << work_edge.variance_noise() << std::endl;
+
+    if ( work_edge.variance_noise() > 10.f )
+    {
+    	work_edge.erode( 3 );
+    	std::cout << "post erosion mean value is " << work_edge.mean() << " , post erosion noise variance is " << work_edge.variance_noise() << std::endl;
+    }
+
     work_edge.threshold( 40 );
-    //input_edge.display();
+    //work_edge.display();
 
     // Compute row sums image
-    CImg<unsigned char> row_sums = get_row_sums( work_edge );
-    row_sums.threshold( 5 );
+    CImg<float> row_sums = get_row_sums( work_edge );
+    row_sums.threshold( 5.f );
     //row_sums.display();
 
     // Compute line sums image
-    CImg<unsigned char> line_sums = get_line_sums( work_edge );
-    line_sums.threshold( 5 );
+    CImg<float> line_sums = get_line_sums( work_edge );
+    line_sums.threshold( 5.f );
     //line_sums.display();
 
     // Compute extraction coords
@@ -208,7 +225,13 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     stopX += 2 * margin;
     stopY += margin;
 
-    //std::cout << margin << " / " << startX << " " << startY << " " << stopX << " " << stopY << std::endl;
+    // check boundaries
+    startX = std::max( startX, 0 );
+    startY = std::max( startY, 0 );
+    stopX = std::min( stopX, input.width()-1 );
+    stopY = std::min( stopY, input.height()-1 );
+
+    std::cout << margin << " / " << startX << " " << startY << " " << stopX << " " << stopY << std::endl;
 
     CImg<float> cropped( input.get_crop( startX, startY, stopX, stopY ) );
     cropped = 1.f - cropped;
@@ -220,9 +243,10 @@ void compute_ranges( const CImg<float>& input, std::vector<t_digit_interval>& nu
 {
     // Compute row sums image
     CImg<float> row_sums = get_row_sums( input );
-    row_sums.threshold( 2.f );
 
-    //row_sums.display();
+    row_sums.threshold( 1.f );
+
+   //row_sums.display();
 
     // Detect letter ranges
     size_t first = 0;
@@ -258,7 +282,8 @@ void center_number( CImg<float>& input )
     row_sums.threshold( 2.f );
     //row_sums.display();
 
-    int startX, stopX;
+    int startX = 0;
+    int stopX = 0;
     bool last_val = false;
     cimg_forX( row_sums, x )
     {
@@ -282,7 +307,8 @@ void center_number( CImg<float>& input )
     line_sums.threshold( 2.f );
     //line_sums.display();
 
-    int startY, stopY;
+    int startY = 0;
+    int stopY = 0;
     last_val = false;
     cimg_forY( line_sums, y )
     {
@@ -301,13 +327,21 @@ void center_number( CImg<float>& input )
         last_val = cur_val;
     }
 
+    std::cout << "startX/stopX - " << startX << "/" << stopX << " startY/stopY - " << startY << "/" << stopY << std::endl;
+
+    if ( ( stopX <= startX ) || ( stopY <= startY ) )
+    {
+        std::cout << "invalid centering request..." << std::endl;
+        return;
+    }
+
     // try to prepare image like MNIST does:
     // http://yann.lecun.com/exdb/mnist/
 
     //int max_dim = std::max( input.width(), input.height() );
     int max_dim = std::max( stopX - startX, stopY - startY );
 
-    input.crop( startX, startY, stopX, stopY);
+    input.crop( startX, startY, stopX, stopY );
     input.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
     input.resize( 20, 20, -100, -100, 6 );
     input.normalize( 0, 255 );
