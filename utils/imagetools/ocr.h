@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,101 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "neurocl.h"
-
-#include "../../apps/alpr/autothreshold.h"
-#include "../../utils/facetools/edge_detect.h"
+#include "autothreshold.h"
+#include "edge_detect.h"
 
 #include "CImg.h"
 
 #include <iostream>
 
+// TODO-CNN : not very happy to leave this in a header file... :-(
 using namespace neurocl;
 using namespace cimg_library;
+
+using t_digit_interval = std::pair<size_t,size_t>;
+
+CImg<> get_row_sums( const CImg<>& input );
+CImg<> get_line_sums( const CImg<>& input );
+CImg<float> get_cropped_numbers( const CImg<float>& input );
+void compute_ranges( const CImg<float>& input, std::vector<t_digit_interval>& number_intervals );
+void center_number( CImg<float>& input );
+
+class ocr_helper
+{
+public:
+    ocr_helper( std::shared_ptr<network_manager_interface> net_manager )
+        : m_net_manager( net_manager ) {}
+    virtual ~ocr_helper() {}
+
+    void process( const CImg<float>& input )
+    {
+        m_cropped_numbers = get_cropped_numbers( input );
+
+        m_cropped_numbers.normalize( 0, 255 );
+
+        auto_threshold( m_cropped_numbers );
+
+        //m_cropped_numbers.display();
+
+        std::vector<t_digit_interval> number_intervals;
+        compute_ranges( m_cropped_numbers, number_intervals );
+
+        std::shared_ptr<samples_augmenter> smp_augmenter = std::make_shared<samples_augmenter>( 28, 28 );
+
+        float output[10] = { 0.f };
+
+        for ( auto& ni : number_intervals )
+        {
+            if ( ( ni.second - ni.first ) < 10 ) // letter is thinner than 10px, too small!!
+            {
+                std::cout << "digit is too thin, skipping..." << std::endl;
+                continue;
+            }
+
+            std::cout << "cropping at " << ni.first << " " << ni.second << std::endl;
+            CImg<float> cropped_number( m_cropped_numbers.get_columns( ni.first, ni.second ) );
+
+            std::cout << "centering number" << std::endl;
+            center_number( cropped_number );
+
+            sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
+            m_net_manager->compute_augmented_output( sample, smp_augmenter );
+
+            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
+
+            m_recognitions.emplace_back( reco{ ni.first, sample.max_comp_idx(), 100.f * sample.max_comp_val() } );
+
+            //cropped_number.display();
+        }
+    }
+
+    const CImg<float>& cropped_numbers() { return m_cropped_numbers; }
+
+public:
+
+    struct reco
+    {
+        size_t position;
+        size_t value;
+        float confidence;
+    };
+
+    const std::vector<reco>& recognitions() { return m_recognitions; }
+
+    std::string reco_string()
+    {
+        std::string _str;
+        for ( auto& _reco : m_recognitions )
+            _str += std::to_string( _reco.value );
+        return _str;
+    }
+
+private:
+
+    std::vector<reco> m_recognitions;
+    CImg<float> m_cropped_numbers;
+    std::shared_ptr<network_manager_interface> m_net_manager;
+};
 
 CImg<> get_row_sums( const CImg<>& input )
 {
@@ -74,18 +158,26 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     sobel_ccv::process<unsigned char>( work, work_edge );
 
     work_edge.normalize( 0, 255 );
-    //work_edge.dilate( 2 );
+
+    std::cout << "image mean value is " << work_edge.mean() << " , noise variance is " << work_edge.variance_noise() << std::endl;
+
+    if ( work_edge.variance_noise() > 10.f )
+    {
+    	work_edge.erode( 3 );
+    	std::cout << "post erosion mean value is " << work_edge.mean() << " , post erosion noise variance is " << work_edge.variance_noise() << std::endl;
+    }
+
     work_edge.threshold( 40 );
-    //input_edge.display();
+    //work_edge.display();
 
     // Compute row sums image
-    CImg<unsigned char> row_sums = get_row_sums( work_edge );
-    row_sums.threshold( 5 );
+    CImg<float> row_sums = get_row_sums( work_edge );
+    row_sums.threshold( 5.f );
     //row_sums.display();
 
     // Compute line sums image
-    CImg<unsigned char> line_sums = get_line_sums( work_edge );
-    line_sums.threshold( 5 );
+    CImg<float> line_sums = get_line_sums( work_edge );
+    line_sums.threshold( 5.f );
     //line_sums.display();
 
     // Compute extraction coords
@@ -133,7 +225,13 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     stopX += 2 * margin;
     stopY += margin;
 
-    //std::cout << margin << " / " << startX << " " << startY << " " << stopX << " " << stopY << std::endl;
+    // check boundaries
+    startX = std::max( startX, 0 );
+    startY = std::max( startY, 0 );
+    stopX = std::min( stopX, input.width()-1 );
+    stopY = std::min( stopY, input.height()-1 );
+
+    std::cout << margin << " / " << startX << " " << startY << " " << stopX << " " << stopY << std::endl;
 
     CImg<float> cropped( input.get_crop( startX, startY, stopX, stopY ) );
     cropped = 1.f - cropped;
@@ -141,14 +239,14 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
     return cropped;
 }
 
-using t_number_interval = std::pair<size_t,size_t>;
-void compute_ranges( const CImg<float>& input, std::vector<t_number_interval>& number_intervals )
+void compute_ranges( const CImg<float>& input, std::vector<t_digit_interval>& number_intervals )
 {
     // Compute row sums image
     CImg<float> row_sums = get_row_sums( input );
-    row_sums.threshold( 2.f );
 
-    //row_sums.display();
+    row_sums.threshold( 1.f );
+
+   //row_sums.display();
 
     // Detect letter ranges
     size_t first = 0;
@@ -184,7 +282,8 @@ void center_number( CImg<float>& input )
     row_sums.threshold( 2.f );
     //row_sums.display();
 
-    int startX, stopX;
+    int startX = 0;
+    int stopX = 0;
     bool last_val = false;
     cimg_forX( row_sums, x )
     {
@@ -208,7 +307,8 @@ void center_number( CImg<float>& input )
     line_sums.threshold( 2.f );
     //line_sums.display();
 
-    int startY, stopY;
+    int startY = 0;
+    int stopY = 0;
     last_val = false;
     cimg_forY( line_sums, y )
     {
@@ -227,18 +327,24 @@ void center_number( CImg<float>& input )
         last_val = cur_val;
     }
 
+    std::cout << "startX/stopX - " << startX << "/" << stopX << " startY/stopY - " << startY << "/" << stopY << std::endl;
+
+    if ( ( stopX <= startX ) || ( stopY <= startY ) )
+    {
+        std::cout << "invalid centering request..." << std::endl;
+        return;
+    }
+
     // try to prepare image like MNIST does:
     // http://yann.lecun.com/exdb/mnist/
 
     //int max_dim = std::max( input.width(), input.height() );
     int max_dim = std::max( stopX - startX, stopY - startY );
 
-    input.crop( startX, startY, stopX, stopY);
+    input.crop( startX, startY, stopX, stopY );
     input.resize( max_dim, max_dim, -100, -100, 0, 0, 0.5f, 0.5f );
     input.resize( 20, 20, -100, -100, 6 );
     input.normalize( 0, 255 );
-
-    input.display();
 
     // compute center of mass
     int massX = 0;
@@ -259,85 +365,5 @@ void center_number( CImg<float>& input )
 
     input.normalize( 0.f, 1.f );
 
-    input.display();
-}
-
-unsigned char green[] = { 0,255,0 };
-unsigned char red[] = { 255,0,0 };
-
-int main( int argc, char *argv[] )
-{
-    std::cout << "Welcome to test_ocr!" << std::endl;
-
-    if ( argc == 1 )
-    {
-        std::cout << "Invalid arguments!" << std::endl;
-        std::cout << "example: ./test_ocr input.png" << std::endl;
-        return -1;
-    }
-
-    try
-    {
-        std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
-        net_manager->load_network( "../nets/mnist/topology-mnist-kaggle.txt", "../nets/mnist/weights-mnist-kaggle.bin" );
-
-    	CImg<unsigned char> input( argv[1] );
-        input.channel(0);
-
-        CImg<float> cropped_numbers = get_cropped_numbers( input );
-
-        cropped_numbers.normalize( 0, 255 );
-        auto_threshold( cropped_numbers );
-
-        cropped_numbers.display();
-
-        std::vector<t_number_interval> number_intervals;
-        compute_ranges( cropped_numbers, number_intervals );
-
-        float output[10] = { 0.f };
-
-        CImg<float> cropped_numbers_res( cropped_numbers.width(), cropped_numbers.height(), 1, 3, 0 );
-        cimg_forXY( cropped_numbers, x, y )
-        {
-            cropped_numbers_res( x, y, 0 ) = cropped_numbers_res( x, y, 1 ) = cropped_numbers_res( x, y, 2 ) = cropped_numbers( x, y );
-        }
-        cropped_numbers_res.normalize( 0, 255 );
-
-        for ( auto& ni : number_intervals )
-        {
-            CImg<float> cropped_number( cropped_numbers.get_columns( ni.first, ni.second ) );
-
-            center_number( cropped_number );
-
-            sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
-            net_manager->compute_output( sample );
-
-            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
-
-            //cropped_number.display();
-
-            std::string item = std::to_string( sample.max_comp_idx() );
-            std::string item_confidence = std::to_string( (int)( 100 * sample.max_comp_val() ) ) + "%%";
-            cropped_numbers_res.draw_text( ni.first, 10, item.c_str(), green, 0, 1.f, 50 );
-            cropped_numbers_res.draw_text( ni.first, 70, item_confidence.c_str(), red, 0, 1.f, 15 );
-        }
-
-        cropped_numbers_res.display();
-    }
-    catch( neurocl::network_exception& e )
-    {
-        std::cerr << "network exception : " << e.what() << std::endl;
-    }
-    catch( std::exception& e )
-    {
-        std::cerr << "std::exception : " << e.what() << std::endl;
-    }
-    catch(...)
-    {
-        std::cerr << "unknown exception" << std::endl;
-    }
-
-    std::cout << "Bye bye test_ocr!" << std::endl;
-
-    return 0;
+    //input.display();
 }

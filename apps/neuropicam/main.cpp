@@ -30,8 +30,8 @@ THE SOFTWARE.
 
 #include "raspicam/raspicam.h"
 
-#include "facetools/edge_detect.h"
-#include "facetools/face_detect.h"
+#include "imagetools/edge_detect.h"
+#include "imagetools/face_detect.h"
 
 #include "CImg.h"
 

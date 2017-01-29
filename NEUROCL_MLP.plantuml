@@ -1,0 +1,23 @@
+@startuml
+
+namespace neurocl.mlp #DDDDDD {
+
+class network_interface_mlp
+class network_file_handler
+class network_manager_mlp
+
+class network_bnu_base
+class network_vexcl
+class network_bnu_ref
+class network_bnu_fast
+
+network_manager_mlp "1" *-- "1" network_file_handler
+network_manager_mlp "1" *-- "1" network_interface_mlp
+network_bnu_base ..|> network_interface_mlp
+network_vexcl ..|> network_interface_mlp
+network_bnu_ref ..|> network_bnu_base
+network_bnu_fast ..|> network_bnu_base
+
+}
+
+@enduml

@@ -197,46 +197,42 @@ void network_manager::_train_single( const sample& s )
 
 void network_manager::compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter )
 {
-	// NOT IMPLEMENTED YET
+	// ONLY ROTATION AUGMENTATION IS IMPLEMENTED YET
 
-    /*std::vector< std::pair<int,int> > translations{ {-1,1}, {1,-1}, {1,1}, {-1,-1} };
+    std::vector<int> rotations{ -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 };
 
     std::vector<output_ptr> outputs;
 
-    m_net->set_input( s.isample_size, s.isample );
-    m_net->feed_forward();
-    outputs.emplace_back( m_net->output() );
-
-    //max_comp_val
-
-    for ( auto& trans : translations )
+    for ( auto& rot : rotations )
     {
-        sample _s = smp_augmenter->translate( s, trans.first, trans.second );
+        sample _s = smp_augmenter->rotate( s, rot );
         m_net->set_input( _s.isample_size, _s.isample );
         m_net->feed_forward();
         outputs.emplace_back( m_net->output() );
         //output_layer += m_net->output();
     }
 
+    // TODO-CNN : not very proud of the efficiency of this code section...
+    // still it is temporary as computing a mean image alos makes sense!
+
     int i = 0;
     int l = 0;
     float max = std::numeric_limits<float>::min();
     for ( const auto& output : outputs )
     {
-        if ( output.max_comp_val() > max )
+        float _tmp_max = output.max_comp_val();
+
+        LOGGER(info) << "network_manager::compute_augmented_output - " << _tmp_max << " " << output.max_comp_idx() << std::endl;
+
+        if ( _tmp_max > max )
         {
             l = i;
-            max = output.max_comp_val();
+            max = _tmp_max;
         }
         i++;
     }
 
     std::copy( outputs[l].outputs.get(), outputs[l].outputs.get() + outputs[l].num_outputs, const_cast<float*>( s.osample ) );
-
-    //output_layer /= 5.f;
-
-    //std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
-	*/
 }
 
 void network_manager::compute_output( sample& s )
@@ -247,6 +243,14 @@ void network_manager::compute_output( sample& s )
     m_net->feed_forward();
     output_ptr output_layer = m_net->output();
     std::copy( output_layer.outputs.get(), output_layer.outputs.get() + output_layer.num_outputs, const_cast<float*>( s.osample ) );
+}
+
+void network_manager::compute_output( std::vector<sample>& s )
+{
+    _assert_loaded();
+
+    // NOT IMPLEMENTED YET
+    //m_net->batch_feed_forward( std::vector<input_ptr>&, std::vector<output_ptr>& );
 }
 
 void network_manager::gradient_check( const sample& s )

@@ -41,7 +41,7 @@ endif ()
 add_executable(test_edge ${sources_list} ${headers_list})
 
 target_link_libraries(test_edge
-facetools
+imagetools
 boost_chrono${boost_suffix}
 boost_system${boost_suffix}
 pthread

@@ -29,9 +29,10 @@ THE SOFTWARE.
 
 namespace neurocl {
 
+#define EPOCH_DECREASE_FACTOR 0.99f
+
 learning_scheduler::learning_scheduler()
-    : m_enabled( false ), m_cached_rate( 0.f ), m_cached_error( 0.f ),
-    m_err_count( 0 ), m_err_window( 8 )
+    : m_enabled( false ), m_cached_rate( 0.f )
 {
 }
 
@@ -81,21 +82,11 @@ void learning_scheduler::push_error( const float error )
 
     	LOGGER(info) << "learning_scheduler::push_error - pushing error " << error << std::endl;
 
-    	if ( m_err_count == 0 )
-        	m_cached_error = error;
+        float new_rate = EPOCH_DECREASE_FACTOR * m_solver->get_learning_rate();
 
-    	if ( ++m_err_count == m_err_window )
-    	{
-        	if ( error >= m_cached_error )
-        	{
-            	float new_rate = 0.5f * m_solver->get_learning_rate();
+        LOGGER(info) << "learning_scheduler::push_error - new learning rate set to " << new_rate << "!" << std::endl;
 
-            	LOGGER(info) << "learning_scheduler::push_error - convergence slowdown, halving learning rate to " << new_rate << "!" << std::endl;
-
-            	m_solver->set_learning_rate( new_rate );
-        	}
-        	m_err_count = 0;
-        }
+        m_solver->set_learning_rate( new_rate );
     }
 }
 

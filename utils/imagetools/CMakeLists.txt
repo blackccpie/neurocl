@@ -1,6 +1,6 @@
 #The MIT License
 #
-#Copyright (c) 2015-2016 Albert Murienne
+#Copyright (c) 2015-2017 Albert Murienne
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -21,22 +21,35 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.2)
-project (test_ocr)
+project (imagetools)
 
 include_directories(
-	"${CMAKE_SOURCE_DIR}/src"
-	"${CMAKE_SOURCE_DIR}/../CImg"
+    .
+    "${CMAKE_SOURCE_DIR}/../CImg"
+    "${CMAKE_SOURCE_DIR}/../ccv/lib"
 )
 
 set (sources_list
-main.cpp
+edge_detect.cpp
+face_detect.cpp
 )
 
-add_executable(test_ocr ${sources_list} ${headers_list})
+set (headers_list
+edge_detect.h
+face_detect.h
+)
 
-target_link_libraries(test_ocr
-neurocl
-facetools
-pthread
-${extra_link_libs}
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+add_library(imagetools STATIC ${sources_list} ${headers_list})
+
+set(ccv_libs
+    ${CMAKE_SOURCE_DIR}/../ccv/lib/libccv.a
+    png
+    jpeg
+)
+
+target_link_libraries(imagetools
+${ccv_libs}
+X11
 )

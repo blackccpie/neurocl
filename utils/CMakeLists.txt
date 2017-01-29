@@ -1,6 +1,6 @@
 #The MIT License
 #
-#Copyright (c) 2015-2016 Albert Murienne
+#Copyright (c) 2015-2017 Albert Murienne
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 
 cmake_minimum_required (VERSION 3.2)
 
-add_subdirectory(facetools)
+add_subdirectory(imagetools)
 
 if (NOT APPLE)
     add_subdirectory(raspicam)

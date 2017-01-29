@@ -1,0 +1,44 @@
+@startuml
+
+namespace neurocl.convnet #DDDDDD {
+
+'together {
+'class tensor
+'class tensor_activations
+'class tensor_solver
+'class tensor_operations
+'class tensor_loss_functions
+'}
+
+interface layer
+
+class conv_layer<activationT>
+class dropout_layer
+class full_layer<activationT>
+class input_layer
+class pool_layer
+class output_layer<activationT,errorT>
+
+class network_manager_convnet
+class network_file_handler
+class network_interface_convnet
+class network
+class network_parallel
+
+network_manager_convnet "1" *-- "1" network_file_handler
+network_manager_convnet "1" *-- "1" network_interface_convnet
+network ..|> network_interface_convnet
+network "1" *-- "N" layer
+network_parallel ..|> network_interface_convnet
+network_parallel "1" *-- "M" network
+
+input_layer ..|> layer
+output_layer ..|> layer
+full_layer ..|> layer
+conv_layer ..|> layer
+pool_layer ..|> layer
+dropout_layer ..|> layer
+
+}
+
+@enduml

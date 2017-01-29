@@ -24,7 +24,9 @@ cmake_minimum_required (VERSION 3.2)
 project (pyneurocl)
 
 include_directories(
+    "${CMAKE_SOURCE_DIR}/../CImg"
     "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/utils"
 )
 
 # Find necessary python packages
@@ -56,6 +58,7 @@ set_target_properties(pyneurocl PROPERTIES SUFFIX .so)
 target_link_libraries(pyneurocl
 boost_python${boost_suffix}
 python2.7
+imagetools
 neurocl
 )
 
