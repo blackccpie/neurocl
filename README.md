@@ -191,13 +191,14 @@ neurocl main entry point is interface **network_manager_interface**, which can o
 
 ## Architecture:
 
-MLP Class diagram:
+*NOTE : for the sake of clarity, the following diagrams have been simplified to the main classes. More detailed diagrams will be added as appendices soon.*
 
-![PlantUML class diagram](http://plantuml.com/plantuml/png/XP91Ri8m44NtFiM8Rbf4KBfYWxBa0XmWcfXnOc4co3QXKilTGIMnQYSDAqlVppFpvriQT0wO_BMrnrAsh7GDsosyxrTlkzrca-SVu3JNXdpBK1J2jpNvXYny2ysUh499uNrGX8pgLdmfAtIftD6NDE8s0LjI4wf2vnFvX8mrsKHLsb3P81_CwChXwMo6GVHZNFIwez9Rr1pW9-H2TP4QWVNwfvYm7Jbx1VL6OooiAZN-0kj7XSNd0fPPzdl-ttgEZfOtCfvbHV9T4jCpmD3rBzBdCKeYWeOSvgbdAH19UXFC7G00)
+MLP Class diagram:
+![PlantUML class diagram](http://www.plantuml.com/plantuml/png/ZP3H2i8m34NV-nLblWaR-0C--HybgwaEqsoadGhglrkA22iLbvT0xWcvDmmUmmGMDUCiewNEqwGtXrpwePGb2269yJRAnGmSKLp2JS8ApGs4vWny99H2yi1mGibBXTJpR7e8M8olUBTKGGLTPUeWHAKgrtIpQ_IsRNEl6bsxj4nUkjTTzzp_ONEaDU0dvnBz_gdC_GDJhpS0)
 
 CONVNET Class diagram:
 
-*TODO*
+![PlantUML class diagram](http://www.plantuml.com/plantuml/png/bLBBJiCm4BpxAwnog8He9Ewe9wvmucvPxgQDs7gjjHE4eFzE7iPnJ2gLN2BFpCwilMlr6RpJ1gI5bibWPSXs5eAyUnu_-IN4Dj0HmWcuFsmDQkzb0Ek9boUbJMWw7Hgolc0yOGUbd1pmgXh9UrMtraJo8aHZ0t0zz8dwitSIKy7Gh1gHfpdyRH_P0vEZDao2YDKjulMAnhf2xuXm0VI6IPDRF00pSUyKTVqRVX2_gxEs-WYiuhiMRDqWg9Es1qm1lrIwydffeNQQDIAW45U2vUPn8-ztk_6_6l-Vmh_DHKPMrVV-1baoVTt4aPOtkT5frYVBbzJdi3XfMfFX59PFCSVdzSZHUSroT5wD75qiNKw8omy0)
 
 ## Targeted platforms:
 
