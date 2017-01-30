@@ -84,10 +84,10 @@ while(True):
 
 		blanksize = 0
 
-		if len(reco_out) < 4:
+		if len(reco_out) <= 4:
 			blanksize = 4 - len(reco_out)
 
-		recon = ( "_" * blanksize ) + reco_out[0:3]
+		recon = ( "_" * blanksize ) + reco_out[0:4]
 
 		clear()
 		write_string( recon + "-R", kerning=False )
