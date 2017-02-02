@@ -55,9 +55,9 @@ float compute_score(	const int i,
     float mean_rmse = 0.f;
     size_t _classif_score = 0;
 
-    for ( size_t i = 0; i<training_samples.size(); i++ )
+    for ( size_t s = 0; s<training_samples.size(); s++ )
     {
-        test_sample tsample( smp_manager.get_samples()[i] );
+        test_sample tsample( smp_manager.get_samples()[s] );
         net_manager->compute_output( tsample );
         //net_manager->compute_augmented_output( tsample, smp_manager.get_augmenter({}) );
 
@@ -68,7 +68,7 @@ float compute_score(	const int i,
 
         tsample.restore_ref();
 
-        progress = 100 * i / training_samples.size();
+        progress = 100 * s / training_samples.size();
         std::cout << "\rtesting - progress " << progress << "%";// << std::endl;
     }
 
