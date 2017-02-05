@@ -136,6 +136,7 @@ void ocr_helper::process( const T* input, const int sizeX, const int sizeY )
 }
 
 template void ocr_helper::process<unsigned char>( const unsigned char* input, const int sizeX, const int sizeY );
+template void ocr_helper::process<float>( const float* input, const int sizeX, const int sizeY );
 
 template<typename imageT>
 const imageT& ocr_helper::cropped_numbers()
