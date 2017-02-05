@@ -47,7 +47,8 @@ float compute_score(	const int i,
                     	const std::shared_ptr<network_manager_interface>& net_manager,
                         float& rmse,
                     	float& last_rmse,
-                        bool testing )
+                        bool testing,
+                        const size_t compute_size )
 {
     const std::vector<sample>& training_samples = smp_manager.get_samples();
 
@@ -55,9 +56,9 @@ float compute_score(	const int i,
     float mean_rmse = 0.f;
     size_t _classif_score = 0;
 
-    for ( size_t s = 0; s<training_samples.size(); s++ )
+    for ( size_t s = 0; s<compute_size; s++ )
     {
-        test_sample tsample( smp_manager.get_samples()[s] );
+        test_sample tsample( training_samples[s] );
         net_manager->compute_output( tsample );
         //net_manager->compute_augmented_output( tsample, smp_manager.get_augmenter({}) );
 
@@ -68,18 +69,18 @@ float compute_score(	const int i,
 
         tsample.restore_ref();
 
-        progress = 100 * s / training_samples.size();
+        progress = 100 * s / compute_size;
         std::cout << "\rtesting - progress " << progress << "%";// << std::endl;
     }
 
     std::cout << std::endl;
 
-    float score = static_cast<float>( 1000 * _classif_score / training_samples.size() ) / 10.f;
-    rmse = mean_rmse / static_cast<float>( training_samples.size() );
+    float score = static_cast<float>( 1000 * _classif_score / compute_size ) / 10.f;
+    rmse = mean_rmse / static_cast<float>( compute_size );
 
     console_color::modifier* mod = ( rmse <= last_rmse ) ? &c_green : &c_red;
 
-    std::cout << "EPOCH " << i << " - CURRENT " << ( testing ? "TESTING" : "TRAINING" ) << " SCORE IS : " << score << "% (" << _classif_score << "/" << training_samples.size() << ") "
+    std::cout << "EPOCH " << i << " - CURRENT " << ( testing ? "TESTING" : "TRAINING" ) << " SCORE IS : " << score << "% (" << _classif_score << "/" << compute_size << ") "
         << "CURRENT RMSE IS : " << rmse << " (" << *mod << (rmse-last_rmse) << c_def << ")" << std::endl;
 
     last_rmse = rmse;
@@ -163,12 +164,15 @@ int main( int argc, char *argv[] )
 
         std::ofstream output_file( "mnist_training.csv", std::fstream::app );
 
+        const size_t compute_size = smp_validate_manager.samples_size();
+
         for ( int i=0; i<NEUROCL_MAX_EPOCH_SIZE; i+= NEUROCL_EPOCH_PERIOD )
         {
             net_manager->batch_train( smp_train_manager, NEUROCL_EPOCH_PERIOD, NEUROCL_BATCH_SIZE );
 
-            train_score = compute_score( i, smp_train_manager, net_manager, rmse, last_train_rmse, false );
-            valid_score = compute_score( i, smp_validate_manager, net_manager, rmse, last_valid_rmse, true );
+            // train score is computed on the same data size as valid score to be representative
+            train_score = compute_score( i, smp_train_manager, net_manager, rmse, last_train_rmse, false, compute_size );
+            valid_score = compute_score( i, smp_validate_manager, net_manager, rmse, last_valid_rmse, true, compute_size );
 
             sched.push_error( rmse );
 
