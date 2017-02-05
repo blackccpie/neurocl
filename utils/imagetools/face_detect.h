@@ -25,13 +25,8 @@ THE SOFTWARE.
 #ifndef FACE_DETECT_H
 #define FACE_DETECT_H
 
-#include "CImg.h"
-
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <vector>
-
-class face_detect_impl;
 
 // Class to manage face detection
 class face_detect
@@ -54,11 +49,12 @@ public:
     virtual ~face_detect();
 
 	template<typename T>
-    const std::vector<face_rect>& detect( cimg_library::CImg<T>& image );
+    const std::vector<face_rect>& detect( const T* input, const int sizeX, const int sizeY );
 
 private:
 
-    std::shared_ptr<face_detect_impl> m_face_detect_impl;
+    class face_detect_impl;
+    std::unique_ptr<face_detect_impl> m_face_detect_impl;
 };
 
 #endif //FACE_DETECT_H

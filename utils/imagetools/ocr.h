@@ -25,27 +25,13 @@ THE SOFTWARE.
 #ifndef OCR_H
 #define OCR_H
 
-#include "autothreshold.h"
-#include "edge_detect.h"
-
-#include "CImg.h"
-
-#include <iostream>
+#include <memory>
+#include <vector>
 
 namespace neurocl { class network_manager_interface; }
 
-using t_digit_interval = std::pair<size_t,size_t>;
-
 class ocr_helper
 {
-public:
-    ocr_helper( std::shared_ptr<neurocl::network_manager_interface> net_manager )
-        : m_net_manager( net_manager ) {}
-    virtual ~ocr_helper() {}
-
-    void process( const cimg_library::CImg<float>& input );
-    const cimg_library::CImg<float>& cropped_numbers() { return m_cropped_numbers; }
-
 public:
 
     struct reco
@@ -55,21 +41,24 @@ public:
         float confidence;
     };
 
-    const std::vector<reco>& recognitions() { return m_recognitions; }
+public:
+    ocr_helper( std::shared_ptr<neurocl::network_manager_interface> net_manager );
+    virtual ~ocr_helper();
 
-    std::string reco_string()
-    {
-        std::string _str;
-        for ( auto& _reco : m_recognitions )
-            _str += std::to_string( _reco.value );
-        return _str;
-    }
+    template<typename T>
+    void process( const T* input, const int sizeX, const int sizeY );
+
+    // For now only CImg image type is supported
+    template<typename imageT>
+    const imageT& cropped_numbers();
+
+    const std::vector<reco>& recognitions();
+    std::string reco_string();
 
 private:
 
-    std::vector<reco> m_recognitions;
-    cimg_library::CImg<float> m_cropped_numbers;
-    std::shared_ptr<neurocl::network_manager_interface> m_net_manager;
+    class ocr_helper_impl;
+    std::unique_ptr<ocr_helper_impl> m_pimpl;
 };
 
 #endif //OCR_H

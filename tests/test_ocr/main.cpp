@@ -26,10 +26,15 @@ THE SOFTWARE.
 
 #include "imagetools/ocr.h"
 
+#include "CImg.h"
+
+#include <iostream>
+
 unsigned char green[] = { 0,255,0 };
 unsigned char red[] = { 255,0,0 };
 
 using namespace neurocl;
+using namespace cimg_library;
 
 int main( int argc, char *argv[] )
 {
@@ -51,9 +56,9 @@ int main( int argc, char *argv[] )
         input.channel(0);
 
         ocr_helper helper( net_manager );
-        helper.process( input );
+        helper.process( input.data(), input.width(), input.height() );
 
-        CImg<float> cropped_numbers = helper.cropped_numbers();
+        CImg<float> cropped_numbers = helper.cropped_numbers<CImg<float>>();
 
         CImg<float> cropped_numbers_res( cropped_numbers.width(), cropped_numbers.height(), 1, 3, 0 );
         cimg_forXY( cropped_numbers, x, y )

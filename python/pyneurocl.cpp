@@ -138,14 +138,14 @@ public:
         int wi = extract<int>( shape_in[1] ); // cols
         int hi = extract<int>( shape_in[0] ); // rows
 
-        CImg<float> input( wi, hi, 1, 1 );
+        boost::shared_array<float> input( new float[wi*hi] );
 
         std::cout << "digit reco input image is " << wi << "x" << hi << std::endl;
 
-        _array_converter<unsigned char,float>( in, input );
+        _array_converter<unsigned char,float>( in, input.get() );
 
         ocr_helper helper( m_net_manager );
-        helper.process( input );
+        helper.process( input.get(), wi, hi );
 
         return helper.reco_string();
     }

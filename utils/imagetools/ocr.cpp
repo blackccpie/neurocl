@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "autothreshold.h"
 #include "edge_detect.h"
 
-//#include "CImg.h"
+#include "CImg.h"
 
 #include <iostream>
 
@@ -44,47 +44,118 @@ CImg<float> get_cropped_numbers( const CImg<float>& input );
 void compute_ranges( const CImg<float>& input, std::vector<t_digit_interval>& number_intervals );
 void center_number( CImg<float>& input );
 
-void ocr_helper::process( const CImg<float>& input )
+class ocr_helper::ocr_helper_impl
 {
-    m_cropped_numbers = get_cropped_numbers( input );
+public:
+    ocr_helper_impl( std::shared_ptr<network_manager_interface> net_manager )
+        : m_net_manager( net_manager ) {}
+    virtual ~ocr_helper_impl() = default;
 
-    m_cropped_numbers.normalize( 0, 255 );
-
-    auto_threshold( m_cropped_numbers.data(), m_cropped_numbers.width(), m_cropped_numbers.height() );
-
-    //m_cropped_numbers.display();
-
-    std::vector<t_digit_interval> number_intervals;
-    compute_ranges( m_cropped_numbers, number_intervals );
-
-    std::shared_ptr<samples_augmenter> smp_augmenter = std::make_shared<samples_augmenter>( 28, 28 );
-
-    float output[10] = { 0.f };
-
-    for ( auto& ni : number_intervals )
+    template<typename T>
+    void process( const T* input, const int sizeX, const int sizeY )
     {
-        if ( ( ni.second - ni.first ) < 10 ) // letter is thinner than 10px, too small!!
+        // Copy cast to float image
+        const CImg<float> _input( CImg<T>( input, sizeX, sizeY, 1, 1, true /*shared*/) );
+
+        m_cropped_numbers = get_cropped_numbers( _input );
+
+        m_cropped_numbers.normalize( 0, 255 );
+
+        auto_threshold( m_cropped_numbers.data(), m_cropped_numbers.width(), m_cropped_numbers.height() );
+
+        //m_cropped_numbers.display();
+
+        std::vector<t_digit_interval> number_intervals;
+        compute_ranges( m_cropped_numbers, number_intervals );
+
+        std::shared_ptr<samples_augmenter> smp_augmenter = std::make_shared<samples_augmenter>( 28, 28 );
+
+        float output[10] = { 0.f };
+
+        for ( auto& ni : number_intervals )
         {
-            std::cout << "digit is too thin, skipping..." << std::endl;
-            continue;
+            if ( ( ni.second - ni.first ) < 10 ) // letter is thinner than 10px, too small!!
+            {
+                std::cout << "digit is too thin, skipping..." << std::endl;
+                continue;
+            }
+
+            std::cout << "cropping at " << ni.first << " " << ni.second << std::endl;
+            CImg<float> cropped_number( m_cropped_numbers.get_columns( ni.first, ni.second ) );
+
+            std::cout << "centering number" << std::endl;
+            center_number( cropped_number );
+
+            sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
+            m_net_manager->compute_augmented_output( sample, smp_augmenter );
+
+            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
+
+            m_recognitions.emplace_back( reco{ ni.first, sample.max_comp_idx(), 100.f * sample.max_comp_val() } );
+
+            //cropped_number.display();
         }
-
-        std::cout << "cropping at " << ni.first << " " << ni.second << std::endl;
-        CImg<float> cropped_number( m_cropped_numbers.get_columns( ni.first, ni.second ) );
-
-        std::cout << "centering number" << std::endl;
-        center_number( cropped_number );
-
-        sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
-        m_net_manager->compute_augmented_output( sample, smp_augmenter );
-
-        std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
-
-        m_recognitions.emplace_back( reco{ ni.first, sample.max_comp_idx(), 100.f * sample.max_comp_val() } );
-
-        //cropped_number.display();
     }
+
+    template<typename imageT>
+    const imageT& cropped_numbers()
+    {
+        return m_cropped_numbers;
+    }
+
+public:
+
+    const std::vector<ocr_helper::reco>& recognitions() { return m_recognitions; }
+
+    std::string reco_string()
+    {
+        std::string _str;
+        for ( auto& _reco : m_recognitions )
+            _str += std::to_string( _reco.value );
+        return _str;
+    }
+
+private:
+
+    std::vector<ocr_helper::reco> m_recognitions;
+    CImg<float> m_cropped_numbers;
+    std::shared_ptr<network_manager_interface> m_net_manager;
+};
+
+ocr_helper::ocr_helper( std::shared_ptr<network_manager_interface> net_manager )
+    : m_pimpl( new ocr_helper_impl( net_manager ) )
+{
 }
+
+ocr_helper::~ocr_helper() = default;
+
+template<typename T>
+void ocr_helper::process( const T* input, const int sizeX, const int sizeY )
+{
+    m_pimpl->process( input, sizeX, sizeY );
+}
+
+template void ocr_helper::process<unsigned char>( const unsigned char* input, const int sizeX, const int sizeY );
+
+template<typename imageT>
+const imageT& ocr_helper::cropped_numbers()
+{
+    return m_pimpl->cropped_numbers<imageT>();
+}
+
+template const CImg<float>& ocr_helper::cropped_numbers<CImg<float>>();
+
+const std::vector<ocr_helper::reco>& ocr_helper::recognitions()
+{
+    return m_pimpl->recognitions();
+}
+
+std::string ocr_helper::reco_string()
+{
+    return m_pimpl->reco_string();
+}
+
+//********************** UTILITY FUNCTIONS **********************//
 
 CImg<> get_row_sums( const CImg<>& input )
 {
