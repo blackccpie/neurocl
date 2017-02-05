@@ -223,6 +223,12 @@ void network_bnu_base::clear_gradients()
     m_training_samples = 0;
 }
 
+float network_bnu_base::loss()
+{
+    // NOT IMPLEMENTED YET
+    return -1.f;
+}
+
 const std::string network_bnu_base::dump_weights()
 {
     std::stringstream ss;

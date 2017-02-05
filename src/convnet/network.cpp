@@ -263,6 +263,11 @@ void network::gradient_descent()
     }
 }
 
+float network::loss()
+{
+    return std::static_pointer_cast<output_layer_iface>( m_layers.back() )->loss();
+}
+
 void network::gradient_check( const output_ptr& out_ref )
 {
     // NOTE : network input & output have to be previously set!!

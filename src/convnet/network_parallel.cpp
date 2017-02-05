@@ -159,6 +159,11 @@ void network_parallel::gradient_descent()
     m_current_net = 0;
 }
 
+float network_parallel::loss()
+{
+    return m_networks.at(0).loss();
+}
+
 void network_parallel::gradient_check( const output_ptr& out_ref )
 {
     LOGGER(error) << "network_parallel::gradient_check - not implemented for parallel training" << std::endl;

@@ -33,10 +33,10 @@ class mse
 {
 public:
 
-    static tensor f( tensor& y, tensor& t )
+    static float f( tensor& y, tensor& t )
     {
         float factor = 0.5f / static_cast<float>( y.size() );
-        return std::move( factor * ( y - t ) * ( y - t ) );
+        return std::move( factor * ( ( y - t ) * ( y - t ) ).sum() );
     }
 
     static tensor d_f( tensor& y, tensor& t )
@@ -52,7 +52,7 @@ class cross_entropy
 {
 public:
 
-    /*static tensor f( tensor& y, tensor& t )
+    /*static float f( tensor& y, tensor& t )
     {
     }*/
 
@@ -68,7 +68,7 @@ class cross_entropy_multiclass
 {
 public:
 
-    /*static tensor f( tensor& y, tensor& t )
+    /*static float f( tensor& y, tensor& t )
     {
     }*/
 
@@ -82,9 +82,12 @@ class cross_entropy_softmax // should only be used with softmax activation
 {
 public:
 
-    /*static tensor f( tensor& y, tensor& t )
+    static float f( tensor& y, tensor& t )
     {
-    }*/
+        return std::move( tensor_operation::binary_operator( t, y, []( const float& a,const float& b )
+            { return ( a > 0.f ) ? -a * std::log(b) : 0.f; } ).sum()
+        );
+    }
 
     static tensor d_f( tensor& y, tensor& t )
     {

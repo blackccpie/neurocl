@@ -102,6 +102,8 @@ public:
     virtual void clear_gradients() = 0;
     //! gradient check
     virtual void gradient_check( const output_ptr& out_ref ) = 0;
+    //! get current loss
+    virtual float loss() = 0;
 
     //! get output values
     virtual const output_ptr output() = 0;

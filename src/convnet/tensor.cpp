@@ -283,6 +283,18 @@ float tensor::norm2() const
     return std::sqrt( _acc );
 }
 
+float tensor::sum() const
+{
+    float _acc = 0.f;
+    tensor_foreach() {
+        std::for_each(m_tensor_array[d1][d2].data().begin(), m_tensor_array[d1][d2].data().end(),
+            [&_acc] ( float a ) {
+                _acc += a;
+            });
+    }
+    return _acc;
+}
+
 void tensor::fill(  const size_t d1,
                     const size_t d2,
                     const size_t data_size,

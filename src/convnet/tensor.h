@@ -143,6 +143,8 @@ public:
     float norm1() const;
     // returns L2 norm
     float norm2() const;
+    // returns elements sum
+    float sum() const;
 
     void assert_same_size( const tensor& t );
 

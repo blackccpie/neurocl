@@ -46,6 +46,9 @@ public:
                             const size_t depth,
                             const size_t cache_size ) = 0;
 
+    // get current loss
+    virtual float loss() = 0;
+
     // fill with incoming buffer
     virtual void fill(  const size_t depth1,
                         const size_t depth2,
@@ -64,7 +67,7 @@ class output_layer : public output_layer_iface
 public:
 
     output_layer()
-     :  m_prev_group_features( false ),
+     :  m_loss( 0.f ), m_prev_group_features( false ),
         m_weights( nullptr ), m_deltas_weights( nullptr ),
         m_bias( nullptr ), m_deltas_bias( nullptr )
     {
@@ -202,14 +205,15 @@ public:
 
     virtual void back_propagate() override
     {
-        // TODO-CNN : no grouping managed yet!
-
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
         tensor& prev_error_maps = m_prev_layer->error_maps({});
 
         // Need to back prop?
         if ( prev_error_maps.empty() )
             return;
+
+		// compute current loss
+        m_loss += errorT::f( m_feature_maps, m_training_output );
 
         // Compute errors
 
@@ -265,6 +269,8 @@ public:
     {
         m_deltas_weights->clear();
         m_deltas_bias->clear();
+
+        m_loss = 0.f;
     }
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
@@ -273,6 +279,11 @@ public:
 
         nto::optimize<nto::optimize_mode::std>( solver, m_weights, m_weights_cache.data(), m_deltas_weights );
         nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_cache.data(), m_deltas_bias );
+    }
+
+    virtual float loss() override
+    {
+        return m_loss;
     }
 
     // Fill weights
@@ -314,6 +325,8 @@ protected:
     }
 
 private:
+
+    float m_loss;
 
     std::shared_ptr<layer> m_prev_layer;
 

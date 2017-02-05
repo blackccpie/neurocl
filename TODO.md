@@ -10,6 +10,8 @@
     - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
 - [ ] Work on a better solvers class refactoring (factorization...)
+- [ ] Implement loss computation for MLP (cf. CONVNET)
+- [ ] Allow "no OpenCL" compile target.
 
 # TODO - CONVNET
 - [ ] Optimize inverse pooling with cached pooling map
