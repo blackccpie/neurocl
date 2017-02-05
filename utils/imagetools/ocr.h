@@ -25,8 +25,6 @@ THE SOFTWARE.
 #ifndef OCR_H
 #define OCR_H
 
-#include "neurocl.h"
-
 #include "autothreshold.h"
 #include "edge_detect.h"
 
@@ -34,21 +32,19 @@ THE SOFTWARE.
 
 #include <iostream>
 
-// TODO-CNN : not very happy to leave this in a header file... :-(
-using namespace neurocl;
-using namespace cimg_library;
+namespace neurocl { class network_manager_interface; }
 
 using t_digit_interval = std::pair<size_t,size_t>;
 
 class ocr_helper
 {
 public:
-    ocr_helper( std::shared_ptr<network_manager_interface> net_manager )
+    ocr_helper( std::shared_ptr<neurocl::network_manager_interface> net_manager )
         : m_net_manager( net_manager ) {}
     virtual ~ocr_helper() {}
 
-    void process( const CImg<float>& input );
-    const CImg<float>& cropped_numbers() { return m_cropped_numbers; }
+    void process( const cimg_library::CImg<float>& input );
+    const cimg_library::CImg<float>& cropped_numbers() { return m_cropped_numbers; }
 
 public:
 
@@ -72,8 +68,8 @@ public:
 private:
 
     std::vector<reco> m_recognitions;
-    CImg<float> m_cropped_numbers;
-    std::shared_ptr<network_manager_interface> m_net_manager;
+    cimg_library::CImg<float> m_cropped_numbers;
+    std::shared_ptr<neurocl::network_manager_interface> m_net_manager;
 };
 
 #endif //OCR_H

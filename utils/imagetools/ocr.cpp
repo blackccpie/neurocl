@@ -24,14 +24,15 @@ THE SOFTWARE.
 
 #include "ocr.h"
 
+#include "neurocl.h"
+
 #include "autothreshold.h"
 #include "edge_detect.h"
 
-#include "CImg.h"
+//#include "CImg.h"
 
 #include <iostream>
 
-// TODO-CNN : not very happy to leave this in a header file... :-(
 using namespace neurocl;
 using namespace cimg_library;
 

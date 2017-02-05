@@ -29,6 +29,8 @@ THE SOFTWARE.
 unsigned char green[] = { 0,255,0 };
 unsigned char red[] = { 255,0,0 };
 
+using namespace neurocl;
+
 int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to test_ocr!" << std::endl;
