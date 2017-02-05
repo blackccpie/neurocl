@@ -107,7 +107,7 @@ private:
         return t.m(d1,d2,{})(x,y);
     }
 private:
-    float m_stored;
+
     tensor& m_weights;
     tensor& m_deltas;
     tensor m_numerical_deltas;
@@ -116,6 +116,8 @@ private:
     size_t m_line_size;
     size_t m_base_size;
     size_t m_index;
+
+    float m_stored;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
