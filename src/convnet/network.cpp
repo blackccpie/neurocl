@@ -208,7 +208,7 @@ const output_ptr network::output()
     output_ptr o( output_layer->width() * output_layer->height() );
     output_layer->fill( 0, 0, o.outputs.get() );
 
-    return std::move( o );
+    return o;
 }
 
 void network::clear_gradients()

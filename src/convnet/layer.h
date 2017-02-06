@@ -70,7 +70,7 @@ public:
 
     //! get gradient checker (not all layers have one)
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker()
-        { return std::move( std::unique_ptr<tensor_gradient_checker>() ); }
+        { return std::unique_ptr<tensor_gradient_checker>(); }
 
     //! Set training flag
     static void set_training( bool training ) { m_training = training; }

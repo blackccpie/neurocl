@@ -235,8 +235,8 @@ public:
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
-        return std::move( std::unique_ptr<tensor_gradient_checker>(
-            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) ) );
+        return std::unique_ptr<tensor_gradient_checker>(
+            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
     }
 
     virtual tensor& error_maps( key_errors ) override

@@ -104,7 +104,7 @@ tensor tensor_operation::scale( const float& val, const tensor& input )
         output.m_tensor_array[d1][d2] = val * input.m_tensor_array[d1][d2];
     }
 
-    return std::move(output);
+    return output;
 }
 
 tensor tensor_operation::minus( const float& val, const tensor& input )
@@ -117,7 +117,7 @@ tensor tensor_operation::minus( const float& val, const tensor& input )
             boost::numeric::ublas::scalar_matrix<float>( input.w(), input.h(), val ) - input.m_tensor_array[d1][d2];
     }
 
-    return std::move(output);
+    return output;
 }
 
 tensor tensor_operation::add( const tensor& inputA, const tensor& inputB )
@@ -132,7 +132,7 @@ tensor tensor_operation::add( const tensor& inputA, const tensor& inputB )
                 + inputB.m_tensor_array[d1][d2];
     }
 
-    return std::move(output);
+    return output;
 }
 
 tensor tensor_operation::sub( const tensor& inputA, const tensor& inputB )
@@ -147,7 +147,7 @@ tensor tensor_operation::sub( const tensor& inputA, const tensor& inputB )
                 - inputB.m_tensor_array[d1][d2];
     }
 
-    return std::move(output);
+    return output;
 }
 
 tensor tensor_operation::group( const tensor& input )
