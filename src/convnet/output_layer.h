@@ -67,7 +67,7 @@ class output_layer : public output_layer_iface
 public:
 
     output_layer()
-     :  m_loss( 0.f ), m_prev_group_features( false ),
+     :  m_prev_group_features( false ),
         m_weights( nullptr ), m_deltas_weights( nullptr ),
         m_bias( nullptr ), m_deltas_bias( nullptr )
     {
@@ -213,7 +213,7 @@ public:
             return;
 
 		// compute current loss
-        m_loss += errorT::f( m_feature_maps, m_training_output );
+        m_loss.add( m_feature_maps, m_training_output );
 
         // Compute errors
 
@@ -270,7 +270,7 @@ public:
         m_deltas_weights->clear();
         m_deltas_bias->clear();
 
-        m_loss = 0.f;
+        m_loss.clear();
     }
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
@@ -283,7 +283,7 @@ public:
 
     virtual float loss() override
     {
-        return m_loss;
+        return m_loss.mean();
     }
 
     // Fill weights
@@ -309,8 +309,8 @@ public:
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
-        return std::move( std::unique_ptr<tensor_gradient_checker>(
-            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) ) );
+        return std::unique_ptr<tensor_gradient_checker>(
+            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
     }
 
     virtual tensor& error_maps( key_errors ) override
@@ -326,7 +326,38 @@ protected:
 
 private:
 
-    float m_loss;
+    template<class _errorT>
+    class mean_loss
+    {
+    public:
+        mean_loss() : m_size{0}, m_total_loss{0.f} {}
+
+        void add( const tensor& a, const tensor& b )
+        {
+            m_total_loss += _errorT::f( a, b );
+    		m_size++;
+        }
+
+        void clear()
+        {
+            m_total_loss = 0.f;
+            m_size = 0;
+        }
+
+        float mean()
+        {
+            return m_total_loss / static_cast<float>( m_size );
+        }
+
+    private:
+
+        size_t m_size;
+        float m_total_loss;
+    };
+
+private:
+
+    mean_loss<errorT> m_loss;
 
     std::shared_ptr<layer> m_prev_layer;
 

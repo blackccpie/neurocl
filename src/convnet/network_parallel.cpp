@@ -110,7 +110,7 @@ void network_parallel::set_layer_ptr( const size_t layer_idx, const layer_ptr& l
 
 const output_ptr network_parallel::output()
 {
-    return std::move( m_networks.at(0).output() );
+    return m_networks.at(0).output();
 }
 
 void network_parallel::clear_gradients()
