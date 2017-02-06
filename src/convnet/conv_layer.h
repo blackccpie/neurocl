@@ -229,8 +229,8 @@ public:
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
-        return std::move( std::unique_ptr<tensor_gradient_checker>(
-            new tensor_gradient_checker( *m_filters, *m_deltas_filters ) ) );
+        return std::unique_ptr<tensor_gradient_checker>(
+            new tensor_gradient_checker( *m_filters, *m_deltas_filters ) );
     }
 
 	// copy accessor, not made for performance but rather for network introspection

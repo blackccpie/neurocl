@@ -183,7 +183,7 @@ tensor tensor::operator +=( const tensor& other )
         m_tensor_array[d1][d2] += other.m_tensor_array[d1][d2];
     }
 
-    return std::move(*this);
+    return *this;
 }
 
 // TODO-CNN : write rvalue ref equivalent
@@ -195,57 +195,63 @@ tensor tensor::operator -=( const tensor& other )
         m_tensor_array[d1][d2] -= other.m_tensor_array[d1][d2];
     }
 
-    return std::move(*this);
+    return *this;
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator *( const float val )
 {
     tensor_foreach() {
         m_tensor_array[d1][d2] *= val;
     }
 
-    return std::move(*this);
+    return *this;
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator /( const float val )
 {
     tensor_foreach() {
         m_tensor_array[d1][d2] /= val;
     }
 
-    return std::move(*this);
+    return *this;
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator +( const float val )
 {
     tensor_foreach() {
         m_tensor_array[d1][d2] += boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
     }
 
-    return std::move(*this);
+    return *this;
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator -( const float val )
 {
     tensor_foreach() {
         m_tensor_array[d1][d2] -= boost::numeric::ublas::scalar_matrix<float>( m_width, m_height, val );
     }
 
-    return std::move(*this);
+    return *this;
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator -()
 {
     tensor_foreach() {
         m_tensor_array[d1][d2] = -m_tensor_array[d1][d2];
     }
 
-    return std::move(*this);
+    return *this;
+}
+
+tensor tensor::operator -() const
+{
+    tensor output(*this);
+
+    tensor_foreach() {
+        output.m_tensor_array[d1][d2] = -m_tensor_array[d1][d2];
+    }
+
+    return output;
 }
 
 bool tensor::operator ==( const tensor& other ) const
@@ -281,6 +287,18 @@ float tensor::norm2() const
             });
     }
     return std::sqrt( _acc );
+}
+
+float tensor::sum() const
+{
+    float _acc = 0.f;
+    tensor_foreach() {
+        std::for_each(m_tensor_array[d1][d2].data().begin(), m_tensor_array[d1][d2].data().end(),
+            [&_acc] ( float a ) {
+                _acc += a;
+            });
+    }
+    return _acc;
 }
 
 void tensor::fill(  const size_t d1,

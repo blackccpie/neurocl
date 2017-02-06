@@ -357,7 +357,7 @@ int main ( int argc,char **argv )
                 {
                     grab_image( input_image );
                     display_image = input_image;
-                    faces = my_face_detect.detect( input_image );
+                    faces = my_face_detect.detect( input_image.data(), input_image.width(), input_image.height() );
                     if ( faces.empty() )
                         draw_message( display_image, "NO FACE DETECTED!" );
                 	draw_metadata( display_image, faces );

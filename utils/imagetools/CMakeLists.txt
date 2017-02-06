@@ -25,18 +25,23 @@ project (imagetools)
 
 include_directories(
     .
+    "${CMAKE_SOURCE_DIR}/src"
     "${CMAKE_SOURCE_DIR}/../CImg"
     "${CMAKE_SOURCE_DIR}/../ccv/lib"
 )
 
 set (sources_list
+autothreshold.cpp
 edge_detect.cpp
 face_detect.cpp
+ocr.cpp
 )
 
 set (headers_list
+autothreshold.h
 edge_detect.h
 face_detect.h
+ocr.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")

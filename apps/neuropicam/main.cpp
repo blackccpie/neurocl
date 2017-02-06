@@ -403,7 +403,7 @@ void _main_train( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_disp
 
 			display_image = input_image;
 
-			faces = my_face_detect.detect( input_image );
+			faces = my_face_detect.detect( input_image.data(), input_image.width(), input_image.height() );
 
 			bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
 
@@ -493,7 +493,7 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
 
         display_image = input_image;
 
-        faces = my_face_detect.detect( input_image );
+        faces = my_face_detect.detect( input_image.data(), input_image.width(), input_image.height() );
 
         bool valid_face = !faces.empty() && _is_valid_face( faces[0] );
 

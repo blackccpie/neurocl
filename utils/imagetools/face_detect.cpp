@@ -28,13 +28,13 @@ extern "C" {
 #include "ccv.h"
 }
 
-#include <boost/make_shared.hpp>
+#include "CImg.h"
 
 #include <iostream>
 
 using namespace cimg_library;
 
-class face_detect_impl
+class face_detect::face_detect_impl
 {
 public:
 
@@ -49,7 +49,7 @@ public:
     }
 
 	template<typename T>
-    const std::vector<face_detect::face_rect>& detect( CImg<T>& image )
+    const std::vector<face_detect::face_rect>& detect( const CImg<T>& image )
     {
         m_face_rects.clear();
 
@@ -96,20 +96,19 @@ private:
     ccv_scd_classifier_cascade_t* m_cascade;
 };
 
-face_detect::face_detect()
+face_detect::face_detect() : m_face_detect_impl( new face_detect_impl( 2 ) ) // speedup x2
 {
-    m_face_detect_impl = std::make_shared<face_detect_impl>( 2 ); // speedup x2
 }
 
-face_detect::~face_detect()
-{
-}
+face_detect::~face_detect() = default;
 
 template<typename T>
-const std::vector<face_detect::face_rect>&  face_detect::detect( CImg<T>& image )
+const std::vector<face_detect::face_rect>&  face_detect::detect( const T* input, const int sizeX, const int sizeY )
 {
-    return m_face_detect_impl->detect<T>( image );
+	// Copy cast to float
+    const CImg<float> _input( CImg<T>( input, sizeX, sizeY, 1, 1, true /*shared*/) );
+    return m_face_detect_impl->detect<T>( _input );
 }
 
-template const std::vector<face_detect::face_rect>&  face_detect::detect<float>( CImg<float>& image );
-template const std::vector<face_detect::face_rect>&  face_detect::detect<unsigned char>( CImg<unsigned char>& image );
+template const std::vector<face_detect::face_rect>&  face_detect::detect<float>( const float* input, const int sizeX, const int sizeY );
+template const std::vector<face_detect::face_rect>&  face_detect::detect<unsigned char>( const unsigned char* input, const int sizeX, const int sizeY );

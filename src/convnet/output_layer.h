@@ -46,6 +46,9 @@ public:
                             const size_t depth,
                             const size_t cache_size ) = 0;
 
+    // get current loss
+    virtual float loss() = 0;
+
     // fill with incoming buffer
     virtual void fill(  const size_t depth1,
                         const size_t depth2,
@@ -202,14 +205,15 @@ public:
 
     virtual void back_propagate() override
     {
-        // TODO-CNN : no grouping managed yet!
-
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
         tensor& prev_error_maps = m_prev_layer->error_maps({});
 
         // Need to back prop?
         if ( prev_error_maps.empty() )
             return;
+
+		// compute current loss
+        m_loss.add( m_feature_maps, m_training_output );
 
         // Compute errors
 
@@ -265,6 +269,8 @@ public:
     {
         m_deltas_weights->clear();
         m_deltas_bias->clear();
+
+        m_loss.clear();
     }
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
@@ -273,6 +279,11 @@ public:
 
         nto::optimize<nto::optimize_mode::std>( solver, m_weights, m_weights_cache.data(), m_deltas_weights );
         nto::optimize<nto::optimize_mode::redux>( solver, m_bias, m_bias_cache.data(), m_deltas_bias );
+    }
+
+    virtual float loss() override
+    {
+        return m_loss.mean();
     }
 
     // Fill weights
@@ -298,8 +309,8 @@ public:
     //! get gradient checker
     virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
     {
-        return std::move( std::unique_ptr<tensor_gradient_checker>(
-            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) ) );
+        return std::unique_ptr<tensor_gradient_checker>(
+            new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
     }
 
     virtual tensor& error_maps( key_errors ) override
@@ -314,6 +325,39 @@ protected:
     }
 
 private:
+
+    template<class _errorT>
+    class mean_loss
+    {
+    public:
+        mean_loss() : m_size{0}, m_total_loss{0.f} {}
+
+        void add( const tensor& a, const tensor& b )
+        {
+            m_total_loss += _errorT::f( a, b );
+    		m_size++;
+        }
+
+        void clear()
+        {
+            m_total_loss = 0.f;
+            m_size = 0;
+        }
+
+        float mean()
+        {
+            return m_total_loss / static_cast<float>( m_size );
+        }
+
+    private:
+
+        size_t m_size;
+        float m_total_loss;
+    };
+
+private:
+
+    mean_loss<errorT> m_loss;
 
     std::shared_ptr<layer> m_prev_layer;
 

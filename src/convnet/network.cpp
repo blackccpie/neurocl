@@ -208,7 +208,7 @@ const output_ptr network::output()
     output_ptr o( output_layer->width() * output_layer->height() );
     output_layer->fill( 0, 0, o.outputs.get() );
 
-    return std::move( o );
+    return o;
 }
 
 void network::clear_gradients()
@@ -261,6 +261,11 @@ void network::gradient_descent()
     {
         _layer->gradient_descent( m_solver );
     }
+}
+
+float network::loss()
+{
+    return std::static_pointer_cast<output_layer_iface>( m_layers.back() )->loss();
 }
 
 void network::gradient_check( const output_ptr& out_ref )

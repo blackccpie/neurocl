@@ -33,16 +33,16 @@ class mse
 {
 public:
 
-    static tensor f( tensor& y, tensor& t )
+    static float f( const tensor& y, const tensor& t )
     {
         float factor = 0.5f / static_cast<float>( y.size() );
-        return std::move( factor * ( y - t ) * ( y - t ) );
+        return factor * ( ( y - t ) * ( y - t ) ).sum();
     }
 
-    static tensor d_f( tensor& y, tensor& t )
+    static tensor d_f( const tensor& y, const tensor& t )
     {
         float factor = 1.f / static_cast<float>( y.size() );
-        return std::move( factor * ( y - t ) );
+        return factor * ( y - t );
     }
 };
 
@@ -52,13 +52,13 @@ class cross_entropy
 {
 public:
 
-    /*static tensor f( tensor& y, tensor& t )
+    /*static float f( const tensor& y, const tensor& t )
     {
     }*/
 
-    static tensor d_f( tensor& y, tensor& t )
+    static tensor d_f( const tensor& y, const tensor& t )
     {
-        return std::move( ( y - t ) / ( y * ( 1.f - y ) /*+ 1e-10f*/ ) );
+        return ( y - t ) / ( y * ( 1.f - y ) /*+ 1e-10f*/ );
     }
 };
 
@@ -68,13 +68,13 @@ class cross_entropy_multiclass
 {
 public:
 
-    /*static tensor f( tensor& y, tensor& t )
+    /*static float f( const tensor& y, const tensor& t )
     {
     }*/
 
-    static tensor d_f( tensor& y, tensor& t )
+    static tensor d_f( const tensor& y, const tensor& t )
     {
-        return std::move( -t / y );
+        return -t / y;
     }
 };
 
@@ -82,16 +82,18 @@ class cross_entropy_softmax // should only be used with softmax activation
 {
 public:
 
-    /*static tensor f( tensor& y, tensor& t )
+    static float f( const tensor& y, const tensor& t )
     {
-    }*/
+        return tensor_operation::binary_operator( t, y, []( const float& a,const float& b )
+            { return ( a > 0.f ) ? -a * std::log(b) : 0.f; } ).sum();
+    }
 
-    static tensor d_f( tensor& y, tensor& t )
+    static tensor d_f( const tensor& y, const tensor& t )
     {
 		// For detailed explanation of the multiclass cross entropy with softmax simplified equation:
 		// http://www.ics.uci.edu/~pjsadows/notes.pdf
 		// http://peterroelants.github.io/posts/neural_network_implementation_intermezzo02
-        return std::move( y - t );
+        return y - t;
     }
 };
 

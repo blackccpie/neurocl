@@ -121,6 +121,7 @@ public:
     tensor operator +( const float val );
     tensor operator -( const float val );
     tensor operator -();
+    tensor operator -() const;
     bool operator ==( const tensor& other ) const;
 
     void fill_random( const size_t& rand_nin );
@@ -143,6 +144,8 @@ public:
     float norm1() const;
     // returns L2 norm
     float norm2() const;
+    // returns elements sum
+    float sum() const;
 
     void assert_same_size( const tensor& t );
 

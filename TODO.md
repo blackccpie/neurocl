@@ -10,6 +10,8 @@
     - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
 - [ ] Work on a better solvers class refactoring (factorization...)
+- [ ] Implement loss computation for MLP (cf. CONVNET)
+- [ ] Allow "no OpenCL" compile target.
 
 # TODO - CONVNET
 - [ ] Optimize inverse pooling with cached pooling map
@@ -26,9 +28,9 @@
 - [ ] Use "expanded" (rot/noise/trans) MNIST dataset
 - [x] Introduce fan-in size layer base method
 - [ ] Python:
-    - [ ] Finish camera wrapper using numpy
+    - [x] Finish camera wrapper using numpy
     - [ ] Finalize autonomous pizero OCR app
-- [ ] Update UML with Convnet
+- [x] Update UML with Convnet
 - [x] Improve tensor random inits methods' names and prototypes (use fan-in denomination)
 - [ ] ConvNet layers code factorization
 - [x] If needed implement Adam solver
@@ -39,9 +41,10 @@
 - [ ] Canny vs Sobel proper benchmark
 - [ ] Use dual Canny/Sobel nets?
 - [ ] Convert facecam to new training architecture
+- [ ] Isolate edge_detect.h from CImg
 
 # TODO - OCR
-- [ ] Use gravity center based image centering
+- [x] Use gravity center based image centering
 - [ ] Work on a better autocontrast algorithm
 
 # Current MLP-MNIST benchmarks (60000 samples / 10 epochs / 10 samples per batch):

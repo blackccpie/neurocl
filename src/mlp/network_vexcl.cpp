@@ -257,6 +257,12 @@ void network_vexcl::clear_gradients()
     m_training_samples = 0;
 }
 
+float network_vexcl::loss()
+{
+    // NOT IMPLEMENTED YET
+    return -1.f;
+}
+
 void network_vexcl::back_propagate()
 {
     // PREREQUISITE : FEED FORWARD PASS

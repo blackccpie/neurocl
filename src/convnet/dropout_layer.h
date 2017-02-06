@@ -88,6 +88,10 @@ public:
     virtual void back_propagate() override
     {
         m_prev_layer->error_maps({}) = nto::elemul( m_mask, m_error_maps );
+
+        // dropout layer has to generate new mask after each backprop
+        // cf. https://www.quora.com/How-is-dropout-applied-to-mini-batches-in-dropout-neural-networks-with-stochastic-gradient-descent
+        nto::bernoulli( m_mask, 1.f - m_dropout );
     }
 
     virtual void update_gradients() override
@@ -102,8 +106,7 @@ public:
 
     virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
-        // pool layer does not manage gradients, but it has to generate new mask after each iteration
-        nto::bernoulli( m_mask, 1.f - m_dropout );
+        // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
     // Fill weights

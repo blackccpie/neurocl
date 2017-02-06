@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#ifndef EDGE_DETECT_H
+#define EDGE_DETECT_H
+
 #include "CImg.h"
 
 #include <boost/multi_array.hpp>
@@ -83,3 +86,5 @@ public:
 	template<typename T>
 	static void process( const CImg<T>& image_in, CImg<T>& image_out );
 };
+
+#endif //EDGE_DETECT_H

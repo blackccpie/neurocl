@@ -97,8 +97,6 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
 
     for ( size_t i=0; i<epoch_size; i++ )
     {
-        LOGGER(info) << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << std::endl;
-
         while ( true )
         {
             std::vector<neurocl::sample> samples = smp_manager.get_next_batch( batch_size );
@@ -118,10 +116,12 @@ void network_manager::batch_train(	const samples_manager& smp_manager,
 			if ( progress_fct )
 				progress_fct( progress );
 
-            std::cout << "\rnetwork_manager::batch_train - progress " << progress << "%";// << std::endl;
+            std::cout << "\rnetwork_manager::batch_train - progress: " << progress << "% loss: " << m_net->loss();
         }
 
         std::cout << "\r";
+
+        LOGGER(info) << "network_manager::batch_train - EPOCH " << (i+1) << "/" << epoch_size << " loss: " << m_net->loss() << std::endl;
 
         smp_manager.rewind();
         smp_manager.shuffle();
@@ -165,7 +165,8 @@ void network_manager::_train_batch( const std::vector<sample>& training_set, con
         }
         else
         {
-            sample _s = smp_augmenter->translate( s, samples_augmenter::rand_shift(), samples_augmenter::rand_shift() );
+            //sample _s = smp_augmenter->translate( s, samples_augmenter::rand_shift(), samples_augmenter::rand_shift() );
+            sample _s = smp_augmenter->rotate( s, samples_augmenter::rand_shift() );
             _train_single( _s );
         }
 

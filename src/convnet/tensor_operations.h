@@ -120,32 +120,32 @@ public:
 
 inline tensor operator*( const float& val, const tensor& t )
 {
-    return std::move( tensor_operation::scale( val, t ) );
+    return tensor_operation::scale( val, t );
 };
 
 inline tensor operator-( const float& val, const tensor& t )
 {
-    return std::move( tensor_operation::minus( val, t ) );
+    return tensor_operation::minus( val, t );
 };
 
 inline tensor operator+( const tensor& t1, const tensor& t2 )
 {
-    return std::move( tensor_operation::add( t1, t2 ) );
+    return tensor_operation::add( t1, t2 );
 };
 
 inline tensor operator-( const tensor& t1, const tensor& t2 )
 {
-    return std::move( tensor_operation::sub( t1, t2 ) );
+    return tensor_operation::sub( t1, t2 );
 };
 
 inline tensor operator*( const tensor& t1, const tensor& t2 )
 {
-    return std::move( tensor_operation::elemul( t1, t2 ) );
+    return tensor_operation::elemul( t1, t2 );
 };
 
 inline tensor operator/( const tensor& t1, const tensor& t2 )
 {
-    return std::move( tensor_operation::elediv( t1, t2 ) );
+    return tensor_operation::elediv( t1, t2 );
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/
