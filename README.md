@@ -1,6 +1,8 @@
 # neurocl
 ::: Neural network C++ implementations :::
 
+![Training graph](http://blackccpie.free.fr/nets/neurocl-web.png)
+
 Neurocl (**Neuro** **C**omputing **L**ibrary) was meant to experiment various 'from scratch' implementations of neural network layer schemes, focusing on matrix expression of _feed forward_/_backward propagation_ steps.
 Initial release _v0.1_ only implemented Multi-Layer Perceptron (*MLP*) scheme, whereas _v0.2_ now incorporates a working Convolutional Neural Network (*CONVNET*) scheme.
 
@@ -188,6 +190,16 @@ neurocl main entry point is interface **network_manager_interface**, which can o
     ```
 
 - The reference sample application to look for best practice code is __*mnist_autotrainer*__, located in the *apps* directory.
+
+## Visualizing training data
+
+The __*mnist_autotrainer*__ application also illustrates dumping training data in a dedicated _.csv_ file. This data file can be graphically represented in a web page (as shown at the top of this doc), ie by running a lightweight python webserver and viewing the right url:
+
+```shell
+$ cd neurocl
+$ python -m SimpleHTTPServer
+$ firefox http://127.0.0.1:8000/web
+```
 
 ## Architecture:
 
