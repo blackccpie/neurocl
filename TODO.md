@@ -35,7 +35,7 @@
 - [ ] ConvNet layers code factorization
 - [x] If needed implement Adam solver
 - [ ] Clarify L1/L2 regularizations
-- [ ] Missing dimension check if pool depth is different than conv depth
+- [x] Missing dimension check if dropout depth is different than prev layer depth
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark
