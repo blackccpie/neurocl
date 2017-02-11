@@ -234,7 +234,7 @@ float network_bnu_base::loss()
             _acc += a;
         });
 
-    return 0.5f * _acc / static_cast<float>( output.size() );
+    return 0.5f * _acc / static_cast<float>( loss.size() );
 }
 
 const std::string network_bnu_base::dump_weights()

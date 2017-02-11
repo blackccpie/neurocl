@@ -10,7 +10,7 @@
     - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
 - [ ] Work on a better solvers class refactoring (factorization...)
-- [ ] Implement loss computation for MLP (cf. CONVNET)
+- [x] Implement loss computation for MLP (cf. CONVNET)
 - [ ] Allow "no OpenCL" compile target.
 
 # TODO - CONVNET
@@ -24,7 +24,7 @@
     - [ ] Valgrind/kcachegrind profiling
 - [x] Parallel batch training
 - [x] Confirm bias tensors initialisation
-- [ ] Cross validate with similar ConvnetJS topologies
+- [ ] Cross validate with similar Kaggle digit recognizer topology
 - [ ] Use "expanded" (rot/noise/trans) MNIST dataset
 - [x] Introduce fan-in size layer base method
 - [ ] Python:
