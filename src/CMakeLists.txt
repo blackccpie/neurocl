@@ -68,6 +68,8 @@ if ( NOT NEUROCL_DISABLE_OPENCL )
             mlp/network_vexcl.h
         )
     endif ()
+else ()
+    message("OpenCL is disabled for this build")
 endif ()
 
 include_directories(

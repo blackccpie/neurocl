@@ -38,8 +38,8 @@ THE SOFTWARE.
 using namespace neurocl;
 
 std::map<std::string,std::tuple<std::string,std::string,std::string>> g_map_nets
-= { { "N", { "../nets/alpr/topology-alpr-num2.txt", "../nets/alpr/weights-alpr-num2.bin", "../nets/alpr/training/alpr-train-num.txt" } },
-    { "L", { "../nets/alpr/topology-alpr-let2.txt", "../nets/alpr/weights-alpr-let2.bin", "../nets/alpr/training/alpr-train-let.txt" } } };
+= { { "N", std::make_tuple( "../nets/alpr/topology-alpr-num.txt", "../nets/alpr/weights-alpr-num.bin", "../nets/alpr/training/alpr-train-num.txt" ) },
+    { "L", std::make_tuple( "../nets/alpr/topology-alpr-let.txt", "../nets/alpr/weights-alpr-let.bin", "../nets/alpr/training/alpr-train-let.txt" ) } };
 
 int main( int argc, char *argv[] )
 {
