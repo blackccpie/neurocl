@@ -28,6 +28,8 @@ THE SOFTWARE.
 #include "alpr.h"
 #include "plate_resolution.h"
 
+#include "imagetools/autothreshold.h"
+
 #include <iostream>
 
 namespace alpr {
@@ -64,16 +66,14 @@ void license_plate::_prepare_work_plate()
     m_work_plate = m_input_plate.resize( g_sizeY * m_input_plate.width() / m_input_plate.height(), g_sizeY );
 
     m_work_plate.channel(0);                // B&W (check position...binarization is different if called after inversion)
-    m_work_plate.blur_median( 1 );          // Remove some noise
+    //m_work_plate.blur_median( 1 );          // Remove some noise
     //m_work_plate.nlmeans();
-    m_work_plate.equalize( 256, 0, 255 );   // spread lut
-    m_work_plate.normalize( 0.f, 1.f );     // normalize
-    m_work_plate = 1.f - m_work_plate;      // invert
-
-    //m_work_plate.display();
 
     // "Smart" binarization
     _smart_threshold();
+
+    m_work_plate.normalize( 0.f, 1.f );     // normalize
+    m_work_plate = 1.f - m_work_plate;      // invert
 
     // Remove a 10px border
     cimg_for_borderXY( m_work_plate, x, y, 10 ) { m_work_plate( x, y ) = 0; }
@@ -83,26 +83,9 @@ void license_plate::_prepare_work_plate()
 
 void license_plate::_smart_threshold()
 {
-    m_work_plate.threshold( 0.7f );
-
-    /*CImg<> work_copy( m_work_plate );
-
-    float k = 0.f;
-    float R = 0.5f;
-
-    CImg<> N(10,10); // Define a 10x10 neighborhood
-    cimg_for10x10( work_copy, x, y, 0, 0, N, float ) { // Loop over the image, using the neighborhood I
-
-        //float mean = N.sum() / 100.f;
-        //float local_mean_dev = work_copy( x, y ) - mean;
-        //float thresh = mean * ( 1.f + k * ( ( local_mean_dev / ( 1.f - local_mean_dev ) ) - 1.f ) );
-
-        //float mean;
-        //float variance = std::sqrt( N.variance_mean( 1, mean ) );
-        //float thresh = mean * ( 1.f + k * ( ( variance / R ) - 1.f ) );
-
-        m_work_plate( x, y ) = ( work_copy( x, y ) >= thresh ) ? 1.f : 0.f;
-    }*/
+    auto_threshold( m_work_plate.data(), m_work_plate.width(), m_work_plate.height() );
+    //m_work_plate.erode(2);
+    //m_work_plate.dilate(2);
 }
 
 void license_plate::_compute_ranges()
@@ -111,14 +94,15 @@ void license_plate::_compute_ranges()
     CImg<float> row_sums( m_work_plate.width(), 1 );
     cimg_forX( row_sums, x )
     {
-        float rsum = 0.f;
-        cimg_forY( m_work_plate, y )
+        auto rsum = 0.f;
+        cimg_for_insideY( m_work_plate, y, 10 )
         {
             rsum += m_work_plate(x,y);
         }
         row_sums(x) = rsum;
     }
     row_sums = 1.f - row_sums.normalize( 0.f, 1.f );
+    //row_sums.save( "row_sums.png" );
     row_sums.threshold( 0.9f );
 
     // Detect letter ranges
