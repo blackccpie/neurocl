@@ -157,7 +157,9 @@ int main( int argc, char *argv[] )
         }
 
         neurocl::learning_scheduler& sched = neurocl::learning_scheduler::instance();
-        sched.enable_scheduling( scheduling );
+
+        if ( scheduling )
+            sched.enable_scheduling( true );
 
         float train_score = 0.f;
         float valid_score = 0.f;
@@ -177,13 +179,14 @@ int main( int argc, char *argv[] )
             train_score = compute_score( i, smp_train_manager, net_manager, rmse, last_train_rmse, false, compute_size );
             valid_score = compute_score( i, smp_validate_manager, net_manager, rmse, last_valid_rmse, true, compute_size );
 
-            sched.push_error( rmse );
+            if ( scheduling )
+            		sched.push_error( rmse );
 
             output_file << (i+1) << ','
                         << train_score << ','
                         << valid_score << ','
                         << rmse << ','
-                        << sched.get_learning_rate() << '\n';
+                        << ( scheduling ? std::to_string(sched.get_learning_rate()) : "" ) << '\n';
             output_file.flush();
 
             if ( valid_score >= NEUROCL_STOPPING_SCORE )
