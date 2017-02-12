@@ -177,32 +177,6 @@ void network_vexcl::add_layers_2d( const std::vector<layer_size>& layer_sizes )
     }
 }
 
-void network_vexcl::feed_forward()
-{
-    //std::cout << m_layers.size() << " layers propagation" << std::endl;
-
-    for ( size_t i=0; i<m_layers.size()-1; i++ )
-    {
-        const size_t n = m_layers[i].w_size().first;
-        const size_t m = m_layers[i].w_size().second;
-
-        m_layers[i+1].activations() = _one() / ( _one() + exp(
-            -( vex::reduce<vex::SUM>(
-                vex::extents[n][m],     // Shape of the expression to reduce,
-                m_layers[i].weights()
-                *
-                vex::reshape(
-                    m_layers[i].activations(),
-                    vex::extents[n][m], // (We need an n x m matrix...
-                    vex::extents[1]     // ... but we only have vector of size m).
-                ),                      // the expression,
-                1                       // and the dimension to reduce along.
-            )
-            + m_layers[i].bias() ) )
-        );
-    }
-}
-
 const layer_ptr network_vexcl::get_layer_ptr( const size_t layer_idx )
 {
     if ( layer_idx >= m_layers.size() )
@@ -245,22 +219,30 @@ const output_ptr network_vexcl::output()
     return l;
 }
 
-void network_vexcl::clear_gradients()
+void network_vexcl::feed_forward()
 {
-    // Clear gradients
+    //std::cout << m_layers.size() << " layers propagation" << std::endl;
+
     for ( size_t i=0; i<m_layers.size()-1; i++ )
     {
-        m_layers[i].w_deltas() = _zero();
-        m_layers[i].b_deltas() = _zero();
+        const size_t n = m_layers[i].w_size().first;
+        const size_t m = m_layers[i].w_size().second;
+
+        m_layers[i+1].activations() = _one() / ( _one() + exp(
+            -( vex::reduce<vex::SUM>(
+                vex::extents[n][m],     // Shape of the expression to reduce,
+                m_layers[i].weights()
+                *
+                vex::reshape(
+                    m_layers[i].activations(),
+                    vex::extents[n][m], // (We need an n x m matrix...
+                    vex::extents[1]     // ... but we only have vector of size m).
+                ),                      // the expression,
+                1                       // and the dimension to reduce along.
+            )
+            + m_layers[i].bias() ) )
+        );
     }
-
-    m_training_samples = 0;
-}
-
-float network_vexcl::loss()
-{
-    // NOT IMPLEMENTED YET
-    return -1.f;
 }
 
 void network_vexcl::back_propagate()
@@ -325,6 +307,29 @@ void network_vexcl::gradient_descent()
         m_layers[i].weights() -= m_learning_rate * ( ( invm * m_layers[i].w_deltas() ) + ( m_weight_decay * m_layers[i].weights() ) );
         m_layers[i].bias() -= m_learning_rate * ( invm * m_layers[i].b_deltas() );
     }
+}
+
+void network_vexcl::clear_gradients()
+{
+    // Clear gradients
+    for ( size_t i=0; i<m_layers.size()-1; i++ )
+    {
+        m_layers[i].w_deltas() = _zero();
+        m_layers[i].b_deltas() = _zero();
+    }
+
+    m_training_samples = 0;
+}
+
+float network_vexcl::loss()
+{
+    vex::Reductor<float,vex::SUM> sum;
+
+    layer_vexcl& output_layer = m_layers.back();
+    float _loss = sum( ( output_layer.activations() - vex::constant( m_training_output ) )
+        * ( output_layer.activations() - vex::constant( m_training_output ) ) );
+
+    return 0.5f * _loss / static_cast<float>( m_training_output.size() );
 }
 
 const std::string network_vexcl::dump_weights()

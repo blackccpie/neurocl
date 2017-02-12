@@ -225,8 +225,16 @@ void network_bnu_base::clear_gradients()
 
 float network_bnu_base::loss()
 {
-    // NOT IMPLEMENTED YET
-    return -1.f;
+    vectorF& output = m_layers.back().activations();
+    vectorF loss = bnu::element_prod( output - m_training_output, output - m_training_output );
+
+    float _acc = 0.f;
+    std::for_each( loss.begin(), loss.end(),
+        [&_acc] ( float a ) {
+            _acc += a;
+        });
+
+    return 0.5f * _acc / static_cast<float>( loss.size() );
 }
 
 const std::string network_bnu_base::dump_weights()

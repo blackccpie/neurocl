@@ -200,7 +200,7 @@ neurocl main entry point is interface **network_manager_interface**, which can o
 
 ## Visualizing training data
 
-The __*mnist_autotrainer*__ application also illustrates dumping training data in a dedicated _.csv_ file. This data file can be graphically represented in a web page (as shown at the top of this doc), ie by running a lightweight python webserver and viewing the right url:
+The __*mnist_autotrainer*__ application also illustrates dumping training data in a dedicated _.csv_ file. This data file can be graphically represented in a web page using [CanvasJS](http://canvasjs.com) framework (as shown at the top of this doc), ie by running a lightweight python webserver and viewing the right url:
 
 ```shell
 $ cd neurocl

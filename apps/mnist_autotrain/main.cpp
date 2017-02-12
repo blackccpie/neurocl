@@ -30,9 +30,9 @@ THE SOFTWARE.
 #include <iostream>
 #include <fstream>
 
-#define NEUROCL_MAX_EPOCH_SIZE 1000
-#define NEUROCL_EPOCH_PERIOD 1
-#define NEUROCL_BATCH_SIZE 10
+#define NEUROCL_MAX_EPOCH_SIZE 70
+#define NEUROCL_EPOCH_PERIOD 5
+#define NEUROCL_BATCH_SIZE 128
 #define NEUROCL_STOPPING_SCORE 99.f
 
 using namespace neurocl;
@@ -137,15 +137,18 @@ int main( int argc, char *argv[] )
         samples_manager smp_train_manager;
         if ( train_restrict )
             smp_train_manager.restrict_dataset( train_restrict );
-        smp_train_manager.load_samples( "../nets/mnist/training/mnist-train.txt" );
+        //smp_train_manager.load_samples( "../nets/mnist/training/mnist-train.txt" );
+        smp_train_manager.load_kaggle_digit_recognizer( "../nets/mnist/training/kaggle/train.csv" );
 
         samples_manager smp_validate_manager;
         if ( valid_restrict )
             smp_validate_manager.restrict_dataset( valid_restrict );
-        smp_validate_manager.load_samples( "../nets/mnist/training/mnist-validate.txt" );
+        //smp_validate_manager.load_samples( "../nets/mnist/training/mnist-validate.txt" );
+        smp_validate_manager.load_kaggle_digit_recognizer( "../nets/mnist/training/kaggle/test.csv" );
 
         std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
-        net_manager->load_network( "../nets/mnist/topology-mnist-lenet-drop.txt", "../nets/mnist/weights-mnist-lenet.bin" );
+        //net_manager->load_network( "../nets/mnist/topology-mnist.txt", "../nets/mnist/weights-mnist.bin" );
+        net_manager->load_network( "../nets/mnist/topology-mnist-kaggle.txt", "../nets/mnist/weights-mnist-kaggle.bin" );
 
         if ( gradient_check )
         {
@@ -154,7 +157,9 @@ int main( int argc, char *argv[] )
         }
 
         neurocl::learning_scheduler& sched = neurocl::learning_scheduler::instance();
-        sched.enable_scheduling( scheduling );
+
+        if ( scheduling )
+            sched.enable_scheduling( true );
 
         float train_score = 0.f;
         float valid_score = 0.f;
@@ -174,13 +179,14 @@ int main( int argc, char *argv[] )
             train_score = compute_score( i, smp_train_manager, net_manager, rmse, last_train_rmse, false, compute_size );
             valid_score = compute_score( i, smp_validate_manager, net_manager, rmse, last_valid_rmse, true, compute_size );
 
-            sched.push_error( rmse );
+            if ( scheduling )
+            		sched.push_error( rmse );
 
             output_file << (i+1) << ','
                         << train_score << ','
                         << valid_score << ','
                         << rmse << ','
-                        << sched.get_learning_rate() << '\n';
+                        << ( scheduling ? std::to_string(sched.get_learning_rate()) : "" ) << '\n';
             output_file.flush();
 
             if ( valid_score >= NEUROCL_STOPPING_SCORE )

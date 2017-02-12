@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
+#include <map>
 
 #define NEUROCL_EPOCH_SIZE 100
 #define NEUROCL_BATCH_SIZE 10
@@ -36,40 +37,54 @@ THE SOFTWARE.
 
 using namespace neurocl;
 
+std::map<std::string,std::tuple<std::string,std::string,std::string>> g_map_nets
+= { { "N", std::make_tuple( "../nets/alpr/topology-alpr-num.txt", "../nets/alpr/weights-alpr-num.bin", "../nets/alpr/training/alpr-train-num.txt" ) },
+    { "L", std::make_tuple( "../nets/alpr/topology-alpr-let.txt", "../nets/alpr/weights-alpr-let.bin", "../nets/alpr/training/alpr-train-let.txt" ) } };
+
 int main( int argc, char *argv[] )
 {
     std::cout << "Welcome to alpr!" << std::endl;
 
-    if ( argc == 1 )
+    if ( argc != 3 )
     {
         std::cout << "Invalid arguments!" << std::endl;
-        std::cout << "example training numbers: ./alpr 1 alpr-train-num.txt topology-alpr-num.txt weights-alpr-num.bin 10" << std::endl;
-        std::cout << "example training letters: ./alpr 1 alpr-train-let.txt topology-alpr-let.txt weights-alpr-let.bin 10" << std::endl;
-        std::cout << "example testing: ./alpr 0 plaque.png topology-alpr-num.txt weights-alpr-num.bin topology-alpr-let.txt weights-alpr-let.bin" << std::endl;
+        std::cout << "example training numbers for 10 epochs: ./alpr N 10" << std::endl;
+        std::cout << "example training letters for 10 epochs: ./alpr L 10" << std::endl;
+        std::cout << "example testing: ./alpr T plaque.png" << std::endl;
         return -1;
     }
 
     try
     {
-        // TODO : check command arguments with boost
-        // 0 testing
-        // 1 training
-        bool training_enabled = ( boost::lexical_cast<int>( argv[1] ) == 1 );
+        logger_manager& lm = logger_manager::instance();
+        lm.add_logger( policy_type::cout, "alpr" );
+
+        std::string run_type = argv[1];
+
+        bool testing_enabled = ( run_type == "T" );
 
         //************************* TRAINING *************************//
 
-        if ( training_enabled )
+        if ( !testing_enabled )
         {
             /******** TRAIN ********/
 
+            if ( g_map_nets.find( run_type ) == g_map_nets.end() )
+            {
+                std::cout << "Invalid run type argument: " << run_type << std::endl;
+                return -1;
+            }
+
+            std::cout << "-> alpr training with topology : " << std::get<0>( g_map_nets[run_type] ) << std::endl;
+
             std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
-            net_manager->load_network( argv[3], argv[4] );
+            net_manager->load_network( std::get<0>( g_map_nets[run_type] ), std::get<1>( g_map_nets[run_type] ) );
 
             samples_manager smp_manager;
-            smp_manager.load_samples( argv[2] );
+            smp_manager.load_samples( std::get<2>( g_map_nets[run_type] ) );
 
-            if ( argc == 6 )
-                net_manager->batch_train( smp_manager, boost::lexical_cast<int>( argv[5] ), NEUROCL_BATCH_SIZE );
+            if ( argc == 3 )
+                net_manager->batch_train( smp_manager, boost::lexical_cast<int>( argv[2] ), NEUROCL_BATCH_SIZE );
             else
             	net_manager->batch_train( smp_manager, NEUROCL_EPOCH_SIZE, NEUROCL_BATCH_SIZE );
 
@@ -113,10 +128,10 @@ int main( int argc, char *argv[] )
         else
         {
             std::shared_ptr<network_manager_interface> net_num = network_factory::build();
-            net_num->load_network( argv[3], argv[4] );
+            net_num->load_network( "../nets/alpr/topology-alpr-num2.txt", "../nets/alpr/weights-alpr-num2.bin" );
 
             std::shared_ptr<network_manager_interface> net_let = network_factory::build();
-            net_let->load_network( argv[5], argv[6] );
+            net_let->load_network( "../nets/alpr/topology-alpr-let2.txt", "../nets/alpr/weights-alpr-let2.bin" );
 
             alpr::license_plate lic( argv[2], net_num, net_let );
             lic.analyze();

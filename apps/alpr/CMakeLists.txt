@@ -47,6 +47,7 @@ add_executable(alpr ${sources_list} ${headers_list})
 
 target_link_libraries(alpr
 neurocl
+imagetools
 pthread
 ${extra_link_libs}
 )

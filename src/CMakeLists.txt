@@ -49,13 +49,34 @@ if ( "${CMAKE_CXX_FLAGS}" MATCHES "^.*(sse|neon).*$" )
     )
 endif ()
 
+if ( NOT NEUROCL_DISABLE_OPENCL )
+
+    # detect OpenCL features
+    include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
+
+    if ( OpenCL_FOUND )
+
+        message("OpenCL is enabled for this build")
+
+        add_definitions(-DOPENCL_ENABLED)
+
+        set( sources_list_opencl
+            mlp/network_vexcl.cpp
+        )
+
+        set (headers_list_opencl
+            mlp/network_vexcl.h
+        )
+    endif ()
+else ()
+    message("OpenCL is disabled for this build")
+endif ()
+
 include_directories(
     .
     "${CMAKE_SOURCE_DIR}/../vexcl"
     "${CMAKE_SOURCE_DIR}/../CImg"
 )
-
-include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
 set (sources_list
 common/samples_manager.cpp
@@ -68,7 +89,6 @@ common/portable_binary_archive/portable_binary_iarchive.cpp
 common/portable_binary_archive/portable_binary_oarchive.cpp
 
 mlp/network_file_handler.cpp
-mlp/network_vexcl.cpp
 mlp/network_bnu_base.cpp
 mlp/network_bnu_ref.cpp
 
@@ -109,7 +129,6 @@ common/portable_binary_archive/portable_binary_oarchive.hpp
 mlp/network_file_handler.h
 mlp/network_manager_mlp.h
 mlp/network_interface_mlp.h
-mlp/network_vexcl.h
 mlp/network_bnu_base.h
 mlp/network_bnu_ref.h
 
@@ -137,7 +156,11 @@ if (NOT APPLE)
 	add_definitions( -Dcimg_use_png )
 endif ()
 
-add_library(neurocl SHARED ${sources_list} ${headers_list} ${sources_list_simd} ${headers_list_simd})
+add_library(neurocl SHARED
+    ${sources_list} ${headers_list}
+    ${sources_list_simd} ${headers_list_simd}
+    ${sources_list_opencl} ${headers_list_opencl}
+)
 
 target_link_libraries(neurocl
 boost_thread${boost_suffix}

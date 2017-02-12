@@ -10,7 +10,7 @@
     - [ ] Work with compiler flags (fast-math, unroll-loops, simd flags etc...)
 - [ ] Work on a better networks class refactoring (factorization...)
 - [ ] Work on a better solvers class refactoring (factorization...)
-- [ ] Implement loss computation for MLP (cf. CONVNET)
+- [x] Implement loss computation for MLP (cf. CONVNET)
 - [ ] Allow "no OpenCL" compile target.
 
 # TODO - CONVNET
@@ -24,7 +24,7 @@
     - [ ] Valgrind/kcachegrind profiling
 - [x] Parallel batch training
 - [x] Confirm bias tensors initialisation
-- [ ] Cross validate with similar ConvnetJS topologies
+- [ ] Cross validate with similar Kaggle digit recognizer topology
 - [ ] Use "expanded" (rot/noise/trans) MNIST dataset
 - [x] Introduce fan-in size layer base method
 - [ ] Python:
@@ -35,7 +35,7 @@
 - [ ] ConvNet layers code factorization
 - [x] If needed implement Adam solver
 - [ ] Clarify L1/L2 regularizations
-- [ ] Missing dimension check if pool depth is different than conv depth
+- [x] Missing dimension check if dropout depth is different than prev layer depth
 
 # TODO - Face recognition
 - [ ] Canny vs Sobel proper benchmark

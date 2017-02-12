@@ -25,12 +25,15 @@ THE SOFTWARE.
 #ifndef NETWORK_MANAGER_MLP_H
 #define NETWORK_MANAGER_MLP_H
 
-#include "network_vexcl.h"
 #include "network_bnu_ref.h"
 #include "network_file_handler.h"
 
 #ifdef SIMD_ENABLED
     #include "network_bnu_fast.h"
+#endif
+
+#ifdef OPENCL_ENABLED
+    #include "network_vexcl.h"
 #endif
 
 #include "common/network_exception.h"
@@ -76,7 +79,11 @@ private:
     #endif
             break;
         case t_mlp_impl::MLP_IMPL_VEXCL:
+    #ifdef OPENCL_ENABLED
             m_net = std::make_shared<network_vexcl>();
+    #else
+            throw network_exception( "unmanaged mlp implementation (opencl disabled)!" );
+    #endif
             break;
         default:
             throw network_exception( "unmanaged mlp implementation!" );
