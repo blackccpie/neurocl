@@ -146,25 +146,32 @@ neurocl main entry point is interface **network_manager_interface**, which can o
     std::shared_ptr<network_manager_interface> net_manager = network_factory::build();
     ```
 
-   or given a specific scheme:
+	or given a specific scheme:
 
     ```c++
     std::shared_ptr<network_manager_interface> net_manager =
         network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_CONVNET );
     ```
-   The two availables schemes are:
-    - **NEURAL_IMPL_MLP**,
-    - **NEURAL_IMPL_CONVNET**
+	
+    The two availables schemes are:
 
-	-> There are 3 MLP backends available:
+    * **NEURAL_IMPL_MLP**
 
-	* *NEURAL_IMPL_BNU_REF* : the reference implementation only using boost::numeric::ublas containers and operators.
-	* *NEURAL_IMPL_BNU_FAST* : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4).
-	* *NEURAL_IMPL_VEXCL* : _experimental_ vexcl reference implementation.
+        3 backends available:
+        * *NEURAL_IMPL_BNU_REF* : the reference implementation only using boost::numeric::ublas containers and operators.
+        * *NEURAL_IMPL_BNU_FAST* : _experimental_ fast  implementation using boost::numeric::ublas containers but custom simd (neon/sse4) optimized operators (for now layer sizes should be multiples of 4).
+        * *NEURAL_IMPL_VEXCL* : _experimental_ vexcl reference implementation.
+    * **NEURAL_IMPL_CONVNET**
 
-        NOTE : MLP default backend is hardcoded to *NEURAL_IMPL_BNU_REF*
+        2 backends available:
+        * *CONVNET* : the single-threaded implementation.
+        * *CONVNET_PARALLEL* : the multi-threaded implementation (only for training for now).
 
-	-> For now there is a unique CONVNET backend.
+	_**Note1**_ : MLP default backend is hardcoded to *NEURAL_IMPL_BNU_REF*.
+
+	_**Note2**_ : CONVNET default backend is hardcoded to *CONVNET*.
+
+	_**Note3**_ : these hardcoded settings can be changed in the *network_factory* class.
 
 - a given network can be loaded, given its topology and weights file names
 
