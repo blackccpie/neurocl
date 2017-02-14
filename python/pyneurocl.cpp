@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ public:
     py_neurocl_helper( bool verbose ) : m_progress( 0 )
     {
 		logger_manager& lm = logger_manager::instance();
-		//m.add_logger( policy_type::cout, "pyneurocl" );
+		m.add_logger( policy_type::cout, "pyneurocl" );
 		lm.add_logger( policy_type::file, "pyneurocl.log" );
 
         if ( !verbose )
