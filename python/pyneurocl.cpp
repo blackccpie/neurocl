@@ -59,7 +59,7 @@ public:
     py_neurocl_helper( bool verbose ) : m_progress( 0 )
     {
 		logger_manager& lm = logger_manager::instance();
-		m.add_logger( policy_type::cout, "pyneurocl" );
+		lm.add_logger( policy_type::cout, "pyneurocl" );
 		lm.add_logger( policy_type::file, "pyneurocl.log" );
 
         if ( !verbose )
