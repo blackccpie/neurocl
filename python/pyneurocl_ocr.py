@@ -18,7 +18,7 @@ show()
 
 print "---> pyneurocl - initialize"
 h = pyneurocl.helper(False)
-h.init('../nets/mnist/topology-mnist-kaggle.txt','../nets/mnist/weights-mnist-kaggle.bin')
+h.init('mnist/topology-mnist-kaggle.txt','mnist/weights-mnist-kaggle.bin')
 
 clear()
 write_string("INIT 2",kerning=False)
