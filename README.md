@@ -102,7 +102,7 @@ neurocl requires three main input files:
     layer:out:5:10x1:1
     ```
 
-    *NOTE : CONVNET does not allow configurable activation functions for now, the default configuration is ReLU for convolutional layers, and Softmax with cross entropy error for the output layer. It can be edited in the **src/convnet/network.cpp** file.*
+    *NOTE : CONVNET does not allow configurable activation functions for now, the default configuration is ReLU for convolutional layers, and Softmax with cross entropy error for the output layer. It can be edited in the __src/convnet/network.cpp__ file.*
 
 2. the **neural net weights** file: this is a binary file containing the layers weight and bias values. This file is managed internally by neurocl, but user has to specify the name of the weights file to load for training/classifying.
 
