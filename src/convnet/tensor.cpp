@@ -74,50 +74,23 @@ const std::string tensor::dump( const size_t d1, const size_t d2 ) const
 
 tensor::tensor( const tensor&& t )
 {
-    // TODO-CNN
-    // NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
     m_width = t.m_width;
     m_height = t.m_height;
     m_depth1 = t.m_depth1;
     m_depth2 = t.m_depth2;
 
-    m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
-
-    tensor_foreach() {
-        m_tensor_array[d1][d2] = std::move( t.m_tensor_array[d1][d2] );
-    }
-}
-
-tensor& tensor::operator=( const tensor& other )
-{
-    m_width = other.m_width;
-    m_height = other.m_height;
-    m_depth1 = other.m_depth1;
-    m_depth2 = other.m_depth2;
-
-    m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
-
-    tensor_foreach_p( other.d1(), other.d2() ) {
-        m_tensor_array[d1][d2] = other.m_tensor_array[d1][d2];
-    }
-
-    return *this;
+    m_tensor_array = std::move( t.m_tensor_array );
 }
 
 tensor::tensor( const tensor& t )
 {
-    // TODO-CNN
-    // NEEDS A REWORK PASS WITH ASSIGNMENT OPERATORS
     m_width = t.m_width;
     m_height = t.m_height;
     m_depth1 = t.m_depth1;
     m_depth2 = t.m_depth2;
 
     m_tensor_array.resize( boost::extents[t.m_depth1][t.m_depth2] );
-
-    tensor_foreach() {
-        m_tensor_array[d1][d2] = t.m_tensor_array[d1][d2];
-    }
+    m_tensor_array = t.m_tensor_array;
 }
 
 tensor& tensor::operator=( tensor&& other )
@@ -128,6 +101,19 @@ tensor& tensor::operator=( tensor&& other )
     m_depth2 = other.m_depth2;
 
     m_tensor_array = std::move( other.m_tensor_array );
+
+    return *this;
+}
+
+tensor& tensor::operator=( const tensor& other )
+{
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_depth1 = other.m_depth1;
+    m_depth2 = other.m_depth2;
+
+    m_tensor_array.resize( boost::extents[m_depth1][m_depth2] );
+    m_tensor_array = other.m_tensor_array;
 
     return *this;
 }
