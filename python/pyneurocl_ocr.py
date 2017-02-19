@@ -65,8 +65,10 @@ while(True):
 		# grab an image from the camera
 		camera.capture(raw, format="rgb")
 
+        input = rgb2gray(raw.array)
+
 		#print(raw.array.shape)
-		#image = Image.fromarray(rgb2gray(raw.array), 'L')
+		#image = Image.fromarray(input, 'L')
 		#image.save('my.png')
 		#requires imagemagick to be installed!
 		#image.show()
@@ -79,7 +81,7 @@ while(True):
 
 		print "---> compute ocr output:"
 		# NOTE : raw.array.dtype is uint8
-		reco_out = h.digit_recognizer( rgb2gray(raw.array) )
+		reco_out = h.digit_recognizer( input )
 		print reco_out
 
 		blanksize = 0
