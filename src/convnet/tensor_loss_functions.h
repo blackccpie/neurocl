@@ -52,9 +52,11 @@ class cross_entropy
 {
 public:
 
-    /*static float f( const tensor& y, const tensor& t )
+    static float f( const tensor& y, const tensor& t )
     {
-    }*/
+        // NOT IMPLEMENTED YET
+        return 0.f;
+    }
 
     static tensor d_f( const tensor& y, const tensor& t )
     {
@@ -68,9 +70,11 @@ class cross_entropy_multiclass
 {
 public:
 
-    /*static float f( const tensor& y, const tensor& t )
+    static float f( const tensor& y, const tensor& t )
     {
-    }*/
+        // NOT IMPLEMENTED YET
+        return 0.f;
+    }
 
     static tensor d_f( const tensor& y, const tensor& t )
     {
