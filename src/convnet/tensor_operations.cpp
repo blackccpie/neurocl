@@ -107,6 +107,19 @@ tensor tensor_operation::scale( const float& val, const tensor& input )
     return output;
 }
 
+tensor tensor_operation::plus( const float& val, const tensor& input )
+{
+    tensor output;
+    output.resize( input );
+
+    tensor_foreach_p( input.d1(), input.d2() ) {
+        output.m_tensor_array[d1][d2] =
+            boost::numeric::ublas::scalar_matrix<float>( input.w(), input.h(), val ) + input.m_tensor_array[d1][d2];
+    }
+
+    return output;
+}
+
 tensor tensor_operation::minus( const float& val, const tensor& input )
 {
     tensor output;

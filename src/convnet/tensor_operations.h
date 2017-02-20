@@ -59,6 +59,9 @@ public:
     // returns aB (scalar product)
     static tensor scale( const float& val, const tensor& input );
 
+    // returns scalar_mat(a) + B
+    static tensor plus( const float& val, const tensor& input );
+
     // returns scalar_mat(a) - B
     static tensor minus( const float& val, const tensor& input );
 
@@ -121,6 +124,11 @@ public:
 inline tensor operator*( const float& val, const tensor& t )
 {
     return tensor_operation::scale( val, t );
+};
+
+inline tensor operator+( const float& val, const tensor& t )
+{
+    return tensor_operation::plus( val, t );
 };
 
 inline tensor operator-( const float& val, const tensor& t )
