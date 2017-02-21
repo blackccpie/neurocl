@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef NETWORK_RANDOM_H
 #define NETWORK_RANDOM_H
 
+#include <common/network_config.h>
+
 #include <random>
 
 namespace neurocl {
@@ -41,12 +43,24 @@ public:
     }
     unsigned int operator()()
     {
-		return m_rd();
+        static unsigned int _offset = 0;
+
+        if ( m_seed )
+            return m_seed.get() + _offset++;
+        else
+			return m_rd();
     }
 private:
-    seed() {}
+    seed()
+    {
+        m_seed = network_config::instance().get_param<unsigned int>( "random_seed" );
+    }
     virtual ~seed() {}
 private:
+
+	// optional seed
+    boost::optional<unsigned int> m_seed;
+
     // using random_device allows to have different random sets at each runtime
     std::random_device m_rd;
 };
