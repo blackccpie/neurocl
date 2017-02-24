@@ -52,7 +52,7 @@ public:
 	virtual void save_network() override;
 
 	//! Set training flag
-    virtual void set_training( bool training, key_training ) final;
+    virtual void set_training( bool training, key_training ) final override;
 	//! train given single sample
     virtual void train( const sample& s, key_training ) override;
 

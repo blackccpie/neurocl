@@ -81,13 +81,13 @@ public:
 
     virtual const std::string type() const override { return "output"; }
 
-    virtual tensor d_activation( const tensor& in ) const final { /* NOTHING TO DO */return tensor{}; }
+    virtual tensor d_activation( const tensor& in ) const final override { /* NOTHING TO DO */return tensor{}; }
 
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
                             const size_t depth,
-                            const size_t cache_size ) final
+                            const size_t cache_size ) final override
     {
         LOGGER(info) << "output_layer::populate - populating output layer" << std::endl;
 
@@ -166,7 +166,7 @@ public:
     virtual void fill(  const size_t depth1,
                         const size_t depth2,
                         const size_t data_size,
-                        const float* data ) final
+                        const float* data ) final override
     {
         m_training_output.fill( depth1, depth2, data_size, data );
     }
@@ -174,7 +174,7 @@ public:
     // fill outcoming buffer
     virtual void fill(  const size_t depth1,
                         const size_t depth2,
-                        float* data ) final
+                        float* data ) final override
     {
         m_feature_maps.fill( depth1, depth2, data );
     }
@@ -307,7 +307,7 @@ public:
     }
 
     //! get gradient checker
-    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
+    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final override
     {
         return std::unique_ptr<tensor_gradient_checker>(
             new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
@@ -318,7 +318,7 @@ public:
 
 protected:
 
-    virtual size_t fan_in() const final
+    virtual size_t fan_in() const final override
     {
         size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
         return k_group * m_prev_layer->width() * m_prev_layer->height();

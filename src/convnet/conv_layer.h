@@ -60,11 +60,11 @@ public:
 
     virtual ~conv_layer() {}
 
-    virtual const std::string type() const final { return "conv " + m_name; }
+    virtual const std::string type() const final override { return "conv " + m_name; }
 
-    virtual tensor d_activation( const tensor& in ) const final { return activationT::d_f( in ); }
+    virtual tensor d_activation( const tensor& in ) const final override { return activationT::d_f( in ); }
 
-    virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) final
+    virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) final override
     {
         m_filter_size = filter_size;
         m_filter_stride = filter_stride;
@@ -74,7 +74,7 @@ public:
                             const size_t width,
                             const size_t height,
                             const size_t depth,
-                            const size_t cache_size) final
+                            const size_t cache_size) final override
     {
         LOGGER(info) << "conv_layer::populate - populating convolutional layer " << m_name << std::endl;
 
@@ -227,18 +227,18 @@ public:
         { return m_error_maps; }
 
     //! get gradient checker
-    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
+    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final override
     {
         return std::unique_ptr<tensor_gradient_checker>(
             new tensor_gradient_checker( *m_filters, *m_deltas_filters ) );
     }
 
 	// copy accessor, not made for performance but rather for network introspection
-    virtual tensor weights( key_weights ) final { return *m_filters; }
+    virtual tensor weights( key_weights ) final override { return *m_filters; }
 
 protected:
 
-    virtual size_t fan_in() const final
+    virtual size_t fan_in() const final override
     {
         return m_filter_size * m_filter_size;
     }
