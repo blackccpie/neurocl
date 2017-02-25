@@ -71,10 +71,10 @@ public:
         m_weights( nullptr ), m_deltas_weights( nullptr ),
         m_bias( nullptr ), m_deltas_bias( nullptr )
     {
-        static_assert( !std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ||
-            ( std::is_same<activationT, tensor_activations::softmax>::value &&
+        static_assert( !std::is_same<activationT,tensor_activations::softmax_cross_entropy>::value ||
+            ( std::is_same<activationT, tensor_activations::softmax_cross_entropy>::value &&
             std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ),
-            "softmax cross entropy loss must only be used with softmax activation function!" );
+            "softmax cross entropy activation must only be used with softmax cross entropy loss!" );
     }
 
     virtual ~output_layer() {}
@@ -203,6 +203,28 @@ public:
         activationT::f( m_feature_maps );
     }
 
+    // one-hot activation output error
+    template<typename U = activationT>
+    typename std::enable_if<std::is_same<typename U::is_one_hot,std::true_type>::value,void>::type
+    _compute_output_error()
+    {
+        m_error_maps = nto::elemul(
+            activationT::d_f( m_feature_maps ),
+            errorT::d_f( m_feature_maps, m_training_output )
+        );
+    }
+
+    // non one-hot activation output error
+    template<typename U = activationT>
+    typename std::enable_if<!std::is_same<typename U::is_one_hot,std::true_type>::value,void>::type
+    _compute_output_error()
+    {
+         m_error_maps = activationT::d_f(
+             m_feature_maps,
+             errorT::d_f( m_feature_maps, m_training_output )
+         );
+    }
+
     virtual void back_propagate() override
     {
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
@@ -218,12 +240,7 @@ public:
         // Compute errors
 
         // compute output layer error
-        m_error_maps = nto::elemul(
-            activationT::d_f( m_feature_maps ),
-            errorT::d_f( m_feature_maps, m_training_output )
-        );
-        // TODO-CNN : non one-hot vector error maps case, not managed yet...
-        //m_error_maps = activationT::d_f( m_feature_maps, errorT::d_f( m_feature_maps, m_training_output ) );
+        _compute_output_error();
 
         // compute previous layer error
 

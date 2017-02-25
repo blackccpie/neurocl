@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ class tensor_gradient_checker
 {
 public:
     tensor_gradient_checker( tensor& weights, tensor& deltas )
-    	: m_index( 0 ), m_stored( 0.f ), m_weights( weights ), m_deltas( deltas )
+    	: m_index( 0 ), m_weights( weights ), m_deltas( deltas ), m_stored( 0.f )
     {
         m_weights.assert_same_size( m_deltas );
 

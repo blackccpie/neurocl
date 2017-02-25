@@ -92,11 +92,6 @@ public:
     virtual void clear_gradients() final override;
     virtual void gradient_check( const output_ptr& out_ref ) final override;
 
-    // pure compute-critic virtuals to be implemented in inherited classes
-    virtual void feed_forward() = 0;
-    virtual void back_propagate() = 0;
-    virtual void gradient_descent() = 0;
-
     virtual float loss() final override;
 
     virtual const size_t count_layers() final { return m_layers.size(); }
