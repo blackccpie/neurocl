@@ -1,7 +1,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // portable_binary_iarchive.cpp
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -17,7 +17,9 @@
 
 #include "portable_binary_iarchive.hpp"
 
-void 
+#include "../logger.h"
+
+void
 portable_binary_iarchive::load_impl(boost::intmax_t & l, char maxsize){
     char size;
     l = 0;
@@ -80,12 +82,12 @@ portable_binary_iarchive::load_override(
     t.t[cn.size()] = '\0';
 }
 
-void 
+void
 portable_binary_iarchive::init(unsigned int flags){
     if(0 == (flags & boost::archive::no_header)){
         // read signature in an archive version independent manner
         std::string file_signature;
-        * this >> file_signature;
+        *this >> file_signature;
         if(file_signature != boost::archive::BOOST_ARCHIVE_SIGNATURE())
             boost::serialization::throw_exception(
                 boost::archive::archive_exception(
@@ -95,7 +97,9 @@ portable_binary_iarchive::init(unsigned int flags){
         // make sure the version of the reading archive library can
         // support the format of the archive being read
         boost::archive::library_version_type input_library_version;
-        * this >> input_library_version;
+        *this >> input_library_version;
+
+        LOGGER(info) << "boost archive library vs. net version is " << boost::archive::BOOST_ARCHIVE_VERSION() << "/" << input_library_version << std::endl;
 
         // extra little .t is to get around borland quirk
         if(boost::archive::BOOST_ARCHIVE_VERSION() < input_library_version)
@@ -133,7 +137,7 @@ namespace detail {
 
 template class basic_binary_iprimitive<
     portable_binary_iarchive,
-    std::istream::char_type, 
+    std::istream::char_type,
     std::istream::traits_type
 > ;
 
