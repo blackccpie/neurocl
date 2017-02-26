@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -112,7 +112,9 @@ void network::add_layers( const std::vector<layer_descr>& layers )
         case OUTPUT_LAYER:
             {
                 std::shared_ptr<output_layer_iface> out =
-                    std::make_shared< output_layer<tensor_activations::softmax,tensor_loss_functions::cross_entropy_softmax> >();
+                    std::make_shared< output_layer< tensor_activations::softmax_cross_entropy,
+                                                    tensor_loss_functions::cross_entropy_softmax >
+                                    >();
                 out->populate( m_layers.back(), _layer.sizeX, _layer.sizeY, _layer.sizeZ, cache_size );
                 l = out;
             }

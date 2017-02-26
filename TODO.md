@@ -11,7 +11,7 @@
 - [ ] Work on a better networks class refactoring (factorization...)
 - [ ] Work on a better solvers class refactoring (factorization...)
 - [x] Implement loss computation for MLP (cf. CONVNET)
-- [ ] Allow "no OpenCL" compile target.
+- [x] Allow "no OpenCL" compile target.
 
 # TODO - CONVNET
 - [ ] Optimize inverse pooling with cached pooling map

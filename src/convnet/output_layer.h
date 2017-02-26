@@ -71,23 +71,23 @@ public:
         m_weights( nullptr ), m_deltas_weights( nullptr ),
         m_bias( nullptr ), m_deltas_bias( nullptr )
     {
-        static_assert( !std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ||
-            ( std::is_same<activationT, tensor_activations::softmax>::value &&
+        static_assert( !std::is_same<activationT,tensor_activations::softmax_cross_entropy>::value ||
+            ( std::is_same<activationT, tensor_activations::softmax_cross_entropy>::value &&
             std::is_same<errorT,tensor_loss_functions::cross_entropy_softmax>::value ),
-            "softmax cross entropy loss must only be used with softmax activation function!" );
+            "softmax cross entropy activation must only be used with softmax cross entropy loss!" );
     }
 
     virtual ~output_layer() {}
 
     virtual const std::string type() const override { return "output"; }
 
-    virtual tensor d_activation( const tensor& in ) const final { /* NOTHING TO DO */return tensor{}; }
+    virtual tensor d_activation( const tensor& in ) const final override { /* NOTHING TO DO */return tensor{}; }
 
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
                             const size_t depth,
-                            const size_t cache_size ) final
+                            const size_t cache_size ) final override
     {
         LOGGER(info) << "output_layer::populate - populating output layer" << std::endl;
 
@@ -166,7 +166,7 @@ public:
     virtual void fill(  const size_t depth1,
                         const size_t depth2,
                         const size_t data_size,
-                        const float* data ) final
+                        const float* data ) final override
     {
         m_training_output.fill( depth1, depth2, data_size, data );
     }
@@ -174,7 +174,7 @@ public:
     // fill outcoming buffer
     virtual void fill(  const size_t depth1,
                         const size_t depth2,
-                        float* data ) final
+                        float* data ) final override
     {
         m_feature_maps.fill( depth1, depth2, data );
     }
@@ -203,6 +203,28 @@ public:
         activationT::f( m_feature_maps );
     }
 
+    // one-hot activation output error
+    template<typename U = activationT>
+    typename std::enable_if<std::is_same<typename U::is_one_hot,std::true_type>::value,void>::type
+    _compute_output_error()
+    {
+        m_error_maps = nto::elemul(
+            activationT::d_f( m_feature_maps ),
+            errorT::d_f( m_feature_maps, m_training_output )
+        );
+    }
+
+    // non one-hot activation output error
+    template<typename U = activationT>
+    typename std::enable_if<!std::is_same<typename U::is_one_hot,std::true_type>::value,void>::type
+    _compute_output_error()
+    {
+         m_error_maps = activationT::d_f(
+             m_feature_maps,
+             errorT::d_f( m_feature_maps, m_training_output )
+         );
+    }
+
     virtual void back_propagate() override
     {
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
@@ -218,12 +240,7 @@ public:
         // Compute errors
 
         // compute output layer error
-        m_error_maps = nto::elemul(
-            activationT::d_f( m_feature_maps ),
-            errorT::d_f( m_feature_maps, m_training_output )
-        );
-        // TODO-CNN : non one-hot vector error maps case, not managed yet...
-        //m_error_maps = activationT::d_f( m_feature_maps, errorT::d_f( m_feature_maps, m_training_output ) );
+        _compute_output_error();
 
         // compute previous layer error
 
@@ -307,7 +324,7 @@ public:
     }
 
     //! get gradient checker
-    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
+    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final override
     {
         return std::unique_ptr<tensor_gradient_checker>(
             new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
@@ -318,7 +335,7 @@ public:
 
 protected:
 
-    virtual size_t fan_in() const final
+    virtual size_t fan_in() const final override
     {
         size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
         return k_group * m_prev_layer->width() * m_prev_layer->height();

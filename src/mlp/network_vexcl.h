@@ -76,31 +76,31 @@ public:
 	virtual ~network_vexcl() {}
 
     // Convention : input layer is index 0
-    virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) final;
+    virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) final override;
 
-    virtual void set_training( bool training ) final { /*NOTHING TO DO YET*/ }
+    virtual void set_training( bool training ) final override { /*NOTHING TO DO YET*/ }
 
-    virtual void set_input(  const size_t& in_size, const float* in ) final;
-    virtual void set_output( const size_t& out_size, const float* out ) final;
+    virtual void set_input(  const size_t& in_size, const float* in ) final override;
+    virtual void set_output( const size_t& out_size, const float* out ) final override;
 
-	virtual void clear_gradients() final;
-    virtual void gradient_check( const output_ptr& out_ref ) final;
+	virtual void clear_gradients() final override;
+    virtual void gradient_check( const output_ptr& out_ref ) final override;
 
-    virtual void feed_forward() final;
-    virtual void back_propagate() final;
-    virtual void gradient_descent() final;
+    virtual void feed_forward() final override;
+    virtual void back_propagate() final override;
+    virtual void gradient_descent() final override;
 
-    virtual float loss() final;
+    virtual float loss() final override;
 
-    virtual const size_t count_layers() final { return m_layers.size(); }
-    virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final;
-    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) final;
+    virtual const size_t count_layers() final override { return m_layers.size(); }
+    virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final override;
+    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) final override;
 
-    virtual const output_ptr output() final;
+    virtual const output_ptr output() final override;
 
-    virtual const std::string dump_weights() final;
-    virtual const std::string dump_bias() final;
-    virtual const std::string dump_activations() final;
+    virtual const std::string dump_weights() final override;
+    virtual const std::string dump_bias() final override;
+    virtual const std::string dump_activations() final override;
 
 private:
 

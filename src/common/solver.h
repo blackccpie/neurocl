@@ -125,9 +125,9 @@ public:
         input += input_momentum;
     }
 
-    virtual const float& get_learning_rate() final { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final { return 1; }
+    virtual const float& get_learning_rate() final override { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final override { return 1; }
 
 private:
 
@@ -180,9 +180,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final { return 1; }
+    virtual const float& get_learning_rate() final override { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final override { return 1; }
 
 private:
 
@@ -234,9 +234,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final { return 1; }
+    virtual const float& get_learning_rate() final override { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final override { return 1; }
 
 private:
 
@@ -301,9 +301,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final { return 2; }
+    virtual const float& get_learning_rate() final override { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final override { return 2; }
 
 private:
 
@@ -372,9 +372,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final { return 2; }
+    virtual const float& get_learning_rate() final override { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final override { return 2; }
 
 private:
 
@@ -446,9 +446,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final { return 2; }
+    virtual const float& get_learning_rate() final override { return m_alpha; }
+    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
+    virtual size_t get_cache_size() final override { return 2; }
 
 private:
 

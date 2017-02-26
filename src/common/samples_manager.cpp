@@ -148,7 +148,7 @@ void samples_manager::load_samples( const std::string& input_filename, bool shuf
     }
 
     if ( shuffle )
-        std::random_shuffle( m_samples_set.begin(), m_samples_set.end() );
+        this->shuffle();
 }
 
 const std::vector<neurocl::sample> samples_manager::get_next_batch( const size_t size ) const noexcept
@@ -178,7 +178,7 @@ void samples_manager::rewind() const noexcept
 
 void samples_manager::shuffle() const noexcept
 {
-    std::random_shuffle( m_samples_set.begin(), m_samples_set.end() );
+    std::shuffle( std::begin(m_samples_set), std::end(m_samples_set), std::default_random_engine( neurocl::random::seed::instance()() ) );
 }
 
 void samples_manager::_assert_sample_size() const

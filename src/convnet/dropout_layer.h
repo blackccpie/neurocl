@@ -42,7 +42,7 @@ public:
 
 	virtual const std::string type() const override { return "dropout " + m_name; }
 
-    virtual tensor d_activation( const tensor& in ) const final { return m_prev_layer->d_activation( in ); }
+    virtual tensor d_activation( const tensor& in ) const final override { return m_prev_layer->d_activation( in ); }
 
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
@@ -122,7 +122,7 @@ public:
 
 protected:
 
-    virtual size_t fan_in() const final
+    virtual size_t fan_in() const final override
     {
         return m_prev_layer->width() * m_prev_layer->height();
     }

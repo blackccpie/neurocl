@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -52,6 +52,7 @@ namespace tensor_activations {
     class relu;
     class leaky_relu;
     class softmax;
+    class softmax_base;
 }
 
 #define tensor_foreach() for ( auto d1 = 0; d1 < m_depth1; d1++ ) \
@@ -165,6 +166,7 @@ public:
         friend class tensor_activations::relu;
         friend class tensor_activations::leaky_relu;
         friend class tensor_activations::softmax;
+        friend class tensor_activations::softmax_base;
         friend class tensor_utils::visualizer;
 
         key() {} key( key const& ) {}

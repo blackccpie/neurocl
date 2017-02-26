@@ -59,13 +59,13 @@ public:
 
     virtual const std::string type() const override { return "full " + m_name; }
 
-    virtual tensor d_activation( const tensor& in ) const final { return activationT::d_f( in ); }
+    virtual tensor d_activation( const tensor& in ) const final override { return activationT::d_f( in ); }
 
     virtual void populate(  const std::shared_ptr<layer>& prev_layer,
                             const size_t width,
                             const size_t height,
                             const size_t depth,
-                            const size_t cache_size ) final
+                            const size_t cache_size ) final override
     {
         LOGGER(info) << "full_layer::populate - populating full layer " << m_name << std::endl;
 
@@ -233,7 +233,7 @@ public:
     }
 
     //! get gradient checker
-    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final
+    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final override
     {
         return std::unique_ptr<tensor_gradient_checker>(
             new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
@@ -244,7 +244,7 @@ public:
 
 protected:
 
-    virtual size_t fan_in() const final
+    virtual size_t fan_in() const final override
     {
         size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
         return k_group * m_prev_layer->width() * m_prev_layer->height();

@@ -33,6 +33,8 @@ class sigmoid
 {
 public:
 
+    using is_one_hot = std::true_type;
+
     static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
@@ -64,6 +66,8 @@ public:
 class tanh
 {
 public:
+
+    using is_one_hot = std::true_type;
 
     static void f( tensor& input )
     {
@@ -97,6 +101,8 @@ class relu
 {
 public:
 
+    using is_one_hot = std::true_type;
+
     static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
@@ -128,6 +134,8 @@ class leaky_relu
 {
 public:
 
+    using is_one_hot = std::true_type;
+
     static void f( tensor& input )
     {
         tensor_foreach_p( input.d1(), input.d2() ) {
@@ -155,7 +163,7 @@ public:
     }
 };
 
-class softmax
+class softmax_base
 {
 public:
 
@@ -179,11 +187,16 @@ public:
                             [alpha,denom]( float& a) { a = std::exp(a - alpha)/denom; } );
         }
     }
+};
+
+class softmax final : public softmax_base
+{
+public:
+
+    using is_one_hot = std::false_type;
 
     static tensor d_f( const tensor& input, const tensor& prev_delta )
     {
-		// TODO-CNN : still not a fully validated implementation
-
         using namespace boost::numeric::ublas;
 
         tensor output;
@@ -214,17 +227,6 @@ public:
         return output;
     }
 
-    static tensor d_f( const tensor& input )
-    {
-		// One hot gradient version MUST be used in conjunction with softmax cross entropy cost:
-        // http://www.ics.uci.edu/~pjsadows/notes.pdf
-		// http://peterroelants.github.io/posts/neural_network_implementation_intermezzo02
-        tensor identity;
-        identity.resize( input );
-        identity.uniform_fill(1.f);
-        return identity;
-    }
-
 private:
 
     static float _df( float y )
@@ -235,6 +237,24 @@ private:
     static float _sum( const matrixF& mat )
     {
         return std::accumulate( mat.data().begin(), mat.data().end(), 0.f );
+    }
+};
+
+class softmax_cross_entropy final : public softmax_base
+{
+public:
+
+    using is_one_hot = std::true_type;
+
+    static tensor d_f( const tensor& input )
+    {
+		// One hot gradient version MUST be used in conjunction with softmax cross entropy cost:
+        // http://www.ics.uci.edu/~pjsadows/notes.pdf
+		// http://peterroelants.github.io/posts/neural_network_implementation_intermezzo02
+        tensor identity;
+        identity.resize( input );
+        identity.uniform_fill(1.f);
+        return identity;
     }
 };
 

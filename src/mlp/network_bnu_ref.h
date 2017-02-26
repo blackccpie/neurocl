@@ -36,9 +36,9 @@ public:
 	network_bnu_ref();
 	virtual ~network_bnu_ref() {}
 
-    virtual void feed_forward() final;
-    virtual void back_propagate() final;
-    virtual void gradient_descent() final;
+    virtual void feed_forward() final override;
+    virtual void back_propagate() final override;
+    virtual void gradient_descent() final override;
 };
 
 } /*namespace neurocl*/ } /*namespace mlp*/
