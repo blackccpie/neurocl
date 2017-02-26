@@ -34,7 +34,7 @@ const std::string dump_mat( const matrixF& mat /*, boost::optional<std::string> 
     std::string separator;
     std::stringstream ss;
     //ss << ( label ? label.get() : "" ) << std::endl;
-    for( matrixF::const_iterator1 it1 = mat.begin1(); it1 != mat.end1(); ++it1 )
+    for( matrixF::const_iterator1 it1 = mat.cbegin1(); it1 != mat.cend1(); ++it1 )
     {
         for( matrixF::const_iterator2 it2 = it1.begin(); it2 !=it1.end(); ++it2 )
         {

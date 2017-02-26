@@ -272,7 +272,8 @@ tensor tensor_operation::muladd( const tensor& inputA, const tensor& inputB, con
     output.resize( inputC ); // output is homogenous to inputC
 
     tensor_foreach_p( inputA.d1(), inputA.d2() ) {
-        output.m_tensor_array[d1][d2] = prod( inputA.m_tensor_array[d1][d2], inputB.m_tensor_array[d1][d2] )
+        output.m_tensor_array[d1][d2] =
+            prod( inputA.m_tensor_array[d1][d2], inputB.m_tensor_array[d1][d2] )
                 + inputC.m_tensor_array[d1][d2];
     }
 
@@ -354,6 +355,7 @@ tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_mode::fli
     output.resize( stepsX, stepsY, 1, filter.d2() );
 
     flipper f( filter.w(), filter.h() );
+    matrixF conv( filter.w(), filter.h() );
 
     // NOTE : tricky thing is that filter tensor replication level (filter.d1)
     // is equal to input tensor feature maps level (prev_layer.d2);
@@ -368,7 +370,7 @@ tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_mode::fli
                 for ( auto i=0; i<stepsX; i++ )
                 {
                     // multiply
-                    matrixF conv = element_prod( f.flipped( filter.m_tensor_array[d1][d2] ),
+                    noalias(conv) = element_prod( f.flipped( filter.m_tensor_array[d1][d2] ),
                         project( input.m_tensor_array[0][d1],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
@@ -411,6 +413,8 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
     tensor padded_input;
     padded_input.resize( padX, padY, 1, filter.d2() );
 
+    matrixF conv( filter.w(), filter.h() );
+
     for ( auto d2 = 0; d2 < filter.d2(); d2++ )
     {
         // update padded matrix
@@ -426,7 +430,7 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
                 for ( auto i=0; i<stepsX; i++ )
                 {
 					// multiply
-                    matrixF conv = element_prod( filter.m_tensor_array[d1][d2],
+                    noalias(conv) = element_prod( filter.m_tensor_array[d1][d2],
                         project( padded_input.m_tensor_array[0][d2],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
@@ -459,6 +463,8 @@ tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::std,tens
     // no replication in output features
     output.resize( stepsX, stepsY, input.d2(), filter.d2() );
 
+    matrixF conv( input.w(), filter.h() );
+
     for ( auto d1 = 0; d1 < input.d2(); d1++ )
     {
         for ( auto d2 = 0; d2 < filter.d2(); d2++ )
@@ -468,7 +474,7 @@ tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::std,tens
                 for ( auto i=0; i<stepsX; i++ )
                 {
 					// multiply
-                    matrixF conv = element_prod( filter.m_tensor_array[0][d2],
+                    noalias(conv) = element_prod( filter.m_tensor_array[0][d2],
                         project( input.m_tensor_array[0][d1],
                             range( i, i+filter.w() ),
                             range( j, j+filter.h() ) ) );
@@ -497,11 +503,11 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
 
         const matrixF& prev_feature_map = input.m_tensor_array[d1][d2];
         auto prev_width = prev_feature_map.size1();
-        auto prev_it1 = prev_feature_map.begin1();
+        auto prev_it1 = prev_feature_map.cbegin1();
 
         for( auto it1 = feature_map.begin1(); it1 != feature_map.end1(); it1++, prev_it1 += subsample )
         {
-            auto prev_it2 = prev_it1.begin();
+            auto prev_it2 = prev_it1.cbegin();
             for( auto it2 = it1.begin(); it2 != it1.end(); it2++, prev_it2 += subsample )
             {
                 float max_value = std::numeric_limits<float_t>::lowest();
@@ -512,7 +518,7 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
                 for ( auto j =0; j<subsample; j++ )
                 	for ( auto i =0; i<subsample; i++ )
                     {
-                        const float& value = *(prev_it2 + i + (j*prev_width) );
+                        const auto& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )
                             max_value = value;
                     }
@@ -540,13 +546,13 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
         auto prev_width = prev_feature_map.size1();
 
         const matrixF& error_map = input.m_tensor_array[d1][d2];
-        auto err_it1 = error_map.begin1();
+        auto err_it1 = error_map.cbegin1();
 
         matrixF& prev_error_map = output.m_tensor_array[d1][d2];
         auto prev_err_iter1 = prev_error_map.begin1();
 
         // Iterate
-        for( auto prev_it1 = prev_feature_map.begin1(); prev_it1 != prev_feature_map.end1();
+        for( auto prev_it1 = prev_feature_map.cbegin1(); prev_it1 != prev_feature_map.cend1();
             prev_it1 += subsample, prev_err_iter1 += subsample, ++err_it1 )
         {
             auto prev_err_it2 = prev_err_iter1.begin();
@@ -554,7 +560,7 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
             for( auto prev_it2 = prev_it1.begin(); prev_it2 != prev_it1.end();
                 prev_it2 += subsample, prev_err_it2 += subsample, ++err_it2 )
             {
-                float max_value = std::numeric_limits<float_t>::lowest();
+                auto max_value = std::numeric_limits<float_t>::lowest();
 
                 int max_offset = 0;
 
@@ -562,7 +568,7 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
                 for ( auto j =0; j<subsample; j++ )
                 	for ( auto i =0; i<subsample; i++ )
                     {
-                        const float& value = *(prev_it2 + i + (j*prev_width) );
+                        const auto& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )
                         {
                             max_value = value;
