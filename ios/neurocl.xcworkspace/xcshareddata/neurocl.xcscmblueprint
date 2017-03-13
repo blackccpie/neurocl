@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "D8C94C95F48B5AB6D074FE105C13A8E305C89966",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "D8C94C95F48B5AB6D074FE105C13A8E305C89966" : 0,
+    "EEBBDEA5EC0F003703744EF07407378CE1C715C9" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "C3EEB45C-4A24-4EB6-86A2-A06457C2DD8E",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "D8C94C95F48B5AB6D074FE105C13A8E305C89966" : "neurocl\/",
+    "EEBBDEA5EC0F003703744EF07407378CE1C715C9" : "Apple-Boost-BuildScript\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "neurocl",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ios\/neurocl.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/blackccpie\/neurocl.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "D8C94C95F48B5AB6D074FE105C13A8E305C89966"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/faithfracture\/Apple-Boost-BuildScript.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "EEBBDEA5EC0F003703744EF07407378CE1C715C9"
+    }
+  ]
+}

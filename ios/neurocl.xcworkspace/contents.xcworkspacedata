@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:myne/myne.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:neurocl/neurocl.xcodeproj">
+   </FileRef>
+</Workspace>
