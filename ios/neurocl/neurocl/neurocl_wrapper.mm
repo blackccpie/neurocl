@@ -11,6 +11,8 @@
 #import "neurocl_wrapper.h"
 #import "neurocl.h"
 
+#include "imagetools/ocr.h"
+
 @interface NeuroclWrapper ()
 
 @property (nonatomic, readonly) std::shared_ptr<neurocl::network_manager_interface> net_manager;
@@ -45,9 +47,60 @@
     _net_manager.reset();
 }
 
++ (void) convertUIImageToGray8:(UIImage *) image_in image_out:(float *) image_out {
+    
+    CGImageRef imageRef = image_in.CGImage;
+    
+    size_t bitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+    size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
+    size_t width = CGImageGetWidth(imageRef);
+    size_t height = CGImageGetHeight(imageRef);
+    
+    CGImageAlphaInfo a = CGImageGetAlphaInfo(imageRef);
+    
+    NSAssert(bitsPerPixel == 32 && bitsPerComponent == 8 && a == kCGImageAlphaNoneSkipLast, @"unsupported image type supplied");
+    
+    UInt32 *sourceData = (UInt32*)[((__bridge_transfer NSData*) CGDataProviderCopyData(CGImageGetDataProvider(imageRef))) bytes];
+    UInt32 *sourceDataPtr;
+    
+    UInt8 r,g,b;
+    size_t offset;
+    for (uint y = 0; y < height; y++)
+    {
+        for (uint x = 0; x < width; x++)
+        {
+            offset = y * width + x;
+            
+            if (offset+2 < width * height)
+            {
+                sourceDataPtr = &sourceData[y * width + x];
+                
+                r = sourceDataPtr[0+0];
+                g = sourceDataPtr[0+1];
+                b = sourceDataPtr[0+2];
+                
+                image_out[y * width + x] = static_cast<float>( (r+g+b) / 3 );
+            }
+        }
+    }
+}
+
 - (NSString*) digit_recognizer:(UIImage*) in
 {
-    return @"TODO";
+    int wi = in.size.width * in.scale;
+    int hi = in.size.height * in.scale;
+    
+    boost::shared_array<float> input( new float[wi*hi] );
+    
+    //std::cout << "digit reco input image is " << wi << "x" << hi << std::endl;
+    
+    [[self class] convertUIImageToGray8:in image_out:input.get()];
+    
+    ocr_helper helper( _net_manager );
+    helper.process( input.get(), wi, hi );
+    
+    return [NSString stringWithCString:helper.reco_string().c_str()
+            encoding:[NSString defaultCStringEncoding]];
 }
 
 @end

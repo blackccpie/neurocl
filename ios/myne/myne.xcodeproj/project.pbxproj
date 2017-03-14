@@ -14,6 +14,8 @@
 		AD7077341E75F0BA00885F2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7077321E75F0BA00885F2E /* LaunchScreen.storyboard */; };
 		ADE069811E787A210022D8A2 /* neurocl_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE069801E787A210022D8A2 /* neurocl_frmk.framework */; };
 		ADE069831E787A470022D8A2 /* neurocl_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADE069801E787A210022D8A2 /* neurocl_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ADE06A2A1E7899A70022D8A2 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */; };
+		ADE06A2B1E7899A70022D8A2 /* ccv_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,6 +26,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				ADE069831E787A470022D8A2 /* neurocl_frmk.framework in Embed Frameworks */,
+				ADE06A2B1E7899A70022D8A2 /* ccv_frmk.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -40,6 +43,7 @@
 		AD7077351E75F0BA00885F2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ADE0697D1E7867070022D8A2 /* Neurocl-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Neurocl-Bridging-Header.h"; sourceTree = "<group>"; };
 		ADE069801E787A210022D8A2 /* neurocl_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = neurocl_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Debug-iphoneos/neurocl_frmk.framework"; sourceTree = "<group>"; };
+		ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ccv_frmk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +52,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ADE069811E787A210022D8A2 /* neurocl_frmk.framework in Frameworks */,
+				ADE06A2A1E7899A70022D8A2 /* ccv_frmk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +93,7 @@
 		ADE0697A1E78637E0022D8A2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */,
 				ADE069801E787A210022D8A2 /* neurocl_frmk.framework */,
 			);
 			name = Frameworks;

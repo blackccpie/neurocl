@@ -73,6 +73,14 @@
 		AD482A601E760FB100AA7F2E /* boost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD482A5F1E760FB100AA7F2E /* boost.framework */; };
 		AD70761D1E75DAB600885F2E /* neurocl_frmk.h in Headers */ = {isa = PBXBuildFile; fileRef = AD70761C1E75DAB600885F2E /* neurocl_frmk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ADE069791E782C0E0022D8A2 /* neurocl_wrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */; };
+		ADE069881E787BAC0022D8A2 /* ocr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE069861E787BAC0022D8A2 /* ocr.cpp */; };
+		ADE069891E787BAC0022D8A2 /* ocr.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE069871E787BAC0022D8A2 /* ocr.h */; };
+		ADE0698E1E787BCC0022D8A2 /* autothreshold.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE0698A1E787BCC0022D8A2 /* autothreshold.cpp */; };
+		ADE0698F1E787BCC0022D8A2 /* autothreshold.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE0698B1E787BCC0022D8A2 /* autothreshold.h */; };
+		ADE069901E787BCC0022D8A2 /* edge_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */; };
+		ADE069911E787BCC0022D8A2 /* edge_detect.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE0698D1E787BCC0022D8A2 /* edge_detect.h */; };
+		ADE06A261E78972D0022D8A2 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */; };
+		ADE06A281E7898ED0022D8A2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A271E7898ED0022D8A2 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -145,6 +153,14 @@
 		AD70761E1E75DAB600885F2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = neurocl_wrapper.h; sourceTree = "<group>"; };
 		ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = neurocl_wrapper.mm; sourceTree = "<group>"; };
+		ADE069861E787BAC0022D8A2 /* ocr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ocr.cpp; path = ../../../utils/imagetools/ocr.cpp; sourceTree = "<group>"; };
+		ADE069871E787BAC0022D8A2 /* ocr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ocr.h; path = ../../../utils/imagetools/ocr.h; sourceTree = "<group>"; };
+		ADE0698A1E787BCC0022D8A2 /* autothreshold.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autothreshold.cpp; path = ../../../utils/imagetools/autothreshold.cpp; sourceTree = "<group>"; };
+		ADE0698B1E787BCC0022D8A2 /* autothreshold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = autothreshold.h; path = ../../../utils/imagetools/autothreshold.h; sourceTree = "<group>"; };
+		ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = edge_detect.cpp; path = ../../../utils/imagetools/edge_detect.cpp; sourceTree = "<group>"; };
+		ADE0698D1E787BCC0022D8A2 /* edge_detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = edge_detect.h; path = ../../../utils/imagetools/edge_detect.h; sourceTree = "<group>"; };
+		ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ccv_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Debug-iphoneos/ccv_frmk.framework"; sourceTree = "<group>"; };
+		ADE06A271E7898ED0022D8A2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +168,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADE06A281E7898ED0022D8A2 /* CoreGraphics.framework in Frameworks */,
+				ADE06A261E78972D0022D8A2 /* ccv_frmk.framework in Frameworks */,
 				AD482A601E760FB100AA7F2E /* boost.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,9 +279,9 @@
 		AD70760F1E75DAB600885F2E = {
 			isa = PBXGroup;
 			children = (
-				AD482A5F1E760FB100AA7F2E /* boost.framework */,
 				AD70761B1E75DAB600885F2E /* neurocl */,
 				AD70761A1E75DAB600885F2E /* Products */,
+				ADE06A241E78972C0022D8A2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -278,6 +296,7 @@
 		AD70761B1E75DAB600885F2E /* neurocl */ = {
 			isa = PBXGroup;
 			children = (
+				ADE069851E787B860022D8A2 /* imagetools */,
 				AD70761C1E75DAB600885F2E /* neurocl_frmk.h */,
 				AD70761E1E75DAB600885F2E /* Info.plist */,
 				AD4829DD1E760B9E00AA7F2E /* interfaces */,
@@ -288,6 +307,29 @@
 				ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */,
 			);
 			path = neurocl;
+			sourceTree = "<group>";
+		};
+		ADE069851E787B860022D8A2 /* imagetools */ = {
+			isa = PBXGroup;
+			children = (
+				ADE0698A1E787BCC0022D8A2 /* autothreshold.cpp */,
+				ADE0698B1E787BCC0022D8A2 /* autothreshold.h */,
+				ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */,
+				ADE0698D1E787BCC0022D8A2 /* edge_detect.h */,
+				ADE069861E787BAC0022D8A2 /* ocr.cpp */,
+				ADE069871E787BAC0022D8A2 /* ocr.h */,
+			);
+			name = imagetools;
+			sourceTree = "<group>";
+		};
+		ADE06A241E78972C0022D8A2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AD482A5F1E760FB100AA7F2E /* boost.framework */,
+				ADE06A271E7898ED0022D8A2 /* CoreGraphics.framework */,
+				ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -328,6 +370,7 @@
 				AD4829FC1E760C0900AA7F2E /* learning_scheduler.h in Headers */,
 				AD4829FE1E760C0900AA7F2E /* logger.h in Headers */,
 				AD70761D1E75DAB600885F2E /* neurocl_frmk.h in Headers */,
+				ADE069911E787BCC0022D8A2 /* edge_detect.h in Headers */,
 				AD482A051E760C0900AA7F2E /* network_random.h in Headers */,
 				AD482A101E760C2600AA7F2E /* portable_binary_archive.hpp in Headers */,
 				AD482A541E760C5400AA7F2E /* tensor_activations.h in Headers */,
@@ -340,9 +383,11 @@
 				AD482A551E760C5400AA7F2E /* tensor_gradient_checker.h in Headers */,
 				AD482A5A1E760C5400AA7F2E /* tensor_tank.h in Headers */,
 				AD482A531E760C5400AA7F2E /* pool_layer.h in Headers */,
+				ADE0698F1E787BCC0022D8A2 /* autothreshold.h in Headers */,
 				AD482A441E760C5400AA7F2E /* conv_layer.h in Headers */,
 				AD482A471E760C5400AA7F2E /* input_layer.h in Headers */,
 				AD482A4D1E760C5400AA7F2E /* network_manager_convnet.h in Headers */,
+				ADE069891E787BAC0022D8A2 /* ocr.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,7 +462,9 @@
 				AD482A231E760C4000AA7F2E /* network_bnu_ref.cpp in Sources */,
 				AD482A031E760C0900AA7F2E /* network_manager.cpp in Sources */,
 				AD482A011E760C0900AA7F2E /* network_factory.cpp in Sources */,
+				ADE0698E1E787BCC0022D8A2 /* autothreshold.cpp in Sources */,
 				AD482A251E760C4000AA7F2E /* network_file_handler.cpp in Sources */,
+				ADE069881E787BAC0022D8A2 /* ocr.cpp in Sources */,
 				AD482A571E760C5400AA7F2E /* tensor_operations.cpp in Sources */,
 				ADE069791E782C0E0022D8A2 /* neurocl_wrapper.mm in Sources */,
 				AD482A071E760C0900AA7F2E /* samples_manager.cpp in Sources */,
@@ -431,6 +478,7 @@
 				AD482A1F1E760C4000AA7F2E /* network_bnu_base.cpp in Sources */,
 				AD482A111E760C2600AA7F2E /* portable_binary_iarchive.cpp in Sources */,
 				AD4829FD1E760C0900AA7F2E /* logger.cpp in Sources */,
+				ADE069901E787BCC0022D8A2 /* edge_detect.cpp in Sources */,
 				AD482A481E760C5400AA7F2E /* layer.cpp in Sources */,
 				AD482A4E1E760C5400AA7F2E /* network_parallel.cpp in Sources */,
 			);
@@ -546,8 +594,10 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					../../../CImg,
+					../../utils,
 					../../src,
 					"../../../Apple-Boost-BuildScript/src/boost_1_58_0",
+					../../../ccv/lib,
 				);
 				INFOPLIST_FILE = neurocl/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -573,8 +623,10 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					../../../CImg,
+					../../utils,
 					../../src,
 					"../../../Apple-Boost-BuildScript/src/boost_1_58_0",
+					../../../ccv/lib,
 				);
 				INFOPLIST_FILE = neurocl/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

@@ -18,6 +18,8 @@
 - (void) dealloc;
 - (NSString*) digit_recognizer:(UIImage*) in;
 
++ (void) convertUIImageToGray8:(UIImage *) image_in image_out:(float *) image_out;
+
 @end
 
 #endif /* neurocl_wrapper_h */

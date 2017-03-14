@@ -7,4 +7,7 @@
    <FileRef
       location = "group:/Users/albertmurienne/Projets-info/neurocl/ios/neurocl/neurocl_frmk.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:ccv_frmk/ccv_frmk.xcodeproj">
+   </FileRef>
 </Workspace>
