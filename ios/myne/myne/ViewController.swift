@@ -41,6 +41,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
+        var neuroclWrapper: NeuroclWrapper = NeuroclWrapper()
+        
         ImageDisplay.image = info[UIImagePickerControllerOriginalImage] as? UIImage;
         dismiss(animated: true, completion: nil)
         

@@ -1,5 +1,5 @@
 //
-//  neurocl.h
+//  neurocl_framework.h
 //  neurocl
 //
 //  Created by Albert Murienne on 12/03/2017.
@@ -15,5 +15,6 @@ FOUNDATION_EXPORT double neuroclVersionNumber;
 FOUNDATION_EXPORT const unsigned char neuroclVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <neurocl/PublicHeader.h>
+#import "neurocl_wrapper.h"
 
 

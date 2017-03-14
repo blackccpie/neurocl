@@ -5,6 +5,6 @@
       location = "group:myne/myne.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:neurocl/neurocl.xcodeproj">
+      location = "group:/Users/albertmurienne/Projets-info/neurocl/ios/neurocl/neurocl_frmk.xcodeproj">
    </FileRef>
 </Workspace>

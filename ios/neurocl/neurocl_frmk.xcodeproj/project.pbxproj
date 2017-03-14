@@ -71,7 +71,8 @@
 		AD482A5D1E760C5400AA7F2E /* tensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A421E760C5400AA7F2E /* tensor.cpp */; };
 		AD482A5E1E760C5400AA7F2E /* tensor.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A431E760C5400AA7F2E /* tensor.h */; };
 		AD482A601E760FB100AA7F2E /* boost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD482A5F1E760FB100AA7F2E /* boost.framework */; };
-		AD70761D1E75DAB600885F2E /* neurocl.h in Headers */ = {isa = PBXBuildFile; fileRef = AD70761C1E75DAB600885F2E /* neurocl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AD70761D1E75DAB600885F2E /* neurocl_frmk.h in Headers */ = {isa = PBXBuildFile; fileRef = AD70761C1E75DAB600885F2E /* neurocl_frmk.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		ADE069791E782C0E0022D8A2 /* neurocl_wrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -139,9 +140,11 @@
 		AD482A421E760C5400AA7F2E /* tensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tensor.cpp; path = ../../../src/convnet/tensor.cpp; sourceTree = "<group>"; };
 		AD482A431E760C5400AA7F2E /* tensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor.h; path = ../../../src/convnet/tensor.h; sourceTree = "<group>"; };
 		AD482A5F1E760FB100AA7F2E /* boost.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = boost.framework; path = "../../../Apple-Boost-BuildScript/build/boost/1.58.0/ios/framework/boost.framework"; sourceTree = "<group>"; };
-		AD7076191E75DAB600885F2E /* neurocl.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = neurocl.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AD70761C1E75DAB600885F2E /* neurocl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = neurocl.h; sourceTree = "<group>"; };
+		AD7076191E75DAB600885F2E /* neurocl_frmk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = neurocl_frmk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD70761C1E75DAB600885F2E /* neurocl_frmk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = neurocl_frmk.h; sourceTree = "<group>"; };
 		AD70761E1E75DAB600885F2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = neurocl_wrapper.h; sourceTree = "<group>"; };
+		ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = neurocl_wrapper.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -267,7 +270,7 @@
 		AD70761A1E75DAB600885F2E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AD7076191E75DAB600885F2E /* neurocl.framework */,
+				AD7076191E75DAB600885F2E /* neurocl_frmk.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -275,12 +278,14 @@
 		AD70761B1E75DAB600885F2E /* neurocl */ = {
 			isa = PBXGroup;
 			children = (
-				AD70761C1E75DAB600885F2E /* neurocl.h */,
+				AD70761C1E75DAB600885F2E /* neurocl_frmk.h */,
 				AD70761E1E75DAB600885F2E /* Info.plist */,
 				AD4829DD1E760B9E00AA7F2E /* interfaces */,
 				AD4829DC1E760B9600AA7F2E /* common */,
 				AD4829DF1E760BAF00AA7F2E /* mlp */,
 				AD4829E01E760BB500AA7F2E /* convnet */,
+				ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */,
+				ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */,
 			);
 			path = neurocl;
 			sourceTree = "<group>";
@@ -322,7 +327,7 @@
 				AD482A091E760C0900AA7F2E /* solver.h in Headers */,
 				AD4829FC1E760C0900AA7F2E /* learning_scheduler.h in Headers */,
 				AD4829FE1E760C0900AA7F2E /* logger.h in Headers */,
-				AD70761D1E75DAB600885F2E /* neurocl.h in Headers */,
+				AD70761D1E75DAB600885F2E /* neurocl_frmk.h in Headers */,
 				AD482A051E760C0900AA7F2E /* network_random.h in Headers */,
 				AD482A101E760C2600AA7F2E /* portable_binary_archive.hpp in Headers */,
 				AD482A541E760C5400AA7F2E /* tensor_activations.h in Headers */,
@@ -344,9 +349,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		AD7076181E75DAB600885F2E /* neurocl */ = {
+		AD7076181E75DAB600885F2E /* neurocl_frmk */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AD7076211E75DAB600885F2E /* Build configuration list for PBXNativeTarget "neurocl" */;
+			buildConfigurationList = AD7076211E75DAB600885F2E /* Build configuration list for PBXNativeTarget "neurocl_frmk" */;
 			buildPhases = (
 				AD7076141E75DAB600885F2E /* Sources */,
 				AD7076151E75DAB600885F2E /* Frameworks */,
@@ -357,9 +362,9 @@
 			);
 			dependencies = (
 			);
-			name = neurocl;
+			name = neurocl_frmk;
 			productName = neurocl;
-			productReference = AD7076191E75DAB600885F2E /* neurocl.framework */;
+			productReference = AD7076191E75DAB600885F2E /* neurocl_frmk.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -368,7 +373,7 @@
 		AD7076101E75DAB600885F2E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = Blackccpie;
 				TargetAttributes = {
 					AD7076181E75DAB600885F2E = {
@@ -377,7 +382,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AD7076131E75DAB600885F2E /* Build configuration list for PBXProject "neurocl" */;
+			buildConfigurationList = AD7076131E75DAB600885F2E /* Build configuration list for PBXProject "neurocl_frmk" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -389,7 +394,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AD7076181E75DAB600885F2E /* neurocl */,
+				AD7076181E75DAB600885F2E /* neurocl_frmk */,
 			);
 		};
 /* End PBXProject section */
@@ -414,6 +419,7 @@
 				AD482A011E760C0900AA7F2E /* network_factory.cpp in Sources */,
 				AD482A251E760C4000AA7F2E /* network_file_handler.cpp in Sources */,
 				AD482A571E760C5400AA7F2E /* tensor_operations.cpp in Sources */,
+				ADE069791E782C0E0022D8A2 /* neurocl_wrapper.mm in Sources */,
 				AD482A071E760C0900AA7F2E /* samples_manager.cpp in Sources */,
 				AD482A211E760C4000AA7F2E /* network_bnu_fast.cpp in Sources */,
 				AD482A5B1E760C5400AA7F2E /* tensor_utils.cpp in Sources */,
@@ -446,8 +452,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -493,8 +501,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -524,6 +534,7 @@
 		AD7076221E75DAB600885F2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -550,6 +561,7 @@
 		AD7076231E75DAB600885F2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -576,7 +588,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AD7076131E75DAB600885F2E /* Build configuration list for PBXProject "neurocl" */ = {
+		AD7076131E75DAB600885F2E /* Build configuration list for PBXProject "neurocl_frmk" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AD70761F1E75DAB600885F2E /* Debug */,
@@ -585,7 +597,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AD7076211E75DAB600885F2E /* Build configuration list for PBXNativeTarget "neurocl" */ = {
+		AD7076211E75DAB600885F2E /* Build configuration list for PBXNativeTarget "neurocl_frmk" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AD7076221E75DAB600885F2E /* Debug */,
