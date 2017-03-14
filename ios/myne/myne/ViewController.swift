@@ -25,24 +25,24 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
 
     
-    @IBAction func StartCameraAction(sender: UIButton) {
+    @IBAction func StartCameraAction(_ sender: UIButton) {
         
         if UIImagePickerController.isSourceTypeAvailable(
-            UIImagePickerControllerSourceType.Camera) {
+            UIImagePickerControllerSourceType.camera) {
                 
                 let picker = UIImagePickerController()
                 picker.delegate = self
-                picker.sourceType = .Camera
+                picker.sourceType = .camera
         
-                presentViewController(picker, animated: true, completion: nil)
+                present(picker, animated: true, completion: nil)
                 
         }
     }
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         ImageDisplay.image = info[UIImagePickerControllerOriginalImage] as? UIImage;
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
         
     }
 }
