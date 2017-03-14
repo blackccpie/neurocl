@@ -14,6 +14,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     @IBOutlet weak var ImageDisplay: UIImageView!
     
+    @IBOutlet weak var RecognizedText: UITextField!
+    
+    @IBOutlet weak var RecognizerActivity: UIActivityIndicatorView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -23,7 +27,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
     
     @IBAction func StartCameraAction(_ sender: UIButton) {
         
@@ -41,9 +44,22 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
-        var neuroclWrapper: NeuroclWrapper = NeuroclWrapper()
+        //let neuroclWrapper: NeuroclWrapper = NeuroclWrapper(topology:"topology.txt" weights: "weights.bin")
+        //let neuroclWrapper: NeuroclWrapper = NeuroclWrapper()
         
         ImageDisplay.image = info[UIImagePickerControllerOriginalImage] as? UIImage;
+        
+        RecognizerActivity.startAnimating()
+        
+        //let label: String = neuroclWrapper.digit_recognizer( ImageDisplay.image )
+        let label: String = "123456789"
+        
+        sleep(2)
+        
+        RecognizedText.text = label
+        
+        RecognizerActivity.stopAnimating()
+        
         dismiss(animated: true, completion: nil)
         
     }

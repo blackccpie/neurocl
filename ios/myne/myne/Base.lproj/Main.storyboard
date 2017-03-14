@@ -26,18 +26,31 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dwi-k8-oVA">
-                                <rect key="frame" x="115" y="538" width="91" height="30"/>
+                                <rect key="frame" x="16" y="538" width="91" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Start Camera"/>
                                 <connections>
                                     <action selector="StartCameraAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uEA-iU-O7r"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="roG-Cr-fgO">
+                                <rect key="frame" x="284" y="543" width="20" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="e17-s2-YCw">
+                                <rect key="frame" x="115" y="538" width="161" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <connections>
                         <outlet property="ImageDisplay" destination="6SU-I1-gBa" id="eGN-b7-XGe"/>
+                        <outlet property="RecognizedText" destination="e17-s2-YCw" id="DvA-Y7-VTa"/>
+                        <outlet property="RecognizerActivity" destination="roG-Cr-fgO" id="LfM-Sj-jlh"/>
                         <outlet property="StartCamera" destination="Dwi-k8-oVA" id="Rk4-x0-H6g"/>
                     </connections>
                 </viewController>
