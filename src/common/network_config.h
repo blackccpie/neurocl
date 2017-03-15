@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2015-2016 Albert Murienne
+Copyright (c) 2015-2017 Albert Murienne
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -88,8 +88,16 @@ private:
     {
         try
         {
-        	if ( bfs::exists( s_neurocl_config_file ) )
-            	boost::property_tree::read_xml( s_neurocl_config_file, m_ptree );
+            char* var = nullptr;
+            const std::string env_neurocl_config_file( ( var = getenv( "NEUROCL_RESOURCE_PATH" ) ) == nullptr ? "" : var );
+            const auto _neurocl_config_file = env_neurocl_config_file.empty() ? s_neurocl_config_file : ( env_neurocl_config_file + "/" + s_neurocl_config_file );
+
+            LOGGER(info) << "network_config::network_config - config lookup path is : " << _neurocl_config_file << std::endl;
+
+        	if ( bfs::exists( _neurocl_config_file ) )
+            	boost::property_tree::read_xml( _neurocl_config_file, m_ptree );
+            else
+                LOGGER(error) << "network_config::network_config - missing configuration file : " << _neurocl_config_file << std::endl;
         }
         catch( const boost::property_tree::ptree_error& e )
         {
