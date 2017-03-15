@@ -196,8 +196,6 @@ void tensor_operation::ungroup( const tensor& input, tensor& output )
 
     auto input_mat_iter = input.m_tensor_array[0][0].data().begin();
 
-    size_t _offset = 0;
-
 	// TODO-CNN : could be written in a smarter way
 	// ie using tensor iterators and C++11
 
