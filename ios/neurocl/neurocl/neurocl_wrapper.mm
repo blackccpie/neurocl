@@ -50,7 +50,45 @@
     _net_manager.reset();
 }
 
-+ (void) convertUIImageToGray8:(UIImage *) image_in image_out:(float *) image_out {
++ (UIImage *) convertUIImage32ToGray8:(UIImage *) image_in {
+    
+    CGImageRef imageRef = image_in.CGImage;
+    
+    size_t bitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+    size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
+    size_t width = CGImageGetWidth(imageRef);
+    size_t height = CGImageGetHeight(imageRef);
+    
+    CGImageAlphaInfo a = CGImageGetAlphaInfo(imageRef);
+    
+    NSAssert(bitsPerPixel == 32 && bitsPerComponent == 8 && a == kCGImageAlphaNoneSkipLast, @"unsupported image type supplied");
+    
+    CGContextRef targetImage = CGBitmapContextCreate(NULL, width, height, 8, 1 * width, CGColorSpaceCreateDeviceGray(), kCGImageAlphaNone);
+    
+    UInt32 *sourceData = (UInt32*)[((__bridge_transfer NSData*) CGDataProviderCopyData(CGImageGetDataProvider(imageRef))) bytes];
+    UInt8 *targetData = (UInt8 *)CGBitmapContextGetData(targetImage);
+    
+    size_t offset = 0;
+    
+    std::for_each( targetData, targetData+(width*height),
+        [&sourceData,&offset](UInt8& val)
+        {
+            UInt8 *sourceDataPtr = reinterpret_cast<UInt8 *>( &sourceData[offset] );
+            val = static_cast<float>( ( sourceDataPtr[0] + sourceDataPtr[1] + sourceDataPtr[2] ) / 3 );
+            ++offset;
+        }
+    );
+    
+    CGImageRef newImageRef = CGBitmapContextCreateImage(targetImage);
+    UIImage *newImage = [UIImage imageWithCGImage:newImageRef scale:[image_in scale] orientation: image_in.imageOrientation];
+    
+    CGContextRelease(targetImage);
+    CGImageRelease(newImageRef);
+    
+    return newImage;
+}
+
++ (void) convertUIImage8ToArray:(UIImage *) image_in image_out:(float *) image_out {
 
     CGImageRef imageRef = image_in.CGImage;
 
@@ -61,17 +99,16 @@
 
     CGImageAlphaInfo a = CGImageGetAlphaInfo(imageRef);
 
-    NSAssert(bitsPerPixel == 32 && bitsPerComponent == 8 && a == kCGImageAlphaNoneSkipLast, @"unsupported image type supplied");
+    NSAssert(bitsPerPixel == 8 && bitsPerComponent == 8 && a == kCGImageAlphaNone, @"unsupported image type supplied");
 
-    UInt32 *sourceData = (UInt32*)[((__bridge_transfer NSData*) CGDataProviderCopyData(CGImageGetDataProvider(imageRef))) bytes];
+    UInt8 *sourceData = (UInt8*)[((__bridge_transfer NSData*) CGDataProviderCopyData(CGImageGetDataProvider(imageRef))) bytes];
 
     size_t offset = 0;
 
     std::for_each( image_out, image_out+(width*height),
         [&sourceData,&offset](float& val)
         {
-            UInt32 *sourceDataPtr = &sourceData[offset];
-            val = static_cast<float>( ( sourceDataPtr[0+0] + sourceDataPtr[0+1] + sourceDataPtr[0+2] ) / 3 );
+            val = static_cast<float>( sourceData[offset] );
             ++offset;
         }
     );
@@ -86,7 +123,7 @@
 
     NSLog(@"digit reco input image is %ix%i", wi, hi );
 
-    [[self class] convertUIImageToGray8:in image_out:input.get()];
+    [[self class] convertUIImage8ToArray:in image_out:input.get()];
 
     ocr_helper helper( _net_manager );
     helper.process( input.get(), wi, hi );

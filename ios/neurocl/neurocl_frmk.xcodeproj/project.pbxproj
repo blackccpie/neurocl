@@ -80,7 +80,9 @@
 		ADE069901E787BCC0022D8A2 /* edge_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */; };
 		ADE069911E787BCC0022D8A2 /* edge_detect.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE0698D1E787BCC0022D8A2 /* edge_detect.h */; };
 		ADE06A261E78972D0022D8A2 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */; };
-		ADE06A281E7898ED0022D8A2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A271E7898ED0022D8A2 /* CoreGraphics.framework */; };
+		ADE06A341E79994D0022D8A2 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A321E79986D0022D8A2 /* CoreImage.framework */; };
+		ADE06A361E7999700022D8A2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A351E7999700022D8A2 /* CoreGraphics.framework */; };
+		ADE06A3A1E7999BB0022D8A2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A391E7999BB0022D8A2 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -160,7 +162,9 @@
 		ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = edge_detect.cpp; path = ../../../utils/imagetools/edge_detect.cpp; sourceTree = "<group>"; };
 		ADE0698D1E787BCC0022D8A2 /* edge_detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = edge_detect.h; path = ../../../utils/imagetools/edge_detect.h; sourceTree = "<group>"; };
 		ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ccv_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Debug-iphoneos/ccv_frmk.framework"; sourceTree = "<group>"; };
-		ADE06A271E7898ED0022D8A2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		ADE06A321E79986D0022D8A2 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		ADE06A351E7999700022D8A2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		ADE06A391E7999BB0022D8A2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,7 +172,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADE06A281E7898ED0022D8A2 /* CoreGraphics.framework in Frameworks */,
+				ADE06A3A1E7999BB0022D8A2 /* UIKit.framework in Frameworks */,
+				ADE06A361E7999700022D8A2 /* CoreGraphics.framework in Frameworks */,
+				ADE06A341E79994D0022D8A2 /* CoreImage.framework in Frameworks */,
 				ADE06A261E78972D0022D8A2 /* ccv_frmk.framework in Frameworks */,
 				AD482A601E760FB100AA7F2E /* boost.framework in Frameworks */,
 			);
@@ -325,8 +331,10 @@
 		ADE06A241E78972C0022D8A2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ADE06A391E7999BB0022D8A2 /* UIKit.framework */,
+				ADE06A351E7999700022D8A2 /* CoreGraphics.framework */,
+				ADE06A321E79986D0022D8A2 /* CoreImage.framework */,
 				AD482A5F1E760FB100AA7F2E /* boost.framework */,
-				ADE06A271E7898ED0022D8A2 /* CoreGraphics.framework */,
 				ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */,
 			);
 			name = Frameworks;

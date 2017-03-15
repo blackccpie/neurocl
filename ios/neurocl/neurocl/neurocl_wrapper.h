@@ -18,7 +18,8 @@
 - (void) dealloc;
 - (NSString*) digit_recognizer:(UIImage*) in;
 
-+ (void) convertUIImageToGray8:(UIImage *) image_in image_out:(float *) image_out;
++ (UIImage *) convertUIImage32ToGray8:(UIImage *) image_in;
++ (void) convertUIImage8ToArray:(UIImage *) image_in image_out:(float *) image_out;
 
 @end
 
