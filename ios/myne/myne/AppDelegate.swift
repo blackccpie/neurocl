@@ -8,6 +8,10 @@
 
 import UIKit
 
+func setEnvironmentVar(name: String, value: String, overwrite: Bool) {
+    setenv(name, value, overwrite ? 1 : 0)
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -35,6 +39,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+        let neuroclPath: String = Bundle.main.path(forResource: "neurocl", ofType: "xml")!
+        let fileURL: URL = URL(fileURLWithPath: neuroclPath)
+        let folderURL = fileURL.deletingLastPathComponent()
+
+        NSLog( "myne - current app path : " + folderURL.path )
+
+        setEnvironmentVar(name: "NEUROCL_RESOURCE_PATH", value: folderURL.path, overwrite: true )
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
