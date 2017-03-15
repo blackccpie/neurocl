@@ -64,28 +64,17 @@
     NSAssert(bitsPerPixel == 32 && bitsPerComponent == 8 && a == kCGImageAlphaNoneSkipLast, @"unsupported image type supplied");
 
     UInt32 *sourceData = (UInt32*)[((__bridge_transfer NSData*) CGDataProviderCopyData(CGImageGetDataProvider(imageRef))) bytes];
-    UInt32 *sourceDataPtr;
 
-    UInt8 r,g,b;
-    size_t offset;
-    for (uint y = 0; y < height; y++)
-    {
-        for (uint x = 0; x < width; x++)
+    size_t offset = 0;
+
+    std::for_each( image_out, image_out+(width*height),
+        [&sourceData,&offset](float& val)
         {
-            offset = y * width + x;
-
-            if (offset+2 < width * height)
-            {
-                sourceDataPtr = &sourceData[y * width + x];
-
-                r = sourceDataPtr[0+0];
-                g = sourceDataPtr[0+1];
-                b = sourceDataPtr[0+2];
-
-                image_out[y * width + x] = static_cast<float>( (r+g+b) / 3 );
-            }
+            UInt32 *sourceDataPtr = &sourceData[offset];
+            val = static_cast<float>( ( sourceDataPtr[0+0] + sourceDataPtr[0+1] + sourceDataPtr[0+2] ) / 3 );
+            ++offset;
         }
-    }
+    );
 }
 
 - (NSString*) digit_recognizer:(UIImage*) in
