@@ -49,27 +49,34 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
 
-        //self.ImageDisplay.image = info[UIImagePickerControllerOriginalImage] as? UIImage;
-        self.ImageDisplay.image = NeuroclWrapper.convertUIImage32(toGray8: info[UIImagePickerControllerOriginalImage] as? UIImage );
-        
+        let pickedImage: UIImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
+
+        if pickedImage.imageOrientation == UIImageOrientation.up {
+            NSLog("PICKED ORIENTATION IS PORTRAIT");
+        } else if pickedImage.imageOrientation == UIImageOrientation.left || pickedImage.imageOrientation == UIImageOrientation.right {
+            NSLog("PICKED ORIENTATION IS LANDSCAPE");
+        }
+
+        self.ImageDisplay.image = NeuroclWrapper.convertUIImage32(toGray8: pickedImage )
+
         self.dismiss(animated: true, completion: nil)
-        
+
         self.RecognizerActivity.startAnimating()
-        
+
         DispatchQueue.global(qos: .background).async {
-            
+
             let neuroclResPath: String! = getEnvironmentVar( "NEUROCL_RESOURCE_PATH" )
             let neuroclWrapper: NeuroclWrapper = NeuroclWrapper(net: neuroclResPath+"/topology-mnist-kaggle.txt", weights: neuroclResPath+"/weights-mnist-kaggle.bin")
 
             let label: String = neuroclWrapper.digit_recognizer( self.ImageDisplay.image )
-            
+
             //let label: String = "1234567890"
             //sleep(4)
-            
+
             self.RecognizedText.text = label
-            
+
             DispatchQueue.main.async {
-                
+
                 self.RecognizerActivity.stopAnimating()
             }
         }

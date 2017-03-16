@@ -302,15 +302,15 @@
 		AD70761B1E75DAB600885F2E /* neurocl */ = {
 			isa = PBXGroup;
 			children = (
-				ADE069851E787B860022D8A2 /* imagetools */,
 				AD70761C1E75DAB600885F2E /* neurocl_frmk.h */,
+				ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */,
+				ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */,
 				AD70761E1E75DAB600885F2E /* Info.plist */,
 				AD4829DD1E760B9E00AA7F2E /* interfaces */,
 				AD4829DC1E760B9600AA7F2E /* common */,
 				AD4829DF1E760BAF00AA7F2E /* mlp */,
 				AD4829E01E760BB500AA7F2E /* convnet */,
-				ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */,
-				ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */,
+				ADE069851E787B860022D8A2 /* imagetools */,
 			);
 			path = neurocl;
 			sourceTree = "<group>";
