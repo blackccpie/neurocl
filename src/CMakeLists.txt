@@ -58,6 +58,7 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
         message("VexCL's OpenCL backend is enabled for this build")
         set(VEXCL_BACKEND_FOUND 1)
         set(VEXCL_LIBRARIES ${OpenCL_LIBRARIES})
+        set(VEXCL_INCLUDE_DIRS ${OpenCL_INCLUDE_DIRS})
         add_definitions(-DVEXCL_BACKEND_OPENCL)
     else ()
         message("OpenCL not found for this build...looking for a CUDA backend...")
@@ -66,6 +67,7 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
         	message("VexCL's CUDA backend is enabled for this build")
         	set(VEXCL_BACKEND_FOUND 1)
             set(VEXCL_LIBRARIES ${CUDA_LIBRARIES})
+            set(VEXCL_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS})
             add_definitions(-DVEXCL_BACKEND_CUDA)
         else ()
         	message("CUDA not found for this build")
@@ -94,6 +96,7 @@ include_directories(
     .
     "${CMAKE_SOURCE_DIR}/../vexcl"
     "${CMAKE_SOURCE_DIR}/../CImg"
+    "${VEXCL_INCLUDE_DIRS}"
 )
 
 set (sources_list
