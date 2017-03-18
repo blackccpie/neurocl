@@ -66,7 +66,7 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
         if ( CUDA_FOUND )
         	message("VexCL's CUDA backend is enabled for this build")
         	set(VEXCL_BACKEND_FOUND 1)
-            set(VEXCL_LIBRARIES ${CUDA_LIBRARIES})
+            set(VEXCL_LIBRARIES ${CUDA_CUDA_LIBRARY})
             set(VEXCL_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS})
             add_definitions(-DVEXCL_BACKEND_CUDA)
         else ()
@@ -187,11 +187,17 @@ add_library(neurocl SHARED
 )
 
 target_link_libraries(neurocl
+
+PUBLIC
+
 boost_thread${boost_suffix}
-boost_random${boost_suffix}
 boost_system${boost_suffix}
-boost_chrono${boost_suffix}
 boost_filesystem${boost_suffix}
+
+PRIVATE
+
+boost_random${boost_suffix}
+boost_chrono${boost_suffix}
 boost_serialization${boost_suffix}
 ${VEXCL_LIBRARIES}
 X11
