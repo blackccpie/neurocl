@@ -57,12 +57,14 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
     if ( OpenCL_FOUND )
         message("VexCL's OpenCL backend is enabled for this build")
         set(VEXCL_BACKEND_FOUND 1)
+        set(VEXCL_LIBRARIES ${OpenCL_LIBRARIES})
     else ()
         message("OpenCL not found for this build...looking for a CUDA backend...")
         find_package(CUDA)
         if ( CUDA_FOUND )
         	message("VexCL's CUDA backend is enabled for this build")
         	set(VEXCL_BACKEND_FOUND 1)
+            set(VEXCL_LIBRARIES ${CUDA_LIBRARIES})
         else ()
         	message("CUDA not found for this build")
         endif ()
@@ -183,7 +185,7 @@ boost_system${boost_suffix}
 boost_chrono${boost_suffix}
 boost_filesystem${boost_suffix}
 boost_serialization${boost_suffix}
-${OpenCL_LIBRARIES}
+${VEXCL_LIBRARIES}
 X11
 png
 )
