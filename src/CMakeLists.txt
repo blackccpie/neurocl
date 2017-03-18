@@ -58,7 +58,7 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
 
         message("OpenCL is enabled for this build")
 
-        add_definitions(-DOPENCL_ENABLED)
+        add_definitions(-DVEXCL_ENABLED)
 
         set( sources_list_opencl
             mlp/network_vexcl.cpp
