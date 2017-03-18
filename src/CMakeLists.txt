@@ -77,6 +77,10 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
     if (VEXCL_BACKEND_FOUND)
         add_definitions(-DVEXCL_ENABLED)
 
+        include_directories(
+            "${VEXCL_INCLUDE_DIRS}"
+        )
+
         set( sources_list_opencl
             mlp/network_vexcl.cpp
         )
@@ -96,7 +100,6 @@ include_directories(
     .
     "${CMAKE_SOURCE_DIR}/../vexcl"
     "${CMAKE_SOURCE_DIR}/../CImg"
-    "${VEXCL_INCLUDE_DIRS}"
 )
 
 set (sources_list
