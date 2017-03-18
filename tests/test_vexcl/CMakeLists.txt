@@ -36,5 +36,5 @@ add_executable(test_vexcl ${sources_list} ${headers_list})
 
 target_link_libraries(test_vexcl
 boost_system${boost_suffix}
-${OpenCL_LIBRARIES}
+${VEXCL_LIBRARIES}
 )
