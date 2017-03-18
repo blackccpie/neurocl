@@ -49,7 +49,7 @@ if ( "${CMAKE_CXX_FLAGS}" MATCHES "^.*(sse|neon).*$" )
     )
 endif ()
 
-if ( NOT NEUROCL_DISABLE_OPENCL )
+if ( NOT NEUROCL_DISABLE_VEXCL )
 
     # detect OpenCL features
     include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
@@ -69,7 +69,7 @@ if ( NOT NEUROCL_DISABLE_OPENCL )
         )
     endif ()
 else ()
-    message("OpenCL is disabled for this build")
+    message("VexCL is disabled for this build")
 endif ()
 
 include_directories(
