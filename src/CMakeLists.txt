@@ -55,9 +55,20 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
     include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
     if ( OpenCL_FOUND )
+        message("VexCL's OpenCL backend is enabled for this build")
+        set(VEXCL_BACKEND_FOUND 1)
+    else ()
+        message("OpenCL not found for this build...looking for a CUDA backend...")
+        find_package(CUDA)
+        if ( CUDA_FOUND )
+        	message("VexCL's CUDA backend is enabled for this build")
+        	set(VEXCL_BACKEND_FOUND 1)
+        else ()
+        	message("CUDA not found for this build")
+        endif ()
+    endif ()
 
-        message("OpenCL is enabled for this build")
-
+    if (VEXCL_BACKEND_FOUND)
         add_definitions(-DVEXCL_ENABLED)
 
         set( sources_list_opencl
@@ -67,9 +78,12 @@ if ( NOT NEUROCL_DISABLE_VEXCL )
         set (headers_list_opencl
             mlp/network_vexcl.h
         )
+    else ()
+        message("VexCL is disabled for this build (no backend found)")
     endif ()
+
 else ()
-    message("VexCL is disabled for this build")
+    message("VexCL is explicitly disabled for this build")
 endif ()
 
 include_directories(
