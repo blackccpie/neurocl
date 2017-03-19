@@ -30,6 +30,16 @@ THE SOFTWARE.
 
 #include <boost/shared_array.hpp>
 
+// vex::constant is not available for cuda backend,
+// so we have to redefine a forwarding identity function:
+// http://stackoverflow.com/questions/38353823/identity-function-with-perfect-forwarding
+#ifdef VEXCL_BACKEND_CUDA
+namespace vex {
+    template<typename V>
+    constexpr V&& constant(V&& v) { return std::forward<V>(v); }
+};
+#endif
+
 namespace neurocl { namespace mlp {
 
 VEX_CONSTANT(_zero, 0.f);
