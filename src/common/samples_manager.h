@@ -47,6 +47,8 @@ public:
     neurocl::sample rotate( const neurocl::sample& s, const float angle ) const;
     //! translate a given sample
     neurocl::sample translate( const neurocl::sample& s, const int sx, const int sy ) const;
+    //! zoom a given sample
+    neurocl::sample zoom( const neurocl::sample& s, const int zx ) const;
 
     //! returns random translation
     static int rand_shift();

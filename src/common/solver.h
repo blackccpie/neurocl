@@ -76,7 +76,7 @@ protected:
 };
 
 /* Stochastic Gradient Descent solver implementation */
-class solver_sgd : public solver_base
+class solver_sgd final : public solver_base
 {
 public:
     solver_sgd( const float alpha, const float lambda, const float mu )
@@ -125,9 +125,9 @@ public:
         input += input_momentum;
     }
 
-    virtual const float& get_learning_rate() final override { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final override { return 1; }
+    const float& get_learning_rate() override { return m_alpha; }
+    void set_learning_rate( const float new_rate ) override { m_alpha = new_rate; }
+    size_t get_cache_size() override { return 1; }
 
 private:
 
@@ -138,7 +138,7 @@ private:
 
 /* RMSprop solver implementation */
 template <typename operatorF>
-class solver_rmsprop : public solver_base
+class solver_rmsprop final : public solver_base
 {
 public:
     solver_rmsprop( const float alpha, const float mu )
@@ -180,9 +180,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final override { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final override { return 1; }
+    const float& get_learning_rate() override { return m_alpha; }
+    void set_learning_rate( const float new_rate ) override { m_alpha = new_rate; }
+    size_t get_cache_size() override { return 1; }
 
 private:
 
@@ -193,7 +193,7 @@ private:
 
 /* Adagrad solver implementation */
 template <typename operatorF>
-class solver_adagrad : public solver_base
+class solver_adagrad final : public solver_base
 {
 public:
     solver_adagrad( const float alpha )
@@ -234,9 +234,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final override { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final override { return 1; }
+    const float& get_learning_rate() override { return m_alpha; }
+    void set_learning_rate( const float new_rate ) override { m_alpha = new_rate; }
+    size_t get_cache_size() override { return 1; }
 
 private:
 
@@ -246,7 +246,7 @@ private:
 
 /* Adadelta solver implementation */
 template <typename operatorF>
-class solver_adadelta : public solver_base
+class solver_adadelta final : public solver_base
 {
 public:
     solver_adadelta( const float alpha, const float mu )
@@ -301,9 +301,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final override { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final override { return 2; }
+    const float& get_learning_rate() override { return m_alpha; }
+    void set_learning_rate( const float new_rate ) override { m_alpha = new_rate; }
+    size_t get_cache_size() override { return 2; }
 
 private:
 
@@ -314,7 +314,7 @@ private:
 
 /* Adam solver implementation */
 template <typename operatorF>
-class solver_adam : public solver_base
+class solver_adam final : public solver_base
 {
 public:
     solver_adam( const float alpha, const float mu1, const float mu2 )
@@ -372,9 +372,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final override { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final override { return 2; }
+    const float& get_learning_rate() override { return m_alpha; }
+    void set_learning_rate( const float new_rate ) override { m_alpha = new_rate; }
+    size_t get_cache_size() override { return 2; }
 
 private:
 
@@ -389,7 +389,7 @@ private:
 
 /* Adamax solver implementation */
 template <typename operatorF>
-class solver_adamax : public solver_base
+class solver_adamax final : public solver_base
 {
 public:
     solver_adamax( const float alpha, const float mu1, const float mu2 )
@@ -446,9 +446,9 @@ public:
         update( input, input_cache, gradient );
     }
 
-    virtual const float& get_learning_rate() final override { return m_alpha; }
-    virtual void set_learning_rate( const float new_rate ) final override { m_alpha = new_rate; }
-    virtual size_t get_cache_size() final override { return 2; }
+    const float& get_learning_rate() override { return m_alpha; }
+    void set_learning_rate( const float new_rate ) override { m_alpha = new_rate; }
+    size_t get_cache_size() override { return 2; }
 
 private:
 

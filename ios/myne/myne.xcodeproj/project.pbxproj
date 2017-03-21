@@ -1,0 +1,355 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AD70772A1E75F0BA00885F2E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7077291E75F0BA00885F2E /* AppDelegate.swift */; };
+		AD70772C1E75F0BA00885F2E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD70772B1E75F0BA00885F2E /* ViewController.swift */; };
+		AD70772F1E75F0BA00885F2E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD70772D1E75F0BA00885F2E /* Main.storyboard */; };
+		AD7077311E75F0BA00885F2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD7077301E75F0BA00885F2E /* Assets.xcassets */; };
+		AD7077341E75F0BA00885F2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7077321E75F0BA00885F2E /* LaunchScreen.storyboard */; };
+		ADE069811E787A210022D8A2 /* neurocl_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE069801E787A210022D8A2 /* neurocl_frmk.framework */; };
+		ADE069831E787A470022D8A2 /* neurocl_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADE069801E787A210022D8A2 /* neurocl_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ADE06A2A1E7899A70022D8A2 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */; };
+		ADE06A2B1E7899A70022D8A2 /* ccv_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ADE06A2D1E789BB30022D8A2 /* topology-mnist-kaggle.txt in Resources */ = {isa = PBXBuildFile; fileRef = ADE06A2C1E789BB30022D8A2 /* topology-mnist-kaggle.txt */; };
+		ADE06A2F1E789BCD0022D8A2 /* weights-mnist-kaggle.bin in Resources */ = {isa = PBXBuildFile; fileRef = ADE06A2E1E789BCD0022D8A2 /* weights-mnist-kaggle.bin */; };
+		ADE06A311E789C800022D8A2 /* neurocl.xml in Resources */ = {isa = PBXBuildFile; fileRef = ADE06A301E789C800022D8A2 /* neurocl.xml */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		ADE069841E787A470022D8A2 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				ADE069831E787A470022D8A2 /* neurocl_frmk.framework in Embed Frameworks */,
+				ADE06A2B1E7899A70022D8A2 /* ccv_frmk.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		AD7077261E75F0BA00885F2E /* myne.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myne.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD7077291E75F0BA00885F2E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AD70772B1E75F0BA00885F2E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		AD70772E1E75F0BA00885F2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		AD7077301E75F0BA00885F2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AD7077331E75F0BA00885F2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		AD7077351E75F0BA00885F2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADE0697D1E7867070022D8A2 /* Neurocl-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Neurocl-Bridging-Header.h"; sourceTree = "<group>"; };
+		ADE069801E787A210022D8A2 /* neurocl_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = neurocl_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Debug-iphoneos/neurocl_frmk.framework"; sourceTree = "<group>"; };
+		ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ccv_frmk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADE06A2C1E789BB30022D8A2 /* topology-mnist-kaggle.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "topology-mnist-kaggle.txt"; path = "../../../nets/mnist/topology-mnist-kaggle.txt"; sourceTree = "<group>"; };
+		ADE06A2E1E789BCD0022D8A2 /* weights-mnist-kaggle.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = "weights-mnist-kaggle.bin"; path = "../../../nets/mnist/weights-mnist-kaggle.bin"; sourceTree = "<group>"; };
+		ADE06A301E789C800022D8A2 /* neurocl.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = neurocl.xml; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AD7077231E75F0BA00885F2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADE069811E787A210022D8A2 /* neurocl_frmk.framework in Frameworks */,
+				ADE06A2A1E7899A70022D8A2 /* ccv_frmk.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AD70771D1E75F0BA00885F2E = {
+			isa = PBXGroup;
+			children = (
+				AD7077281E75F0BA00885F2E /* myne */,
+				AD7077271E75F0BA00885F2E /* Products */,
+				ADE0697A1E78637E0022D8A2 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		AD7077271E75F0BA00885F2E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AD7077261E75F0BA00885F2E /* myne.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AD7077281E75F0BA00885F2E /* myne */ = {
+			isa = PBXGroup;
+			children = (
+				ADE06A301E789C800022D8A2 /* neurocl.xml */,
+				ADE06A2E1E789BCD0022D8A2 /* weights-mnist-kaggle.bin */,
+				ADE06A2C1E789BB30022D8A2 /* topology-mnist-kaggle.txt */,
+				AD7077291E75F0BA00885F2E /* AppDelegate.swift */,
+				AD70772B1E75F0BA00885F2E /* ViewController.swift */,
+				AD70772D1E75F0BA00885F2E /* Main.storyboard */,
+				AD7077301E75F0BA00885F2E /* Assets.xcassets */,
+				AD7077321E75F0BA00885F2E /* LaunchScreen.storyboard */,
+				AD7077351E75F0BA00885F2E /* Info.plist */,
+				ADE0697D1E7867070022D8A2 /* Neurocl-Bridging-Header.h */,
+			);
+			path = myne;
+			sourceTree = "<group>";
+		};
+		ADE0697A1E78637E0022D8A2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */,
+				ADE069801E787A210022D8A2 /* neurocl_frmk.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AD7077251E75F0BA00885F2E /* myne */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD7077381E75F0BA00885F2E /* Build configuration list for PBXNativeTarget "myne" */;
+			buildPhases = (
+				AD7077221E75F0BA00885F2E /* Sources */,
+				AD7077231E75F0BA00885F2E /* Frameworks */,
+				AD7077241E75F0BA00885F2E /* Resources */,
+				ADE069841E787A470022D8A2 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = myne;
+			productName = myne;
+			productReference = AD7077261E75F0BA00885F2E /* myne.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AD70771E1E75F0BA00885F2E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = Blackccpie;
+				TargetAttributes = {
+					AD7077251E75F0BA00885F2E = {
+						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = NNP3K6PDA9;
+						LastSwiftMigration = 0820;
+					};
+				};
+			};
+			buildConfigurationList = AD7077211E75F0BA00885F2E /* Build configuration list for PBXProject "myne" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AD70771D1E75F0BA00885F2E;
+			productRefGroup = AD7077271E75F0BA00885F2E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AD7077251E75F0BA00885F2E /* myne */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AD7077241E75F0BA00885F2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADE06A311E789C800022D8A2 /* neurocl.xml in Resources */,
+				ADE06A2D1E789BB30022D8A2 /* topology-mnist-kaggle.txt in Resources */,
+				AD7077341E75F0BA00885F2E /* LaunchScreen.storyboard in Resources */,
+				AD7077311E75F0BA00885F2E /* Assets.xcassets in Resources */,
+				AD70772F1E75F0BA00885F2E /* Main.storyboard in Resources */,
+				ADE06A2F1E789BCD0022D8A2 /* weights-mnist-kaggle.bin in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AD7077221E75F0BA00885F2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD70772C1E75F0BA00885F2E /* ViewController.swift in Sources */,
+				AD70772A1E75F0BA00885F2E /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		AD70772D1E75F0BA00885F2E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				AD70772E1E75F0BA00885F2E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		AD7077321E75F0BA00885F2E /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				AD7077331E75F0BA00885F2E /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		AD7077361E75F0BA00885F2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_INCLUDE_PATHS = ../neurocl;
+				SWIFT_OBJC_BRIDGING_HEADER = "myne/Neurocl-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AD7077371E75F0BA00885F2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_INCLUDE_PATHS = ../neurocl;
+				SWIFT_OBJC_BRIDGING_HEADER = "myne/Neurocl-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AD7077391E75F0BA00885F2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = NNP3K6PDA9;
+				INFOPLIST_FILE = myne/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = blackccpie.myne;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		AD70773A1E75F0BA00885F2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = NNP3K6PDA9;
+				INFOPLIST_FILE = myne/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = blackccpie.myne;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AD7077211E75F0BA00885F2E /* Build configuration list for PBXProject "myne" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD7077361E75F0BA00885F2E /* Debug */,
+				AD7077371E75F0BA00885F2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD7077381E75F0BA00885F2E /* Build configuration list for PBXNativeTarget "myne" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD7077391E75F0BA00885F2E /* Debug */,
+				AD70773A1E75F0BA00885F2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AD70771E1E75F0BA00885F2E /* Project object */;
+}

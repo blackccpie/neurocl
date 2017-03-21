@@ -31,6 +31,6 @@ add_subdirectory(test_edge)
 add_subdirectory(test_ocr)
 add_subdirectory(test_tensor)
 
-if (NOT NEUROCL_DISABLE_OPENCL)
+if (NOT NEUROCL_DISABLE_VEXCL AND VEXCL_BACKEND_FOUND)
     add_subdirectory(test_vexcl)
 endif ()

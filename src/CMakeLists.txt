@@ -49,16 +49,37 @@ if ( "${CMAKE_CXX_FLAGS}" MATCHES "^.*(sse|neon).*$" )
     )
 endif ()
 
-if ( NOT NEUROCL_DISABLE_OPENCL )
+if ( NOT NEUROCL_DISABLE_VEXCL )
 
     # detect OpenCL features
     include("${CMAKE_SOURCE_DIR}/../vexcl/cmake/opencl/FindOpenCL.cmake")
 
     if ( OpenCL_FOUND )
+        message("VexCL's OpenCL backend is enabled for this build")
+        set(VEXCL_BACKEND_FOUND 1)
+        set(VEXCL_LIBRARIES ${OpenCL_LIBRARIES})
+        set(VEXCL_INCLUDE_DIRS ${OpenCL_INCLUDE_DIRS})
+        add_definitions(-DVEXCL_BACKEND_OPENCL)
+    else ()
+        message("OpenCL not found for this build...looking for a CUDA backend...")
+        find_package(CUDA)
+        if ( CUDA_FOUND )
+        	message("VexCL's CUDA backend is enabled for this build")
+        	set(VEXCL_BACKEND_FOUND 1)
+            set(VEXCL_LIBRARIES ${CUDA_CUDA_LIBRARY})
+            set(VEXCL_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS})
+            add_definitions(-DVEXCL_BACKEND_CUDA)
+        else ()
+        	message("CUDA not found for this build")
+        endif ()
+    endif ()
 
-        message("OpenCL is enabled for this build")
+    if (VEXCL_BACKEND_FOUND)
+        add_definitions(-DVEXCL_ENABLED)
 
-        add_definitions(-DOPENCL_ENABLED)
+        include_directories(
+            "${VEXCL_INCLUDE_DIRS}"
+        )
 
         set( sources_list_opencl
             mlp/network_vexcl.cpp
@@ -67,9 +88,12 @@ if ( NOT NEUROCL_DISABLE_OPENCL )
         set (headers_list_opencl
             mlp/network_vexcl.h
         )
+    else ()
+        message("VexCL is disabled for this build (no backend found)")
     endif ()
+
 else ()
-    message("OpenCL is disabled for this build")
+    message("VexCL is explicitly disabled for this build")
 endif ()
 
 include_directories(
@@ -163,13 +187,19 @@ add_library(neurocl SHARED
 )
 
 target_link_libraries(neurocl
+
+PUBLIC
+
 boost_thread${boost_suffix}
-boost_random${boost_suffix}
 boost_system${boost_suffix}
-boost_chrono${boost_suffix}
 boost_filesystem${boost_suffix}
+
+PRIVATE
+
+boost_random${boost_suffix}
+boost_chrono${boost_suffix}
 boost_serialization${boost_suffix}
-${OpenCL_LIBRARIES}
+${VEXCL_LIBRARIES}
 X11
 png
 )

@@ -68,7 +68,7 @@ private:
     vex::vector<float> m_deltas_weight;
 };
 
-class network_vexcl : public network_interface_mlp
+class network_vexcl final : public network_interface_mlp
 {
 public:
 
@@ -76,31 +76,31 @@ public:
 	virtual ~network_vexcl() {}
 
     // Convention : input layer is index 0
-    virtual void add_layers_2d( const std::vector<layer_size>& layer_sizes ) final override;
+    void add_layers_2d( const std::vector<layer_size>& layer_sizes ) override;
 
-    virtual void set_training( bool training ) final override { /*NOTHING TO DO YET*/ }
+    void set_training( bool training ) override { /*NOTHING TO DO YET*/ }
 
-    virtual void set_input(  const size_t& in_size, const float* in ) final override;
-    virtual void set_output( const size_t& out_size, const float* out ) final override;
+    void set_input(  const size_t& in_size, const float* in ) override;
+    void set_output( const size_t& out_size, const float* out ) override;
 
-	virtual void clear_gradients() final override;
-    virtual void gradient_check( const output_ptr& out_ref ) final override;
+	void clear_gradients() override;
+    void gradient_check( const output_ptr& out_ref ) override;
 
-    virtual void feed_forward() final override;
-    virtual void back_propagate() final override;
-    virtual void gradient_descent() final override;
+    void feed_forward() override;
+    void back_propagate() override;
+    void gradient_descent() override;
 
-    virtual float loss() final override;
+    float loss() override;
 
-    virtual const size_t count_layers() final override { return m_layers.size(); }
-    virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final override;
-    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) final override;
+    const size_t count_layers() override { return m_layers.size(); }
+    const layer_ptr get_layer_ptr( const size_t layer_idx ) override;
+    void set_layer_ptr( const size_t layer_idx, const layer_ptr& layer ) override;
 
-    virtual const output_ptr output() final override;
+    const output_ptr output() override;
 
-    virtual const std::string dump_weights() final override;
-    virtual const std::string dump_bias() final override;
-    virtual const std::string dump_activations() final override;
+    const std::string dump_weights() override;
+    const std::string dump_bias() override;
+    const std::string dump_activations() override;
 
 private:
 

@@ -32,7 +32,7 @@ THE SOFTWARE.
     #include "network_bnu_fast.h"
 #endif
 
-#ifdef OPENCL_ENABLED
+#ifdef VEXCL_ENABLED
     #include "network_vexcl.h"
 #endif
 
@@ -79,7 +79,7 @@ private:
     #endif
             break;
         case t_mlp_impl::MLP_IMPL_VEXCL:
-    #ifdef OPENCL_ENABLED
+    #ifdef VEXCL_ENABLED
             m_net = std::make_shared<network_vexcl>();
     #else
             throw network_exception( "unmanaged mlp implementation (opencl disabled)!" );

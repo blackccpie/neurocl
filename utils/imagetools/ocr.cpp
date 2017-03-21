@@ -72,29 +72,33 @@ public:
 
         float output[10] = { 0.f };
 
+        std::cout << "ocr_helper::process - started inferring numbers on detected intervals" << std::endl;
+
         for ( auto& ni : number_intervals )
         {
             if ( ( ni.second - ni.first ) < 10 ) // letter is thinner than 10px, too small!!
             {
-                std::cout << "digit is too thin, skipping..." << std::endl;
+                std::cout << "ocr_helper::process - digit is too thin, skipping..." << std::endl;
                 continue;
             }
 
-            std::cout << "cropping at " << ni.first << " " << ni.second << std::endl;
+            std::cout << "ocr_helper::process - cropping at " << ni.first << " " << ni.second << std::endl;
             CImg<float> cropped_number( m_cropped_numbers.get_columns( ni.first, ni.second ) );
 
-            std::cout << "centering number" << std::endl;
+            std::cout << "ocr_helper::process - centering number" << std::endl;
             center_number( cropped_number );
 
             sample sample( cropped_number.width() * cropped_number.height(), cropped_number.data(), 10, output );
             m_net_manager->compute_augmented_output( sample, smp_augmenter );
 
-            std::cout << "max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
+            std::cout << "ocr_helper::process - max comp idx: " << sample.max_comp_idx() << " max comp val: " << sample.max_comp_val() << std::endl;
 
             m_recognitions.emplace_back( reco{ ni.first, sample.max_comp_idx(), 100.f * sample.max_comp_val() } );
 
             //cropped_number.display();
         }
+
+        std::cout << "ocr_helper::process - ended inferring numbers on detected intervals" << std::endl;
     }
 
     template<typename imageT>
@@ -199,12 +203,12 @@ CImg<float> get_cropped_numbers( const CImg<float>& input )
 
     work_edge.normalize( 0, 255 );
 
-    std::cout << "image mean value is " << work_edge.mean() << " , noise variance is " << work_edge.variance_noise() << std::endl;
+    std::cout << "ocr_helper::get_cropped_numbers - image mean value is " << work_edge.mean() << " , noise variance is " << work_edge.variance_noise() << std::endl;
 
     if ( work_edge.variance_noise() > 10.f )
     {
     	work_edge.erode( 3 );
-    	std::cout << "post erosion mean value is " << work_edge.mean() << " , post erosion noise variance is " << work_edge.variance_noise() << std::endl;
+    	std::cout << "ocr_helper::get_cropped_numbers - post erosion mean value is " << work_edge.mean() << " , post erosion noise variance is " << work_edge.variance_noise() << std::endl;
     }
 
     work_edge.threshold( 40 );
@@ -305,7 +309,7 @@ void compute_ranges( const CImg<float>& input, std::vector<t_digit_interval>& nu
             {
                 if ( first != 0 )
                 {
-                    std::cout << "detected interval " << first << " " << x << std::endl;
+                    std::cout << "compute_ranges - detected interval " << first << " " << x << std::endl;
                     number_intervals.push_back( std::make_pair( first, x ) );
                     first = 0;
                 }
@@ -367,11 +371,11 @@ void center_number( CImg<float>& input )
         last_val = cur_val;
     }
 
-    std::cout << "startX/stopX - " << startX << "/" << stopX << " startY/stopY - " << startY << "/" << stopY << std::endl;
+    std::cout << "center_number - startX/stopX - " << startX << "/" << stopX << " startY/stopY - " << startY << "/" << stopY << std::endl;
 
     if ( ( stopX <= startX ) || ( stopY <= startY ) )
     {
-        std::cout << "invalid centering request..." << std::endl;
+        std::cout << "center_number - invalid centering request..." << std::endl;
         return;
     }
 
@@ -399,7 +403,7 @@ void center_number( CImg<float>& input )
     massX /= num;
     massY /= num;
 
-    std::cout << "Mass center X=" << massX << " Y=" << massY << std::endl;
+    std::cout << "center_number - Mass center X=" << massX << " Y=" << massY << std::endl;
 
     input.resize( 28, 28, -100, -100, 0, 0, 1.f - ((float)massX)/20.f, 1.f - ((float)massY)/20.f );
 

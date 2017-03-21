@@ -33,16 +33,16 @@ namespace neurocl { namespace convnet {
 
 using nto = neurocl::convnet::tensor_operation;
 
-class dropout_layer  : public layer
+class dropout_layer final : public layer
 {
 public:
 
     dropout_layer( const std::string& name ) : m_name( name ), m_dropout( 0.5f ) {}
 	virtual ~dropout_layer() {}
 
-	virtual const std::string type() const override { return "dropout " + m_name; }
+	const std::string type() const override { return "dropout " + m_name; }
 
-    virtual tensor d_activation( const tensor& in ) const final override { return m_prev_layer->d_activation( in ); }
+    tensor d_activation( const tensor& in ) const override { return m_prev_layer->d_activation( in ); }
 
     void populate(  const std::shared_ptr<layer>& prev_layer,
                     const size_t width,
@@ -67,17 +67,17 @@ public:
         nto::bernoulli( m_mask, 1.f - m_dropout );
     }
 
-    virtual size_t width() const override { return m_feature_maps.w(); }
-    virtual size_t height() const override { return m_feature_maps.h(); }
-    virtual size_t depth() const override { return m_feature_maps.d2(); }
+    size_t width() const override { return m_feature_maps.w(); }
+    size_t height() const override { return m_feature_maps.h(); }
+    size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const override { return 0; }
-    virtual size_t nb_bias() const override { return 0; }
+    size_t nb_weights() const override { return 0; }
+    size_t nb_bias() const override { return 0; }
 
-    virtual const tensor& feature_maps() const override
+    const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void feed_forward() override
+    void feed_forward() override
     {
         if ( m_training )
         	m_feature_maps = ( 1.f / ( 1.f - m_dropout ) ) * nto::elemul( m_mask, m_prev_layer->feature_maps() );
@@ -85,7 +85,7 @@ public:
             m_feature_maps = m_prev_layer->feature_maps();
     }
 
-    virtual void back_propagate() override
+    void back_propagate() override
     {
         m_prev_layer->error_maps({}) = nto::elemul( m_mask, m_error_maps );
 
@@ -94,35 +94,35 @@ public:
         nto::bernoulli( m_mask, 1.f - m_dropout );
     }
 
-    virtual void update_gradients() override
+    void update_gradients() override
     {
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
-	virtual void clear_gradients() override
+	void clear_gradients() override
     {
 		// NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
-    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
+    void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // NOTHING TO DO : POOL LAYER DOES NOT MANAGE GRADIENTS
     }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
-    virtual void fill_w( float* data ) override { /* NOTHING TO DO */ }
+    void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    void fill_w( float* data ) override { /* NOTHING TO DO */ }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
-    virtual void fill_b( float* data ) override { /* NOTHING TO DO */ }
+    void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    void fill_b( float* data ) override { /* NOTHING TO DO */ }
 
-    virtual tensor& error_maps( key_errors ) override
+    tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
 protected:
 
-    virtual size_t fan_in() const final override
+    size_t fan_in() const override
     {
         return m_prev_layer->width() * m_prev_layer->height();
     }

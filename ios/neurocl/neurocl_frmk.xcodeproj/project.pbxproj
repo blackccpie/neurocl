@@ -1,0 +1,672 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AD4829E41E760BFA00AA7F2E /* network_file_handler_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829E11E760BFA00AA7F2E /* network_file_handler_interface.h */; };
+		AD4829E51E760BFA00AA7F2E /* network_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829E21E760BFA00AA7F2E /* network_interface.h */; };
+		AD4829E61E760BFA00AA7F2E /* network_manager_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829E31E760BFA00AA7F2E /* network_manager_interface.h */; };
+		AD4829F91E760C0900AA7F2E /* iterative_trainer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829E71E760C0900AA7F2E /* iterative_trainer.h */; };
+		AD4829FA1E760C0900AA7F2E /* layer_storage.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829E81E760C0900AA7F2E /* layer_storage.h */; };
+		AD4829FB1E760C0900AA7F2E /* learning_scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD4829E91E760C0900AA7F2E /* learning_scheduler.cpp */; };
+		AD4829FC1E760C0900AA7F2E /* learning_scheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829EA1E760C0900AA7F2E /* learning_scheduler.h */; };
+		AD4829FD1E760C0900AA7F2E /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD4829EB1E760C0900AA7F2E /* logger.cpp */; };
+		AD4829FE1E760C0900AA7F2E /* logger.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829EC1E760C0900AA7F2E /* logger.h */; };
+		AD4829FF1E760C0900AA7F2E /* network_config.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829ED1E760C0900AA7F2E /* network_config.h */; };
+		AD482A001E760C0900AA7F2E /* network_exception.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829EE1E760C0900AA7F2E /* network_exception.h */; };
+		AD482A011E760C0900AA7F2E /* network_factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD4829EF1E760C0900AA7F2E /* network_factory.cpp */; };
+		AD482A021E760C0900AA7F2E /* network_factory.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F01E760C0900AA7F2E /* network_factory.h */; };
+		AD482A031E760C0900AA7F2E /* network_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD4829F11E760C0900AA7F2E /* network_manager.cpp */; };
+		AD482A041E760C0900AA7F2E /* network_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F21E760C0900AA7F2E /* network_manager.h */; };
+		AD482A051E760C0900AA7F2E /* network_random.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F31E760C0900AA7F2E /* network_random.h */; };
+		AD482A061E760C0900AA7F2E /* network_sample.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F41E760C0900AA7F2E /* network_sample.h */; };
+		AD482A071E760C0900AA7F2E /* samples_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD4829F51E760C0900AA7F2E /* samples_manager.cpp */; };
+		AD482A081E760C0900AA7F2E /* samples_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F61E760C0900AA7F2E /* samples_manager.h */; };
+		AD482A091E760C0900AA7F2E /* solver.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F71E760C0900AA7F2E /* solver.h */; };
+		AD482A0A1E760C0900AA7F2E /* thread_pool.h in Headers */ = {isa = PBXBuildFile; fileRef = AD4829F81E760C0900AA7F2E /* thread_pool.h */; };
+		AD482A101E760C2600AA7F2E /* portable_binary_archive.hpp in Headers */ = {isa = PBXBuildFile; fileRef = AD482A0B1E760C2600AA7F2E /* portable_binary_archive.hpp */; };
+		AD482A111E760C2600AA7F2E /* portable_binary_iarchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A0C1E760C2600AA7F2E /* portable_binary_iarchive.cpp */; };
+		AD482A121E760C2600AA7F2E /* portable_binary_iarchive.hpp in Headers */ = {isa = PBXBuildFile; fileRef = AD482A0D1E760C2600AA7F2E /* portable_binary_iarchive.hpp */; };
+		AD482A131E760C2600AA7F2E /* portable_binary_oarchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A0E1E760C2600AA7F2E /* portable_binary_oarchive.cpp */; };
+		AD482A141E760C2600AA7F2E /* portable_binary_oarchive.hpp in Headers */ = {isa = PBXBuildFile; fileRef = AD482A0F1E760C2600AA7F2E /* portable_binary_oarchive.hpp */; };
+		AD482A1F1E760C4000AA7F2E /* network_bnu_base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A151E760C4000AA7F2E /* network_bnu_base.cpp */; };
+		AD482A201E760C4000AA7F2E /* network_bnu_base.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A161E760C4000AA7F2E /* network_bnu_base.h */; };
+		AD482A211E760C4000AA7F2E /* network_bnu_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A171E760C4000AA7F2E /* network_bnu_fast.cpp */; };
+		AD482A221E760C4000AA7F2E /* network_bnu_fast.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A181E760C4000AA7F2E /* network_bnu_fast.h */; };
+		AD482A231E760C4000AA7F2E /* network_bnu_ref.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A191E760C4000AA7F2E /* network_bnu_ref.cpp */; };
+		AD482A241E760C4000AA7F2E /* network_bnu_ref.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A1A1E760C4000AA7F2E /* network_bnu_ref.h */; };
+		AD482A251E760C4000AA7F2E /* network_file_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A1B1E760C4000AA7F2E /* network_file_handler.cpp */; };
+		AD482A261E760C4000AA7F2E /* network_file_handler.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A1C1E760C4000AA7F2E /* network_file_handler.h */; };
+		AD482A271E760C4000AA7F2E /* network_interface_mlp.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A1D1E760C4000AA7F2E /* network_interface_mlp.h */; };
+		AD482A281E760C4000AA7F2E /* network_manager_mlp.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A1E1E760C4000AA7F2E /* network_manager_mlp.h */; };
+		AD482A441E760C5400AA7F2E /* conv_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A291E760C5400AA7F2E /* conv_layer.h */; };
+		AD482A451E760C5400AA7F2E /* dropout_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A2A1E760C5400AA7F2E /* dropout_layer.h */; };
+		AD482A461E760C5400AA7F2E /* full_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A2B1E760C5400AA7F2E /* full_layer.h */; };
+		AD482A471E760C5400AA7F2E /* input_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A2C1E760C5400AA7F2E /* input_layer.h */; };
+		AD482A481E760C5400AA7F2E /* layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A2D1E760C5400AA7F2E /* layer.cpp */; };
+		AD482A491E760C5400AA7F2E /* layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A2E1E760C5400AA7F2E /* layer.h */; };
+		AD482A4A1E760C5400AA7F2E /* network_file_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A2F1E760C5400AA7F2E /* network_file_handler.cpp */; };
+		AD482A4B1E760C5400AA7F2E /* network_file_handler.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A301E760C5400AA7F2E /* network_file_handler.h */; };
+		AD482A4C1E760C5400AA7F2E /* network_interface_convnet.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A311E760C5400AA7F2E /* network_interface_convnet.h */; };
+		AD482A4D1E760C5400AA7F2E /* network_manager_convnet.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A321E760C5400AA7F2E /* network_manager_convnet.h */; };
+		AD482A4E1E760C5400AA7F2E /* network_parallel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A331E760C5400AA7F2E /* network_parallel.cpp */; };
+		AD482A4F1E760C5400AA7F2E /* network_parallel.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A341E760C5400AA7F2E /* network_parallel.h */; };
+		AD482A501E760C5400AA7F2E /* network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A351E760C5400AA7F2E /* network.cpp */; };
+		AD482A511E760C5400AA7F2E /* network.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A361E760C5400AA7F2E /* network.h */; };
+		AD482A521E760C5400AA7F2E /* output_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A371E760C5400AA7F2E /* output_layer.h */; };
+		AD482A531E760C5400AA7F2E /* pool_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A381E760C5400AA7F2E /* pool_layer.h */; };
+		AD482A541E760C5400AA7F2E /* tensor_activations.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A391E760C5400AA7F2E /* tensor_activations.h */; };
+		AD482A551E760C5400AA7F2E /* tensor_gradient_checker.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A3A1E760C5400AA7F2E /* tensor_gradient_checker.h */; };
+		AD482A561E760C5400AA7F2E /* tensor_loss_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A3B1E760C5400AA7F2E /* tensor_loss_functions.h */; };
+		AD482A571E760C5400AA7F2E /* tensor_operations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A3C1E760C5400AA7F2E /* tensor_operations.cpp */; };
+		AD482A581E760C5400AA7F2E /* tensor_operations.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A3D1E760C5400AA7F2E /* tensor_operations.h */; };
+		AD482A591E760C5400AA7F2E /* tensor_solver.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A3E1E760C5400AA7F2E /* tensor_solver.h */; };
+		AD482A5A1E760C5400AA7F2E /* tensor_tank.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A3F1E760C5400AA7F2E /* tensor_tank.h */; };
+		AD482A5B1E760C5400AA7F2E /* tensor_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A401E760C5400AA7F2E /* tensor_utils.cpp */; };
+		AD482A5C1E760C5400AA7F2E /* tensor_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A411E760C5400AA7F2E /* tensor_utils.h */; };
+		AD482A5D1E760C5400AA7F2E /* tensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD482A421E760C5400AA7F2E /* tensor.cpp */; };
+		AD482A5E1E760C5400AA7F2E /* tensor.h in Headers */ = {isa = PBXBuildFile; fileRef = AD482A431E760C5400AA7F2E /* tensor.h */; };
+		AD482A601E760FB100AA7F2E /* boost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD482A5F1E760FB100AA7F2E /* boost.framework */; };
+		AD70761D1E75DAB600885F2E /* neurocl_frmk.h in Headers */ = {isa = PBXBuildFile; fileRef = AD70761C1E75DAB600885F2E /* neurocl_frmk.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		ADE069791E782C0E0022D8A2 /* neurocl_wrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */; };
+		ADE069881E787BAC0022D8A2 /* ocr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE069861E787BAC0022D8A2 /* ocr.cpp */; };
+		ADE069891E787BAC0022D8A2 /* ocr.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE069871E787BAC0022D8A2 /* ocr.h */; };
+		ADE0698E1E787BCC0022D8A2 /* autothreshold.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE0698A1E787BCC0022D8A2 /* autothreshold.cpp */; };
+		ADE0698F1E787BCC0022D8A2 /* autothreshold.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE0698B1E787BCC0022D8A2 /* autothreshold.h */; };
+		ADE069901E787BCC0022D8A2 /* edge_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */; };
+		ADE069911E787BCC0022D8A2 /* edge_detect.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE0698D1E787BCC0022D8A2 /* edge_detect.h */; };
+		ADE06A261E78972D0022D8A2 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */; };
+		ADE06A341E79994D0022D8A2 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A321E79986D0022D8A2 /* CoreImage.framework */; };
+		ADE06A361E7999700022D8A2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A351E7999700022D8A2 /* CoreGraphics.framework */; };
+		ADE06A3A1E7999BB0022D8A2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A391E7999BB0022D8A2 /* UIKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AD4829E11E760BFA00AA7F2E /* network_file_handler_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_file_handler_interface.h; path = ../../../src/interfaces/network_file_handler_interface.h; sourceTree = "<group>"; };
+		AD4829E21E760BFA00AA7F2E /* network_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_interface.h; path = ../../../src/interfaces/network_interface.h; sourceTree = "<group>"; };
+		AD4829E31E760BFA00AA7F2E /* network_manager_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_manager_interface.h; path = ../../../src/interfaces/network_manager_interface.h; sourceTree = "<group>"; };
+		AD4829E71E760C0900AA7F2E /* iterative_trainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iterative_trainer.h; path = ../../../src/common/iterative_trainer.h; sourceTree = "<group>"; };
+		AD4829E81E760C0900AA7F2E /* layer_storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = layer_storage.h; path = ../../../src/common/layer_storage.h; sourceTree = "<group>"; };
+		AD4829E91E760C0900AA7F2E /* learning_scheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = learning_scheduler.cpp; path = ../../../src/common/learning_scheduler.cpp; sourceTree = "<group>"; };
+		AD4829EA1E760C0900AA7F2E /* learning_scheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = learning_scheduler.h; path = ../../../src/common/learning_scheduler.h; sourceTree = "<group>"; };
+		AD4829EB1E760C0900AA7F2E /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = logger.cpp; path = ../../../src/common/logger.cpp; sourceTree = "<group>"; };
+		AD4829EC1E760C0900AA7F2E /* logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = logger.h; path = ../../../src/common/logger.h; sourceTree = "<group>"; };
+		AD4829ED1E760C0900AA7F2E /* network_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_config.h; path = ../../../src/common/network_config.h; sourceTree = "<group>"; };
+		AD4829EE1E760C0900AA7F2E /* network_exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_exception.h; path = ../../../src/common/network_exception.h; sourceTree = "<group>"; };
+		AD4829EF1E760C0900AA7F2E /* network_factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_factory.cpp; path = ../../../src/common/network_factory.cpp; sourceTree = "<group>"; };
+		AD4829F01E760C0900AA7F2E /* network_factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_factory.h; path = ../../../src/common/network_factory.h; sourceTree = "<group>"; };
+		AD4829F11E760C0900AA7F2E /* network_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_manager.cpp; path = ../../../src/common/network_manager.cpp; sourceTree = "<group>"; };
+		AD4829F21E760C0900AA7F2E /* network_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_manager.h; path = ../../../src/common/network_manager.h; sourceTree = "<group>"; };
+		AD4829F31E760C0900AA7F2E /* network_random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_random.h; path = ../../../src/common/network_random.h; sourceTree = "<group>"; };
+		AD4829F41E760C0900AA7F2E /* network_sample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_sample.h; path = ../../../src/common/network_sample.h; sourceTree = "<group>"; };
+		AD4829F51E760C0900AA7F2E /* samples_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = samples_manager.cpp; path = ../../../src/common/samples_manager.cpp; sourceTree = "<group>"; };
+		AD4829F61E760C0900AA7F2E /* samples_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = samples_manager.h; path = ../../../src/common/samples_manager.h; sourceTree = "<group>"; };
+		AD4829F71E760C0900AA7F2E /* solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solver.h; path = ../../../src/common/solver.h; sourceTree = "<group>"; };
+		AD4829F81E760C0900AA7F2E /* thread_pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = thread_pool.h; path = ../../../src/common/thread_pool.h; sourceTree = "<group>"; };
+		AD482A0B1E760C2600AA7F2E /* portable_binary_archive.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = portable_binary_archive.hpp; path = ../../../src/common/portable_binary_archive/portable_binary_archive.hpp; sourceTree = "<group>"; };
+		AD482A0C1E760C2600AA7F2E /* portable_binary_iarchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = portable_binary_iarchive.cpp; path = ../../../src/common/portable_binary_archive/portable_binary_iarchive.cpp; sourceTree = "<group>"; };
+		AD482A0D1E760C2600AA7F2E /* portable_binary_iarchive.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = portable_binary_iarchive.hpp; path = ../../../src/common/portable_binary_archive/portable_binary_iarchive.hpp; sourceTree = "<group>"; };
+		AD482A0E1E760C2600AA7F2E /* portable_binary_oarchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = portable_binary_oarchive.cpp; path = ../../../src/common/portable_binary_archive/portable_binary_oarchive.cpp; sourceTree = "<group>"; };
+		AD482A0F1E760C2600AA7F2E /* portable_binary_oarchive.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = portable_binary_oarchive.hpp; path = ../../../src/common/portable_binary_archive/portable_binary_oarchive.hpp; sourceTree = "<group>"; };
+		AD482A151E760C4000AA7F2E /* network_bnu_base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_bnu_base.cpp; path = ../../../src/mlp/network_bnu_base.cpp; sourceTree = "<group>"; };
+		AD482A161E760C4000AA7F2E /* network_bnu_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_bnu_base.h; path = ../../../src/mlp/network_bnu_base.h; sourceTree = "<group>"; };
+		AD482A171E760C4000AA7F2E /* network_bnu_fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_bnu_fast.cpp; path = ../../../src/mlp/network_bnu_fast.cpp; sourceTree = "<group>"; };
+		AD482A181E760C4000AA7F2E /* network_bnu_fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_bnu_fast.h; path = ../../../src/mlp/network_bnu_fast.h; sourceTree = "<group>"; };
+		AD482A191E760C4000AA7F2E /* network_bnu_ref.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_bnu_ref.cpp; path = ../../../src/mlp/network_bnu_ref.cpp; sourceTree = "<group>"; };
+		AD482A1A1E760C4000AA7F2E /* network_bnu_ref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_bnu_ref.h; path = ../../../src/mlp/network_bnu_ref.h; sourceTree = "<group>"; };
+		AD482A1B1E760C4000AA7F2E /* network_file_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_file_handler.cpp; path = ../../../src/mlp/network_file_handler.cpp; sourceTree = "<group>"; };
+		AD482A1C1E760C4000AA7F2E /* network_file_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_file_handler.h; path = ../../../src/mlp/network_file_handler.h; sourceTree = "<group>"; };
+		AD482A1D1E760C4000AA7F2E /* network_interface_mlp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_interface_mlp.h; path = ../../../src/mlp/network_interface_mlp.h; sourceTree = "<group>"; };
+		AD482A1E1E760C4000AA7F2E /* network_manager_mlp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_manager_mlp.h; path = ../../../src/mlp/network_manager_mlp.h; sourceTree = "<group>"; };
+		AD482A291E760C5400AA7F2E /* conv_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = conv_layer.h; path = ../../../src/convnet/conv_layer.h; sourceTree = "<group>"; };
+		AD482A2A1E760C5400AA7F2E /* dropout_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dropout_layer.h; path = ../../../src/convnet/dropout_layer.h; sourceTree = "<group>"; };
+		AD482A2B1E760C5400AA7F2E /* full_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = full_layer.h; path = ../../../src/convnet/full_layer.h; sourceTree = "<group>"; };
+		AD482A2C1E760C5400AA7F2E /* input_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = input_layer.h; path = ../../../src/convnet/input_layer.h; sourceTree = "<group>"; };
+		AD482A2D1E760C5400AA7F2E /* layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = layer.cpp; path = ../../../src/convnet/layer.cpp; sourceTree = "<group>"; };
+		AD482A2E1E760C5400AA7F2E /* layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = layer.h; path = ../../../src/convnet/layer.h; sourceTree = "<group>"; };
+		AD482A2F1E760C5400AA7F2E /* network_file_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_file_handler.cpp; path = ../../../src/convnet/network_file_handler.cpp; sourceTree = "<group>"; };
+		AD482A301E760C5400AA7F2E /* network_file_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_file_handler.h; path = ../../../src/convnet/network_file_handler.h; sourceTree = "<group>"; };
+		AD482A311E760C5400AA7F2E /* network_interface_convnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_interface_convnet.h; path = ../../../src/convnet/network_interface_convnet.h; sourceTree = "<group>"; };
+		AD482A321E760C5400AA7F2E /* network_manager_convnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_manager_convnet.h; path = ../../../src/convnet/network_manager_convnet.h; sourceTree = "<group>"; };
+		AD482A331E760C5400AA7F2E /* network_parallel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network_parallel.cpp; path = ../../../src/convnet/network_parallel.cpp; sourceTree = "<group>"; };
+		AD482A341E760C5400AA7F2E /* network_parallel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network_parallel.h; path = ../../../src/convnet/network_parallel.h; sourceTree = "<group>"; };
+		AD482A351E760C5400AA7F2E /* network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = network.cpp; path = ../../../src/convnet/network.cpp; sourceTree = "<group>"; };
+		AD482A361E760C5400AA7F2E /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network.h; path = ../../../src/convnet/network.h; sourceTree = "<group>"; };
+		AD482A371E760C5400AA7F2E /* output_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = output_layer.h; path = ../../../src/convnet/output_layer.h; sourceTree = "<group>"; };
+		AD482A381E760C5400AA7F2E /* pool_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pool_layer.h; path = ../../../src/convnet/pool_layer.h; sourceTree = "<group>"; };
+		AD482A391E760C5400AA7F2E /* tensor_activations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_activations.h; path = ../../../src/convnet/tensor_activations.h; sourceTree = "<group>"; };
+		AD482A3A1E760C5400AA7F2E /* tensor_gradient_checker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_gradient_checker.h; path = ../../../src/convnet/tensor_gradient_checker.h; sourceTree = "<group>"; };
+		AD482A3B1E760C5400AA7F2E /* tensor_loss_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_loss_functions.h; path = ../../../src/convnet/tensor_loss_functions.h; sourceTree = "<group>"; };
+		AD482A3C1E760C5400AA7F2E /* tensor_operations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tensor_operations.cpp; path = ../../../src/convnet/tensor_operations.cpp; sourceTree = "<group>"; };
+		AD482A3D1E760C5400AA7F2E /* tensor_operations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_operations.h; path = ../../../src/convnet/tensor_operations.h; sourceTree = "<group>"; };
+		AD482A3E1E760C5400AA7F2E /* tensor_solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_solver.h; path = ../../../src/convnet/tensor_solver.h; sourceTree = "<group>"; };
+		AD482A3F1E760C5400AA7F2E /* tensor_tank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_tank.h; path = ../../../src/convnet/tensor_tank.h; sourceTree = "<group>"; };
+		AD482A401E760C5400AA7F2E /* tensor_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tensor_utils.cpp; path = ../../../src/convnet/tensor_utils.cpp; sourceTree = "<group>"; };
+		AD482A411E760C5400AA7F2E /* tensor_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor_utils.h; path = ../../../src/convnet/tensor_utils.h; sourceTree = "<group>"; };
+		AD482A421E760C5400AA7F2E /* tensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tensor.cpp; path = ../../../src/convnet/tensor.cpp; sourceTree = "<group>"; };
+		AD482A431E760C5400AA7F2E /* tensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tensor.h; path = ../../../src/convnet/tensor.h; sourceTree = "<group>"; };
+		AD482A5F1E760FB100AA7F2E /* boost.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = boost.framework; path = "../../../Apple-Boost-BuildScript/build/boost/1.58.0/ios/framework/boost.framework"; sourceTree = "<group>"; };
+		AD7076191E75DAB600885F2E /* neurocl_frmk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = neurocl_frmk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD70761C1E75DAB600885F2E /* neurocl_frmk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = neurocl_frmk.h; sourceTree = "<group>"; };
+		AD70761E1E75DAB600885F2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = neurocl_wrapper.h; sourceTree = "<group>"; };
+		ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = neurocl_wrapper.mm; sourceTree = "<group>"; };
+		ADE069861E787BAC0022D8A2 /* ocr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ocr.cpp; path = ../../../utils/imagetools/ocr.cpp; sourceTree = "<group>"; };
+		ADE069871E787BAC0022D8A2 /* ocr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ocr.h; path = ../../../utils/imagetools/ocr.h; sourceTree = "<group>"; };
+		ADE0698A1E787BCC0022D8A2 /* autothreshold.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autothreshold.cpp; path = ../../../utils/imagetools/autothreshold.cpp; sourceTree = "<group>"; };
+		ADE0698B1E787BCC0022D8A2 /* autothreshold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = autothreshold.h; path = ../../../utils/imagetools/autothreshold.h; sourceTree = "<group>"; };
+		ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = edge_detect.cpp; path = ../../../utils/imagetools/edge_detect.cpp; sourceTree = "<group>"; };
+		ADE0698D1E787BCC0022D8A2 /* edge_detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = edge_detect.h; path = ../../../utils/imagetools/edge_detect.h; sourceTree = "<group>"; };
+		ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ccv_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Debug-iphoneos/ccv_frmk.framework"; sourceTree = "<group>"; };
+		ADE06A321E79986D0022D8A2 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		ADE06A351E7999700022D8A2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		ADE06A391E7999BB0022D8A2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AD7076151E75DAB600885F2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADE06A3A1E7999BB0022D8A2 /* UIKit.framework in Frameworks */,
+				ADE06A361E7999700022D8A2 /* CoreGraphics.framework in Frameworks */,
+				ADE06A341E79994D0022D8A2 /* CoreImage.framework in Frameworks */,
+				ADE06A261E78972D0022D8A2 /* ccv_frmk.framework in Frameworks */,
+				AD482A601E760FB100AA7F2E /* boost.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AD4829DC1E760B9600AA7F2E /* common */ = {
+			isa = PBXGroup;
+			children = (
+				AD4829E71E760C0900AA7F2E /* iterative_trainer.h */,
+				AD4829E81E760C0900AA7F2E /* layer_storage.h */,
+				AD4829E91E760C0900AA7F2E /* learning_scheduler.cpp */,
+				AD4829EA1E760C0900AA7F2E /* learning_scheduler.h */,
+				AD4829EB1E760C0900AA7F2E /* logger.cpp */,
+				AD4829EC1E760C0900AA7F2E /* logger.h */,
+				AD4829ED1E760C0900AA7F2E /* network_config.h */,
+				AD4829EE1E760C0900AA7F2E /* network_exception.h */,
+				AD4829EF1E760C0900AA7F2E /* network_factory.cpp */,
+				AD4829F01E760C0900AA7F2E /* network_factory.h */,
+				AD4829F11E760C0900AA7F2E /* network_manager.cpp */,
+				AD4829F21E760C0900AA7F2E /* network_manager.h */,
+				AD4829F31E760C0900AA7F2E /* network_random.h */,
+				AD4829F41E760C0900AA7F2E /* network_sample.h */,
+				AD4829F51E760C0900AA7F2E /* samples_manager.cpp */,
+				AD4829F61E760C0900AA7F2E /* samples_manager.h */,
+				AD4829F71E760C0900AA7F2E /* solver.h */,
+				AD4829F81E760C0900AA7F2E /* thread_pool.h */,
+				AD4829DE1E760BA500AA7F2E /* portable_binary_archive */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		AD4829DD1E760B9E00AA7F2E /* interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				AD4829E11E760BFA00AA7F2E /* network_file_handler_interface.h */,
+				AD4829E21E760BFA00AA7F2E /* network_interface.h */,
+				AD4829E31E760BFA00AA7F2E /* network_manager_interface.h */,
+			);
+			name = interfaces;
+			sourceTree = "<group>";
+		};
+		AD4829DE1E760BA500AA7F2E /* portable_binary_archive */ = {
+			isa = PBXGroup;
+			children = (
+				AD482A0B1E760C2600AA7F2E /* portable_binary_archive.hpp */,
+				AD482A0C1E760C2600AA7F2E /* portable_binary_iarchive.cpp */,
+				AD482A0D1E760C2600AA7F2E /* portable_binary_iarchive.hpp */,
+				AD482A0E1E760C2600AA7F2E /* portable_binary_oarchive.cpp */,
+				AD482A0F1E760C2600AA7F2E /* portable_binary_oarchive.hpp */,
+			);
+			name = portable_binary_archive;
+			sourceTree = "<group>";
+		};
+		AD4829DF1E760BAF00AA7F2E /* mlp */ = {
+			isa = PBXGroup;
+			children = (
+				AD482A151E760C4000AA7F2E /* network_bnu_base.cpp */,
+				AD482A161E760C4000AA7F2E /* network_bnu_base.h */,
+				AD482A171E760C4000AA7F2E /* network_bnu_fast.cpp */,
+				AD482A181E760C4000AA7F2E /* network_bnu_fast.h */,
+				AD482A191E760C4000AA7F2E /* network_bnu_ref.cpp */,
+				AD482A1A1E760C4000AA7F2E /* network_bnu_ref.h */,
+				AD482A1B1E760C4000AA7F2E /* network_file_handler.cpp */,
+				AD482A1C1E760C4000AA7F2E /* network_file_handler.h */,
+				AD482A1D1E760C4000AA7F2E /* network_interface_mlp.h */,
+				AD482A1E1E760C4000AA7F2E /* network_manager_mlp.h */,
+			);
+			name = mlp;
+			sourceTree = "<group>";
+		};
+		AD4829E01E760BB500AA7F2E /* convnet */ = {
+			isa = PBXGroup;
+			children = (
+				AD482A291E760C5400AA7F2E /* conv_layer.h */,
+				AD482A2A1E760C5400AA7F2E /* dropout_layer.h */,
+				AD482A2B1E760C5400AA7F2E /* full_layer.h */,
+				AD482A2C1E760C5400AA7F2E /* input_layer.h */,
+				AD482A2D1E760C5400AA7F2E /* layer.cpp */,
+				AD482A2E1E760C5400AA7F2E /* layer.h */,
+				AD482A2F1E760C5400AA7F2E /* network_file_handler.cpp */,
+				AD482A301E760C5400AA7F2E /* network_file_handler.h */,
+				AD482A311E760C5400AA7F2E /* network_interface_convnet.h */,
+				AD482A321E760C5400AA7F2E /* network_manager_convnet.h */,
+				AD482A331E760C5400AA7F2E /* network_parallel.cpp */,
+				AD482A341E760C5400AA7F2E /* network_parallel.h */,
+				AD482A351E760C5400AA7F2E /* network.cpp */,
+				AD482A361E760C5400AA7F2E /* network.h */,
+				AD482A371E760C5400AA7F2E /* output_layer.h */,
+				AD482A381E760C5400AA7F2E /* pool_layer.h */,
+				AD482A391E760C5400AA7F2E /* tensor_activations.h */,
+				AD482A3A1E760C5400AA7F2E /* tensor_gradient_checker.h */,
+				AD482A3B1E760C5400AA7F2E /* tensor_loss_functions.h */,
+				AD482A3C1E760C5400AA7F2E /* tensor_operations.cpp */,
+				AD482A3D1E760C5400AA7F2E /* tensor_operations.h */,
+				AD482A3E1E760C5400AA7F2E /* tensor_solver.h */,
+				AD482A3F1E760C5400AA7F2E /* tensor_tank.h */,
+				AD482A401E760C5400AA7F2E /* tensor_utils.cpp */,
+				AD482A411E760C5400AA7F2E /* tensor_utils.h */,
+				AD482A421E760C5400AA7F2E /* tensor.cpp */,
+				AD482A431E760C5400AA7F2E /* tensor.h */,
+			);
+			name = convnet;
+			sourceTree = "<group>";
+		};
+		AD70760F1E75DAB600885F2E = {
+			isa = PBXGroup;
+			children = (
+				AD70761B1E75DAB600885F2E /* neurocl */,
+				AD70761A1E75DAB600885F2E /* Products */,
+				ADE06A241E78972C0022D8A2 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		AD70761A1E75DAB600885F2E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AD7076191E75DAB600885F2E /* neurocl_frmk.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AD70761B1E75DAB600885F2E /* neurocl */ = {
+			isa = PBXGroup;
+			children = (
+				AD70761C1E75DAB600885F2E /* neurocl_frmk.h */,
+				ADE069771E782AE30022D8A2 /* neurocl_wrapper.h */,
+				ADE069781E782C0E0022D8A2 /* neurocl_wrapper.mm */,
+				AD70761E1E75DAB600885F2E /* Info.plist */,
+				AD4829DD1E760B9E00AA7F2E /* interfaces */,
+				AD4829DC1E760B9600AA7F2E /* common */,
+				AD4829DF1E760BAF00AA7F2E /* mlp */,
+				AD4829E01E760BB500AA7F2E /* convnet */,
+				ADE069851E787B860022D8A2 /* imagetools */,
+			);
+			path = neurocl;
+			sourceTree = "<group>";
+		};
+		ADE069851E787B860022D8A2 /* imagetools */ = {
+			isa = PBXGroup;
+			children = (
+				ADE0698A1E787BCC0022D8A2 /* autothreshold.cpp */,
+				ADE0698B1E787BCC0022D8A2 /* autothreshold.h */,
+				ADE0698C1E787BCC0022D8A2 /* edge_detect.cpp */,
+				ADE0698D1E787BCC0022D8A2 /* edge_detect.h */,
+				ADE069861E787BAC0022D8A2 /* ocr.cpp */,
+				ADE069871E787BAC0022D8A2 /* ocr.h */,
+			);
+			name = imagetools;
+			sourceTree = "<group>";
+		};
+		ADE06A241E78972C0022D8A2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ADE06A391E7999BB0022D8A2 /* UIKit.framework */,
+				ADE06A351E7999700022D8A2 /* CoreGraphics.framework */,
+				ADE06A321E79986D0022D8A2 /* CoreImage.framework */,
+				AD482A5F1E760FB100AA7F2E /* boost.framework */,
+				ADE06A251E78972D0022D8A2 /* ccv_frmk.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		AD7076161E75DAB600885F2E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD4829E51E760BFA00AA7F2E /* network_interface.h in Headers */,
+				AD482A561E760C5400AA7F2E /* tensor_loss_functions.h in Headers */,
+				AD4829E61E760BFA00AA7F2E /* network_manager_interface.h in Headers */,
+				AD482A591E760C5400AA7F2E /* tensor_solver.h in Headers */,
+				AD482A581E760C5400AA7F2E /* tensor_operations.h in Headers */,
+				AD482A021E760C0900AA7F2E /* network_factory.h in Headers */,
+				AD482A221E760C4000AA7F2E /* network_bnu_fast.h in Headers */,
+				AD482A0A1E760C0900AA7F2E /* thread_pool.h in Headers */,
+				AD482A4F1E760C5400AA7F2E /* network_parallel.h in Headers */,
+				AD4829FF1E760C0900AA7F2E /* network_config.h in Headers */,
+				AD4829F91E760C0900AA7F2E /* iterative_trainer.h in Headers */,
+				AD4829E41E760BFA00AA7F2E /* network_file_handler_interface.h in Headers */,
+				AD482A511E760C5400AA7F2E /* network.h in Headers */,
+				AD482A5C1E760C5400AA7F2E /* tensor_utils.h in Headers */,
+				AD482A141E760C2600AA7F2E /* portable_binary_oarchive.hpp in Headers */,
+				AD482A281E760C4000AA7F2E /* network_manager_mlp.h in Headers */,
+				AD482A451E760C5400AA7F2E /* dropout_layer.h in Headers */,
+				AD482A241E760C4000AA7F2E /* network_bnu_ref.h in Headers */,
+				AD482A491E760C5400AA7F2E /* layer.h in Headers */,
+				AD482A261E760C4000AA7F2E /* network_file_handler.h in Headers */,
+				AD482A121E760C2600AA7F2E /* portable_binary_iarchive.hpp in Headers */,
+				AD4829FA1E760C0900AA7F2E /* layer_storage.h in Headers */,
+				AD482A061E760C0900AA7F2E /* network_sample.h in Headers */,
+				AD482A041E760C0900AA7F2E /* network_manager.h in Headers */,
+				AD482A4B1E760C5400AA7F2E /* network_file_handler.h in Headers */,
+				AD482A271E760C4000AA7F2E /* network_interface_mlp.h in Headers */,
+				AD482A521E760C5400AA7F2E /* output_layer.h in Headers */,
+				AD482A091E760C0900AA7F2E /* solver.h in Headers */,
+				AD4829FC1E760C0900AA7F2E /* learning_scheduler.h in Headers */,
+				AD4829FE1E760C0900AA7F2E /* logger.h in Headers */,
+				AD70761D1E75DAB600885F2E /* neurocl_frmk.h in Headers */,
+				ADE069911E787BCC0022D8A2 /* edge_detect.h in Headers */,
+				AD482A051E760C0900AA7F2E /* network_random.h in Headers */,
+				AD482A101E760C2600AA7F2E /* portable_binary_archive.hpp in Headers */,
+				AD482A541E760C5400AA7F2E /* tensor_activations.h in Headers */,
+				AD482A081E760C0900AA7F2E /* samples_manager.h in Headers */,
+				AD482A001E760C0900AA7F2E /* network_exception.h in Headers */,
+				AD482A4C1E760C5400AA7F2E /* network_interface_convnet.h in Headers */,
+				AD482A201E760C4000AA7F2E /* network_bnu_base.h in Headers */,
+				AD482A461E760C5400AA7F2E /* full_layer.h in Headers */,
+				AD482A5E1E760C5400AA7F2E /* tensor.h in Headers */,
+				AD482A551E760C5400AA7F2E /* tensor_gradient_checker.h in Headers */,
+				AD482A5A1E760C5400AA7F2E /* tensor_tank.h in Headers */,
+				AD482A531E760C5400AA7F2E /* pool_layer.h in Headers */,
+				ADE0698F1E787BCC0022D8A2 /* autothreshold.h in Headers */,
+				AD482A441E760C5400AA7F2E /* conv_layer.h in Headers */,
+				AD482A471E760C5400AA7F2E /* input_layer.h in Headers */,
+				AD482A4D1E760C5400AA7F2E /* network_manager_convnet.h in Headers */,
+				ADE069891E787BAC0022D8A2 /* ocr.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		AD7076181E75DAB600885F2E /* neurocl_frmk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD7076211E75DAB600885F2E /* Build configuration list for PBXNativeTarget "neurocl_frmk" */;
+			buildPhases = (
+				AD7076141E75DAB600885F2E /* Sources */,
+				AD7076151E75DAB600885F2E /* Frameworks */,
+				AD7076161E75DAB600885F2E /* Headers */,
+				AD7076171E75DAB600885F2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = neurocl_frmk;
+			productName = neurocl;
+			productReference = AD7076191E75DAB600885F2E /* neurocl_frmk.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AD7076101E75DAB600885F2E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = Blackccpie;
+				TargetAttributes = {
+					AD7076181E75DAB600885F2E = {
+						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = NNP3K6PDA9;
+					};
+				};
+			};
+			buildConfigurationList = AD7076131E75DAB600885F2E /* Build configuration list for PBXProject "neurocl_frmk" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = AD70760F1E75DAB600885F2E;
+			productRefGroup = AD70761A1E75DAB600885F2E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AD7076181E75DAB600885F2E /* neurocl_frmk */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AD7076171E75DAB600885F2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AD7076141E75DAB600885F2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD482A231E760C4000AA7F2E /* network_bnu_ref.cpp in Sources */,
+				AD482A031E760C0900AA7F2E /* network_manager.cpp in Sources */,
+				AD482A011E760C0900AA7F2E /* network_factory.cpp in Sources */,
+				ADE0698E1E787BCC0022D8A2 /* autothreshold.cpp in Sources */,
+				AD482A251E760C4000AA7F2E /* network_file_handler.cpp in Sources */,
+				ADE069881E787BAC0022D8A2 /* ocr.cpp in Sources */,
+				AD482A571E760C5400AA7F2E /* tensor_operations.cpp in Sources */,
+				ADE069791E782C0E0022D8A2 /* neurocl_wrapper.mm in Sources */,
+				AD482A071E760C0900AA7F2E /* samples_manager.cpp in Sources */,
+				AD482A211E760C4000AA7F2E /* network_bnu_fast.cpp in Sources */,
+				AD482A5B1E760C5400AA7F2E /* tensor_utils.cpp in Sources */,
+				AD482A5D1E760C5400AA7F2E /* tensor.cpp in Sources */,
+				AD482A131E760C2600AA7F2E /* portable_binary_oarchive.cpp in Sources */,
+				AD482A4A1E760C5400AA7F2E /* network_file_handler.cpp in Sources */,
+				AD482A501E760C5400AA7F2E /* network.cpp in Sources */,
+				AD4829FB1E760C0900AA7F2E /* learning_scheduler.cpp in Sources */,
+				AD482A1F1E760C4000AA7F2E /* network_bnu_base.cpp in Sources */,
+				AD482A111E760C2600AA7F2E /* portable_binary_iarchive.cpp in Sources */,
+				AD4829FD1E760C0900AA7F2E /* logger.cpp in Sources */,
+				ADE069901E787BCC0022D8A2 /* edge_detect.cpp in Sources */,
+				AD482A481E760C5400AA7F2E /* layer.cpp in Sources */,
+				AD482A4E1E760C5400AA7F2E /* network_parallel.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AD70761F1E75DAB600885F2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		AD7076201E75DAB600885F2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		AD7076221E75DAB600885F2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = "../../../Apple-Boost-BuildScript/build/boost/1.58.0/ios/framework";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"cimg_display=0",
+					PORTABLE_BINARY_ARCHIVE_LEGACY,
+				);
+				HEADER_SEARCH_PATHS = (
+					../../../CImg,
+					../../utils,
+					../../src,
+					"../../../Apple-Boost-BuildScript/src/boost_1_58_0",
+					../../../ccv/lib,
+				);
+				INFOPLIST_FILE = neurocl/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = blackccpie.neurocl;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		AD7076231E75DAB600885F2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = "../../../Apple-Boost-BuildScript/build/boost/1.58.0/ios/framework";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"cimg_display=0",
+					PORTABLE_BINARY_ARCHIVE_LEGACY,
+				);
+				HEADER_SEARCH_PATHS = (
+					../../../CImg,
+					../../utils,
+					../../src,
+					"../../../Apple-Boost-BuildScript/src/boost_1_58_0",
+					../../../ccv/lib,
+				);
+				INFOPLIST_FILE = neurocl/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = blackccpie.neurocl;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AD7076131E75DAB600885F2E /* Build configuration list for PBXProject "neurocl_frmk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD70761F1E75DAB600885F2E /* Debug */,
+				AD7076201E75DAB600885F2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD7076211E75DAB600885F2E /* Build configuration list for PBXNativeTarget "neurocl_frmk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD7076221E75DAB600885F2E /* Debug */,
+				AD7076231E75DAB600885F2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AD7076101E75DAB600885F2E /* Project object */;
+}
