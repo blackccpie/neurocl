@@ -49,28 +49,28 @@ public:
 	network_parallel( const size_t tasks_size );
 	virtual ~network_parallel();
 
-    virtual void add_layers( const std::vector<layer_descr>& layers ) final override;
+    void add_layers( const std::vector<layer_descr>& layers ) override;
 
-	virtual void set_training( bool training ) final override;
+	void set_training( bool training ) override;
 
-	virtual void set_input(  const size_t& in_size, const float* in ) final override;
-    virtual void set_output( const size_t& out_size, const float* out ) final override;
-    virtual const output_ptr output() final override;
+	void set_input(  const size_t& in_size, const float* in ) override;
+    void set_output( const size_t& out_size, const float* out ) override;
+    const output_ptr output() override;
 
-    virtual void feed_forward() final override;
-    virtual void back_propagate() final override;
-    virtual void gradient_descent() final override;
-	virtual void clear_gradients() final override;
-	virtual void gradient_check( const output_ptr& out_ref ) final override;
-	virtual float loss() final override;
+    void feed_forward() override;
+    void back_propagate() override;
+    void gradient_descent() override;
+	void clear_gradients() override;
+	void gradient_check( const output_ptr& out_ref ) override;
+	float loss() override;
 
-	virtual const std::string  dump_weights() final override { return "NOT IMPLEMENTED YET"; }
-    virtual const std::string  dump_bias() final override { return "NOT IMPLEMENTED YET"; }
-    virtual const std::string  dump_activations() final override { return "NOT IMPLEMENTED YET"; }
+	const std::string  dump_weights() override { return "NOT IMPLEMENTED YET"; }
+    const std::string  dump_bias() override { return "NOT IMPLEMENTED YET"; }
+    const std::string  dump_activations() override { return "NOT IMPLEMENTED YET"; }
 
-    virtual const size_t count_layers() final override;
-	virtual const layer_ptr get_layer_ptr( const size_t layer_idx ) final override;
-    virtual void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) final override;
+    const size_t count_layers() override;
+	const layer_ptr get_layer_ptr( const size_t layer_idx ) override;
+    void set_layer_ptr( const size_t layer_idx, const layer_ptr& l ) override;
 
 private:
 

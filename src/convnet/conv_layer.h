@@ -50,7 +50,7 @@ public:
 };
 
 template<class activationT>
-class conv_layer  : public conv_layer_iface
+class conv_layer final : public conv_layer_iface
 {
 public:
 
@@ -60,21 +60,21 @@ public:
 
     virtual ~conv_layer() {}
 
-    virtual const std::string type() const final override { return "conv " + m_name; }
+    const std::string type() const override { return "conv " + m_name; }
 
-    virtual tensor d_activation( const tensor& in ) const final override { return activationT::d_f( in ); }
+    tensor d_activation( const tensor& in ) const override { return activationT::d_f( in ); }
 
-    virtual void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) final override
+    void set_filter_size( const size_t filter_size, const size_t filter_stride = 1 ) override
     {
         m_filter_size = filter_size;
         m_filter_stride = filter_stride;
     }
 
-    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
-                            const size_t width,
-                            const size_t height,
-                            const size_t depth,
-                            const size_t cache_size) final override
+    void populate(  const std::shared_ptr<layer>& prev_layer,
+                    const size_t width,
+                    const size_t height,
+                    const size_t depth,
+                    const size_t cache_size) override
     {
         LOGGER(info) << "conv_layer::populate - populating convolutional layer " << m_name << std::endl;
 
@@ -125,17 +125,17 @@ public:
         }
     }
 
-    virtual size_t width() const override { return m_feature_maps.w(); }
-    virtual size_t height() const override { return m_feature_maps.h(); }
-    virtual size_t depth() const override { return m_feature_maps.d2(); }
+    size_t width() const override { return m_feature_maps.w(); }
+    size_t height() const override { return m_feature_maps.h(); }
+    size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const override { return m_filters->w() * m_filters->h() * m_filters->d1() * m_filters->d2(); }
-    virtual size_t nb_bias() const override { return m_bias->w() * m_bias->h() * m_bias->d1() * m_bias->d2(); }
+    size_t nb_weights() const override { return m_filters->w() * m_filters->h() * m_filters->d1() * m_filters->d2(); }
+    size_t nb_bias() const override { return m_bias->w() * m_bias->h() * m_bias->d1() * m_bias->d2(); }
 
-    virtual const tensor& feature_maps() const override
+    const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void feed_forward() override
+    void feed_forward() override
     {
         m_feature_maps = nto::convolve_add_forward<nto::kernel_mode::flip,nto::pad_mode::valid>(
             m_prev_layer->feature_maps(),
@@ -146,7 +146,7 @@ public:
         activationT::f( m_feature_maps );
     }
 
-    virtual void back_propagate() override
+    void back_propagate() override
     {
         // the most explicit equation sabout this CNN backprop part can be found here:
         //http://www.simon-hohberg.de/2014/10/10/conv-net.html
@@ -176,7 +176,7 @@ public:
         );
     }
 
-    virtual void update_gradients() override
+    void update_gradients() override
     {
         // Compute gradients
 
@@ -189,13 +189,13 @@ public:
         *m_deltas_bias += nto::uniform_sum( m_error_maps );
     }
 
-	virtual void clear_gradients() override
+	void clear_gradients() override
     {
         m_deltas_filters->clear();
         m_deltas_bias->clear();
     }
 
-    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
+    void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // Optimize gradients
 
@@ -204,41 +204,41 @@ public:
     }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) override
+    void fill_w( const size_t data_size, const float* data ) override
     {
          m_filters->grouped_fill( data_size, data );
     }
-    virtual void fill_w( float* data ) override
+    void fill_w( float* data ) override
     {
          m_filters->grouped_fill( data );
     }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data ) override
+    void fill_b( const size_t data_size, const float* data ) override
     {
          m_bias->grouped_fill( data_size, data );
     }
-    virtual void fill_b( float* data ) override
+    void fill_b( float* data ) override
     {
          m_bias->grouped_fill( data );
     }
 
-    virtual tensor& error_maps( key_errors ) override
+    tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
     //! get gradient checker
-    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final override
+    std::unique_ptr<tensor_gradient_checker> get_gradient_checker() override
     {
         return std::unique_ptr<tensor_gradient_checker>(
             new tensor_gradient_checker( *m_filters, *m_deltas_filters ) );
     }
 
 	// copy accessor, not made for performance but rather for network introspection
-    virtual tensor weights( key_weights ) final override { return *m_filters; }
+    tensor weights( key_weights ) override { return *m_filters; }
 
 protected:
 
-    virtual size_t fan_in() const final override
+    size_t fan_in() const override
     {
         return m_filter_size * m_filter_size;
     }

@@ -47,39 +47,39 @@ public:
 	virtual ~network_manager() {}
 
 	//! load network topology & weights
-    virtual void load_network( const std::string& topology_path, const std::string& weights_path ) override;
+    void load_network( const std::string& topology_path, const std::string& weights_path ) override;
 	//! save network weights
-	virtual void save_network() override;
+	void save_network() override;
 
 	//! Set training flag
-    virtual void set_training( bool training, key_training ) final override;
+    void set_training( bool training, key_training ) final override;
 	//! train given single sample
-    virtual void train( const sample& s, key_training ) override;
+    void train( const sample& s, key_training ) override;
 
 	//! mini-batch train a samples set
-    virtual void batch_train(	const samples_manager& smp_manager,
+    void batch_train(	const samples_manager& smp_manager,
 								const size_t& epoch_size,
 								const size_t& batch_size,
 								t_progress_fct progress_fct = t_progress_fct() ) override;
 
     //! prepare training epoch
-    virtual void prepare_training_epoch() override;
+    void prepare_training_epoch() override;
     //! finalize training epoch
-    virtual void finalize_training_epoch() override;
+    void finalize_training_epoch() override;
 	//! compute network output
-    virtual void compute_output( sample& s ) override;
+    void compute_output( sample& s ) override;
 	//! compute network output using augmented sample
-	virtual void compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter ) override;
+	void compute_augmented_output( sample& s, const std::shared_ptr<samples_augmenter>& smp_augmenter ) override;
 	//! compute network outputs for multiple samples
-    virtual void compute_output( std::vector<sample>& s ) override;
+    void compute_output( std::vector<sample>& s ) override;
 
 	//! gradient check
-	virtual void gradient_check( const sample& s ) override;
+	void gradient_check( const sample& s ) override;
 
 	//! dump network parameters
-	virtual void dump_weights() override;
-    virtual void dump_bias() override;
-    virtual void dump_activations() override;
+	void dump_weights() override;
+    void dump_bias() override;
+    void dump_activations() override;
 
 protected:
 

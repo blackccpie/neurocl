@@ -47,7 +47,7 @@ public:
 };
 
 template<class activationT>
-class full_layer : public full_layer_iface
+class full_layer final : public full_layer_iface
 {
 public:
 
@@ -57,15 +57,15 @@ public:
 
     virtual ~full_layer() {}
 
-    virtual const std::string type() const override { return "full " + m_name; }
+    const std::string type() const override { return "full " + m_name; }
 
-    virtual tensor d_activation( const tensor& in ) const final override { return activationT::d_f( in ); }
+    tensor d_activation( const tensor& in ) const override { return activationT::d_f( in ); }
 
-    virtual void populate(  const std::shared_ptr<layer>& prev_layer,
-                            const size_t width,
-                            const size_t height,
-                            const size_t depth,
-                            const size_t cache_size ) final override
+    void populate(  const std::shared_ptr<layer>& prev_layer,
+                    const size_t width,
+                    const size_t height,
+                    const size_t depth,
+                    const size_t cache_size ) override
     {
         LOGGER(info) << "full_layer::populate - populating full layer " << m_name << std::endl;
 
@@ -118,17 +118,17 @@ public:
         }
     }
 
-    virtual size_t width() const override { return m_feature_maps.w(); }
-    virtual size_t height() const override { return m_feature_maps.h(); }
-    virtual size_t depth() const override { return m_feature_maps.d2(); }
+    size_t width() const override { return m_feature_maps.w(); }
+    size_t height() const override { return m_feature_maps.h(); }
+    size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const override { return m_weights->w() * m_weights->h() * m_weights->d1() * m_weights->d2(); }
-    virtual size_t nb_bias() const override { return m_bias->w() * m_bias->h() * m_bias->d1() * m_bias->d2(); }
+    size_t nb_weights() const override { return m_weights->w() * m_weights->h() * m_weights->d1() * m_weights->d2(); }
+    size_t nb_bias() const override { return m_bias->w() * m_bias->h() * m_bias->d1() * m_bias->d2(); }
 
-    virtual const tensor& feature_maps() const override
+    const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void feed_forward() override
+    void feed_forward() override
     {
         const auto& prev_feature_maps = m_prev_layer->feature_maps();
 
@@ -149,7 +149,7 @@ public:
         activationT::f( m_feature_maps );
     }
 
-    virtual void back_propagate() override
+    void back_propagate() override
     {
         const tensor& prev_feature_maps = m_prev_layer->feature_maps();
         tensor& prev_error_maps = m_prev_layer->error_maps({});
@@ -180,7 +180,7 @@ public:
         }
     }
 
-    virtual void update_gradients() override
+    void update_gradients() override
     {
         // Compute gradients
 
@@ -198,13 +198,13 @@ public:
         }
     }
 
-    virtual void clear_gradients() override
+    void clear_gradients() override
     {
         m_deltas_weights->clear();
         m_deltas_bias->clear();
     }
 
-    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
+    void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override
     {
         // Optimize gradients
 
@@ -213,38 +213,38 @@ public:
     }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) override
+    void fill_w( const size_t data_size, const float* data ) override
     {
          m_weights->grouped_fill( data_size, data );
     }
-    virtual void fill_w( float* data ) override
+    void fill_w( float* data ) override
     {
          m_weights->grouped_fill( data );
     }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data ) override
+    void fill_b( const size_t data_size, const float* data ) override
     {
          m_bias->grouped_fill( data_size, data );
     }
-    virtual void fill_b( float* data ) override
+    void fill_b( float* data ) override
     {
          m_bias->grouped_fill( data );
     }
 
     //! get gradient checker
-    virtual std::unique_ptr<tensor_gradient_checker> get_gradient_checker() final override
+    std::unique_ptr<tensor_gradient_checker> get_gradient_checker() override
     {
         return std::unique_ptr<tensor_gradient_checker>(
             new tensor_gradient_checker( *m_weights, *m_deltas_weights ) );
     }
 
-    virtual tensor& error_maps( key_errors ) override
+    tensor& error_maps( key_errors ) override
         { return m_error_maps; }
 
 protected:
 
-    virtual size_t fan_in() const final override
+    size_t fan_in() const override
     {
         size_t k_group = m_prev_group_features ? m_prev_layer->depth() : 1;
         return k_group * m_prev_layer->width() * m_prev_layer->height();

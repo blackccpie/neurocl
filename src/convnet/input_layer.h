@@ -31,16 +31,16 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-class input_layer : public layer
+class input_layer final : public layer
 {
 public:
 
     input_layer() {}
 	virtual ~input_layer() {}
 
-    virtual const std::string type() const override { return "input"; }
+    const std::string type() const override { return "input"; }
 
-    virtual tensor d_activation( const tensor& in ) const final override { /* NOTHING TO DO */return tensor{};  }
+    tensor d_activation( const tensor& in ) const override { /* NOTHING TO DO */return tensor{};  }
 
     void populate(  const size_t width,
                     const size_t height,
@@ -51,12 +51,12 @@ public:
         m_feature_maps.resize( width, height, 1, depth );
     }
 
-    virtual size_t width() const override { return m_feature_maps.w(); };
-    virtual size_t height() const override { return m_feature_maps.h(); };
-    virtual size_t depth() const override { return m_feature_maps.d2(); }
+    size_t width() const override { return m_feature_maps.w(); };
+    size_t height() const override { return m_feature_maps.h(); };
+    size_t depth() const override { return m_feature_maps.d2(); }
 
-    virtual size_t nb_weights() const override { return 0; }
-    virtual size_t nb_bias() const override { return 0; }
+    size_t nb_weights() const override { return 0; }
+    size_t nb_bias() const override { return 0; }
 
     void fill(  const size_t depth1,
                 const size_t depth2,
@@ -66,29 +66,29 @@ public:
         m_feature_maps.fill( depth1, depth2, data_size, data );
     }
 
-    virtual const tensor& feature_maps() const override
+    const tensor& feature_maps() const override
         { return m_feature_maps; }
 
-    virtual void feed_forward() override { /*NOTHING TO DO YET*/ }
-    virtual void back_propagate() override { /*NOTHING TO DO YET*/ }
-    virtual void update_gradients() override { /*NOTHING TO DO YET*/ }
-    virtual void clear_gradients() override { /*NOTHING TO DO YET*/ }
-    virtual void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override { /*NOTHING TO DO YET*/ }
+    void feed_forward() override { /*NOTHING TO DO YET*/ }
+    void back_propagate() override { /*NOTHING TO DO YET*/ }
+    void update_gradients() override { /*NOTHING TO DO YET*/ }
+    void clear_gradients() override { /*NOTHING TO DO YET*/ }
+    void gradient_descent( const std::shared_ptr<tensor_solver_iface>& solver ) override { /*NOTHING TO DO YET*/ }
 
     // Fill weights
-    virtual void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
-    virtual void fill_w( float* data ) override { /* NOTHING TO DO */ }
+    void fill_w( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    void fill_w( float* data ) override { /* NOTHING TO DO */ }
 
     // Fill bias
-    virtual void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
-    virtual void fill_b( float* data ) override { /* NOTHING TO DO */ }
+    void fill_b( const size_t data_size, const float* data ) override { /* NOTHING TO DO */ }
+    void fill_b( float* data ) override { /* NOTHING TO DO */ }
 
-    virtual tensor& error_maps( key_errors ) override
+    tensor& error_maps( key_errors ) override
         { return m_error_maps; } // returns empty tensor
 
 protected:
 
-    virtual size_t fan_in() const final override { return 0; }
+    size_t fan_in() const override { return 0; }
 
 private:
 

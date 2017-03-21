@@ -36,16 +36,16 @@ THE SOFTWARE.
 
 namespace neurocl { namespace convnet {
 
-class network_file_handler : public network_file_handler_interface
+class network_file_handler final : public network_file_handler_interface
 {
 public:
 
     network_file_handler( const std::shared_ptr<network_interface_convnet>& net );
     virtual ~network_file_handler();
 
-    virtual void load_network_topology( const std::string& topology_path ) final override;
-    virtual void load_network_weights( const std::string& weights_path ) final override;
-    virtual void save_network_weights() final override;
+    void load_network_topology( const std::string& topology_path ) override;
+    void load_network_weights( const std::string& weights_path ) override;
+    void save_network_weights() override;
 
 private:
 

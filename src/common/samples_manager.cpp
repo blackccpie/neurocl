@@ -241,6 +241,14 @@ neurocl::sample samples_augmenter::translate( const neurocl::sample& s, const in
 	return neurocl::sample( m_sizeX * m_sizeY, g_buf_img.data(), s.osample_size, s.osample );
 }
 
+neurocl::sample samples_augmenter::zoom( const neurocl::sample& s, const int zx ) const
+{
+    g_buf_img.assign( s.isample, m_sizeX, m_sizeY, 1, 1, false );
+    g_buf_img.crop( zx, zx, m_sizeX-zx, m_sizeY-zx ).resize( m_sizeX, m_sizeY );
+
+    return neurocl::sample( m_sizeX * m_sizeY, g_buf_img.data(), s.osample_size, s.osample );
+}
+
 /******************************************************/
 /******************* CUSTOM LOADERS *******************/
 /******************************************************/
@@ -276,10 +284,14 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
     {
         std::stringstream ss{ line };
 
+        static int idx = 0;
+        std::cout << "read " << idx++ << std::endl;
+
         // Read the target values from the line:
         std::vector<std::uint8_t> _vals;
         while ( !ss.eof() )
         {
+            std::cout << "read val" << std::endl;
             std::uint16_t val;
             if ( !(ss >> val).fail() )
                 _vals.push_back( static_cast<std::uint8_t>( val ) );
