@@ -169,6 +169,9 @@ tensor tensor::operator +=( const tensor& other )
         m_tensor_array[d1][d2] += other.m_tensor_array[d1][d2];
     }
 
+    // returning with std::move would inhibit RVO
+    // thread about this:
+    // http://stackoverflow.com/questions/4986673/c11-rvalues-and-move-semantics-confusion-return-statement
     return *this;
 }
 
