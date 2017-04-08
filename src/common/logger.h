@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include "export.h"
+
 #include <string>
 #include <memory>
 #include <mutex>
@@ -52,7 +54,7 @@ public:
 	virtual void write( const std::string& msg ) = 0;
 };
 
-class logger
+class NEUROCL_PUBLIC logger
 {
 public:
 	logger( const policy_type& type, const std::string& name );

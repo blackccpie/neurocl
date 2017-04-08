@@ -22,47 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef LEARNING_SCHEDULER_H
-#define LEARNING_SCHEDULER_H
+#ifndef EXPORT_H
+#define EXPORT_H
 
-#include "export.h"
+#define NEUROCL_PUBLIC  __attribute__ ((visibility ("default")))
 
-#include <memory>
-
-namespace neurocl {
-
-class solver_base;
-
-class NEUROCL_PUBLIC learning_scheduler
-{
-public:
-    static learning_scheduler& instance() { static learning_scheduler ls; return ls; }
-
-    void enable_scheduling( const bool enable );
-    void push_error( const float error );
-    void set_learning_rate( const float rate );
-    const float& get_learning_rate();
-
-protected:
-
-    friend class solver_base;
-    void register_solver( const std::shared_ptr<solver_base>& solver );
-
-private:
-
-    learning_scheduler();
-    virtual ~learning_scheduler();
-
-    void _assert_solver();
-
-private:
-
-    bool m_enabled;
-    float m_cached_rate;
-
-    std::shared_ptr<solver_base> m_solver;
-};
-
-} /*namespace neurocl*/
-
-#endif //LEARNING_SCHEDULER_H
+#endif //EXPORT_H

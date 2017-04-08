@@ -25,13 +25,15 @@ THE SOFTWARE.
 #ifndef TENSOR_OPERATIONS_H
 #define TENSOR_OPERATIONS_H
 
+#include "common/export.h"
+
 #include "tensor.h"
 
 namespace neurocl { namespace convnet {
 
 class tensor_solver_iface;
 
-class tensor_operation
+class NEUROCL_PUBLIC tensor_operation
 {
 public:
 
