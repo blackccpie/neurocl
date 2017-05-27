@@ -206,3 +206,5 @@ ${VEXCL_LIBRARIES}
 X11
 png
 )
+
+cotire(neurocl)
