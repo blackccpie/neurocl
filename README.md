@@ -1,6 +1,10 @@
 # neurocl
 ::: Neural network C++ implementations :::
 
+-----------------
+
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://raw.githubusercontent.com/blackccpie/neurocl/master/LICENSE)
+
 ![Training graph](http://blackccpie.free.fr/nets/neurocl-web.png)
 
 Neurocl (**Neuro** **C**omputing **L**ibrary) was meant to experiment various 'from scratch' implementations of neural network layer schemes, focusing on matrix expression of _feed forward_/_backward propagation_ steps.
@@ -152,7 +156,7 @@ neurocl main entry point is interface **network_manager_interface**, which can o
     std::shared_ptr<network_manager_interface> net_manager =
         network_factory::build( network_factory::t_neural_impl::NEURAL_IMPL_CONVNET );
     ```
-	
+
     The two availables schemes are:
 
     * **NEURAL_IMPL_MLP**
