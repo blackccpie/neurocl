@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef SAMPLES_MANAGER_H
 #define SAMPLES_MANAGER_H
 
+#include "export.h"
+
 #include "network_sample.h"
 
 #include <boost/shared_array.hpp>
@@ -36,7 +38,7 @@ namespace neurocl {
 
 using t_preproc = std::function<void (float*,const size_t,const size_t)>;
 
-class samples_augmenter
+class NEUROCL_PUBLIC samples_augmenter
 {
 public:
     samples_augmenter( const int sizeX, const int sizeY );
@@ -58,7 +60,7 @@ private:
     const int m_sizeY;
 };
 
-class samples_manager
+class NEUROCL_PUBLIC samples_manager
 {
 public:
 

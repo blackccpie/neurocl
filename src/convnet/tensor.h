@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef TENSOR_H
 #define TENSOR_H
 
+#include "common/export.h"
+
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/optional.hpp>
@@ -61,7 +63,7 @@ namespace tensor_activations {
 #define tensor_foreach_p(n1,n2) for ( auto d1 = 0; d1 < n1; d1++ ) \
                             for ( auto d2 = 0; d2 < n2; d2++ )
 
-class tensor
+class NEUROCL_PUBLIC tensor
 {
     // tensor_operation has full access on tensor class
     friend class tensor_operation;

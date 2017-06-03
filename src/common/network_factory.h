@@ -25,6 +25,8 @@ THE SOFTWARE.
 #ifndef NETWORK_FACTORY_H
 #define NETWORK_FACTORY_H
 
+#include "export.h"
+
 #include <memory>
 
 namespace neurocl {
@@ -32,7 +34,7 @@ namespace neurocl {
 class network_manager_interface;
 
 // network_manager_interface factory class
-class network_factory
+class NEUROCL_PUBLIC network_factory
 {
 public:
 
