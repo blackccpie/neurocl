@@ -245,6 +245,8 @@ protected:
 
 private:
 
+    const std::string m_name;
+
     std::shared_ptr<layer> m_prev_layer;
 
     size_t m_filter_size;
@@ -260,8 +262,6 @@ private:
 
     tensor m_feature_maps;
     tensor m_error_maps;
-
-    const std::string m_name;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

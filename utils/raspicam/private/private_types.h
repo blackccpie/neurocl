@@ -109,8 +109,7 @@ namespace raspicam {
             size_t size;
         };
 
-    };
+    }
 }
 
 #endif
-

@@ -51,9 +51,9 @@ class full_layer final : public full_layer_iface
 {
 public:
 
-    full_layer( const std::string& name ) : m_name( name ), m_prev_group_features( false ),
+    full_layer( const std::string& name ) : m_name( name ),
     	m_weights( nullptr ), m_deltas_weights( nullptr ),
-    	m_bias( nullptr ), m_deltas_bias( nullptr ) {}
+    	m_bias( nullptr ), m_deltas_bias( nullptr ), m_prev_group_features( false ) {}
 
     virtual ~full_layer() {}
 
@@ -252,22 +252,22 @@ protected:
 
 private:
 
+    const std::string m_name;
+
     std::shared_ptr<layer> m_prev_layer;
 
     tensor m_feature_maps;
     tensor m_error_maps;
 
-    tensor* m_bias;
-    tensor* m_deltas_bias;
-    std::vector<tensor*> m_bias_cache;
-
     tensor* m_weights;
     tensor* m_deltas_weights;
     std::vector<tensor*> m_weights_cache;
 
-    bool m_prev_group_features;
+    tensor* m_bias;
+    tensor* m_deltas_bias;
+    std::vector<tensor*> m_bias_cache;
 
-    const std::string m_name;
+    bool m_prev_group_features;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

@@ -67,9 +67,9 @@ class output_layer final : public output_layer_iface
 public:
 
     output_layer()
-     :  m_prev_group_features( false ),
-        m_weights( nullptr ), m_deltas_weights( nullptr ),
-        m_bias( nullptr ), m_deltas_bias( nullptr )
+     :  m_weights( nullptr ), m_deltas_weights( nullptr ),
+        m_bias( nullptr ), m_deltas_bias( nullptr ),
+        m_prev_group_features( false )
     {
         static_assert( !std::is_same<activationT,tensor_activations::softmax_cross_entropy>::value ||
             ( std::is_same<activationT, tensor_activations::softmax_cross_entropy>::value &&
@@ -382,13 +382,13 @@ private:
     tensor m_feature_maps;
     tensor m_error_maps;
 
-    tensor* m_bias;
-    tensor* m_deltas_bias;
-    std::vector<tensor*> m_bias_cache;
-
     tensor* m_weights;
     tensor* m_deltas_weights;
     std::vector<tensor*> m_weights_cache;
+
+    tensor* m_bias;
+    tensor* m_deltas_bias;
+    std::vector<tensor*> m_bias_cache;
 
     bool m_prev_group_features;
 };

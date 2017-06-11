@@ -40,7 +40,7 @@ namespace bfs = boost::filesystem;
 
 namespace neurocl { namespace mlp {
 
-network_file_handler::network_file_handler( const std::shared_ptr<network_interface_mlp>& net ) : m_net( net ), m_layers( 0 )
+network_file_handler::network_file_handler( const std::shared_ptr<network_interface_mlp>& net ) : m_layers( 0 ), m_net( net )
 {
 }
 
@@ -88,9 +88,9 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
 
             try
             {
-                int _idx = boost::lexical_cast<int>( split_vec[1] );
-                int _x = boost::lexical_cast<int>( split_vec[2] );
-                int _y = boost::lexical_cast<int>( split_vec[3] );
+                auto _idx = boost::lexical_cast<size_t>( split_vec[1] );
+                auto _x = boost::lexical_cast<size_t>( split_vec[2] );
+                auto _y = boost::lexical_cast<size_t>( split_vec[3] );
                 // for now index are supposed to be declared in increasing order...
                 if ( _idx != idx_layer )
                 {
