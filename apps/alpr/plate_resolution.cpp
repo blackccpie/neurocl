@@ -110,7 +110,6 @@ void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candida
 
 const plate_resolution::resolution_status plate_resolution::push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos )
 {
-    bool separator = false;
     alphanum::data_type type = alphanum::data_type::UNKNOWN;
 
     if ( is_letter_pos( segment_pos ) )
@@ -223,4 +222,4 @@ const float plate_resolution::confidence( const size_t idx )
     return m_segment_status[idx].confidence();
 }
 
-}; //namespace alpr
+} //namespace alpr

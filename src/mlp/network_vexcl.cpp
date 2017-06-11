@@ -131,7 +131,7 @@ const std::string layer_vexcl::dump_activations() const
     return dump_vec( m_activations );
 }
 
-network_vexcl::network_vexcl() : m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f ), m_training_samples( 0 )
+network_vexcl::network_vexcl() : m_training_samples( 0 ), m_learning_rate( 3.0f/*0.01f*/ ), m_weight_decay( 0.0f )
 {
     const network_config& nc = network_config::instance();
     nc.update_optional( "learning_rate", m_learning_rate );

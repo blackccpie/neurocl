@@ -100,15 +100,15 @@ void samples_manager::load_samples( const std::string& input_filename, bool shuf
 
         if ( !m_sample_sizeX && !m_sample_sizeY )
         {
-            m_sample_sizeX = img.width();
-            m_sample_sizeY = img.height();
+            m_sample_sizeX = static_cast<size_t>( img.width() );
+            m_sample_sizeY = static_cast<size_t>( img.height() );
 
             m_augmenter = std::make_shared<samples_augmenter>( m_sample_sizeX, m_sample_sizeY );
         }
         else
         {
-            if ( ( m_sample_sizeX != img.width() ) ||
-                ( m_sample_sizeY != img.height() ) )
+            if ( ( m_sample_sizeX != static_cast<size_t>( img.width() ) ) ||
+                ( m_sample_sizeY != static_cast<size_t>( img.height() ) ) )
                 throw network_exception( "non uniform sample size in input sample set" );
         }
 
@@ -280,7 +280,7 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
     std::string line;
 
     // get first ignored line : labels etc...
-    std::getline( data_in, line );
+    std::getline( data_in, line ); // comment this for emnist!!
 
     while ( std::getline( data_in, line ) )
     {
@@ -307,15 +307,15 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
         // TODO-CNN : lot of this method's blocks could be factorized...
         if ( !m_sample_sizeX && !m_sample_sizeY )
         {
-            m_sample_sizeX = img.width();
-            m_sample_sizeY = img.height();
+            m_sample_sizeX = static_cast<std::size_t>( img.width() );
+            m_sample_sizeY = static_cast<std::size_t>( img.height() );
 
             m_augmenter = std::make_shared<samples_augmenter>( m_sample_sizeX, m_sample_sizeY );
         }
         else
         {
-            if ( ( m_sample_sizeX != img.width() ) ||
-                ( m_sample_sizeY != img.height() ) )
+            if ( ( m_sample_sizeX != static_cast<std::size_t>( img.width() ) ) ||
+                ( m_sample_sizeY != static_cast<std::size_t>( img.height() ) ) )
                 throw network_exception( "non uniform sample size in input sample set" );
         }
 
@@ -326,7 +326,7 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
 
         // store output sample in list
         int i = 0;
-        size_t output_size = 10;
+        size_t output_size = 10; // 62 for emnist!!
         boost::shared_array<float> output_sample{ new float[output_size] };
         std::for_each( output_sample.get(), output_sample.get()+output_size, [&i,&digit](float& a){ a = ( i++ == digit ) ? 1.f : 0.f; } );
         m_output_samples.push_back( output_sample );
@@ -342,4 +342,4 @@ void samples_manager::load_kaggle_digit_recognizer( const std::string &input_fil
     LOGGER(info) << "samples_manager::load_kaggle_digit_recognizer - successfully loaded " << m_samples_set.size() << " samples" << std::endl;
 }
 
-}; //namespace neurocl
+} //namespace neurocl
