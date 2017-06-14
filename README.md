@@ -1,9 +1,9 @@
 # neurocl
+
 ::: Neural network C++ implementations :::
 
------------------
-
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://raw.githubusercontent.com/blackccpie/neurocl/master/LICENSE)
+-----------------
 
 ![Training graph](http://blackccpie.free.fr/nets/neurocl-web.png)
 
