@@ -160,7 +160,6 @@ void tensor::uniform_fill_random( const float& stddev )
     }
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator +=( const tensor& other )
 {
     assert_same_size( other );
@@ -175,7 +174,6 @@ tensor tensor::operator +=( const tensor& other )
     return *this;
 }
 
-// TODO-CNN : write rvalue ref equivalent
 tensor tensor::operator -=( const tensor& other )
 {
     assert_same_size( other );
