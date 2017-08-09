@@ -77,6 +77,8 @@ $ sh build_gcc_xxx.sh
 
 NOTE: if experiencing problems due to *libccv* linking issues, rebuild the latter with the *-fPIC* compiler directive.
 
+NOTE2: if experiencing gcc segfault problems when compiling on the raspberry pi, upgrade temporarily the swap file size to 100Mb (`sudo nano /etc/dphys-swapfile`).
+
 ## User Guide:
 
 ### File management
