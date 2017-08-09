@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 namespace neurocl {
 
-class sample;
+struct sample;
 class samples_manager;
 class samples_augmenter;
 
