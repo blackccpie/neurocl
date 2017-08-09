@@ -101,14 +101,14 @@ void network_bnu_fast::feed_forward()
 {
     //LOGGER(info) << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
-    for ( size_t c=0; c<m_layers.size()-1; c++ )
+    for ( auto c = size_t(0); c < m_layers.size()-1; c++ )
     {
-        vectorF& _activations1 = m_layers[c].activations();
-        vectorF& _activations2 = m_layers[c+1].activations();
-        matrixF& _weights = m_layers[c].weights();
-        vectorF& _bias = m_layers[c].bias();
+        auto& _activations1 = m_layers[c].activations();
+        auto& _activations2 = m_layers[c+1].activations();
+        auto& _weights = m_layers[c].weights();
+        auto& _bias = m_layers[c].bias();
 
-		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+		auto tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
         float _temp_sum;
 
@@ -117,13 +117,13 @@ void network_bnu_fast::feed_forward()
         float32x4_t _neon_temp_sum;
 
         // apply weights and bias, equivalent to MA + B computation
-        for ( auto i = 0; i < _weights.size1(); i++ )
+        for ( auto i = size_t(0); i < _weights.size1(); i++ )
         {
             _temp_sum = 0.f;
 
             _neon_temp_sum = vdupq_n_f32( 0.f );
 
-            for ( auto j = 0; j < tail_start; j+=4 )
+            for ( auto j = size_t(0); j < tail_start; j+=4 )
             {
                 float32x4_t _neon_a1x4 = simd_load( &_activations1[j] );
                 float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
@@ -146,13 +146,13 @@ void network_bnu_fast::feed_forward()
 		__m128 _mm_temp_sum;
 
 		// apply weights and bias, equivalent to MA + B computation
-		for ( auto i = 0; i < _weights.size1(); i++ )
+		for ( auto i = size_t(0); i < _weights.size1(); i++ )
 		{
 			_temp_sum = 0.f;
 
 			_mm_temp_sum = _mm_setzero_ps();
 
-			for ( auto j = 0; j < tail_start; j+=4 )
+			for ( auto j = size_t(0); j < tail_start; j+=4 )
 			{
 				__m128 _mm_a1x4 = simd_load( &_activations1[j] );
 				__m128 _mm_wx4 = simd_load( &_weights(i,j) );
@@ -183,21 +183,21 @@ void network_bnu_fast::back_propagate()
     // PREREQUISITE : FEED FORWARD PASS
 
     // Output layer error vector
-    layer_bnu& output_layer = m_layers.back();
+    auto& output_layer = m_layers.back();
     output_layer.errors() = bnu::element_prod(
             bnu::element_prod(  output_layer.activations(),
                                 ( bnu::scalar_vector<float>( output_layer.activations().size(), 1.f ) - output_layer.activations() ) ),
             ( output_layer.activations() - m_training_output ) );
 
 	// Hidden layers error vectors
-    for ( size_t c=m_layers.size()-2; c>0; c-- )
+    for ( auto c = static_cast<int>( m_layers.size()-2 ); c > 0; c-- )
     {
-        matrixF& _weights = m_layers[c].weights();
-        vectorF& _activations = m_layers[c].activations();
-        vectorF& _errors1 = m_layers[c].errors();
-        vectorF& _errors2 = m_layers[c+1].errors();
+        auto& _weights = m_layers[c].weights();
+        auto& _activations = m_layers[c].activations();
+        auto& _errors1 = m_layers[c].errors();
+        auto& _errors2 = m_layers[c+1].errors();
 
-		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+		auto tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
 		// NB : still, the following section seems to remain slightly slower than the regular for loop...
 		// It is kept in place for further simd optimizations on avx/armv8 platforms
@@ -205,15 +205,16 @@ void network_bnu_fast::back_propagate()
 #ifdef __arm__
 
 		float32x4_t _neon_temp_sum;
-		float32x4_t _neon_one = vdupq_n_f32( 1.f );
+		// not used since we use vmlsq intrinsic to compute a*(1-a)=a-a^2
+		//float32x4_t _neon_one = vdupq_n_f32( 1.f );
 
-		for ( auto j = 0; j < tail_start; j+=4 )
+		for ( auto j = size_t(0); j < tail_start; j+=4 )
 		{
 			_neon_temp_sum = vdupq_n_f32( 0.f );
 
 			float32x4_t _neon_ax4 = simd_load( &_activations[j] );
 
-			for ( auto i = 0; i < _weights.size1(); i++ )
+			for ( auto i = size_t(0); i < _weights.size1(); i++ )
 			{
 				float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
 				_neon_temp_sum = vmlaq_f32( _neon_temp_sum, _neon_wx4, vdupq_n_f32( _errors2[i] ) );
@@ -231,7 +232,7 @@ void network_bnu_fast::back_propagate()
 		{
 			_temp_sum = 0.f;
 
-			for ( auto i = 0; i < _weights.size1(); i++ )
+			for ( auto i = size_t(0); i < _weights.size1(); i++ )
 			{
 				_temp_sum += _weights(i,r) * _errors2[i];
 			}
@@ -243,13 +244,13 @@ void network_bnu_fast::back_propagate()
         __m128 _mm_temp_sum;
 		__m128 _mm_one = _mm_set1_ps( 1.f );
 
-        for ( auto j = 0; j < tail_start; j+=4 )
+        for ( auto j = size_t(0); j < tail_start; j+=4 )
         {
             _mm_temp_sum = _mm_setzero_ps();
 
 			__m128 _mm_ax4 = simd_load( &_activations[j] );
 
-            for ( auto i = 0; i < _weights.size1(); i++ )
+            for ( auto i = size_t(0); i < _weights.size1(); i++ )
             {
 				__m128 _mm_wx4 = simd_load( &_weights(i,j) );
 				_mm_temp_sum = _mm_add_ps( _mm_temp_sum, _mm_mul_ps( _mm_wx4, _mm_set1_ps( _errors2[i] ) ) );
@@ -267,7 +268,7 @@ void network_bnu_fast::back_propagate()
 		{
 			_temp_sum = 0.f;
 
-			for ( auto i = 0; i < _weights.size1(); i++ )
+			for ( auto i = size_t(0); i < _weights.size1(); i++ )
             {
                 _temp_sum += _weights(i,r) * _errors2[i];
 			}
@@ -279,21 +280,21 @@ void network_bnu_fast::back_propagate()
     }
 
     // Update gradients
-    for ( size_t c=0; c<m_layers.size()-1; c++ )
+    for ( auto c = size_t(0); c < m_layers.size()-1; c++ )
     {
-        matrixF& _w_deltas = m_layers[c].w_deltas();
-        vectorF& _activations = m_layers[c].activations();
-        vectorF& _errors = m_layers[c+1].errors();
+        auto& _w_deltas = m_layers[c].w_deltas();
+        auto& _activations = m_layers[c].activations();
+        auto& _errors = m_layers[c+1].errors();
 
-		size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
+		auto tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
 
 #ifdef __arm__
 
-		for ( auto k = 0; k < _w_deltas.size1(); k++ )
+		for ( auto k = size_t(0); k < _w_deltas.size1(); k++ )
 		{
 			float32x4_t _neon_ex4 = vdupq_n_f32( _errors[k] );
 
-			for ( auto l = 0; l < tail_start; l+=4 )
+			for ( auto l = size_t(0); l < tail_start; l+=4 )
 			{
 				float* p_w_deltas = &_w_deltas(k,l);
 
@@ -315,13 +316,13 @@ void network_bnu_fast::back_propagate()
 
 #elif __x86_64__
 
-        for ( auto k = 0; k < _w_deltas.size1(); k++ )
+        for ( auto k = size_t(0); k < _w_deltas.size1(); k++ )
         {
 			__m128 _mm_ex4 = _mm_set1_ps( _errors[k] );
 
-            for ( auto l = 0; l < _w_deltas.size2(); l+=4 )
+            for ( auto l = size_t(0); l < _w_deltas.size2(); l+=4 )
             {
-				float* p_w_deltas = &_w_deltas(k,l);
+				auto* p_w_deltas = &_w_deltas(k,l);
 
 				__m128 _mm_ax4 = simd_load( &_activations[l] );
 				__m128 _mm_wdx4 = simd_load( p_w_deltas );
@@ -351,20 +352,20 @@ void network_bnu_fast::gradient_descent()
 
     auto invm = 1.f / static_cast<float>( m_training_samples );
 
-    for ( size_t c=0; c<m_layers.size()-1; c++ ) // avoid output layer
+    for ( auto c = size_t(0); c < m_layers.size()-1; c++ ) // avoid output layer
     {
         //m_layers[c].weights() -= m_learning_rate * ( ( invm * m_layers[c].w_deltas() ) + ( m_weight_decay * m_layers[c].weights() ) );
 
-		matrixF& _weights = m_layers[c].weights();
-		matrixF& _w_deltas = m_layers[c].w_deltas();
+		auto& _weights = m_layers[c].weights();
+		auto& _w_deltas = m_layers[c].w_deltas();
 
-		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+		auto tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
 #ifdef __arm__
 
-		for ( auto i = 0; i < _weights.size1(); i++ )
+		for ( auto i = size_t(0); i < _weights.size1(); i++ )
 		{
-			for ( auto j = 0; j < _weights.size2(); j+=4 )
+			for ( auto j = size_t(0); j < _weights.size2(); j+=4 )
 			{
 				float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
 				float32x4_t _neon_wdx4 = simd_load( &_w_deltas(i,j) );
@@ -384,9 +385,9 @@ void network_bnu_fast::gradient_descent()
 
 #elif __x86_64__
 
-		for ( auto i = 0; i < _weights.size1(); i++ )
+		for ( auto i = size_t(0); i < _weights.size1(); i++ )
 		{
-			for ( auto j = 0; j < _weights.size2(); j+=4 )
+			for ( auto j = size_t(0); j < _weights.size2(); j+=4 )
 			{
 				__m128 _mm_wx4 = simd_load( &_weights(i,j) );
 				__m128 _mm_wdx4 = simd_load( &_w_deltas(i,j) );

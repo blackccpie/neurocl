@@ -97,8 +97,8 @@ public:
     {
         using namespace boost::python;
 
-		const tuple &shape_in = extract<tuple>( in.attr("shape") );
-		const tuple &shape_out = extract<tuple>( out.attr("shape") );
+		const tuple& shape_in = extract<tuple>( in.attr("shape") );
+		const tuple& shape_out = extract<tuple>( out.attr("shape") );
 
         int wi = extract<int>( shape_in[1] ); // cols
         int hi = extract<int>( shape_in[0] ); // rows
@@ -117,7 +117,7 @@ public:
 
         m_net_manager->compute_output( _sample );
 
-        for ( size_t i=0; i<wo*ho; i++ )
+        for ( auto i=0; i<wo*ho; i++ )
             out[i] = _out[i];
     }
 
