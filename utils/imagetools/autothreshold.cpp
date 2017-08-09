@@ -32,27 +32,28 @@ using namespace cimg_library;
 
 //************** WARNING : FOR NOW ONLY WORKS ON 0-256 DYNAMIC!!! **************//
 
+template<typename T>
+int default_isodata( const T* data, const int length );
 int isodata( int* data, const int length );
-int default_isodata( const unsigned long* data, const int length );
 
 void auto_threshold( float* input, const int sizeX, const int sizeY )
 {
     CImg<float> _input( input, sizeX, sizeY, 1, 1, true /*shared*/);
 
-    int threshold = default_isodata( _input.get_histogram(256), 256 );
+    int threshold = default_isodata<cimg_ulong>( _input.get_histogram(256), 256 );
     _input.threshold( threshold );
 }
 
 // One of the many autothreshold IJ implementations:
 // https://imagej.nih.gov/ij/developer/source/ij/process/AutoThresholder.java.html
 
-int default_isodata( const unsigned long* data, const int length )
+template<typename T>
+int default_isodata( const T* data, const int length )
 {
     int n = length;
     boost::shared_array<int> data2( new int[n] );
     int mode=0, maxCount=0;
     for (int i=0; i<n; i++) {
-        int count = data[i];
         data2[i] = std::round<int>( data[i] );
         if (data2[i]>maxCount) {
             maxCount = data2[i];
