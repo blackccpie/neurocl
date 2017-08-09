@@ -12,10 +12,10 @@
 		AD70772F1E75F0BA00885F2E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD70772D1E75F0BA00885F2E /* Main.storyboard */; };
 		AD7077311E75F0BA00885F2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD7077301E75F0BA00885F2E /* Assets.xcassets */; };
 		AD7077341E75F0BA00885F2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7077321E75F0BA00885F2E /* LaunchScreen.storyboard */; };
-		ADE069811E787A210022D8A2 /* neurocl_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE069801E787A210022D8A2 /* neurocl_frmk.framework */; };
-		ADE069831E787A470022D8A2 /* neurocl_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADE069801E787A210022D8A2 /* neurocl_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		ADE06A2A1E7899A70022D8A2 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */; };
-		ADE06A2B1E7899A70022D8A2 /* ccv_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ADDEC2A31E7B1C8000A2CE76 /* ccv_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDEC2A21E7B1C8000A2CE76 /* ccv_frmk.framework */; };
+		ADDEC2A51E7B1C8F00A2CE76 /* neurocl_frmk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDEC2A41E7B1C8F00A2CE76 /* neurocl_frmk.framework */; };
+		ADDEC2A61E7B1C9A00A2CE76 /* ccv_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADDEC2A21E7B1C8000A2CE76 /* ccv_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ADDEC2A71E7B1C9E00A2CE76 /* neurocl_frmk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ADDEC2A41E7B1C8F00A2CE76 /* neurocl_frmk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		ADE06A2D1E789BB30022D8A2 /* topology-mnist-kaggle.txt in Resources */ = {isa = PBXBuildFile; fileRef = ADE06A2C1E789BB30022D8A2 /* topology-mnist-kaggle.txt */; };
 		ADE06A2F1E789BCD0022D8A2 /* weights-mnist-kaggle.bin in Resources */ = {isa = PBXBuildFile; fileRef = ADE06A2E1E789BCD0022D8A2 /* weights-mnist-kaggle.bin */; };
 		ADE06A311E789C800022D8A2 /* neurocl.xml in Resources */ = {isa = PBXBuildFile; fileRef = ADE06A301E789C800022D8A2 /* neurocl.xml */; };
@@ -28,8 +28,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				ADE069831E787A470022D8A2 /* neurocl_frmk.framework in Embed Frameworks */,
-				ADE06A2B1E7899A70022D8A2 /* ccv_frmk.framework in Embed Frameworks */,
+				ADDEC2A71E7B1C9E00A2CE76 /* neurocl_frmk.framework in Embed Frameworks */,
+				ADDEC2A61E7B1C9A00A2CE76 /* ccv_frmk.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -44,9 +44,9 @@
 		AD7077301E75F0BA00885F2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AD7077331E75F0BA00885F2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AD7077351E75F0BA00885F2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADDEC2A21E7B1C8000A2CE76 /* ccv_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ccv_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Release-iphoneos/ccv_frmk.framework"; sourceTree = "<group>"; };
+		ADDEC2A41E7B1C8F00A2CE76 /* neurocl_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = neurocl_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Release-iphoneos/neurocl_frmk.framework"; sourceTree = "<group>"; };
 		ADE0697D1E7867070022D8A2 /* Neurocl-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Neurocl-Bridging-Header.h"; sourceTree = "<group>"; };
-		ADE069801E787A210022D8A2 /* neurocl_frmk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = neurocl_frmk.framework; path = "../../../../Library/Developer/Xcode/DerivedData/neurocl-abomlggczzmfsoharkaxpeqnppot/Build/Products/Debug-iphoneos/neurocl_frmk.framework"; sourceTree = "<group>"; };
-		ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ccv_frmk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADE06A2C1E789BB30022D8A2 /* topology-mnist-kaggle.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "topology-mnist-kaggle.txt"; path = "../../../nets/mnist/topology-mnist-kaggle.txt"; sourceTree = "<group>"; };
 		ADE06A2E1E789BCD0022D8A2 /* weights-mnist-kaggle.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = "weights-mnist-kaggle.bin"; path = "../../../nets/mnist/weights-mnist-kaggle.bin"; sourceTree = "<group>"; };
 		ADE06A301E789C800022D8A2 /* neurocl.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = neurocl.xml; sourceTree = "<group>"; };
@@ -57,8 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADE069811E787A210022D8A2 /* neurocl_frmk.framework in Frameworks */,
-				ADE06A2A1E7899A70022D8A2 /* ccv_frmk.framework in Frameworks */,
+				ADDEC2A51E7B1C8F00A2CE76 /* neurocl_frmk.framework in Frameworks */,
+				ADDEC2A31E7B1C8000A2CE76 /* ccv_frmk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,8 +102,8 @@
 		ADE0697A1E78637E0022D8A2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				ADE06A291E7899A70022D8A2 /* ccv_frmk.framework */,
-				ADE069801E787A210022D8A2 /* neurocl_frmk.framework */,
+				ADDEC2A41E7B1C8F00A2CE76 /* neurocl_frmk.framework */,
+				ADDEC2A21E7B1C8000A2CE76 /* ccv_frmk.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

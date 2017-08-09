@@ -101,14 +101,14 @@ void network_bnu_fast::feed_forward()
 {
     //LOGGER(info) << "network_bnu_fast::feed_forward( - " << m_layers.size() << " layers propagation" << std::endl;
 
-    for ( size_t c=0; c<m_layers.size()-1; c++ )
+    for ( auto c = size_t(0); c < m_layers.size()-1; c++ )
     {
         auto& _activations1 = m_layers[c].activations();
         auto& _activations2 = m_layers[c+1].activations();
         auto& _weights = m_layers[c].weights();
         auto& _bias = m_layers[c].bias();
 
-		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+		auto tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
         float _temp_sum;
 
@@ -117,13 +117,13 @@ void network_bnu_fast::feed_forward()
         float32x4_t _neon_temp_sum;
 
         // apply weights and bias, equivalent to MA + B computation
-        for ( auto i = 0; i < _weights.size1(); i++ )
+        for ( auto i = size_t(0); i < _weights.size1(); i++ )
         {
             _temp_sum = 0.f;
 
             _neon_temp_sum = vdupq_n_f32( 0.f );
 
-            for ( auto j = 0; j < tail_start; j+=4 )
+            for ( auto j = size_t(0); j < tail_start; j+=4 )
             {
                 float32x4_t _neon_a1x4 = simd_load( &_activations1[j] );
                 float32x4_t _neon_wx4 = simd_load( &_weights(i,j) );
@@ -190,14 +190,14 @@ void network_bnu_fast::back_propagate()
             ( output_layer.activations() - m_training_output ) );
 
 	// Hidden layers error vectors
-    for ( size_t c=m_layers.size()-2; c>0; c-- )
+    for ( auto c = static_cast<int>( m_layers.size()-2 ); c > 0; c-- )
     {
         auto& _weights = m_layers[c].weights();
         auto& _activations = m_layers[c].activations();
         auto& _errors1 = m_layers[c].errors();
         auto& _errors2 = m_layers[c+1].errors();
 
-		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+		auto tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
 		// NB : still, the following section seems to remain slightly slower than the regular for loop...
 		// It is kept in place for further simd optimizations on avx/armv8 platforms
@@ -205,7 +205,8 @@ void network_bnu_fast::back_propagate()
 #ifdef __arm__
 
 		float32x4_t _neon_temp_sum;
-		float32x4_t _neon_one = vdupq_n_f32( 1.f );
+		// not used since we use vmlsq intrinsic to compute a*(1-a)=a-a^2
+		//float32x4_t _neon_one = vdupq_n_f32( 1.f );
 
 		for ( auto j = size_t(0); j < tail_start; j+=4 )
 		{
@@ -285,7 +286,7 @@ void network_bnu_fast::back_propagate()
         auto& _activations = m_layers[c].activations();
         auto& _errors = m_layers[c+1].errors();
 
-		size_t tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
+		auto tail_start = _w_deltas.size2() - ( _w_deltas.size2() % 4 );
 
 #ifdef __arm__
 
@@ -321,7 +322,7 @@ void network_bnu_fast::back_propagate()
 
             for ( auto l = size_t(0); l < _w_deltas.size2(); l+=4 )
             {
-				float* p_w_deltas = &_w_deltas(k,l);
+				auto* p_w_deltas = &_w_deltas(k,l);
 
 				__m128 _mm_ax4 = simd_load( &_activations[l] );
 				__m128 _mm_wdx4 = simd_load( p_w_deltas );
@@ -358,7 +359,7 @@ void network_bnu_fast::gradient_descent()
 		auto& _weights = m_layers[c].weights();
 		auto& _w_deltas = m_layers[c].w_deltas();
 
-		size_t tail_start = _weights.size2() - ( _weights.size2() % 4 );
+		auto tail_start = _weights.size2() - ( _weights.size2() % 4 );
 
 #ifdef __arm__
 

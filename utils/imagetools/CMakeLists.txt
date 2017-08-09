@@ -55,6 +55,10 @@ set(ccv_libs
 )
 
 target_link_libraries(imagetools
+
+PRIVATE
+
 ${ccv_libs}
 X11
+
 )

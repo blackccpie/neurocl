@@ -1,5 +1,16 @@
 ### How to deploy OCR bundle on the raspberri pi
 
+#### Main package
+
+Upload & unzip the prebuilt binaries archive in the home directory :
+
+```shell
+$ cd
+$ tar -zxf neurocl_armv6_ocr.tgz
+```
+
+NOTE : the package is included in the git repository in the `neurocl/packages` directory.
+
 #### Dependencies
 
 Install picamera & microdotphat dependencies:
