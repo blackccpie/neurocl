@@ -115,11 +115,11 @@ void network_file_handler::load_network_topology( const std::string& topology_pa
                 	throw network_exception( "malformed line in topology file" );
             	}
 
-                int _idx = boost::lexical_cast<int>( split_vec[2] );
-                int _x = boost::lexical_cast<int>( split_vec[3] );
-                int _y = boost::lexical_cast<int>( split_vec[4] );
-                int _z = boost::lexical_cast<int>( split_vec[5] );
-                int _f = is_conv_layer ? boost::lexical_cast<int>( split_vec[6] ) : 0;
+                auto _idx = boost::lexical_cast<size_t>( split_vec[2] );
+                auto _x = boost::lexical_cast<size_t>( split_vec[3] );
+                auto _y = boost::lexical_cast<size_t>( split_vec[4] );
+                auto _z = boost::lexical_cast<size_t>( split_vec[5] );
+                auto _f = is_conv_layer ? boost::lexical_cast<int>( split_vec[6] ) : 0;
 
                 // for now index are supposed to be declared in increasing order...
                 if ( _idx != idx_layer )

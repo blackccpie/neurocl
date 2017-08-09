@@ -135,7 +135,7 @@ namespace raspicam {
         _impl->setVerticalFlip ( vFlip );
     }
 
-    
+
     RASPICAM_FORMAT RaspiCam::getFormat()const{return _impl->getFormat( ); }
     unsigned int RaspiCam::getWidth() const{return _impl->getWidth() ;}
     unsigned int RaspiCam::getHeight() const{return _impl->getHeight()  ;}
@@ -162,5 +162,4 @@ namespace raspicam {
     std::string RaspiCam::getId() const{return _impl->getId();}
 
 
-};
-
+}

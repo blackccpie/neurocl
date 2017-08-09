@@ -59,11 +59,11 @@ private:
 
 private:
 
-	T m_low_thresh;
-	T m_high_thresh;
-
 	unsigned int m_rows;
 	unsigned int m_columns;
+
+	T m_low_thresh;
+	T m_high_thresh;
 
 	boost::multi_array<int,2>  m_thetas;
 	boost::multi_array<T,2> m_mag_array;

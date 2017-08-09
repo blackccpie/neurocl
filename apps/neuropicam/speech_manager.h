@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "face_commons.h"
 
+#include <iostream>
 #include <string>
 
 #include <stdlib.h>
@@ -43,7 +44,7 @@ public:
 			+ message + std::string( "\";cd -" );
 
         // grab using raspistill utility
-        system( command.c_str() );
+        std::cout << "calling : " << command << " - returned : " << system( command.c_str() ) << std::endl;
     #endif
     }
 

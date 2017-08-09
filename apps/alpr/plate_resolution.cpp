@@ -62,8 +62,8 @@ const std::string plate_resolution::segment_status::identified_segment() const
 
 plate_resolution::plate_resolution( std::shared_ptr<neurocl::network_manager_interface> net_num,
                                     std::shared_ptr<neurocl::network_manager_interface> net_let )
-    :   m_net_num( net_num ), m_net_let( net_let ),
-        m_num_output( 10 ), m_let_output( 26 )
+    :   m_num_output( 10 ), m_let_output( 26 ),
+        m_net_num( net_num ), m_net_let( net_let )
 {
     _build_segments();
 }
@@ -110,7 +110,6 @@ void plate_resolution::_preprocess_candidate( cimg_library::CImg<float>& candida
 
 const plate_resolution::resolution_status plate_resolution::push_candidate( cimg_library::CImg<float>& candidate, const size_t segment_pos )
 {
-    bool separator = false;
     alphanum::data_type type = alphanum::data_type::UNKNOWN;
 
     if ( is_letter_pos( segment_pos ) )
@@ -182,6 +181,8 @@ const plate_resolution::resolution_status plate_resolution::push_candidate( cimg
         + std::to_string( candidate_max_comp_val );
     disp_image.draw_text( 5, 5, label.c_str(), green );
     disp_image.display();
+#else
+    std::cout << "CANDIDATE MAX COMP IDX: " << candidate_max_comp_idx << " VAL: " << candidate_max_comp_val << std::endl;
 #endif
 
     ++cur_retries;
@@ -223,4 +224,4 @@ const float plate_resolution::confidence( const size_t idx )
     return m_segment_status[idx].confidence();
 }
 
-}; //namespace alpr
+} //namespace alpr

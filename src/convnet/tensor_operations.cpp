@@ -359,13 +359,13 @@ tensor tensor_operation::convolve_add_forward<tensor_operation::kernel_mode::fli
     // is equal to input tensor feature maps level (prev_layer.d2);
     // whereas filter feature maps level is equal to output tensor feature maps level
 
-    for ( auto d2 = 0; d2 < filter.d2(); d2++ )
+    for ( auto d2 = size_t(0); d2 < filter.d2(); d2++ )
     {
-    	for ( auto d1 = 0; d1 < filter.d1(); d1++ )
+    	for ( auto d1 = size_t(0); d1 < filter.d1(); d1++ )
         {
-            for ( auto j=0; j<stepsY; j++ )
+            for ( auto j=size_t(0); j<stepsY; j++ )
             {
-                for ( auto i=0; i<stepsX; i++ )
+                for ( auto i=size_t(0); i<stepsX; i++ )
                 {
                     // multiply
                     noalias(conv) = element_prod( f.flipped( filter.m_tensor_array[d1][d2] ),
@@ -413,7 +413,7 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
 
     matrixF conv( filter.w(), filter.h() );
 
-    for ( auto d2 = 0; d2 < filter.d2(); d2++ )
+    for ( auto d2 = size_t(0); d2 < filter.d2(); d2++ )
     {
         // update padded matrix
         project(    padded_input.m_tensor_array[0][d2],
@@ -421,11 +421,11 @@ tensor tensor_operation::convolve_add_backward<tensor_operation::kernel_mode::st
                     range( _FmY, _FmY + input.h() ) )
             = input.m_tensor_array[0][d2];
 
-        for ( auto d1 = 0; d1 < filter.d1(); d1++ )
+        for ( auto d1 = size_t(0); d1 < filter.d1(); d1++ )
         {
-            for ( auto j=0; j<stepsY; j++ )
+            for ( auto j=size_t(0); j<stepsY; j++ )
             {
-                for ( auto i=0; i<stepsX; i++ )
+                for ( auto i=size_t(0); i<stepsX; i++ )
                 {
 					// multiply
                     noalias(conv) = element_prod( filter.m_tensor_array[d1][d2],
@@ -463,13 +463,13 @@ tensor tensor_operation::convolve_update<tensor_operation::kernel_mode::std,tens
 
     matrixF conv( input.w(), filter.h() );
 
-    for ( auto d1 = 0; d1 < input.d2(); d1++ )
+    for ( auto d1 = size_t(0); d1 < input.d2(); d1++ )
     {
-        for ( auto d2 = 0; d2 < filter.d2(); d2++ )
+        for ( auto d2 = size_t(0); d2 < filter.d2(); d2++ )
         {
-            for ( auto j=0; j<stepsY; j++ )
+            for ( auto j=size_t(0); j<stepsY; j++ )
             {
-                for ( auto i=0; i<stepsX; i++ )
+                for ( auto i=size_t(0); i<stepsX; i++ )
                 {
 					// multiply
                     noalias(conv) = element_prod( filter.m_tensor_array[0][d2],
@@ -513,8 +513,8 @@ tensor tensor_operation::subsample( const tensor& input, const size_t subsample 
                 // could use ublas::project + std::accumulate + std::max for more compact expression
 
                 // compute max in subsampling zone
-                for ( auto j =0; j<subsample; j++ )
-                	for ( auto i =0; i<subsample; i++ )
+                for ( auto j = size_t(0); j<subsample; j++ )
+                	for ( auto i = size_t(0); i<subsample; i++ )
                     {
                         const auto& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )
@@ -563,8 +563,8 @@ tensor tensor_operation::d_subsample( const tensor& input, const tensor& input_r
                 int max_offset = 0;
 
                 // compute max in subsampling zone
-                for ( auto j =0; j<subsample; j++ )
-                	for ( auto i =0; i<subsample; i++ )
+                for ( auto j = size_t(0); j<subsample; j++ )
+                	for ( auto i = size_t(0); i<subsample; i++ )
                     {
                         const auto& value = *(prev_it2 + i + (j*prev_width) );
                         if ( value > max_value )

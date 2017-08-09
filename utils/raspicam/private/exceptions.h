@@ -1,9 +1,9 @@
 /**********************************************************
- Software developed by AVA ( Ava Group of the University of Cordoba, ava  at uco dot es) 
+ Software developed by AVA ( Ava Group of the University of Cordoba, ava  at uco dot es)
  Main author Rafael Munoz Salinas (rmsalinas at uco dot es)
  This software is released under BSD license as expressed below
 -------------------------------------------------------------------
-Copyright (c) 2013, AVA ( Ava Group University of Cordoba, ava  at uco dot es) 
+Copyright (c) 2013, AVA ( Ava Group University of Cordoba, ava  at uco dot es)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -16,9 +16,9 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. All advertising materials mentioning features or use of this software
    must display the following acknowledgement:
-   
+
    This product includes software developed by the Ava group of the University of Cordoba.
-   
+
 4. Neither the name of the University nor the names of its contributors
    may be used to endorse or promote products derived from this software
    without specific prior written permission.
@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _RaspiCam__Exceptions_h
 #define _RaspiCam__Exceptions_h
 #include <string>
-#include <fstream> 
+#include <fstream>
 #include <cstdarg>
 namespace raspicam {
 
@@ -47,7 +47,7 @@ namespace raspicam {
  */
 class   Exceptions {
 public:
-    static const int Generic=81799; 
+    static const int Generic=81799;
 };
 
 
@@ -110,5 +110,5 @@ private:
     }
 };
 
-};
+}
 #endif

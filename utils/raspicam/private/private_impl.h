@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mutex>
 #include <string>
 #include "raspicamtypes.h"
-#include "private_types.h" 
+#include "private_types.h"
 #include "threadcondition.h"
 namespace raspicam {
     namespace _private
@@ -272,9 +272,7 @@ namespace raspicam {
 
 
         };
-    };
-};
+    }
+}
 
 #endif
-
-

@@ -66,7 +66,7 @@ namespace raspicam {
         RASPICAM_EXPOSURE_FIXEDFPS,
         RASPICAM_EXPOSURE_ANTISHAKE,
         RASPICAM_EXPOSURE_FIREWORKS
-    }  ;
+    };
 
     /**Auto white balance types
      */
@@ -127,6 +127,5 @@ namespace raspicam {
         RASPICAM_ENCODING_RGB
     } RASPICAM_ENCODING;
 
-};
+}
 #endif
-

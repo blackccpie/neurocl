@@ -95,7 +95,6 @@ int isodata( int* data, const int length )
         return level;
     }
     int movingIndex = min;
-    int inc = std::max<int>(max/40, 1);
     do {
         sum1=sum2=sum3=sum4=0.0;
         for (int i=min; i<=movingIndex; i++) {

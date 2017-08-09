@@ -129,6 +129,8 @@ protected:
 
 private:
 
+    const std::string m_name;
+
     float m_dropout;
 
     std::shared_ptr<layer> m_prev_layer;
@@ -136,8 +138,6 @@ private:
     tensor m_feature_maps;
     tensor m_error_maps;
     tensor m_mask;
-
-    const std::string m_name;
 };
 
 } /*namespace neurocl*/ } /*namespace convnet*/

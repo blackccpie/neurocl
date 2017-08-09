@@ -57,11 +57,11 @@ namespace tensor_activations {
     class softmax_base;
 }
 
-#define tensor_foreach() for ( auto d1 = 0; d1 < m_depth1; d1++ ) \
-                            for ( auto d2 = 0; d2 < m_depth2; d2++ )
+#define tensor_foreach() for ( auto d1 = size_t(0); d1 < m_depth1; d1++ ) \
+                            for ( auto d2 = size_t(0); d2 < m_depth2; d2++ )
 
-#define tensor_foreach_p(n1,n2) for ( auto d1 = 0; d1 < n1; d1++ ) \
-                            for ( auto d2 = 0; d2 < n2; d2++ )
+#define tensor_foreach_p(n1,n2) for ( auto d1 = size_t(0); d1 < n1; d1++ ) \
+                            for ( auto d2 = size_t(0); d2 < n2; d2++ )
 
 class NEUROCL_PUBLIC tensor
 {

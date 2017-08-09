@@ -469,8 +469,6 @@ void _main_live( raspicam::RaspiCam& camera, cimg_library::CImgDisplay& my_displ
     CImg<unsigned char> display_image;
 	cimg_library::CImg<unsigned char> input_image( IMAGE_SIZEX, IMAGE_SIZEY, 1, 3, true );
 
-    size_t i=0;
-
     do
     {
         if ( my_display.is_key( cimg::keyQ ) || my_display.is_key( cimg::keyESC ) )

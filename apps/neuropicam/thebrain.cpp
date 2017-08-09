@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 #include "thebrain.h"
 
-thebrain::thebrain() : m_current_compute_range( 0 ), m_current_face_type( 0 ), m_bStop( false )
+thebrain::thebrain() : m_bStop( false ), m_current_compute_range( 0 ), m_current_face_type( 0 )
 {
     m_speech_manager.speak( "Welcome in NeuroPiCam" );
     m_thread = std::make_shared<boost::thread>( std::bind( &thebrain::_run, this ) );

@@ -209,12 +209,12 @@ public:
             const matrixF& _prev_delta = prev_delta.c_m(d1,d2,{});
             matrixF& _output = output.m(d1,d2,{});
             size_t index1 = 0;
-            for ( auto i=0; i<_output.size1(); i++ )
-                for ( auto j=0; j<_output.size2(); j++ )
+            for ( auto i=size_t(0); i<_output.size1(); i++ )
+                for ( auto j=size_t(0); j<_output.size2(); j++ )
                 {
                     size_t index2 = 0;
-                    for ( auto p=0; p<_mdf.size1(); p++ )
-                        for ( auto q=0; q<_mdf.size2(); q++ )
+                    for ( auto p=size_t(0); p<_mdf.size1(); p++ )
+                        for ( auto q=size_t(0); q<_mdf.size2(); q++ )
                         {
                             _mdf(p,q) = ( index1 == index2 ) ? _df( _input(p,q) ) : -_input(p,q) * _input(i,j);
                             ++index2;

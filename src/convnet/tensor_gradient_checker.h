@@ -34,7 +34,7 @@ class tensor_gradient_checker
 {
 public:
     tensor_gradient_checker( tensor& weights, tensor& deltas )
-    	: m_index( 0 ), m_weights( weights ), m_deltas( deltas ), m_stored( 0.f )
+    	: m_weights( weights ), m_deltas( deltas ), m_index( 0 ), m_stored( 0.f )
     {
         m_weights.assert_same_size( m_deltas );
 

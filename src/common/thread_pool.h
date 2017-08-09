@@ -67,14 +67,14 @@ public:
     /**
      *  Get the number of threads in this pool
      */
-    inline unsigned size() const {
+    size_t size() const {
         return m_thread_count;
     }
 
     /**
      *  Get the number of jobs left in the queue.
      */
-    inline unsigned jobs_remaining() {
+    size_t jobs_remaining() {
         std::lock_guard<std::mutex> guard( m_queue_mutex );
         return m_queue.size();
     }
@@ -199,8 +199,6 @@ private:
 
 private:
 
-    size_t m_thread_count;
-
     std::vector<std::thread> m_threads;
     std::queue<std::function<void(void)>> m_queue;
 
@@ -210,6 +208,8 @@ private:
     std::condition_variable m_wait_var;
     std::mutex              m_jobs_left_mutex;
     std::mutex              m_queue_mutex;
+
+    const size_t m_thread_count;
 };
 
 } // namespace neurocl

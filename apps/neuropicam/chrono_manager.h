@@ -51,7 +51,6 @@ public:
 	const std::string summary()
 	{
 		std::string summary = "";
-		using labelled_ms_t = std::pair<std::string,int>;
 		for( const auto& lms : m_labelled_durations )
 		{
 			summary += "|";

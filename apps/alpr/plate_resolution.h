@@ -79,9 +79,6 @@ private:
             : retries(1), type( _type ), accumulated_scores( _scores_size ) { accumulated_scores.clear(); }
         segment_status( const segment_status& status )
             : retries( status.retries ), type( status.type ), accumulated_scores( status.accumulated_scores ) {}
-        alphanum::data_type type;
-        size_t retries;
-        vectorF accumulated_scores;
 
         const float confidence() const
         {
@@ -99,6 +96,10 @@ private:
         }
 
         const std::string identified_segment() const;
+
+        size_t retries;
+        alphanum::data_type type;
+        vectorF accumulated_scores;
     };
 
 private:
@@ -120,6 +121,6 @@ private:
     std::shared_ptr<neurocl::network_manager_interface> m_net_let;
 };
 
-}; //namespace alpr
+} //namespace alpr
 
 #endif //PLATE_RESOLUTION_H

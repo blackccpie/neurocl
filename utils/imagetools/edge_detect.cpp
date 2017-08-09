@@ -247,9 +247,9 @@ void canny<T>::_gaussian_blur( const CImg<T>& image_in, CImg<T>& image_out )
 	T gauss_divisor = 1.0/159.0;
 	T sum = 0.0;
 
-	for( int j=2; j < m_rows-2; j++ )
+	for( auto j=2U; j < m_rows-2; j++ )
 	{
-		for( int i=2; i < m_columns-2; i++ )
+		for( auto i=2U; i < m_columns-2; i++ )
 		{
 			sum = convolve<T,5>( image_in, gauss_array, gauss_divisor, i, j );
 			image_out(i,j) = sum;
@@ -278,9 +278,9 @@ void canny<T>::_sobel( CImg<T>& image )
 						{0, 0, 0, 0, 0},
 						{0, 0, 0, 0, 0} };
 
-	for ( int j = 1; j < m_rows-1; j++ )
+	for ( auto j = 1U; j < m_rows-1; j++ )
 	{
-		for ( int i = 1; i < m_columns-1; i++ )
+		for ( auto i = 1U; i < m_columns-1; i++ )
 		{
 			G_x = convolve<T,3>( image, sobel_x, 1, i, j );
 			G_y = convolve<T,3>( image, sobel_y, 1, i, j );
@@ -301,9 +301,9 @@ void canny<T>::_sobel( CImg<T>& image )
 template<typename T>
 void canny<T>::_no_max( CImg<T>& image )
 {
-	for( int j=1 ; j < m_rows-1 ; j++ )
+	for( auto j=1U ; j < m_rows-1 ; j++ )
 	{
-	    for( int i=1 ; i < m_columns-1 ; i++ )
+	    for( auto i=1U ; i < m_columns-1 ; i++ )
 		{
 			 	//std::cout << m_thetas[i][j] << std::endl;
 
@@ -370,9 +370,9 @@ void canny<T>::_hysteresis( CImg<T>& image )
 	bool greater_found;
 	bool between_found;
 
-	for( int j=2 ; j < m_rows-2 ; j++ )
+	for( auto j=2U ; j < m_rows-2 ; j++ )
 	{
-		for( int i=2 ; i < m_columns-2 ; i++ )
+		for( auto i=2U ; i < m_columns-2 ; i++ )
 		{
 			if( m_mag_array[i][j] < m_low_thresh )
 			{

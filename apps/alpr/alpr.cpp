@@ -209,7 +209,7 @@ void license_plate::_compute_distance_map()
     m_input_plate.draw_rectangle( 0, 0, m_input_plate.width(), m_input_plate.height(), black, 0.5f );
     std::string global_confidence = std::to_string( (int)( 100 * m_plate_resol.global_confidence() ) ) + "%%";
     m_input_plate.draw_text( 10, 10, global_confidence.c_str(), blue, 0, 1.f, 30 );
-    int idx = 0;
+    size_t idx = 0;
     for( const auto& interval : m_letter_intervals )
     {
         if ( idx >= plate.size() )
@@ -230,4 +230,4 @@ void license_plate::analyze()
     _compute_distance_map();
 }
 
-}; //namespace alpr
+} //namespace alpr
