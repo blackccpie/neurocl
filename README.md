@@ -10,6 +10,8 @@
 Neurocl (**Neuro** **C**omputing **L**ibrary) was meant to experiment various 'from scratch' implementations of neural network layer schemes, focusing on matrix expression of _feed forward_/_backward propagation_ steps.
 Initial release _v0.1_ only implemented Multi-Layer Perceptron (*MLP*) scheme, whereas _v0.2_ now incorporates a working Convolutional Neural Network (*CONVNET*) scheme.
 
+Neurocl is **C++11** compliant.
+
 There are two different **_MLP_** implementations in Neurocl : one using standard _Boost.ublas_ containers, and another one based on _VexCL_ containers.
 
 There is only one **_CONVNET_** implementation for now, based on a tensor abstraction class, using _Boost.ublas_ containers.
