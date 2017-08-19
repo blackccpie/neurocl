@@ -1,1 +1,2 @@
 utils/raspicam/* linguist-vendored
+cmake/cotire.cmake linguist-vendored
